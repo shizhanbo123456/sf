@@ -29,6 +29,7 @@ public class Tool:MonoBehaviour
     public static SubInput SubInput;
     public static UIEventCenter UIEventCenter;
     public static AttributesManager AttributesManager;
+    public static BulletManager BulletManager;
     [Space]
     public GameObject WindowsUI;
     public GameObject AndroidUI;

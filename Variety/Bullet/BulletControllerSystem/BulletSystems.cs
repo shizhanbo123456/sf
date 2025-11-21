@@ -72,7 +72,8 @@ public static class BulletStaticScaleChangeSystem
             if (Time.time > i.Value.lifeTime+i.Value.spawnTime) ToRemove.Add(i.Key);
             else
             {
-                i.Key.transform.localScale= Mathf.Lerp(i.Value.startScale,i.Value.endScale,(Time.time-i.Value.spawnTime)/i.Value.lifeTime)*Vector3.one;   
+                i.Key.transform.localScale= Mathf.Lerp(i.Value.startScale,i.Value.endScale,(Time.time-i.Value.spawnTime)/i.Value.lifeTime)*Vector3.one;
+                i.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -123,6 +124,7 @@ public static class BulletFollowSystem
                     continue;
                 }
                 i.Key.transform.position = t.transform.position;
+                i.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -174,6 +176,7 @@ public static class BulletAngleSystem
             {
                 i.Key.transform.position = (Time.time - i.Value.spawnTime) * i.Value.speed * 
                     BulletSystemCommon.AngleToVector(i.Value.faceRight ? i.Value.angle : 180 - i.Value.angle) + i.Value.startPos;
+                i.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -239,6 +242,7 @@ public static class BulletAngleNonFacingSystem
                 }
                 pair.Key.transform.position = pair.Value.posStart + (Time.time - pair.Value.spawnTime) *
                     pair.Value.speed * BulletSystemCommon.RadToVector(pair.Value.rad);
+                pair.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -297,6 +301,7 @@ public static class BulletDirSystem
                 Vector3 localPos = (Time.time - pair.Value.spawnTime) * pair.Value.speed * pair.Value.dir;
                 Vector3 worldPos = pair.Value.startPosition + (pair.Value.faceRight ? localPos :new Vector3(-localPos.x,localPos.y));
                 pair.Key.transform.position = worldPos;
+                pair.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -354,6 +359,7 @@ public static class BulletAimSystem
             else
             {
                 pair.Key.transform.position = pair.Value.startPos + (Time.time - pair.Value.spawnTime) * pair.Value.speed * pair.Value.dir;
+                pair.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -429,6 +435,7 @@ public static class BulletOrbitSystem
                 Vector3 worldPos = t.transform.position +
                                   (i.Value.faceRight ? localPos : new Vector3(-localPos.x,localPos.y));
                 i.Key.transform.position = worldPos;
+                i.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -485,6 +492,7 @@ public static class BulletOrbitWorldSystem
             {
                 Vector3 localPos = BulletSystemCommon.RadToVector(i.Value.radOffset + i.Value.spawntime * i.Value.radSpeed)* i.Value.radius;
                 i.Key.transform.position = i.Value.pos + localPos;
+                i.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -543,6 +551,7 @@ public static class BulletAimAwaitSystem
             {
                 if (Time.time > pair.Value.startMoveTime)
                     pair.Key.transform.position = pair.Value.startPos + (Time.time - pair.Value.startMoveTime) * pair.Value.speed * pair.Value.dir;
+                pair.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -598,6 +607,7 @@ public static class BulletFromToSystem
             {
                 float lerp = (Time.time - pair.Value.spawnTime) / (pair.Value.destroyTime - pair.Value.spawnTime);
                 pair.Key.transform.position = Vector3.LerpUnclamped(pair.Value.startPos, pair.Value.endPos, lerp);
+                pair.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -660,6 +670,7 @@ public static class BulletProectileAimSystem
             {
                 float t =Time.time - pair.Value.spawnTime;
                 pair.Key.transform.position = pair.Value.startPos+pair.Value.startVelocity*t+pair.Value.acceleration*(t*t);
+                pair.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
@@ -716,6 +727,7 @@ public static class BulletProectileSystem
             {
                 float t = Time.time - pair.Value.spawnTime;
                 pair.Key.transform.position = pair.Value.startPos + pair.Value.startVelocity * t + Vector3.down*(9.81f * t * t);
+                pair.Key.UpdateDetectors();
             }
         }
         if (ToRemove.Count > 0)
