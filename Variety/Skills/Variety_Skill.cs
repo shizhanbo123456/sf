@@ -79,7 +79,7 @@ namespace Variety.Base
         /// </summary>
         protected static Bullet GetBullet(int index)
         {
-            return UnityEngine.Object.Instantiate(Tool.PrefabManager.BulletList[index]).GetComponent<Bullet>();
+            return Tool.BulletManager.GetBullet(index);
         }
     }
 }
