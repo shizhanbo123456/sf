@@ -1,0 +1,17 @@
+public class Skill1 : SkillCD
+    {
+        public Skill1(Target t):base(t, Tool.VarietyManager.GetSkillIcon(0, 1))
+        {
+            Name = "霰弹";
+            Description = "向前发射三颗子弹，倍率0.6，耗魔10";
+            Tag = "平a";
+            TimeNeeded = 0.5f;
+            cost = 30;
+            CD = 20f;
+            storeTime = 1;//初始储存次数
+        }
+        protected override void OnUse()
+        {
+            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
+        }
+    }
