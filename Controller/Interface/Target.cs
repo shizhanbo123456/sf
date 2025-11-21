@@ -244,7 +244,8 @@ public abstract class Target : EnsBehaviour
     }
     protected virtual bool DamageByBullet(Bullet b)
     {
-        if (!b.CanDamage(GetId(), Camp)) return false;
+        if (b.CanDamage==null) return false;
+        if(!b.CanDamage.Invoke(this,b))return false;
 
         int d = b.FigureDamage(FloatingAttributes, out bool hit, out bool strike);
         ShowDamageText(d, hit, strike);
@@ -253,7 +254,6 @@ public abstract class Target : EnsBehaviour
         {
             OnHitBack(b);
             ApplyEffects(b);
-            ApplyMotion(b);
             Damaged(d);
         }
         return true;
@@ -296,21 +296,11 @@ public abstract class Target : EnsBehaviour
         }
     }
 
-    public virtual void OnHitBack(Bullet b)
+    protected virtual void OnHitBack(Bullet b)
     {
         if(controller!=null)controller.OnHitBack(b);
     }
-    public virtual void ApplyMotion(MotionBase m)
-    {
-        if(controller!=null)controller.ApplyMotion(m);
-    }
-    public virtual void ApplyMotion(Bullet b)
-    {
-        if (controller == null) return;
-        var func=b.GetMotionFunc();
-        if(func!=null)controller.ApplyMotion(func.Invoke(b.Shooter,this,b));
-    }
-    public virtual void ApplyEffects(Bullet b)
+    protected virtual void ApplyEffects(Bullet b)
     {
         if (effectController == null) return;
         var ec = b.GetEffects();
@@ -321,6 +311,10 @@ public abstract class Target : EnsBehaviour
                 effectController.AddEffect(i);
             }
         }
+    }
+    public virtual void ApplyMotion(MotionBase m)
+    {
+        if(controller!=null)controller.ApplyMotion(m);
     }
     public virtual void ApplyEffect(EffectBase e)
     {

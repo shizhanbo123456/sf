@@ -189,11 +189,10 @@ public abstract class TargetController : MonoBehaviour
 
     public virtual bool OnHitBack(Bullet b)
     {
-        b.GetHitBackInfo(out var liftStoicLevel, out var hitbackForce);
         int hitbackResist = target.DedicatedAttributes.Kangjitui.Value;
         if (InHitDuration) hitbackResist = 0;
         else if (Motion != null&&Motion.ActiveAdded) hitbackResist = Mathf.Max(hitbackResist, Motion.StoicLevel);
-        if (liftStoicLevel > hitbackResist)
+        if (b.liftStoicLevel > hitbackResist)
         {
             if (Motion != null)
             {
@@ -203,7 +202,7 @@ public abstract class TargetController : MonoBehaviour
             target.skillController.Interrupt();
 
             var v =  new Vector2((transform.position.x > b.transform.position.x) ?0.5f:-0.5f, 1);
-            rb.velocity = v*hitbackForce;
+            rb.velocity += b.hitbackForce.Invoke(b.transform.position, transform.position);
 
             Resistance = MinResisiance;
             return true;

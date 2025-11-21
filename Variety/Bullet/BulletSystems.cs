@@ -24,6 +24,11 @@ public static class BulletStaticSystem
         obj.transform.position = pos;
         obj.transform.localScale *=radius;
         Collection.Add(obj, Time.time + lifeTime);
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
     public static void Update()
     {
@@ -32,7 +37,6 @@ public static class BulletStaticSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -64,6 +68,11 @@ public static class BulletStaticScaleChangeSystem
         obj.transform.position = BulletSystemCommon.CurrentShooter.transform.position;
         Collection.Add(obj, new ScaleChangeInfo(obj.transform.localScale.x,startradius,endradius,lifeTime));
         obj.transform.localScale *= startradius;
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
     public static void Update()
     {
@@ -80,7 +89,6 @@ public static class BulletStaticScaleChangeSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -109,6 +117,11 @@ public static class BulletFollowSystem
         obj.transform.position = BulletSystemCommon.CurrentShooter.transform.position;
         obj.transform.localScale *= radius;
         Collection.Add(obj, new FollowInfo(Time.time+lifeTime,followTarget.Camp,followTarget.ObjectId));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
     public static void Update()
     {
@@ -131,7 +144,6 @@ public static class BulletFollowSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -166,6 +178,11 @@ public static class BulletAngleSystem
         obj.transform.localScale *= radius;
         Collection.Add(obj, new AngleInfo(Time.time, lifeTime,BulletSystemCommon.CurrentShooter.transform.position ,
             speed, angle, BulletSystemCommon.CurrentShooter.FaceRight));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
     public static void Update()
     {
@@ -183,7 +200,6 @@ public static class BulletAngleSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -225,6 +241,11 @@ public static class BulletAngleNonFacingSystem
         obj.transform.localScale *= radius;
         obj.transform.position = BulletSystemCommon.CurrentShooter.transform.position;
         Collection.Add(obj, new AngleNonFacingInfo(Time.time + lifetime,speed,angle * Mathf.Deg2Rad,radius));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
 
     public static void Update()
@@ -249,7 +270,6 @@ public static class BulletAngleNonFacingSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -289,6 +309,11 @@ public static class BulletDirSystem
         obj.transform.localScale *= radius;
         obj.transform.position= BulletSystemCommon.CurrentShooter.transform.position;
         Collection.Add(obj, new DirInfo(Time.time + lifetime,speed,dir.normalized,radius));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
 
     public static void Update()
@@ -308,7 +333,6 @@ public static class BulletDirSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -349,8 +373,12 @@ public static class BulletAimSystem
             (aimAt - worldStartPos).normalized,
             worldStartPos
         ));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
     }
-
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
+    }
     public static void Update()
     {
         foreach (var pair in Collection)
@@ -366,7 +394,6 @@ public static class BulletAimSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -404,6 +431,11 @@ public static class BulletOrbitSystem
     private static readonly Dictionary<Bullet, OrbitInfo> Collection = new Dictionary<Bullet, OrbitInfo>();
     private static readonly List<Bullet> ToRemove = new List<Bullet>();
     private static Target t;
+    public static void RegistObject(Bullet obj, float scale, float lifetime, float radius,
+        float degreePerSec, float angleOffset)
+    {
+        RegistObject(obj, scale, lifetime, radius, degreePerSec, angleOffset, Vector3.zero);
+    }
     public static void RegistObject(Bullet obj, float scale, float lifetime, float radius, 
         float degreePerSec,float angleOffset,Vector3 offset)
     {
@@ -414,6 +446,11 @@ public static class BulletOrbitSystem
         obj.transform.position = worldPos;
         Collection.Add(obj, new OrbitInfo(Time.time + lifetime, angleOffset * Mathf.Deg2Rad,
             degreePerSec * Mathf.Deg2Rad, radius, offset,lifetime));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
 
     public static void Update()
@@ -442,7 +479,6 @@ public static class BulletOrbitSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -481,6 +517,11 @@ public static class BulletOrbitWorldSystem
         obj.transform.position = pos + localPos;
         Collection.Add(obj, new OrbitInfo(Time.time + lifetime, angleOffset * Mathf.Deg2Rad,
             degreePerSec * Mathf.Deg2Rad, radius, pos));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
 
     public static void Update()
@@ -499,7 +540,6 @@ public static class BulletOrbitWorldSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -540,8 +580,12 @@ public static class BulletAimAwaitSystem
             (aimAt - worldStartPos).normalized,
             worldStartPos
         ));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
     }
-
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
+    }
     public static void Update()
     {
         foreach (var pair in Collection)
@@ -558,7 +602,6 @@ public static class BulletAimAwaitSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -596,8 +639,12 @@ public static class BulletFromToSystem
             worldStartPos,
             worldEndPos
         ));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
     }
-
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
+    }
     public static void Update()
     {
         foreach (var pair in Collection)
@@ -614,7 +661,6 @@ public static class BulletFromToSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -659,8 +705,12 @@ public static class BulletProectileAimSystem
             startVelocity,
             acceleration
         ));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
     }
-
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
+    }
     public static void Update()
     {
         foreach (var pair in Collection)
@@ -677,7 +727,6 @@ public static class BulletProectileAimSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();
@@ -716,6 +765,11 @@ public static class BulletProectileSystem
             startPos,
             startVelocity
         ));
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
+    private static void ReleaseReference(Bullet b)
+    {
+        Collection.Remove(b);
     }
 
     public static void Update()
@@ -734,7 +788,6 @@ public static class BulletProectileSystem
         {
             foreach (var i in ToRemove)
             {
-                Collection.Remove(i);
                 i.DestroyBullet();
             }
             ToRemove.Clear();

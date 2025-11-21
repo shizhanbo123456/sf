@@ -14,8 +14,4 @@ public class PlayerSkillController : TargetSkillController
             if (Tool.SubInput.CanUseSkill(i))
                 UseSkill(i);
     }
-    public void UseSkillRpc(string index)
-    {
-        Skills[int.Parse(index)].UseSkill();
-    }
 }

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
-using Variety.Damageable;
 
 //可通过继承BulletBase发射子弹，继承HitEventBase实现命中事件，设置EffectCollection实现效果
 //技能中直接添加效果，使用 Local 版本

@@ -2,7 +2,6 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.PackageC
@@ -21,8 +20,14 @@ namespace Variety.Skill.PackageC
         {
             Target.ApplyMotion(new MotionStatic(0.2f, true, 1, true, true));
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1,0);
-            GetBullet(7).Init(new BulletFromTo(Target,0.5f,Target.transform.position+Vector3.up,Target.transform.position+Vector3.down+front*10,0.6f), new BulletDataSlight(Target, new Damage_Once(), 0.8f)).Shoot();
-            GetBullet(7).Init(new BulletFromTo(Target,0.5f,Target.transform.position+Vector3.down,Target.transform.position+Vector3.up+front*10,0.6f), new BulletDataSlight(Target, new Damage_Once(), 0.8f)).Shoot();
+            for(int i = 1; i >= -1; i -= 2)
+            {
+                var b = GetBullet(7);
+                b.Init(0.8f,liftstoiclevel:0);
+                BulletFromToSystem.RegistObject(b, 0.5f, 0.6f, Target.transform.position + Vector3.up*i, Target.transform.position + Vector3.down*i + front * 10);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
+            }
         }
     }
     public class Skill1 : SkillStorable
@@ -61,9 +66,14 @@ namespace Variety.Skill.PackageC
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
             var pos = Target.transform.position;
-            GetBullet(14).Init(new BulletProjectileAim(Target,1.5f,Target.transform.position,Vector3.up*5,pos+front*10,1,0.8f), new BulletDataCommon(Target, new Damage_Once(), 2.2f)).Shoot();
-            GetBullet(14).Init(new BulletProjectileAim(Target,1.5f,Target.transform.position,Vector3.zero,pos+front*10,1,0.8f), new BulletDataCommon(Target, new Damage_Once(), 2.2f)).Shoot();
-            GetBullet(14).Init(new BulletProjectileAim(Target,1.5f,Target.transform.position,Vector3.down*5,pos+front*10,1,0.8f), new BulletDataCommon(Target, new Damage_Once(), 2.2f)).Shoot();
+            for (int i = 1; i >= -1; i--)
+            {
+                var b = GetBullet(14);
+                b.Init(1.6f);
+                BulletProectileAimSystem.RegistObject(b, 0.8f, 1.5f, Target.transform.position,new Vector3(0,i*3), pos + front * 10, 1f);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
+            }
         }
     }
     public class Skill3 : SkillCD
@@ -81,8 +91,14 @@ namespace Variety.Skill.PackageC
         protected override void OnUse()
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
-            for(int i = 0;i<4;i++)
-                GetBullet(7).Init(new BulletOrbit(Target,10f,2,360,i*90,0.4f), new BulletDataCommon(Target, new Damage_Time(0.5f), 1.6f)).Shoot();
+            for (int i = 0; i < 4; i++)
+            {
+                var b = GetBullet(7);
+                b.Init(0.8f);
+                BulletOrbitSystem.RegistObject(b,0.4f,10f,2f,360,i*90);
+                BulletDamageTimeSystem.Regist(b,0.5f);
+                b.Shoot();
+            }
         }
     }
     public class Skill4 : SkillNonCD
@@ -147,8 +163,12 @@ namespace Variety.Skill.PackageC
                 int j = i;
                 AddEvent(j * 0.05f, new TimeLineData(Target,front,pos),(d) =>
                 {
-                    Vector3 start = new Vector3(d.index,0) + d.pos * offset[j] + Vector3.down * 2;
-                    GetBullet(7).Init(new BulletFromTo(d.Target, 0.5f, start,start + Vector3.up*10,0.3f), new BulletDataCommon(d.Target, new Damage_Once(), 0.3f)).Shoot();
+                    Vector3 start = new Vector3(d.index,0) + d.pos * offset[j] + Vector3.down * 2; 
+                    var b = GetBullet(7);
+                    b.Init(0.4f);
+                    BulletFromToSystem.RegistObject(b, 0.3f, 0.5f, start, start + Vector3.up * 10);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 });
             }
         }
@@ -167,7 +187,11 @@ namespace Variety.Skill.PackageC
         }
         protected override void OnUse()
         {
-            GetBullet(4).Init(new BulletStaticScaleChange(Target,0.5f,10), new BulletDataSlight(Target, new Damage_VFXOnly(), 0.8f)).Shoot();
+            var b = GetBullet(7);
+            b.Init(0.8f);
+            BulletStaticScaleChangeSystem.RegistObject(b,0,10,0.5f);
+            //BulletDamageTimeSystem.Regist(b, 0.5f);
+            b.Shoot();
             foreach (var i in Target.GetEnemyInRange(10, false))
             {
                 i.ApplyEffect(new BadLuck(Target, i, 20, 10f));
