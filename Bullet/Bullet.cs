@@ -20,74 +20,48 @@ public class Bullet : MonoBehaviour
     }
     [HideInInspector]public Target Shooter;
 
-    private BulletControllerBase BulletController;
     private BulletDataBase BulletData;
 
     private BulletParticleController particleController;
 
-    private Vector3 StartPosition;
-    private bool FaceRight;
-
-    private float ScaleFactor;
-
     public static Dictionary<int,Dictionary<int,Bullet>>Bullets = new Dictionary<int,Dictionary<int,Bullet>>();
 
-    public Bullet Init(BulletControllerBase bulletController,BulletDataBase bulletData)
+    public Bullet Init(BulletDataBase bulletData)
     {
-        Target owner = bulletController.shooter;
-        FaceRight = owner.FacingRight();
+        Target owner = bulletData.shooter;
         Shooter = owner;
 
-        BulletController = bulletController;
         BulletData = bulletData;
-
-        ScaleFactor=transform.localScale.x;
 
         particleController = GetComponent<BulletParticleController>();
         particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter));
         particleController.Stop();
 
-        if (BulletController.BulletMoveSpace == BulletControllerBase.MoveSpace.Local)
-            StartPosition = Shooter.transform.position + 
-                (FaceRight ? BulletController.GetPosition() : BulletController.GetPositionL());
-        transform.localScale = BulletController.GetScale() * ScaleFactor * Vector3.one;
-        UpdatePosition();
-
-        foreach (var i in collisionDetectors)
-        {
-            i.LastFramePos = i.transform.position;
-        }
+        UpdateDetectors();
         return this;
     }
     public void Shoot()
     {
         if(!Bullets.ContainsKey(Camp))Bullets.Add(Camp, new Dictionary<int, Bullet>());
         Bullets[Camp].Add(GetInstanceID(),this);
-
         particleController.Play();
-        Destroy(gameObject, BulletController.LifeTime);
     }
-    private void OnDestroy()
+    public void DestroyBullet()
     {
         Bullets[Camp].Remove(GetInstanceID());
         if (Bullets[Camp].Count==0)Bullets.Remove(Camp);
+        Destroy(gameObject);
     }
-    private void Update()
+    public void UpdateDetectors()
     {
-        BulletController.SpawnTime += Time.deltaTime;
-        if (Shooter == null) Destroy(gameObject);
-
         foreach (var i in collisionDetectors)
         {
             i.LastFramePos = i.transform.position;
         }
-        UpdatePosition();
-        
-        transform.localScale = BulletController.GetScale()*ScaleFactor * Vector3.one;
     }
-    private void UpdatePosition()
+    /*
+    public void UpdatePosition()
     {
-        if (BulletController is BulletStaticScaleChange) return;
         switch (BulletController.BulletMoveSpace)
         {
             case BulletControllerBase.MoveSpace.Local:
@@ -102,7 +76,7 @@ public class Bullet : MonoBehaviour
                 transform.position = BulletController.GetPosition();
                 break;
         }
-    }
+    }*/
 
     /// <summary>
     /// 对于中立物体或敌对boss，Camp填-1
@@ -123,5 +97,4 @@ public class Bullet : MonoBehaviour
     }
     public EffectCollection GetEffects()=> BulletData.Effects;
     public Func<Target, Target, Bullet, MotionBase> GetMotionFunc() => BulletData.ApplyMotion;
-
 }

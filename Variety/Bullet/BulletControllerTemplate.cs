@@ -299,9 +299,7 @@ namespace Variety.Template
     {
         private Vector3 startPos;
         private Vector3 startVelocity;
-        //private Vector3 endPos;
-        //private float hitTime;
-        private Vector3 acceleration; // 抛物线加速度
+        private Vector3 acceleration;
         private float radius;
 
         public BulletProjectileAim(Target t, float lifetime, Vector3 startPos, Vector3 startVelocity,Vector3 endPos, float hitTime, float radius) : base(t, lifetime, MoveSpace.World)
