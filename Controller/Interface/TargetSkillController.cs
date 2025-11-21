@@ -5,6 +5,7 @@ using Variety.Base;
 
 public class TargetSkillController : EnsBehaviour
 {
+    protected Target target;
     public List<SkillBase> Skills = new List<SkillBase>();
     private HashSet<int>UseSkillCommandBuffer=new HashSet<int>();
     private float TimeNeeded = 0;
@@ -15,6 +16,7 @@ public class TargetSkillController : EnsBehaviour
 
     public virtual void Init(Target data)
     {
+        target=data;
         Skills.Clear();
         var skills = Tool.VarietyManager.GetSkill(data);
         for (int i = 0; i < skills.Count; i++)
@@ -80,6 +82,7 @@ public class TargetSkillController : EnsBehaviour
     }
     private void UseSkillRpc(string index)
     {
+        BulletSystemCommon.CurrentShooter = target;
         Skills[int.Parse(index)].UseSkill();
     }
     public void Interrupt()

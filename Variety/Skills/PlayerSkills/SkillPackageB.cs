@@ -2,7 +2,6 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.PackageB
@@ -12,7 +11,7 @@ namespace Variety.Skill.PackageB
         public Skill0(Target t) : base(t, Tool.SpriteManager.SkillPackageB[0])
         {
             Name = "肘击";
-            Description = "前方小范围造成高额伤害,并获得幸运效果5s，耗魔10";
+            Description = "前方小范围造成高额伤害,并获得幸运效果3s，耗魔10";
             Tag = "平a";
             TimeNeeded = 0.5f;
             cost = 10;
@@ -20,7 +19,11 @@ namespace Variety.Skill.PackageB
         protected override void OnUse()
         {
             Target.effectController.AddEffect(new Luck(Target, Target, 20, 3));
-            GetBullet(11).Init(new BulletStatic(Target,0.3f,0.8f, Target.transform.position+(Target.FaceRight?new Vector3(2,0):new Vector3(-2,0))), new BulletDataCommon(Target, new Damage_Once(), 3.2f)).Shoot();
+            var b = GetBullet(11);
+            b.Init(2.2f);
+            BulletStaticSystem.RegistObject(b,0.8f,0.3f, Target.transform.position + (Target.FaceRight ? new Vector3(2, 0) : new Vector3(-2, 0)));
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
         }
     }
     public class Skill1 : SkillCD
@@ -39,7 +42,11 @@ namespace Variety.Skill.PackageB
         {
             Target.effectController.AddEffect(new DefenseBoost(Target, Target, 8f, 0.5f));
             Target.ApplyMotion(new MotionStatic(0.5f, true, 2, true, true));
-            GetBullet(6).Init(new BulletStaticScaleChange(Target,0.3f,2), new BulletDataStrike(Target, new Damage_Once(), 0.2f,12)).Shoot();
+            var b = GetBullet(6);
+            b.Init(0.2f,liftstoiclevel:2);
+            BulletStaticScaleChangeSystem.RegistObject(b,0,2,0.3f);
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
         }
     }
     public class Skill2 : SkillCD
@@ -56,10 +63,15 @@ namespace Variety.Skill.PackageB
         }
         protected override void OnUse()
         {
+            for(int i = 0; i >= -60; i -= 30)
+            {
+                var b = GetBullet(7);
+                b.Init(1.5f);
+                BulletAngleSystem.RegistObject(b,0.6f,1f,10,i);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
+            }
             Target.ApplyMotion(new MotionStatic(0.4f, true, 1, true, false));
-            GetBullet(7).Init(new BulletAngle(Target, 1, 10, 0, 0.6f), new BulletDataCommon(Target, new Damage_Once(), 1.5f)).Shoot();
-            GetBullet(7).Init(new BulletAngle(Target, 1, 10, -30, 0.6f), new BulletDataCommon(Target, new Damage_Once(), 1.5f)).Shoot();
-            GetBullet(7).Init(new BulletAngle(Target, 1, 10, -60, 0.6f), new BulletDataCommon(Target, new Damage_Once(), 1.5f)).Shoot();
         }
     }
     public class Skill3 : SkillCD
@@ -76,7 +88,11 @@ namespace Variety.Skill.PackageB
         }
         protected override void OnUse()
         {
-            GetBullet(4).Init(new BulletFollow(Target,15f,3f), new BulletDataSlight(Target, new Damage_Time(0.3f), 0.5f)).Shoot();
+            var b = GetBullet(4);
+            b.Init(0.5f,liftstoiclevel:0);
+            BulletFollowSystem.RegistObject(b,3f,15f,Target);
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
         }
     }
     public class Skill4 : SkillNonCD
@@ -103,7 +119,11 @@ namespace Variety.Skill.PackageB
             {
                 AddEvent(i * 0.1f,new TimeLineData(Target, Target.transform.position), (d) =>
                 {
-                    GetBullet(12).Init(new BulletFromTo(d.Target, 0.5f,d.pos+new Vector3(offset[d.index],5),d.pos+new Vector3(offset[d.index],-5),1.5f), new BulletDataCommon(d.Target, new Damage_Once(),2f)).Shoot();
+                    var b = GetBullet(12);
+                    b.Init(1.2f);
+                    BulletFromToSystem.RegistObject(b,0.5f,1.5f, d.pos + new Vector3(offset[d.index], 5), d.pos + new Vector3(offset[d.index], -5));
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 });
             }
         }

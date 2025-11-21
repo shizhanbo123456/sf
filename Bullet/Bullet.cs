@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
-using Variety.Damageable;
 
 
 public class Bullet : MonoBehaviour
@@ -15,15 +14,19 @@ public class Bullet : MonoBehaviour
     public List<BulletCollisionDetecter> collisionDetectors = new List<BulletCollisionDetecter>();
     private BulletParticleController particleController;
     [HideInInspector] public int bulletType;
+    // 对于中立物体或敌对boss，Camp填-1
     public int Camp=>Shooter.Camp;
     [HideInInspector]public Target Shooter;
 
 
-    public IDamageable DamageType;
     [HideInInspector]public float damageRate;
     [HideInInspector]public int liftStoicLevel;
     public EffectCollection Effects;
     public Func<Vector3,Vector3,Vector2> hitbackForce;//BulletPos,TargetPos,Power
+
+    public Action<Bullet> ReleaseBulletSystemReference;
+    public Action<Bullet> ReleaseDamageableReference;
+    public Func<Target, Bullet, bool> CanDamage;
 
     public void Init(float rate=1,int liftstoiclevel=1,EffectCollection ec=null, Func<Vector3, Vector3, Vector2>hitback=null)
     {
@@ -33,9 +36,9 @@ public class Bullet : MonoBehaviour
         if (hitback == null) hitbackForce = FigureHitBackForce;
         else hitbackForce = hitback;
     }
-    public void Shoot(Target shooter)
+    public void Shoot()
     {
-        Shooter = shooter;
+        Shooter = BulletSystemCommon.CurrentShooter;
 
         if (!particleController)particleController = GetComponent<BulletParticleController>();
         particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter));
@@ -48,6 +51,9 @@ public class Bullet : MonoBehaviour
     }
     public void DestroyBullet()
     {
+        ReleaseBulletSystemReference?.Invoke(this);
+        ReleaseDamageableReference?.Invoke(this);
+
         particleController.Stop();
 
         Bullets[Camp].Remove(GetInstanceID());
@@ -61,14 +67,6 @@ public class Bullet : MonoBehaviour
         {
             i.LastFramePos = i.transform.position;
         }
-    }
-    /// <summary>
-    /// 对于中立物体或敌对boss，Camp填-1
-    /// </summary>
-    public bool CanDamage(int id, int camp)
-    {
-        if (camp == Camp) return false;
-        return DamageType.OnDamage(id);
     }
     public int FigureDamage(DynamicAttributes defenser, out bool hit, out bool strike)//受击者数据
     {
