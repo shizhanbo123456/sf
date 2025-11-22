@@ -70,6 +70,13 @@ public static class BulletStaticScaleChangeSystem
         obj.transform.localScale *= startradius;
         obj.ReleaseBulletSystemReference = ReleaseReference;
     }
+    public static void RegistObject(Bullet obj, float startradius, float endradius, float lifeTime,Vector3 pos)
+    {
+        obj.transform.position = pos;
+        Collection.Add(obj, new ScaleChangeInfo(obj.transform.localScale.x, startradius, endradius, lifeTime));
+        obj.transform.localScale *= startradius;
+        obj.ReleaseBulletSystemReference = ReleaseReference;
+    }
     private static void ReleaseReference(Bullet b)
     {
         Collection.Remove(b);
@@ -546,7 +553,7 @@ public static class BulletOrbitWorldSystem
         }
     }
 }
-public static class BulletAimAwaitSystem
+public static class BulletDirAwaitSystem
 {
     private struct AimAwaitInfo
     {
@@ -569,7 +576,7 @@ public static class BulletAimAwaitSystem
     private static readonly Dictionary<Bullet, AimAwaitInfo> Collection = new Dictionary<Bullet, AimAwaitInfo>();
     private static readonly List<Bullet> ToRemove = new List<Bullet>();
 
-    public static void RegistObject(Bullet obj, float radius, float lifetime, float waitfor,Vector3 worldStartPos, float speed, Vector3 aimAt)
+    public static void RegistObject(Bullet obj, float radius, float lifetime, float waitfor,Vector3 worldStartPos, float speed, Vector3 dir)
     {
         obj.transform.localScale *= radius;
         obj.transform.position = worldStartPos;
@@ -577,7 +584,7 @@ public static class BulletAimAwaitSystem
             Time.time + lifetime,
             Time.time + waitfor,
             speed,
-            (aimAt - worldStartPos).normalized,
+            dir.normalized,
             worldStartPos
         ));
         obj.ReleaseBulletSystemReference = ReleaseReference;

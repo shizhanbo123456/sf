@@ -2,8 +2,8 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.Boss17
@@ -70,22 +70,11 @@ namespace Variety.Skill.Boss17
             {
                 foreach (var i in pos)
                 {
-                    var bullet = GetBullet(12); // 12:火球
-                    var trajectory = new BulletFromTo(
-                        d.Target,
-                        lifetime: 0.5f,
-                        start: i.Item1,
-                        end: i.Item2,
-                        radius: 0.6f
-                    );
-
-                    var data = new BulletDataCommon(
-                        d.Target,
-                        new Damage_Once(),
-                        2f
-                    );
-
-                    bullet.Init(trajectory, data).Shoot();
+                    var b = GetBullet(12);
+                    b.Init(2);
+                    BulletFromToSystem.RegistObject(b,0.6f,0.5f,i.Item1,i.Item2);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             });
         }
@@ -130,10 +119,11 @@ namespace Variety.Skill.Boss17
             {
                 foreach (var i in pos)
                 {
-                    var mine = GetBullet(6);
-                    var traj = new BulletStatic(d.Target, 1.5f, 2.5f, i);
-                    var data = new BulletDataCommon(d.Target, new Damage_Once(), 3f);
-                    mine.Init(traj, data).Shoot();
+                    var b = GetBullet(6);
+                    b.Init(3);
+                    BulletStaticSystem.RegistObject(b,2.5f,1.5f,i);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             });
         }
@@ -169,24 +159,13 @@ namespace Variety.Skill.Boss17
 
             Vector3 enemyPos = nearestEnemy.transform.position;
             WarningCircle.Warn(enemyPos, 3, 1);
-            AddEvent(1, (d) =>
+            AddEvent(1,new TimeLineData(Target,enemyPos), (d) =>
             {
-                var bullet = GetBullet(5); // 6:能量球(放射)
-                var trajectory = new BulletStatic(
-                    d.Target,
-                    5f,
-                    3f,
-                    enemyPos
-                );
-
-                var data = new BulletDataSlight(
-                    d.Target,
-                    new Damage_Time(0.3f),
-                    damagerate: 0.6f,
-                    ec: ec
-                );
-
-                bullet.Init(trajectory, data).Shoot();
+                var b = GetBullet(5);
+                b.Init(0.6f,liftstoiclevel:0,ec:ec);
+                BulletStaticSystem.RegistObject(b,3,5,d.pos);
+                BulletDamageTimeSystem.Regist(b,0.3f);
+                b.Shoot();
             });
         }
     }
@@ -221,34 +200,27 @@ namespace Variety.Skill.Boss17
                 var rb = enemy.GetComponent<Rigidbody2D>();
                 if (rb == null) continue;
 
-                Vector2 velocity = rb.velocity;
-                Vector3 dir = velocity.magnitude > 0.1f ? velocity : Vector3.right;
-                Vector3 side1 = new Vector2(-dir.y, dir.x);
-                Vector3 side2 = new Vector2(dir.y, -dir.x);
-
                 // 每侧发射5颗子弹
                 for (int i = 0; i < 5; i++)
                 {
                     float delay = i * 0.2f;
                     // 左侧弹幕
-                    AddEvent(5+delay, (d) =>
+                    AddEvent(5+delay,new TimeLineData(Target,rb.velocity), (d) =>
                     {
-                        var bullet = GetBullet(7); // 4:能量球
-                        var traj = new BulletFromTo(
-                            d.Target, 1, enemy.transform.position + side1 * 5, enemy.transform.position - side1 * 2, 0.4f);
+                        var dir=d.pos.magnitude > 0.1f ? d.pos.normalized : Vector3.right;
+                        Vector3 side1 = new Vector2(-dir.y, dir.x);
+                        Vector3 side2 = new Vector2(dir.y, -dir.x);
+                        var b = GetBullet(7);
+                        b.Init(0.6f);
+                        BulletFromToSystem.RegistObject(b,0.4f,1f,enemy.transform.position + side1 * 5, enemy.transform.position - side1 * 2);
+                        BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
 
-                        var data = new BulletDataSlight(Target, new Damage_Once(), 0.6f);
-
-                        bullet.Init(traj, data).Shoot();
-
-
-                        bullet = GetBullet(7); // 4:能量球
-                        traj = new BulletFromTo(
-                            d.Target, 1, enemy.transform.position + side2 * 5, enemy.transform.position - side2 * 2, 0.4f);
-
-                        data = new BulletDataSlight(Target, new Damage_Once(), 0.6f);
-
-                        bullet.Init(traj, data).Shoot();
+                        b = GetBullet(7);
+                        b.Init(0.6f);
+                        BulletFromToSystem.RegistObject(b, 0.4f, 1f, enemy.transform.position + side2 * 5, enemy.transform.position - side2 * 2);
+                        BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
                     });
                 }
             }
@@ -285,7 +257,11 @@ namespace Variety.Skill.Boss17
                 {
                     foreach (var enemy in enemies)
                     {
-                        GetBullet(7).Init(new BulletProjectileAim(d.Target, 2f, d.Target.transform.position, Vector3.up * 20, enemy.transform.position, 1.2f, 0.4f), new BulletDataCommon(d.Target, new Damage_Once(), 0.8f)).Shoot();
+                        var b = GetBullet(7);
+                        b.Init(0.8f);
+                        BulletProectileAimSystem.RegistObject(b,0.4f,2f, d.Target.transform.position, Vector3.up * 20, enemy.transform.position,1.2f);
+                        BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
                     }
                 });
             }

@@ -2,8 +2,8 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.Boss16
@@ -60,20 +60,11 @@ namespace Variety.Skill.Boss16
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    var bullet = GetBullet(4); // 4:能量球
-                    var trajectory = new BulletFromTo(
-                        d.Target,
-                        lifetime: 2f,
-                        enemyPos + Angle2Vector(i * 30 + 45) * 5, enemyPos - Angle2Vector(i * 30 + 45) * 5, 1.2f
-                    );
-
-                    var data = new BulletDataCommon(
-                        d.Target,
-                        new Damage_Once(),
-                        1.2f
-                    );
-
-                    bullet.Init(trajectory, data).Shoot();
+                    var b = GetBullet(4);
+                    b.Init(1.2f);
+                    BulletFromToSystem.RegistObject(b,1.2f,2f,enemyPos + Angle2Vector(i * 30 + 45) * 5, enemyPos - Angle2Vector(i * 30 + 45) * 5);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             });
         }
@@ -117,16 +108,11 @@ namespace Variety.Skill.Boss16
             {
                 foreach (var p in pos)
                 {
-                    var smoke = GetBullet(14); // 14:雾气
-                    var smokeTraj = new BulletStatic(
-                        d.Target, 3f, 4f, p
-                    );
-
-                    var data = new BulletDataSlight(
-                        d.Target, new Damage_Time(0.4f), 0.5f
-                    );
-
-                    smoke.Init(smokeTraj, data).Shoot();
+                    var b = GetBullet(14);
+                    b.Init(0.5f, liftstoiclevel: 0);
+                    BulletStaticSystem.RegistObject(b,3,4,p);
+                    BulletDamageTimeSystem.Regist(b,0.3f);
+                    b.Shoot();
                 }
             });
         }
@@ -164,16 +150,11 @@ namespace Variety.Skill.Boss16
             // 0.8秒后发射火球
             AddEvent(0.8f, (d) =>
             {
-                var bullet = GetBullet(12); // 12:火球
-                var trajectory = new BulletAim(d.Target,2,targetEnemy.transform.position,20,enemyPos,1.5f);
-
-                var data = new BulletDataCommon(
-                    d.Target,
-                    new Damage_Once(),
-                    3f
-                );
-
-                bullet.Init(trajectory, data).Shoot();
+                var b = GetBullet(12);
+                b.Init(3f, liftstoiclevel: 2);
+                BulletAimSystem.RegistObject(b,1.5f,2f,d.Target.transform.position,20,enemyPos);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
             });
         }
     }
@@ -218,15 +199,11 @@ namespace Variety.Skill.Boss16
             {
                 foreach (var p in pos)
                 {
-                    var bullet = GetBullet(6); // 6:能量球(放射)
-                    var trajectory = new BulletStaticWorldScaleChange(d.Target, 5f, 8,p);
-
-                    var data = new BulletDataSlight(
-                        d.Target,
-                        new Damage_Time(0.5f), 0f, ec
-                    );
-
-                    bullet.Init(trajectory, data).Shoot();
+                    var b = GetBullet(6);
+                    b.Init(0.2f,liftstoiclevel: 0,ec:ec);
+                    BulletStaticScaleChangeSystem.RegistObject(b,0,8,5,p);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             });
         }
@@ -263,23 +240,11 @@ namespace Variety.Skill.Boss16
                 {
                     foreach (var i in pos)
                     {
-                        var bullet = GetBullet(7); // 7:距离
-                        var trajectory = new BulletAim(
-                            d.Target,
-                            lifetime: 2f,
-                            worldStartPos: Target.transform.position,
-                            speed: 20f,
-                            aimAt: i,
-                            radius: 0.7f
-                        );
-
-                        var data = new BulletDataCommon(
-                            d.Target,
-                            new Damage_Once(),
-                            0.9f
-                        );
-
-                        bullet.Init(trajectory, data).Shoot();
+                        var b = GetBullet(7);
+                        b.Init(0.9f);
+                        BulletAimSystem.RegistObject(b,0.7f,2f,d.Target.transform.position,20,i);
+                        BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
                     }
                 });
             }

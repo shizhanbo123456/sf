@@ -141,8 +141,7 @@ namespace Variety.Skill.PackageA
                     var front = new Vector3(d.Target.FaceRight ? 1 : -1, 0);
                     var b = GetBullet(11);
                     b.Init(1.2f);
-                    BulletAimAwaitSystem.RegistObject(b, 0.4f, 1.6f, 0.6f, d.Target.transform.position - front * 2 + new Vector3(0, 1 - 0.5f * d.index),
-                        15, d.Target.transform.position + front * 2 + new Vector3(0, 1 - 0.5f * d.index));
+                    BulletDirAwaitSystem.RegistObject(b, 0.4f, 1.6f, 0.6f, d.Target.transform.position - front * 2 + new Vector3(0, 1 - 0.5f * d.index),15,front);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 });

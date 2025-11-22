@@ -2,8 +2,8 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.Boss14
@@ -57,16 +57,15 @@ namespace Variety.Skill.Boss14
             {
                 foreach (var enemy in enemies)
                 {
-                    var bullet = GetBullet(4);
-                    var trajectory = new BulletStatic(d.Target, 5f, 2f, enemy);
-                    var data = new BulletDataSlight(d.Target, new Damage_Time(0.2f), 0.1f, ec);
-                    bullet.Init(trajectory, data).Shoot();
+                    var b = GetBullet(4);
+                    b.Init(0.2f,ec:ec);
+                    BulletStaticSystem.RegistObject(b,5,2,enemy);
+                    BulletDamageTimeSystem.Regist(b,0.2f);
+                    b.Shoot();
                 }
             });
         }
     }
-
-    // 技能1：追踪式火球弹幕（自动瞄准最近敌人）
     public class Skill1 : SkillBoss
     {
         private Lantern lantern;
@@ -97,11 +96,12 @@ namespace Variety.Skill.Boss14
             {
                 AddEvent(wave * 0.6f, (d) => // 每0.6秒一波
                 {
-                    if (nearestEnemy == null) return;
-                    Vector3 enemyPos = nearestEnemy.transform.position;
-                    GetBullet(12).Init(
-                            new BulletAim(d.Target, 4f, Target.transform.position, 6f, enemyPos, 0.7f),
-                            new BulletDataCommon(d.Target, new Damage_Once(), 2.2f)).Shoot();
+                    if (nearestEnemy == null) return; 
+                    var b = GetBullet(12);
+                    b.Init(2.2f);
+                    BulletAimSystem.RegistObject(b,0.7f,4f,Target.transform.position,6f,nearestEnemy.transform.position);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 });
             }
         }
@@ -138,9 +138,11 @@ namespace Variety.Skill.Boss14
             {
                 for (int i = 0; i < 8; i++)
                 {
-                    GetBullet(4).Init(
-                        new BulletFromTo(d.Target, 0.5f,centerPos+Angle2Vector(i*45), centerPos + Angle2Vector(i * 45+180), 0.8f), 
-                        new BulletDataCommon(d.Target, new Damage_Once(), 3)).Shoot();
+                    var b = GetBullet(4);
+                    b.Init(3);
+                    BulletFromToSystem.RegistObject(b,0.8f,0.5f,centerPos+Angle2Vector(i*45), centerPos + Angle2Vector(i * 45+180));
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             });
         }
@@ -179,10 +181,11 @@ namespace Variety.Skill.Boss14
             {
                 foreach (var enemy in enemies)
                 {
-                    var bullet = GetBullet(16); // 16:烟火（特效）
-                    var trajectory = new BulletStatic(d.Target, 10f, 2f, enemy);
-                    var data = new BulletDataCommon(d.Target, new Damage_VFXOnly(), 0.5f,ec:ec); // 纯特效
-                    bullet.Init(trajectory, data).Shoot();
+                    var b = GetBullet(16);
+                    b.Init(0.2f,liftstoiclevel:0,ec:ec);
+                    BulletStaticSystem.RegistObject(b,2f,10f,enemy);
+                    BulletDamageTimeSystem.Regist(b,0.2f);
+                    b.Shoot();
                 }
             });
         }
@@ -224,7 +227,13 @@ namespace Variety.Skill.Boss14
             AddEvent(1f, (d) =>
             {
                 foreach(var i in pos)
-                    GetBullet(11).Init(new BulletStatic(d.Target, 0.5f, 2f, i), new BulletDataCommon(d.Target, new Damage_Once(), 2.4f)).Shoot();
+                {
+                    var b = GetBullet(11);
+                    b.Init(2.4f);
+                    BulletStaticSystem.RegistObject(b,2f,0.5f,i);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
+                }
             });
         }
     }

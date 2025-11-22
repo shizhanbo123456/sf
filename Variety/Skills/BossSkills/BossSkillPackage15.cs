@@ -2,8 +2,8 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.Boss15
@@ -61,19 +61,11 @@ namespace Variety.Skill.Boss15
                 for (int i = 0; i < 6; i++)
                 {
                     if (enemy == null) return;
-
-                    var bullet = GetBullet(4); // 4:ÄÜÁ¿Çò
-                    var trajectory = new BulletOrbitWorld(
-                            Target, 3f, enemyPos, 2.5f, 120f, i * 60f, 0.4f
-                        );
-
-                    var data = new BulletDataSlight(
-                            Target,
-                            new Damage_Time(0.4f),
-                            1.6f
-                        );
-
-                    bullet.Init(trajectory, data).Shoot();
+                    var b = GetBullet(4);
+                    b.Init(1.6f,liftstoiclevel:0);
+                    BulletOrbitWorldSystem.RegistObject(b,0.4f,7f,3f,120,i*60,enemyPos);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             }
         }
@@ -110,10 +102,11 @@ namespace Variety.Skill.Boss15
             // 1Ãëºó±¬Õ¨
             AddEvent(1f, (d) =>
             {
-                var bullet = GetBullet(11); // 11:±¬Õ¨
-                var trajectory = new BulletStatic(d.Target,0.5f,5f,enemyPos);
-                var data = new BulletDataCommon(d.Target,new Damage_Once(),5);
-                bullet.Init(trajectory, data).Shoot();
+                var b = GetBullet(11);
+                b.Init(5);
+                BulletStaticSystem.RegistObject(b,4f,0.5f,enemyPos);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
             });
         }
     }
@@ -152,21 +145,11 @@ namespace Variety.Skill.Boss15
             {
                 foreach (var i in pos)
                 {
-                    var bullet = GetBullet(4); // 14:ÎíÆø
-                    var trajectory = new BulletStatic(
-                        d.Target,
-                        6f,
-                        4,
-                        i);
-
-                    var data = new BulletDataAttract(
-                        d.Target,
-                        0.2f, // ÉËº¦¼ä¸ô
-                        0.1f,
-                        4
-                    );
-
-                    bullet.Init(trajectory, data).Shoot();
+                    var b = GetBullet(4);
+                    b.Init(0.2f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(4,b,t));
+                    BulletStaticSystem.RegistObject(b,6,4,i);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             });
         }
@@ -237,22 +220,10 @@ namespace Variety.Skill.Boss15
                     {
                         if (enemy == null) continue;
                         float angle = Dt2Degree(enemy.transform.position - Target.transform.position);
-                        var bullet = GetBullet(12); // 12:»ðÇò
-                        var trajectory = new BulletAngleNonFacing(
-                            d.Target,
-                            2f,
-                            15f,
-                            angle,
-                            0.8f
-                        );
-
-                        var data = new BulletDataSlight(
-                            d.Target,
-                            new Damage_Once(),
-                            0.6f
-                        );
-
-                        bullet.Init(trajectory, data).Shoot();
+                        var b = GetBullet(12);
+                        b.Init(0.6f,liftstoiclevel:0);
+                        BulletAngleNonFacingSystem.RegistObject(b,0.8f,2,15,angle);
+                        BulletDamageOnceSystem.Regist(b);
                     }
                 });
             }

@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
+using XLua.Cast;
 
 namespace Variety.Skill.Boss10
 {
     public class Skill0 : SkillBoss
     {
+        private static List<Vector3> startVelocity = new List<Vector3>()
+        {
+            new Vector3(0,4),
+            new Vector3(0,6),
+            new Vector3(0,9),
+        };
         public Skill0(Target t) : base(t)
         {
             Description = "";
@@ -21,9 +27,13 @@ namespace Variety.Skill.Boss10
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
-            GetBullet(14).Init(new BulletProjectile(Target, 3,new Vector3(0,5)+front*5, 0.8f), new BulletDataCommon(Target, new Damage_Once(), 1.2f)).Shoot();
-            GetBullet(14).Init(new BulletProjectile(Target, 3,new Vector3(0,4)+front*4, 0.8f), new BulletDataCommon(Target, new Damage_Once(), 1.2f)).Shoot();
-            GetBullet(14).Init(new BulletProjectile(Target, 3,new Vector3(0,6)+front*6, 0.8f), new BulletDataCommon(Target, new Damage_Once(), 1.2f)).Shoot();
+            foreach (var v in startVelocity) {
+                var b = GetBullet(16);
+                b.Init(1.2f);
+                BulletProectileSystem.RegistObject(b, 0.8f, 3f, Target.transform.position, v+front*5);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
+            }
         }
     }
     public class Skill1 : SkillBoss
@@ -41,7 +51,11 @@ namespace Variety.Skill.Boss10
             WarningCircle.Warn(Target.transform.position, 3, 1.2f);
             AddEvent(1.2f, (d) =>
             {
-                GetBullet(11).Init(new BulletStatic(d.Target,0.6f,3,d.Target.transform.position), new BulletDataCommon(d.Target, new Damage_Once(), 1.2f)).Shoot();
+                var b = GetBullet(11);
+                b.Init(1.2f);
+                BulletStaticSystem.RegistObject(b,3f,0.6f,d.Target.transform.position);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
                 Target.ApplyEffect(new AttackBoost(d.Target, Target, 0.3f, 10f));
             });
         }
@@ -66,11 +80,14 @@ namespace Variety.Skill.Boss10
             AddEvent(0.5f, (d) =>
             {
                 d.Target.ApplyMotion(new MotionStatic(0.5f, true, 1, true,true));
-                GetBullet(7).Init(new BulletAngle(d.Target, 1, 15, -15, 0.3f), new BulletDataCommon(d.Target, new Damage_Once(), 0.5f)).Shoot();
-                GetBullet(7).Init(new BulletAngle(d.Target, 1, 15, -30, 0.3f), new BulletDataCommon(d.Target, new Damage_Once(), 0.5f)).Shoot();
-                GetBullet(7).Init(new BulletAngle(d.Target, 1, 15, -45, 0.3f), new BulletDataCommon(d.Target, new Damage_Once(), 0.5f)).Shoot();
-                GetBullet(7).Init(new BulletAngle(d.Target, 1, 15, -60, 0.3f), new BulletDataCommon(d.Target, new Damage_Once(), 0.5f)).Shoot();
-                GetBullet(7).Init(new BulletAngle(d.Target, 1, 15, -75, 0.3f), new BulletDataCommon(d.Target, new Damage_Once(), 0.5f)).Shoot();
+                for(int i = -15; i >= -75; i -= 15)
+                {
+                    var b = GetBullet(7);
+                    b.Init(0.5f);
+                    BulletAngleSystem.RegistObject(b,0.3f,1f,15f,i);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
+                }
             });
         }
     }
@@ -86,8 +103,16 @@ namespace Variety.Skill.Boss10
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            GetBullet(7).Init(new BulletOrbit(Target,10,6,120,0,0.7f), new BulletDataCommon(Target, new Damage_Once(), 0.4f)).Shoot();
-            GetBullet(7).Init(new BulletOrbit(Target,10,6,120,180,0.7f), new BulletDataCommon(Target, new Damage_Once(), 0.4f)).Shoot();
+            var b = GetBullet(7);
+            b.Init(0.6f,liftstoiclevel:0);
+            BulletOrbitSystem.RegistObject(b,0.7f,10,6,120,0);
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
+            b = GetBullet(7);
+            b.Init(0.6f, liftstoiclevel: 0);
+            BulletOrbitSystem.RegistObject(b, 0.7f, 10, 6, 120, 180);
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
         }
     }
     public class Skill4 : SkillBoss
@@ -107,7 +132,13 @@ namespace Variety.Skill.Boss10
             AddEvent(1.2f, (d) =>
             {
                 for(int j=-4;j<5;j+=2)
-                    GetBullet(7).Init(new BulletProjectileAim(d.Target,2,d.Target.transform.position,new Vector3(0,j),d.Target.transform.position+front*10,1,0.7f), new BulletDataSlight(d.Target, new Damage_Once(), 0.5f)).Shoot();
+                {
+                    var b = GetBullet(7);
+                    b.Init(0.6f);
+                    BulletProectileAimSystem.RegistObject(b,0.7f,2f,d.Target.transform.position,new Vector3(0,j), d.Target.transform.position + front * 10,1.4f);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
+                }
             });
         }
     }
@@ -133,7 +164,11 @@ namespace Variety.Skill.Boss10
             {
                 d.Target.ApplyMotion(new MotionStatic(0.8f, true, 1, true, true));
                 var t = d.Target.GetNearestEnemy(99999, false);
-                GetBullet(7).Init(new BulletProjectileAim(d.Target,2,d.Target.transform.position,Vector3.down*10,t.transform.position,1f,3f), new BulletDataAttract(d.Target,0.2f,0.2f,15)).Shoot();
+                var b = GetBullet(5);
+                b.Init(0.6f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(15,b,t));
+                BulletProectileAimSystem.RegistObject(b,1f,3f, d.Target.transform.position, Vector3.down * 10, t.transform.position,2f);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
             });
         }
     }

@@ -48,11 +48,6 @@ public static class BulletDamageTimeSystem
         actionOnRelease: (dict) => dict.Clear()
     );
 
-    /// <summary>
-    /// 为子弹注册到时间伤害系统，并设置最小伤害间隔。
-    /// </summary>
-    /// <param name="b">要注册的子弹</param>
-    /// <param name="dt">最小伤害间隔（秒）</param>
     public static void Regist(Bullet b, float dt)
     {
         _damageDt[b]=dt;

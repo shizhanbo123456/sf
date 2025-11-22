@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.Common
@@ -90,25 +89,27 @@ namespace Variety.Skill.Common
             });
             AddEvent(2, new TimeLineData(Target,p),(d) =>
             {
-                foreach (var i in Pos1)
-                {
-                    GetBullet(0).Init(new BulletStatic(d.Target, 0.5f, 3, i + d.pos), new BulletDataCommon(d.Target, new Damage_Once(), 1.5f)).Shoot();
-                }
+                ShootAtPos(Pos1);
             });
             AddEvent(2.5f, new TimeLineData(Target, p), (d) =>
             {
-                foreach (var i in Pos2)
-                {
-                    GetBullet(0).Init(new BulletStatic(d.Target, 0.5f, 3, i + d.pos), new BulletDataCommon(d.Target, new Damage_Once(), 1.5f)).Shoot();
-                }
+                ShootAtPos(Pos1);
             });
             AddEvent(3, new TimeLineData(Target, p), (d) =>
             {
-                foreach (var i in Pos3)
-                {
-                    GetBullet(0).Init(new BulletStatic(d.Target, 0.5f, 3, i + d.pos), new BulletDataCommon(d.Target, new Damage_Once(), 1.5f)).Shoot();
-                }
+                ShootAtPos(Pos1);
             });
+        }
+        private void ShootAtPos(List<Vector3>pos)
+        {
+            foreach (var p in pos)
+            {
+                var b = GetBullet(0);
+                b.Init(1.5f);
+                BulletStaticSystem.RegistObject(b, 3f, 0.5f, p);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
+            }
         }
     }
 }

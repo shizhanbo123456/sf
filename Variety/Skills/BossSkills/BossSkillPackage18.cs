@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.Boss18
@@ -56,26 +55,14 @@ namespace Variety.Skill.Boss18
             // 生成3层能量环，逐层扩散
             for (int i = 0; i < 3; i++)
             {
-                float radius = 3f + (i * 2f); // 每层半径增加1单位
-                AddEvent(i * 0.8f, (d) =>
+                AddEvent(i * 0.8f,new TimeLineData(Target,i), (d) =>
                 {
-                    var bullet = GetBullet(6); // 6:能量球(放射)
-                    var trajectory = new BulletStaticWorldScaleChange(
-                        d.Target,
-                        lifetime: 1f,
-                        endRadius: radius,
-                        pos: enemyPos,
-                        startRadius: radius * 0.5f
-                    );
-
-                    var data = new BulletDataCommon(
-                        d.Target,
-                        new Damage_Once(),
-                        2,
-                        4f
-                    );
-
-                    bullet.Init(trajectory, data).Shoot();
+                    float radius = 3f + (d.index * 2f);
+                    var b = GetBullet(6);
+                    b.Init(4);
+                    BulletStaticScaleChangeSystem.RegistObject(b,radius*0.5f,radius,1f,enemyPos);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 });
             }
         }
@@ -117,23 +104,11 @@ namespace Variety.Skill.Boss18
                 {
                     foreach (var enemy in enemies)
                     {
-                        var bullet = GetBullet(16); // 16:烟火
-                        var trajectory = new BulletAim(
-                                Target,
-                                lifetime: 2f,
-                                worldStartPos: Target.transform.position,
-                                speed: 7f,
-                                aimAt: enemy,
-                                radius: 0.5f
-                            );
-
-                        var data = new BulletDataSlight(
-                                Target,
-                                new Damage_Once(),
-                                0.5f
-                            );
-
-                        bullet.Init(trajectory, data).Shoot();
+                        var b = GetBullet(16);
+                        b.Init(0.5f);
+                        BulletAimSystem.RegistObject(b,0.5f,2f,d.Target.transform.position,7f,enemy);
+                        BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
                     }
                 });
             }
@@ -163,42 +138,23 @@ namespace Variety.Skill.Boss18
 
         protected override void OnUseSkill()
         {
-            var enemies = Target.GetEnemyInRange();
-            if (enemies.Count == 0) return;
+            var e = Target.GetNearestEnemy();
 
-            // 计算敌人聚集中心
-            Vector3 centerPos = Vector3.zero;
-            foreach (var enemy in enemies) centerPos += enemy.transform.position;
-            centerPos /= enemies.Count;
+            WarningCircle.Warn(e.transform.position, 12f, 1.5f);
 
-            WarningCircle.Warn(centerPos, 12f, 1.5f);
-
-            // 1.5秒后生成禁锢场
-            AddEvent(1.5f, (d) =>
+            foreach (var enemy in Target.GetEnemyInRange())
             {
-                var field = GetBullet(4);
-                var trajectory = new BulletStaticWorldScaleChange(
-                    d.Target,
-                    lifetime: 6f,
-                    endRadius: 12f,
-                    pos: centerPos
-                );
-
-                var data = new BulletDataAttract(
-                    d.Target,
-                    damagedt: 0.5f,
-                    damagerate: 0.4f,
-                    attractPower: 12f
-                );
-
-                field.Init(trajectory, data).Shoot();
-
-                // 对范围内敌人施加眩晕
-                foreach (var enemy in d.Target.GetEnemyInRange())
-                {
-                    if (enemy == null) continue;
-                    enemy.ApplyEffect(new Stun(Target, enemy, 3f));
-                }
+                if (enemy == null) continue;
+                enemy.ApplyEffect(new Slowness(Target, enemy, 3, 3f));
+            }
+            // 1.5秒后生成禁锢场
+            AddEvent(1.5f, new TimeLineData(Target,e.transform.position),(d) =>
+            {
+                var b = GetBullet(4);
+                b.Init(0.2f, hitback: (b, t) => Bullet.HitBackBulletAttracitve(12,b,t));
+                BulletStaticScaleChangeSystem.RegistObject(b,0,12,6,d.pos);
+                BulletDamageTimeSystem.Regist(b,0.25f);
+                b.Shoot();
             });
         }
     }
@@ -239,21 +195,11 @@ namespace Variety.Skill.Boss18
                         Vector2 velocity = rb ? rb.velocity : Vector2.zero;
                         Vector3 trapPos = enemy.transform.position+(Vector3)rb.velocity;
 
-                        var explosion = GetBullet(11); // 11:爆炸
-                        var expTraj = new BulletStatic(
-                            d.Target,
-                            0.5f,
-                            2f,
-                            trapPos
-                        );
-
-                        var expData = new BulletDataStrike(
-                            d.Target,
-                            new Damage_Once(),
-                            2f
-                        );
-
-                        explosion.Init(expTraj, expData).Shoot();
+                        var b = GetBullet(11);
+                        b.Init(2,liftstoiclevel:2);
+                        BulletStaticSystem.RegistObject(b,2f,0.5f,trapPos);
+                        BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
                     }
                 });
             }
@@ -294,22 +240,11 @@ namespace Variety.Skill.Boss18
             {
                 foreach (var p in pos)
                 {
-                    var explosion = GetBullet(11);
-                    var expTraj = new BulletStatic(
-                        d.Target,
-                        0.5f,
-                        4f,
-                        p
-                    );
-
-                    var expData = new BulletDataCommon(
-                        d.Target,
-                        new Damage_Once(),
-                        2,
-                        ec:ec
-                    );
-
-                    explosion.Init(expTraj, expData).Shoot();
+                    var b = GetBullet(11);
+                    b.Init(2, ec:ec);
+                    BulletStaticSystem.RegistObject(b, 4f, 0.5f,p);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 }
             });
         }
