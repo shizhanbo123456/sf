@@ -2,8 +2,8 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Variety.Base;
-using Variety.Damageable;
 using Variety.Template;
 
 namespace Variety.Skill.Boss5
@@ -37,14 +37,20 @@ namespace Variety.Skill.Boss5
             var t = Target.GetNearestEnemy(99999, false);
             var angle = Dt2Degree(t.transform.position - Target.transform.position);
 
-            GetBullet(7).Init(new BulletAngleNonFacing(Target, 10, 5, angle, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.3f)).Shoot();
-            for (int i = 1; i < 5; i++)
+            var b = GetBullet(7);
+            b.Init(0.3f,liftstoiclevel: 0);
+            BulletAngleNonFacingSystem.RegistObject(b,0.3f,5f,10f,angle);
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
+            for (int i = -4; i <=4; i++)
             {
-                int j = i;
-                AddEvent(0.1f * i, (d) =>
+                AddEvent(0.1f *Mathf.Abs(i),new TimeLineData(Target,i), (d) =>
                 {
-                    GetBullet(7).Init(new BulletAngleNonFacing(d.Target, 10, 5, angle+j*5, 0.3f), new BulletDataSlight(d.Target, new Damage_Once(), 0.3f)).Shoot();
-                    GetBullet(7).Init(new BulletAngleNonFacing(d.Target, 10, 5, angle-j*5, 0.3f), new BulletDataSlight(d.Target, new Damage_Once(), 0.3f)).Shoot();
+                    var b = GetBullet(7);
+                    b.Init(0.3f,  liftstoiclevel: 0);
+                    BulletAngleNonFacingSystem.RegistObject(b,0.3f,5f,10f,angle+d.index*5);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 });
             }
         }
@@ -64,7 +70,11 @@ namespace Variety.Skill.Boss5
             for (int i = 0; i < 5; i++)
             {
                 float rad = (30 + i * 30)*Mathf.Deg2Rad;
-                GetBullet(7).Init(new BulletProjectile(Target, 3, new Vector3(Mathf.Cos(rad),Mathf.Sin(rad))*12, 1f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
+                var b = GetBullet(7);
+                b.Init(0.5f);
+                BulletProectileSystem.RegistObject(b,1f,3f,Target.transform.position,new Vector3(Mathf.Cos(rad),Mathf.Sin(rad))*12);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
             }
         }
     }
@@ -86,7 +96,13 @@ namespace Variety.Skill.Boss5
                 var p = d.Target.GetNearestEnemy(99999, false);
                 var angle= Dt2Degree(p.transform.position - Target.transform.position);
                 for(int offset=-10;offset<=10;offset++)
-                    GetBullet(7).Init(new BulletAngle(d.Target, 2, 15, angle , 0.3f), new BulletDataSlight(d.Target, new Damage_Once(), 0.5f)).Shoot();
+                {
+                    var b = GetBullet(7);
+                    b.Init(0.5f, liftstoiclevel: 0);
+                    BulletAngleSystem.RegistObject(b, 0.3f, 2f,15f, angle);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
+                };
             });
         }
     }
@@ -109,7 +125,13 @@ namespace Variety.Skill.Boss5
                 foreach (var i in list)
                 {
                     for(int j=0;j<4;j++)
-                        GetBullet(12).Init(new BulletOrbitWorld(d.Target, 7,i.transform.position, 4, 90,90*j,0.8f), new BulletDataCommon(d.Target, new Damage_Once(), 0.3f)).Shoot();
+                    {
+                        var b = GetBullet(12);
+                        b.Init(0.3f);
+                        BulletOrbitWorldSystem.RegistObject(b,0.8f,10f,4f,90,90*j,i.transform.position);
+                        BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
+                    }
                 }
             });
         }
@@ -141,7 +163,11 @@ namespace Variety.Skill.Boss5
             });
             AddEvent(1f, (d) =>
             {
-                GetBullet(11).Init(new BulletStatic(d.Target,0.3f,2.5f,v), new BulletDataCommon(d.Target, new Damage_Once(), 2.2f)).Shoot();
+                var b = GetBullet(7);
+                b.Init(2.2f);
+                BulletStaticSystem.RegistObject(b,2.5f,0.3f,v);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
             });
         }
     }
@@ -159,10 +185,13 @@ namespace Variety.Skill.Boss5
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for(int i = 0; i < 100; i++)
             {
-                int j = i;
-                AddEvent(j * 0.05f, (d) =>
+                AddEvent(i * 0.05f, new TimeLineData(Target,i),(d) =>
                 {
-                    GetBullet(7).Init(new BulletAngle(d.Target, 2, 20, 7*j, 0.3f), new BulletDataCommon(d.Target, new Damage_Once(), 0.9f)).Shoot();
+                    var b = GetBullet(7);
+                    b.Init(0.9f);
+                    BulletAngleSystem.RegistObject(b, 0.3f, 2f, 20f, 7 * d.index);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 });
             }
         }
