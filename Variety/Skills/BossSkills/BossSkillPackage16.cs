@@ -55,14 +55,14 @@ namespace Variety.Skill.Boss16
             if (nearestEnemy == null) return;
 
             Vector3 enemyPos = nearestEnemy.transform.position;
-            for (int i = 0; i < 4; i++) WarningRect.Warn(enemyPos + Angle2Vector(i * 30 + 45) * 5, enemyPos - Angle2Vector(i * 30 + 45) * 5,2.5f,0.5f);
-            AddEvent(0.5f, (d) =>
+            for (int i = 0; i < 4; i++) WarningRect.Warn(enemyPos + Angle2Vector(i * 30 + 45) * 10, enemyPos - Angle2Vector(i * 30 + 45) * 10,2.5f,0.5f);
+            AddEvent(0.5f,new TimeLineData(Target,enemyPos), (d) =>
             {
                 for (int i = 0; i < 4; i++)
                 {
                     var b = GetBullet(4);
                     b.Init(1.2f);
-                    BulletFromToSystem.RegistObject(b,1.2f,2f,enemyPos + Angle2Vector(i * 30 + 45) * 5, enemyPos - Angle2Vector(i * 30 + 45) * 5);
+                    BulletFromToSystem.RegistObject(b,1.2f,2f,d.pos + Angle2Vector(i * 30 + 45) * 10, d.pos - Angle2Vector(i * 30 + 45) * 10);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
@@ -94,27 +94,22 @@ namespace Variety.Skill.Boss16
         protected override void OnUseSkill()
         {
             var enemies = Target.GetEnemyInRange();
-            List<Vector3>pos=new List<Vector3>();
             foreach (var enemy in enemies)
             {
                 if (enemy == null) continue;
                 // 预测移动路径，在前方3单位生成陷阱
-                Vector3 trapPos = enemy.transform.position + (Vector3)enemy.GetComponent<Rigidbody2D>().velocity * 1.2f;
+                Vector3 trapPos = enemy.transform.position + (Vector3)enemy.GetComponent<Rigidbody2D>().velocity * 1.5f;
 
                 WarningCircle.Warn(trapPos, 4, 1f);
-                pos.Add(trapPos);
-            }
-            AddEvent(1f, (d) =>
-            {
-                foreach (var p in pos)
+                AddEvent(1f, new TimeLineData(Target,trapPos),(d) =>
                 {
                     var b = GetBullet(14);
                     b.Init(0.5f, liftstoiclevel: 0);
-                    BulletStaticSystem.RegistObject(b,3,4,p);
-                    BulletDamageTimeSystem.Regist(b,0.3f);
+                    BulletStaticSystem.RegistObject(b, 3, 4, d.pos);
+                    BulletDamageTimeSystem.Regist(b, 0.3f);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
 

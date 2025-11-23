@@ -19,7 +19,7 @@ namespace Variety.Skill.Boss9
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var t = Target.GetNearestEnemy(99999,false);
+            var t = Target.GetNearestEnemy();
             var d = Dt2Degree(t.transform.position - Target.transform.position);
             for(int offset = -15; offset <= 15; offset += 15)
             {
@@ -82,17 +82,18 @@ namespace Variety.Skill.Boss9
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var t = Target.GetNearestEnemy(99999, false);
+            var t = Target.GetNearestEnemy();
             var p = t.transform.position;
             WarningCircle.Warn(p, 3, 1);
-            AddEvent(1f, (d) =>
+            AddEvent(1f, new TimeLineData(Target,p),(d) =>
             {
                 for (int i = 0; i < 12; i++)
                 {
                     float j = i * 30 * Mathf.Deg2Rad;
                     var b = GetBullet(4);
                     b.Init(0.8f);
-                    BulletProectileAimSystem.RegistObject(b,0.4f,3f,d.Target.transform.position, new Vector3(Mathf.Cos(j), Mathf.Sin(j))*8, p, 1.5f);
+                    BulletProectileAimSystem.RegistObject(b,0.4f,3f,d.Target.transform.position, 
+                        new Vector3(Mathf.Cos(j), Mathf.Sin(j))*8, d.pos, 1.5f);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
@@ -116,31 +117,31 @@ namespace Variety.Skill.Boss9
             {
                 WarningRect.Warn(p + new Vector3(i * 5, 10), p + new Vector3(i * 5, -30), 5, 1);
             }
-            AddEvent(1f, (d) =>
+            AddEvent(1f, new TimeLineData(Target,p),(d) =>
             {
                 for(int i = -7; i <= 7; i += 2)
                 {
                     var b = GetBullet(12);
                     b.Init(1.2f);
-                    BulletFromToSystem.RegistObject(b,1.5f,4f,p + new Vector3(i * 5, 10), p + new Vector3(i * 5, -30));
+                    BulletFromToSystem.RegistObject(b,1.5f,4f,d.pos + new Vector3(i * 5, 10), d.pos + new Vector3(i * 5, -30));
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
             });
-            AddEvent(2f, (d) =>
+            AddEvent(2f,new TimeLineData(Target,p),(d) =>
             {
                 for (int i = -8; i <= 8; i += 2)
                 {
-                    WarningRect.Warn(p + new Vector3(i * 5, 10), p + new Vector3(i * 5, -30), 5, 1);
+                    WarningRect.Warn(d.pos + new Vector3(i * 5, 10), d.pos + new Vector3(i * 5, -30), 5, 1);
                 }
             });
-            AddEvent(3f, (d) =>
+            AddEvent(3f, new TimeLineData(Target,p),(d) =>
             {
                 for (int i = -8; i <= 8; i+=2)
                 {
                     var b = GetBullet(12);
                     b.Init(1.2f);
-                    BulletFromToSystem.RegistObject(b, 1.5f, 4f, p + new Vector3(i * 5, 10), p + new Vector3(i * 5, -30));
+                    BulletFromToSystem.RegistObject(b, 1.5f, 4f, d.pos + new Vector3(i * 5, 10), d.pos + new Vector3(i * 5, -30));
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
@@ -202,7 +203,7 @@ namespace Variety.Skill.Boss9
                         j.ApplyEffect(new DamageBoost(i, j, 40, 10));
                     }
                 }
-                var c = d.Target.GetEnemyInRange(99999, false);
+                var c = d.Target.GetEnemyInRange();
                 foreach (var i in c) i.ApplyEffect(new Freeze(d.Target, i, 2));
                 var b = GetBullet(3);
                 b.Init(32f);

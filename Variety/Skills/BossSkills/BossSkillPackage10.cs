@@ -30,7 +30,7 @@ namespace Variety.Skill.Boss10
             foreach (var v in startVelocity) {
                 var b = GetBullet(16);
                 b.Init(1.2f);
-                BulletProectileSystem.RegistObject(b, 0.8f, 3f, Target.transform.position, v+front*5);
+                BulletProectileSystem.RegistObject(b, 0.8f, 3f, Target.transform.position, v+front*20);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
             }
@@ -129,13 +129,13 @@ namespace Variety.Skill.Boss10
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
             WarningRect.Warn(Target.transform.position, Target.transform.position + front * 20, 4, 1.2f);
-            AddEvent(1.2f, (d) =>
+            AddEvent(1.2f,new TimeLineData(Target, Target.transform.position + front * 20) ,(d) =>
             {
-                for(int j=-4;j<5;j+=2)
+                for(int j=0;j<5;j++)
                 {
                     var b = GetBullet(7);
                     b.Init(0.6f);
-                    BulletProectileAimSystem.RegistObject(b,0.7f,2f,d.Target.transform.position,new Vector3(0,j), d.Target.transform.position + front * 10,1.4f);
+                    BulletProectileAimSystem.RegistObject(b,0.7f,2f,d.Target.transform.position,BulletSystemCommon.AngleToVector(j*72f)*20, d.pos,1.4f);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
@@ -157,16 +157,16 @@ namespace Variety.Skill.Boss10
             Target.ApplyMotion(new MotionDir(Vector2.up * 10, 1f, true, 1, true, true));
             AddEvent(1f, (d) =>
             {
-                var t = Target.GetNearestEnemy(99999, false);
+                var t = Target.GetNearestEnemy();
                 d.Target.ApplyMotion(new MotionDir((t.transform.position - d.Target.transform.position) * 4, 0.25f, true, 1, true, true));
             });
             AddEvent(1.25f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionStatic(0.8f, true, 1, true, true));
-                var t = d.Target.GetNearestEnemy(99999, false);
-                var b = GetBullet(5);
-                b.Init(0.6f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(15,b,t));
-                BulletProectileAimSystem.RegistObject(b,1f,3f, d.Target.transform.position, Vector3.down * 10, t.transform.position,2f);
+                d.Target.ApplyMotion(new MotionStatic(0.3f, true, 1, true, true));
+                var t = d.Target.GetNearestEnemy();
+                var b = GetBullet(11);
+                b.Init(4f);
+                BulletStaticSystem.RegistObject(b,3f,0.3f,d.Target.transform.position);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
             });

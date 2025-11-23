@@ -18,9 +18,27 @@ public class SpriteManager : MonoBehaviour
     [Space]
     [Header("Colors")]
     public List<Color> CampColors = new List<Color>();
-    public Color TargetToColor(Target t)
+    public List<Color> BulletColors1 = new List<Color>();
+    public List<Color> BulletColors2 = new List<Color>();
+    public List<Color> BulletColors3 = new List<Color>();
+    public enum ColorType
     {
-        if (t is PlayerData p) return CampColors[p.Camp];
+        Name,Bullet1,Bullet2,Bullet3
+    }
+    public Color TargetToColor(Target t,ColorType type=ColorType.Name)
+    {
+        if (t is PlayerData p) return GetByIndex(p.Camp,type);
+        return Color.white;
+    }
+    private Color GetByIndex(int index,ColorType t)
+    {
+        switch (t)
+        {
+            case ColorType.Name:return CampColors[index];
+            case ColorType.Bullet1:return BulletColors1[index];
+            case ColorType.Bullet2:return BulletColors2[index];
+            case ColorType.Bullet3:return BulletColors3[index];
+        }
         return Color.white;
     }
 }

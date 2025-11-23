@@ -141,8 +141,11 @@ public abstract class TargetController : MonoBehaviour
     private float jumpcd=-1;
     private void InputWalk(float x, bool jump)
     {
-        if(Motion==null)rb.velocity = new Vector2(x * MoveSpeed, rb.velocity.y);
-        else rb.velocity = new Vector2(x * MoveSpeed+rb.velocity.x, rb.velocity.y);
+        if (Motion == null) rb.velocity = new Vector2(x * MoveSpeed, rb.velocity.y);
+        else
+        {
+            rb.velocity = new Vector2(x * MoveSpeed + rb.velocity.x, rb.velocity.y);
+        }
         if (jump)
         {
             if (Time.time - jumpcd < 0.2f) return;
@@ -201,8 +204,7 @@ public abstract class TargetController : MonoBehaviour
             }
             target.skillController.Interrupt();
 
-            var v =  new Vector2((transform.position.x > b.transform.position.x) ?0.5f:-0.5f, 1);
-            rb.velocity += b.hitbackForce.Invoke(b.transform.position, transform.position);
+            rb.velocity = b.hitbackForce.Invoke(b.transform.position, transform.position);
 
             Resistance = MinResisiance;
             return true;

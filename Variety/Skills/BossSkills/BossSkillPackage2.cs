@@ -62,7 +62,7 @@ namespace Variety.Skill.Boss2
         }
         protected override void OnUseSkill()
         {
-            var t=Target.GetNearestEnemy(99999, false);
+            var t=Target.GetNearestEnemy();
             Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * 20, 1.5f, true, 1, true, true));
             var b = GetBullet(4);
             b.Init(2.5f);

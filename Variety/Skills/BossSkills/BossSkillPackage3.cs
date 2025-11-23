@@ -40,7 +40,7 @@ namespace Variety.Skill.Boss3
             {
                 AddEvent(i* 0.3f,new TimeLineData(Target,i), (d) =>
                 {
-                    var t = d.Target.GetNearestEnemy(99999, false);
+                    var t = d.Target.GetNearestEnemy();
                     Vector3 startpos = d.Target.transform.position + new Vector3(Mathf.Cos(d.index * 0.785f), Mathf.Sin(d.index * 0.785f) + 1) * 4;
                     var b = GetBullet(7);
                     b.Init(0.7f);
@@ -62,7 +62,7 @@ namespace Variety.Skill.Boss3
         }
         protected override void OnUseSkill()
         {
-            var t = Target.GetNearestEnemy(99999, false);
+            var t = Target.GetNearestEnemy();
             Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * -10, 1f, true, 1, true, true));
             var b = GetBullet(4);
             b.Init(2.5f);
@@ -97,7 +97,7 @@ namespace Variety.Skill.Boss3
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(4);
-            b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(10,b,t));
+            b.Init(0.1f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletStaticScaleChangeSystem.RegistObject(b,20,0,3f);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();

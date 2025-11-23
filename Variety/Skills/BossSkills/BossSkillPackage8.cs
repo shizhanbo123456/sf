@@ -24,7 +24,7 @@ namespace Variety.Skill.Boss8
                 }
             if (f)
             {
-                foreach(var i in target.GetEnemyInRange(99999, false))
+                foreach(var i in target.GetEnemyInRange())
                 {
                     i.ApplyEffect(new Speed(target, i, 6, 1));
                     i.ApplyEffect(new JumpBoost(target, i, 10, 1));
@@ -45,7 +45,7 @@ namespace Variety.Skill.Boss8
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var t = Target.GetNearestEnemy(99999, false);
+            var t = Target.GetNearestEnemy();
             Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * 20, 1f, true, 1, true, true));
             var b = GetBullet(4);
             b.Init(2f,liftstoiclevel:0);
@@ -71,14 +71,14 @@ namespace Variety.Skill.Boss8
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(5);
-            b.Init(0.05f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(7,b,t));
+            b.Init(0.05f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletStaticScaleChangeSystem.RegistObject(b,5f,2f,1f);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
             AddEvent(1, (d) =>
             {
                 var b = GetBullet(5);
-                b.Init(0.05f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(8,b,t));
+                b.Init(0.05f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
                 BulletAngleSystem.RegistObject(b,2f,1f,10f,-90);
                 BulletDamageTimeSystem.Regist(b);
                 b.Shoot();
@@ -97,7 +97,7 @@ namespace Variety.Skill.Boss8
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var t = Target.GetNearestEnemy(99999, false);
+            var t = Target.GetNearestEnemy();
             var b = GetBullet(7);
             b.Init(0.5f, liftstoiclevel: 0);
             BulletAimSystem.RegistObject(b,1.2f,3f,Target.transform.position,12,t.transform.position);
@@ -161,7 +161,7 @@ namespace Variety.Skill.Boss8
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var angle = Dt2Degree(Target.GetNearestEnemy(99999, false).transform.position - Target.transform.position);
+            var angle = Dt2Degree(Target.GetNearestEnemy().transform.position - Target.transform.position);
             for(int i = -20; i <= 20; i += 5)
             {
                 var b = GetBullet(7);

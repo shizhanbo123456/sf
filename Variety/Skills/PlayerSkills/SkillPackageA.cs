@@ -113,7 +113,7 @@ namespace Variety.Skill.PackageA
             AddEvent(0.3f, (d) =>
             {
                 var b = GetBullet(5);
-                b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(15,b,t));
+                b.Init(0.1f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
                 BulletAngleSystem.RegistObject(b,2f,1f,10f,-15f);
                 BulletDamageTimeSystem.Regist(b);
                 b.Shoot();

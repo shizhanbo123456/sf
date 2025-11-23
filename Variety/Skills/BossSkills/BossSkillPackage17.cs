@@ -114,18 +114,18 @@ namespace Variety.Skill.Boss17
                 Vector3 spawnPos = enemy.transform.position + (Vector3)(velocity.normalized * Mathf.Min(speed * 0.8f, 12f));
                 pos.Add(spawnPos);
             }
-            foreach (var i in pos) WarningCircle.Warn(i, 3, 1);
-            AddEvent(1, (d) =>
+            foreach (var i in pos)
             {
-                foreach (var i in pos)
+                WarningCircle.Warn(i, 3, 1);
+                AddEvent(1, new TimeLineData(Target,i),(d) =>
                 {
                     var b = GetBullet(6);
                     b.Init(3);
-                    BulletStaticSystem.RegistObject(b,2.5f,1.5f,i);
+                    BulletStaticSystem.RegistObject(b, 2.5f, 1.5f, d.pos);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
 

@@ -98,7 +98,7 @@ namespace Variety.Skill.Boss1
             Target.ApplyMotion(new MotionDir(Vector2.up * 30, 1, true, 1, true, true));
             AddEvent(1, (d) =>
             {
-                var t=d.Target.GetNearestEnemy(99999, false);
+                var t=d.Target.GetNearestEnemy();
                 float x=t.transform.position.x-d.Target.transform.position.x;
                 Target.ApplyMotion(new MotionDir(new Vector2(x*2,0), 0.5f, true, 1, true, true));
             });
@@ -172,7 +172,7 @@ namespace Variety.Skill.Boss1
         }
         protected override void OnUseSkill()
         {
-            foreach(var i in Target.GetEnemyInRange(99999, false))
+            foreach(var i in Target.GetEnemyInRange())
             {
                 if (i.effectController != null)
                 {

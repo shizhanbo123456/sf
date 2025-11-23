@@ -33,7 +33,7 @@ namespace Variety.Skill.Boss4
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var t = Target.GetNearestEnemy(99999, false);
+            var t = Target.GetNearestEnemy();
             var angle = Dt2Degree(t.transform.position - Target.transform.position);
             for(int i = 0; i < 20; i++)
             {
@@ -59,7 +59,7 @@ namespace Variety.Skill.Boss4
         }
         protected override void OnUseSkill()
         {
-            var t=Target.GetNearestEnemy(99999, false);
+            var t=Target.GetNearestEnemy();
             t.ApplyMotion(new MotionDir(Vector2.up * 10, 0.7f, false, 1, false,false));
             AddEvent(0.7f, (d) =>
             {
@@ -116,7 +116,7 @@ namespace Variety.Skill.Boss4
         }
         protected override void OnUseSkill()
         {
-            var t=Target.GetNearestEnemy(99999, false).transform.position;
+            var t=Target.GetNearestEnemy().transform.position;
             WarningRect.Warn(Target.transform.position, (t - Target.transform.position).normalized * 60 + Target.transform.position, 3, 1f);
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             AddEvent(1f, (d) =>
@@ -140,7 +140,7 @@ namespace Variety.Skill.Boss4
         }
         protected override void OnUseSkill()
         {
-            var t = Target.GetNearestEnemy(99999, false).transform.position;
+            var t = Target.GetNearestEnemy().transform.position;
             WarningCircle.Warn(t,2,0.5f);
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             AddEvent(1f, (d) =>
@@ -173,7 +173,7 @@ namespace Variety.Skill.Boss4
         protected override void OnUseSkill()
         {
             var b = GetBullet(4);
-            b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(8,b,t));
+            b.Init(0.1f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletStaticSystem.RegistObject(b,8,4,Target.transform.position);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
