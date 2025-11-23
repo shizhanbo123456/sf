@@ -324,44 +324,31 @@ public abstract class Target : EnsBehaviour
     }
 
 
+    private static readonly List<Target> targets = new List<Target>();
+    public virtual Target GetNearestEnemy(float range = 99999f, bool requireInFront = false)
+    {
+        float DMin = range * range; // 使用距离平方进行比较
+        Target r = null;
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key == Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (requireInFront && !InFront(j)) continue;
+                var mSqr = (transform.position - j.transform.position).sqrMagnitude;
+                if (mSqr < DMin)
+                {
+                    r = j;
+                    DMin = mSqr;
+                }
+            }
+        }
+        return r;
+    }
 
-    public virtual Target GetNearestEnemy(float range=999999, bool requireInFront=false)
+    public virtual Target GetNearestPartner(float range = 99999f, bool requireInFront = false)
     {
-        float DMin = 999999;
-        Target r = null;
-        foreach (var i in Tool.SceneController.Targets)
-        {
-            if (i.Key == Camp) continue;
-            foreach(var j in i.Value.Values)
-            {
-                if (requireInFront && !InFront(j)) continue;
-                var m = Tool.GetDistance(transform.position, j.transform.position);
-                if (m < DMin && m <= range)
-                {
-                    r = j;
-                    DMin = m;
-                }
-            }
-        }
-        return r;
-    }
-    public virtual List<Target> GetEnemyInRange(float range=999999, bool requireInFront=false)
-    {
-        List<Target> r = new List<Target>();
-        foreach (var i in Tool.SceneController.Targets)
-        {
-            if (i.Key == Camp) continue;
-            foreach (var j in i.Value.Values)
-            {
-                if (requireInFront && !InFront(j)) continue;
-                if (Tool.GetDistance(transform.position, j.transform.position) <= range) r.Add(j);
-            }
-        }
-        return r;
-    }
-    public virtual Target GetNearestPartner(float range, bool requireInFront)
-    {
-        float DMin = 999999;
+        float DMin = range * range;
         Target r = null;
         foreach (var i in Tool.SceneController.Targets)
         {
@@ -370,19 +357,40 @@ public abstract class Target : EnsBehaviour
             {
                 if (j.GetId() == GetId()) continue;
                 if (requireInFront && !InFront(j)) continue;
-                var m = Tool.GetDistance(transform.position, j.transform.position);
-                if (m < DMin && m <= range)
+                var mSqr = (transform.position - j.transform.position).sqrMagnitude;
+                if (mSqr < DMin)
                 {
                     r = j;
-                    DMin = m;
+                    DMin = mSqr;
                 }
             }
         }
         return r;
     }
-    public virtual List<Target> GetPartnerInRange(float range, bool requireInFront)
+
+    public virtual List<Target> GetEnemyInRange(float range = 99999f, bool requireInFront = false)
     {
-        List<Target> r = new List<Target>();
+        targets.Clear();
+        float rangeSqr = range * range;
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key == Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (requireInFront && !InFront(j)) continue;
+                if ((transform.position - j.transform.position).sqrMagnitude <= rangeSqr)
+                {
+                    targets.Add(j);
+                }
+            }
+        }
+        return targets;
+    }
+
+    public virtual List<Target> GetPartnerInRange(float range = 99999f, bool requireInFront = false)
+    {
+        targets.Clear();
+        float rangeSqr = range * range;
         foreach (var i in Tool.SceneController.Targets)
         {
             if (i.Key != Camp) continue;
@@ -390,10 +398,52 @@ public abstract class Target : EnsBehaviour
             {
                 if (j.GetId() == GetId()) continue;
                 if (requireInFront && !InFront(j)) continue;
-                if (Tool.GetDistance(transform.position, j.transform.position) <= range) r.Add(j);
+                if ((transform.position - j.transform.position).sqrMagnitude <= rangeSqr)
+                {
+                    targets.Add(j);
+                }
             }
         }
-        return r;
+        return targets;
+    }
+
+    public virtual List<Target> GetEnemyInRect(float halfx, float halfy, bool requireInFront = false)
+    {
+        targets.Clear();
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key == Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (requireInFront && !InFront(j)) continue;
+                if (Mathf.Abs(j.transform.position.x-transform.position.x) <= halfx && 
+                    Mathf.Abs(j.transform.position.y-transform.position.y) <= halfy)
+                {
+                    targets.Add(j);
+                }
+            }
+        }
+        return targets;
+    }
+
+    public virtual List<Target> GetPartnerInRect(float halfx, float halfy, bool requireInFront = false)
+    {
+        targets.Clear();
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key != Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (j.GetId() == GetId()) continue;
+                if (requireInFront && !InFront(j)) continue;
+                if (Mathf.Abs(j.transform.position.x - transform.position.x) <= halfx &&
+                    Mathf.Abs(j.transform.position.y - transform.position.y) <= halfy)
+                {
+                    targets.Add(j);
+                }
+            }
+        }
+        return targets;
     }
 
     protected bool InFront(Target data)

@@ -34,7 +34,7 @@ namespace Variety.Skill.Boss5
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var t = Target.GetNearestEnemy(99999, false);
+            var t = Target.GetNearestEnemy();
             var angle = Dt2Degree(t.transform.position - Target.transform.position);
 
             var b = GetBullet(7);
@@ -93,7 +93,7 @@ namespace Variety.Skill.Boss5
             Target.ApplyMotion(new MotionDir(Vector2.up * 20, 1f, true, 2, true, true));
             AddEvent(1f, (d) =>
             {
-                var p = d.Target.GetNearestEnemy(99999, false);
+                var p = d.Target.GetNearestEnemy();
                 var angle= Dt2Degree(p.transform.position - Target.transform.position);
                 for(int offset=-10;offset<=10;offset++)
                 {
@@ -118,7 +118,7 @@ namespace Variety.Skill.Boss5
         protected override void OnUseSkill()
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var list = Target.GetEnemyInRange(99999, false);
+            var list = Target.GetEnemyInRange();
             foreach (var i in list) WarningCircle.Warn(i.transform.position, 2, 1);
             AddEvent(1f, (d) =>
             {

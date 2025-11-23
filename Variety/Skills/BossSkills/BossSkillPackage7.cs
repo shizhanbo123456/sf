@@ -29,8 +29,9 @@ namespace Variety.Skill.Boss7
             {
                 d.Target.ApplyMotion(new MotionDir(Vector2.down*50,0.2f, true, 1, true, true));
             });
-            AddEvent(0.8f, (d) =>
+            AddEvent(1, (d) =>
             {
+                d.Target.ApplyMotion(new MotionDir(new Vector2(0, 10), 0.2f, true, 1, true, true));
                 var b = GetBullet(11);
                 b.Init(1.5f);
                 BulletStaticSystem.RegistObject(b,4f,0.5f,d.Target.transform.position);
@@ -84,13 +85,13 @@ namespace Variety.Skill.Boss7
             WarningCircle.Warn(p, 2, 0.5f);
             WarningCircle.Warn(p+Vector3.right*5, 2, 0.5f);
             WarningCircle.Warn(p+Vector3.left*5, 2, 0.5f);
-            AddEvent(0.5f, (d) =>
+            AddEvent(0.5f, new TimeLineData(Target,p),(d) =>
             {
                 for(int i = -1; i <= 1; i++)
                 {
                     var b = GetBullet(11);
                     b.Init(1.4f);
-                    BulletStaticSystem.RegistObject(b,2f,0.6f,d.Target.transform.position+new Vector3(0,i*7));
+                    BulletStaticSystem.RegistObject(b,2f,0.3f,d.pos+new Vector3(i*5,0));
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
@@ -114,7 +115,7 @@ namespace Variety.Skill.Boss7
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(5);
-            b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(10,b,t));
+            b.Init(0.1f, hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletFollowSystem.RegistObject(b,3,2,Target);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
@@ -143,7 +144,7 @@ namespace Variety.Skill.Boss7
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionStatic(2,true, 1, true, true));
             var b = GetBullet(5);
-            b.Init(0.1f, hitback: (b, t) => Bullet.HitBackBulletAttracitve(10, b, t));
+            b.Init(0.1f,  hitback: (b, t) => Bullet.FigureAttractForce(b, t));
             BulletStaticScaleChangeSystem.RegistObject(b,8f,3f,2f);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
@@ -152,7 +153,7 @@ namespace Variety.Skill.Boss7
             {
                 var b = GetBullet(5);
                 b.Init(0.1f);
-                BulletDirSystem.RegistObject(b,3f,2f,8f, Vector2.right);
+                BulletDirSystem.RegistObject(b,3f,3f,8f, Vector2.down);
                 BulletDamageTimeSystem.Regist(b, 0.2f);
                 b.Shoot();
             });

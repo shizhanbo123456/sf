@@ -52,18 +52,18 @@ namespace Variety.Skill.Boss14
         protected override void OnUseSkill()
         {
             var enemies = Target.GetEnemyInRange().Select(t=>t.transform.position); // 获取范围内敌人
-            foreach (var i in enemies) WarningCircle.Warn(i, 3, 2);
-            AddEvent(2, (d) =>
+            foreach (var i in enemies)
             {
-                foreach (var enemy in enemies)
+                WarningCircle.Warn(i, 3, 2);
+                AddEvent(2, new TimeLineData(Target,i),(d) =>
                 {
                     var b = GetBullet(4);
-                    b.Init(0.1f,ec:ec);
-                    BulletStaticSystem.RegistObject(b,5,2,enemy);
-                    BulletDamageTimeSystem.Regist(b);
+                    b.Init(0.4f, ec: ec);
+                    BulletStaticSystem.RegistObject(b, 5, 2, d.pos);
+                    BulletDamageTimeSystem.Regist(b, 0.2f);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
     public class Skill1 : SkillBoss
@@ -176,18 +176,18 @@ namespace Variety.Skill.Boss14
         protected override void OnUseSkill()
         {
             var enemies = Target.GetEnemyInRange().Select(t=>t.transform.position);
-            foreach (var i in enemies) WarningCircle.Warn(i, 2f, 1);
-            AddEvent(1, (d) =>
+            foreach (var i in enemies)
             {
-                foreach (var enemy in enemies)
+                WarningCircle.Warn(i, 2f, 1);
+                AddEvent(1, new TimeLineData(Target,i),(d) =>
                 {
                     var b = GetBullet(16);
-                    b.Init(0.2f,liftstoiclevel:0,ec:ec);
-                    BulletStaticSystem.RegistObject(b,2f,10f,enemy);
-                    BulletDamageTimeSystem.Regist(b,0.2f);
+                    b.Init(0.2f, liftstoiclevel: 0, ec: ec);
+                    BulletStaticSystem.RegistObject(b, 2f, 10f, d.pos);
+                    BulletDamageTimeSystem.Regist(b, 0.2f);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
 
@@ -214,7 +214,6 @@ namespace Variety.Skill.Boss14
         protected override void OnUseSkill()
         {
             var enemies = Target.GetEnemyInRange();
-            List<Vector3>pos=new List<Vector3>();
             foreach (var enemy in enemies)
             {
                 if (enemy == null) continue;
@@ -222,19 +221,15 @@ namespace Variety.Skill.Boss14
                 Vector3 trapPos = enemy.transform.position + (Vector3)enemy.GetComponent<Rigidbody2D>().velocity.normalized * 5f;
 
                 WarningCircle.Warn(trapPos, 2f, 1f);
-                pos.Add(trapPos);
-            }
-            AddEvent(1f, (d) =>
-            {
-                foreach(var i in pos)
+                AddEvent(1f, new TimeLineData(Target,trapPos),(d) =>
                 {
                     var b = GetBullet(11);
                     b.Init(2.4f);
-                    BulletStaticSystem.RegistObject(b,2f,0.5f,i);
+                    BulletStaticSystem.RegistObject(b, 2f, 0.5f, d.pos);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
     public class Skill5 : Common.Skill5For14_18

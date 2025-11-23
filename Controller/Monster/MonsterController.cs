@@ -106,7 +106,7 @@ public class MonsterController : TargetController
     {
         const int xthreshold= 5;
         const int ythreshold= 2;
-        var t=target.GetNearestEnemy(9999999, false);
+        var t=target.GetNearestEnemy();
         float x = 0;
         float y = 0;
         if (t.transform.position.x < transform.position.x - xthreshold) x = -1;

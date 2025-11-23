@@ -43,14 +43,21 @@ public class Bullet : MonoBehaviour
         damageRate= rate;
         liftStoicLevel = liftstoiclevel;
         Effects = ec;
-        if (hitback == null) hitbackForce = FigureHitBackForce;
+        if (hitback == null) hitbackForce = (b,t)=>FigureHitBackForce(5+2*rate,b,t);
         else hitbackForce = hitback;
     }
     public void Shoot()
     {
         Shooter = BulletSystemCommon.CurrentShooter;
 
-        particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter));
+        SpriteManager.ColorType ct = liftStoicLevel switch
+        {
+            0 => SpriteManager.ColorType.Bullet1,
+            1 => SpriteManager.ColorType.Bullet2,
+            2 => SpriteManager.ColorType.Bullet3,
+            _ => SpriteManager.ColorType.Bullet2,
+        };
+        particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter,ct));
         particleController.Play();
 
         UpdateDetectors();
@@ -109,17 +116,14 @@ public class Bullet : MonoBehaviour
         return 1 - 0.1f / x;
     }
 
-    public static Vector2 FigureHitBackForce(Vector3 bullet, Vector3 target)
-    {
-        return FigureHitBackForce(5, bullet, target);
-    }
     public static Vector2 FigureHitBackForce(float power,Vector3 bullet,Vector3 target)
     {
-        return new Vector2((target.x > bullet.x) ? 0.5f : -0.5f, 1)*power;
+        return new Vector2((target.x > bullet.x) ? 0.5f : -0.5f, 1)*power+Vector2.up*3.2f;
     }
-    public static Vector2 HitBackBulletAttracitve(float power,Vector3 bullet,Vector3 target)
+    public static Vector2 FigureAttractForce(Vector3 bullet,Vector3 target, float power=20)
     {
-        return (bullet - target).normalized * power;
+        float maxPower = (bullet - target).magnitude;
+        return (bullet - target).normalized * Mathf.Min(maxPower*3,power)+Vector3.up*0.1962f;
     }
 
     private void OnDrawGizmos()

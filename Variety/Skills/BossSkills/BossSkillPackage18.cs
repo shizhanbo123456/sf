@@ -97,20 +97,20 @@ namespace Variety.Skill.Boss18
                 return Target.transform.position+(p-Target.transform.position).normalized*30; 
             });
             foreach (var i in enemies) WarningRect.Warn(Target.transform.position, i, 1f, 0.4f);
-            // 每个敌人生成4颗烟火弹
+
             for (int i = 0; i < 4; i++)
             {
-                AddEvent(0.4f+i * 0.3f, (d) =>
+                foreach (var enemy in enemies)
                 {
-                    foreach (var enemy in enemies)
+                    AddEvent(0.4f + i * 0.3f, new TimeLineData(Target,enemy),(d) =>
                     {
                         var b = GetBullet(16);
                         b.Init(0.5f);
-                        BulletAimSystem.RegistObject(b,0.5f,2f,d.Target.transform.position,7f,enemy);
+                        BulletAimSystem.RegistObject(b, 0.5f, 2f, d.Target.transform.position, 7f,d.pos);
                         BulletDamageOnceSystem.Regist(b);
                         b.Shoot();
-                    }
-                });
+                    });
+                }
             }
         }
     }
@@ -139,19 +139,14 @@ namespace Variety.Skill.Boss18
         protected override void OnUseSkill()
         {
             var e = Target.GetNearestEnemy();
-
+            if (!e) return;
             WarningCircle.Warn(e.transform.position, 12f, 1.5f);
-
-            foreach (var enemy in Target.GetEnemyInRange())
-            {
-                if (enemy == null) continue;
-                enemy.ApplyEffect(new Slowness(Target, enemy, 3, 3f));
-            }
+            e.ApplyEffect(new Slowness(Target, e, 3, 3f));
             // 1.5秒后生成禁锢场
             AddEvent(1.5f, new TimeLineData(Target,e.transform.position),(d) =>
             {
-                var b = GetBullet(4);
-                b.Init(0.1f, hitback: (b, t) => Bullet.HitBackBulletAttracitve(12,b,t));
+                var b = GetBullet(3);
+                b.Init(0.1f, hitback: (b, t) => Bullet.FigureAttractForce(b,t));
                 BulletStaticScaleChangeSystem.RegistObject(b,0,12,6,d.pos);
                 BulletDamageTimeSystem.Regist(b);
                 b.Shoot();
@@ -182,25 +177,20 @@ namespace Variety.Skill.Boss18
         protected override void OnUseSkill()
         {
             var enemies = Target.GetEnemyInRange();
-            foreach (var i in enemies) WarningCircle.Warn(i.transform.position, 2, 0.5f);
-
-            // 沿移动路径生成3个陷阱
-            for (int i = 0; i < 3; i++)
+            foreach (var i in enemies)
             {
-                AddEvent(i * 0.5f, (d) =>
+                WarningCircle.Warn(i.transform, 2, 1f);
+                AddEvent(1f, new TimeLineData(i),(d) =>
                 {
-                    foreach (var enemy in enemies)
-                    {
-                        var rb = enemy.GetComponent<Rigidbody2D>();
-                        Vector2 velocity = rb ? rb.velocity : Vector2.zero;
-                        Vector3 trapPos = enemy.transform.position+(Vector3)rb.velocity;
+                    var rb = d.Target.GetComponent<Rigidbody2D>();
+                    Vector2 velocity = rb ? rb.velocity : Vector2.zero;
+                    Vector3 trapPos = d.Target.transform.position + (Vector3)rb.velocity;
 
-                        var b = GetBullet(11);
-                        b.Init(2,liftstoiclevel:2);
-                        BulletStaticSystem.RegistObject(b,2f,0.5f,trapPos);
-                        BulletDamageOnceSystem.Regist(b);
-                        b.Shoot();
-                    }
+                    var b = GetBullet(11);
+                    b.Init(2);
+                    BulletStaticSystem.RegistObject(b, 2f, 0.5f, trapPos);
+                    BulletDamageOnceSystem.Regist(b);
+                    b.Shoot();
                 });
             }
         }
@@ -235,18 +225,15 @@ namespace Variety.Skill.Boss18
             foreach (var p in pos)
             {
                 WarningCircle.Warn(p, 4, 2);
-            }
-            AddEvent(2f, (d) =>
-            {
-                foreach (var p in pos)
+                AddEvent(2f, new TimeLineData(Target, p),(d) =>
                 {
                     var b = GetBullet(11);
-                    b.Init(2, ec:ec);
-                    BulletStaticSystem.RegistObject(b, 4f, 0.5f,p);
+                    b.Init(2, ec: ec);
+                    BulletStaticSystem.RegistObject(b, 4f, 0.5f, d.pos);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
     public class Skill5 : Common.Skill5For14_18

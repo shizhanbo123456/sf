@@ -111,7 +111,7 @@ public static class BulletStaticScaleChangeSystem
             if (Time.time > i.Value.lifeTime+i.Value.spawnTime) ToRemove.Add(i.Key);
             else
             {
-                i.Key.transform.localScale= Mathf.Lerp(i.Value.startScale,i.Value.endScale,(Time.time-i.Value.spawnTime)/i.Value.lifeTime)*Vector3.one;
+                i.Key.transform.localScale= i.Value.scaleFactor*Mathf.Lerp(i.Value.startScale,i.Value.endScale,(Time.time-i.Value.spawnTime)/i.Value.lifeTime)*Vector3.one;
                 i.Key.UpdateDetectors();
             }
         }

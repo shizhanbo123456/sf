@@ -133,25 +133,20 @@ namespace Variety.Skill.Boss15
         protected override void OnUseSkill()
         {
             var enemies = Target.GetEnemyInRange();
-            List<Vector3>pos=new List<Vector3>();
             foreach (var enemy in enemies)
             {
                 if (enemy == null) continue;
                 Vector3 enemyPos = enemy.transform.position;
                 WarningCircle.Warn(enemyPos, 4, 3f);
-                pos.Add(enemyPos);
-            }
-            AddEvent(3f, (d) =>
-            {
-                foreach (var i in pos)
+                AddEvent(3f,new TimeLineData(Target,enemyPos), (d) =>
                 {
                     var b = GetBullet(4);
-                    b.Init(0.2f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(4,b,t));
-                    BulletStaticSystem.RegistObject(b,6,4,i);
+                    b.Init(0.2f, hitback: (b, t) => Bullet.FigureAttractForce(b, t));
+                    BulletStaticSystem.RegistObject(b, 6, 4, d.pos);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
     public class Skill3 : SkillBoss
@@ -179,7 +174,7 @@ namespace Variety.Skill.Boss15
             WarningCircle.Warn(Target.transform.position, 15, 5f);
             AddEvent(5, (d) =>
             {
-                var enemies = Target.GetEnemyInRange(15);
+                var enemies = d.Target.GetEnemyInRange(15);
                 foreach (var enemy in enemies)
                 {
                     enemy.ApplyEffect(new Burning(d.Target, enemy, (int)(enemy.Shengming * 0.03f), 5));
