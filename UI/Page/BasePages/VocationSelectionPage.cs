@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Variety.Base;
@@ -11,9 +10,9 @@ public class VocationSelectionPage : BasePage
     [Header("Detail")]
     [SerializeField]private GameObject Detail;
     [SerializeField]private Image SkillIcon;
-    [SerializeField]private TMP_Text SkillName;
-    [SerializeField] private TMP_Text SkillTag;
-    [SerializeField] private TMP_Text SkillDes;
+    [SerializeField]private Text SkillName;
+    [SerializeField] private Text SkillTag;
+    [SerializeField] private Text SkillDes;
     public override void Init()
     {
         var skillCollection= Tool.VarietyManager.GetAllSkills();

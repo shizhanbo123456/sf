@@ -12,7 +12,7 @@ public class GameObjectPool:MonoBehaviour
         p.OnReturn=onReturn;
         return p;
     }
-    private GameObject source;
+    public GameObject source;
     private Queue<GameObject> GameObjects = new Queue<GameObject>();
 
     private Action<GameObject> OnReturn;

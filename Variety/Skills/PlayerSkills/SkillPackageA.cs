@@ -17,7 +17,7 @@ namespace Variety.Skill.PackageA
         }
         protected override void OnUse()
         {
-            for (int i = -20; i <= 20; i++)
+            for (int i = -20; i <= 20; i+=20)
             {
                 var b = GetBullet(7);
                 b.Init(0.5f, liftstoiclevel: 0);
@@ -49,7 +49,7 @@ namespace Variety.Skill.PackageA
                 );
                 var b=GetBullet(7);
                 b.Init(1.5f);
-                BulletOrbitSystem.RegistObject(b, 2f, 0.2f, 1.5f, 450, -45);
+                BulletOrbitSystem.RegistObject(b, 1f, 0.2f, 1.5f, 450, -45);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
             });
@@ -59,7 +59,7 @@ namespace Variety.Skill.PackageA
                 );
                 var b = GetBullet(7);
                 b.Init(1.5f);
-                BulletOrbitSystem.RegistObject(b, 2f, 0.2f, 1.5f, -450, 45);
+                BulletOrbitSystem.RegistObject(b, 1f, 0.2f, 1.5f, -450, 45);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
             });
@@ -87,8 +87,8 @@ namespace Variety.Skill.PackageA
             {
                 d.Target.ApplyMotion(new MotionVelocityChange(new Vector2(0,8),true,1,true,true));
                 var b = GetBullet(11);
-                b.Init(3.6f);
-                BulletStaticSystem.RegistObject(b,4f,0.2f,d.Target.transform.position);
+                b.Init(3.6f,liftstoiclevel:2);
+                BulletStaticSystem.RegistObject(b,3f,0.2f,d.Target.transform.position);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
             });
@@ -113,9 +113,9 @@ namespace Variety.Skill.PackageA
             AddEvent(0.3f, (d) =>
             {
                 var b = GetBullet(5);
-                b.Init(0.05f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(15,b,t));
+                b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(15,b,t));
                 BulletAngleSystem.RegistObject(b,2f,1f,10f,-15f);
-                BulletDamageTimeSystem.Regist(b,0.2f);
+                BulletDamageTimeSystem.Regist(b);
                 b.Shoot();
             });
         }
@@ -133,20 +133,20 @@ namespace Variety.Skill.PackageA
         protected override void OnUse()
         {
             float vx = Target.FaceRight ? 15 : -15;
-            Target.ApplyMotion(new MotionDir(new Vector2(-vx, 0), 0.5f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(new Vector2(-vx, 0), 0.3f, true, 1, true, true));
             for(int i = 0; i < 5; i++)
             {
                 AddEvent(0.07f*i, new TimeLineData(Target,i),(d) =>
                 {
                     var front = new Vector3(d.Target.FaceRight ? 1 : -1, 0);
-                    var b = GetBullet(11);
+                    var b = GetBullet(16);
                     b.Init(1.2f);
                     BulletDirAwaitSystem.RegistObject(b, 0.4f, 1.6f, 0.6f, d.Target.transform.position - front * 2 + new Vector3(0, 1 - 0.5f * d.index),15,front);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 });
             }
-            AddEvent(0.5f, (d) =>
+            AddEvent(0.3f, (d) =>
             {
                 d.Target.ApplyMotion(new MotionStatic(0.25f, true, 1, true, true));
             });

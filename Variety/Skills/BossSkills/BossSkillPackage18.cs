@@ -151,9 +151,9 @@ namespace Variety.Skill.Boss18
             AddEvent(1.5f, new TimeLineData(Target,e.transform.position),(d) =>
             {
                 var b = GetBullet(4);
-                b.Init(0.2f, hitback: (b, t) => Bullet.HitBackBulletAttracitve(12,b,t));
+                b.Init(0.1f, hitback: (b, t) => Bullet.HitBackBulletAttracitve(12,b,t));
                 BulletStaticScaleChangeSystem.RegistObject(b,0,12,6,d.pos);
-                BulletDamageTimeSystem.Regist(b,0.25f);
+                BulletDamageTimeSystem.Regist(b);
                 b.Shoot();
             });
         }

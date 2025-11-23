@@ -114,7 +114,7 @@ namespace Variety.Skill.Boss12
             var b = GetBullet(5);
             b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(7.5f,b,t));
             BulletStaticScaleChangeSystem.RegistObject(b,4,0,1f);
-            BulletDamageTimeSystem.Regist(b,0.1f);
+            BulletDamageTimeSystem.Regist(b);
             b.Shoot();
             Target.ApplyMotion(new MotionStatic(0.7f, true, 1, true, true));
             AddEvent(0.8f, (d) =>

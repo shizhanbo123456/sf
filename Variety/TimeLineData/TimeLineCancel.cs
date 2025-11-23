@@ -6,7 +6,7 @@ public class TimeLineCancel
     public TimeLineCancel(Target targrt)
     {
         TimeLineWork = targrt.TimeLineWork;
-        Reset();
+        Cancelled = false;
     }
     public void Reset()
     {

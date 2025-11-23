@@ -19,7 +19,7 @@ namespace Variety.Skill.Boss1
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for(int i = 0; i < 24; i++)
             {
-                var b = GetBullet(11);
+                var b = GetBullet(15);
                 b.Init(0.5f,liftstoiclevel:0);
                 BulletAngleSystem.RegistObject(b,0.6f,5,10,i*15);
                 BulletDamageOnceSystem.Regist(b);
@@ -176,7 +176,7 @@ namespace Variety.Skill.Boss1
             {
                 if (i.effectController != null)
                 {
-                    i.effectController.AddEffect(new Silence(Target, i, 4));
+                    i.effectController.AddEffect(new Silence(Target, i, 3));
                 }
             }
             for(int i = -5; i < 5; i+=2)

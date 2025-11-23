@@ -11,14 +11,19 @@ public class Bullet : MonoBehaviour
 {
     public static Dictionary<int, Dictionary<int, Bullet>> Bullets = new Dictionary<int, Dictionary<int, Bullet>>();
 
-    public List<BulletCollisionDetecter> collisionDetectors = new List<BulletCollisionDetecter>();
-    private BulletParticleController particleController;
-    [HideInInspector] public int bulletType;
+    //Detector
+    public float radius = 2;
+    [HideInInspector] public Vector3 LastFramePos;
+    
+
+    //basicInfo
     // 对于中立物体或敌对boss，Camp填-1
-    public int Camp=>Shooter.Camp;
     [HideInInspector]public Target Shooter;
+    public int Camp => Shooter.Camp;
+    [HideInInspector] public int bulletType;
+    private BulletParticleController particleController;
 
-
+    //Info
     [HideInInspector]public float damageRate;
     [HideInInspector]public int liftStoicLevel;
     public EffectCollection Effects;
@@ -28,6 +33,11 @@ public class Bullet : MonoBehaviour
     public Action<Bullet> ReleaseDamageableReference;
     public Func<Target, Bullet, bool> CanDamage;
 
+    private void Awake()
+    {
+        particleController = GetComponent<BulletParticleController>();
+        particleController.Stop();
+    }
     public void Init(float rate=1,int liftstoiclevel=1,EffectCollection ec=null, Func<Vector3, Vector3, Vector2>hitback=null)
     {
         damageRate= rate;
@@ -40,14 +50,13 @@ public class Bullet : MonoBehaviour
     {
         Shooter = BulletSystemCommon.CurrentShooter;
 
-        if (!particleController)particleController = GetComponent<BulletParticleController>();
         particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter));
+        particleController.Play();
 
         UpdateDetectors();
 
         if (!Bullets.ContainsKey(Camp))Bullets.Add(Camp, new Dictionary<int, Bullet>());
         Bullets[Camp].Add(GetInstanceID(),this);
-        particleController.Play();
     }
     public void DestroyBullet()
     {
@@ -63,10 +72,7 @@ public class Bullet : MonoBehaviour
     }
     public void UpdateDetectors()
     {
-        foreach (var i in collisionDetectors)
-        {
-            i.LastFramePos = i.transform.position;
-        }
+        LastFramePos = transform.position;
     }
     public int FigureDamage(DynamicAttributes defenser, out bool hit, out bool strike)//受击者数据
     {
@@ -114,5 +120,11 @@ public class Bullet : MonoBehaviour
     public static Vector2 HitBackBulletAttracitve(float power,Vector3 bullet,Vector3 target)
     {
         return (bullet - target).normalized * power;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, radius * transform.lossyScale.x);
     }
 }

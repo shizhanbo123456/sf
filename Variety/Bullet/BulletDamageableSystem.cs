@@ -13,19 +13,30 @@ public static class BulletDamageOnceSystem
     );
     public static void Regist(Bullet b)
     {
-        b.ReleaseDamageableReference = OnBulletDestroyed;
-        b.CanDamage = OnDamaged;
+        b.ReleaseDamageableReference += OnBulletDestroyed;
+        b.CanDamage += OnDamaged;
     }
     public static bool OnDamaged(Target target, Bullet bullet)
     {
-        if (!_bulletDamagedTargets.TryGetValue(bullet, out var damagedTargets))
+        if (_bulletDamagedTargets.TryGetValue(bullet, out var damagedTargets))
+        {
+            if (damagedTargets.Contains(target))
+            {
+                return false;
+            }
+            else
+            {
+                damagedTargets.Add(target);
+                return true;
+            }
+        }
+        else
         {
             damagedTargets = _hashSetPool.Get();
             _bulletDamagedTargets.Add(bullet, damagedTargets);
+            _bulletDamagedTargets[bullet].Add(target);
             return true;
         }
-        if (damagedTargets.Contains(target)) return false;
-        return true;
     }
     private static void OnBulletDestroyed(Bullet bullet)
     {
@@ -34,6 +45,8 @@ public static class BulletDamageOnceSystem
             _hashSetPool.Release(damagedTargets);
             _bulletDamagedTargets.Remove(bullet);
         }
+        bullet.ReleaseDamageableReference -= OnBulletDestroyed;
+        bullet.CanDamage -= OnDamaged;
     }
 }
 public static class BulletDamageTimeSystem
@@ -48,27 +61,29 @@ public static class BulletDamageTimeSystem
         actionOnRelease: (dict) => dict.Clear()
     );
 
-    public static void Regist(Bullet b, float dt)
+    public static void Regist(Bullet b, float dt=0.1f)
     {
-        _damageDt[b]=dt;
-        b.CanDamage = CanDamageWithCooldown;
+        _damageDt.Add(b,dt);
+        b.CanDamage += CanDamageWithCooldown;
         b.ReleaseDamageableReference += OnBulletDestroyed;
     }
 
-    /// <summary>
-    /// ºËÐÄÉËº¦¼ì²éÂß¼­£¬°üº¬ÀäÈ´Ê±¼äÅÐ¶Ï¡£
-    /// </summary>
     private static bool CanDamageWithCooldown(Target target, Bullet bullet)
     {
         if (_bulletTargetDamageTimes.TryGetValue(bullet, out var targetTimeDict))
         {
             if (targetTimeDict.TryGetValue(target, out float canDamageTime))
             {
-                return Time.time > canDamageTime;
+                if(Time.time > canDamageTime)
+                {
+                    targetTimeDict[target] = Time.time+_damageDt[bullet];
+                    return true;
+                }
+                return false;
             }
             else
             {
-                targetTimeDict.Add(target,_damageDt[bullet]);
+                targetTimeDict.Add(target,Time.time+_damageDt[bullet]);
                 return true;
             }
         }
@@ -76,16 +91,19 @@ public static class BulletDamageTimeSystem
         {
             targetTimeDict = _targetTimeDictPool.Get();
             _bulletTargetDamageTimes.Add(bullet, targetTimeDict);
-            _bulletTargetDamageTimes[bullet][target] = Time.time + _damageDt[bullet];
+            _bulletTargetDamageTimes[bullet].Add(target,Time.time + _damageDt[bullet]);
             return true;
         }
     }
     private static void OnBulletDestroyed(Bullet bullet)
     {
+        _damageDt.Remove(bullet);
         if (_bulletTargetDamageTimes.TryGetValue(bullet, out var targetTimeDict))
         {
             _targetTimeDictPool.Release(targetTimeDict);
             _bulletTargetDamageTimes.Remove(bullet);
         }
+        bullet.CanDamage -= CanDamageWithCooldown;
+        bullet.ReleaseDamageableReference -= OnBulletDestroyed;
     }
 }

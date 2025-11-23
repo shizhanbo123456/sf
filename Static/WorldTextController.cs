@@ -22,7 +22,7 @@ public class WorldTextController : MonoBehaviour
     /// </summary>
     public void ShowTextLocal(string text, Vector3 pos, TextColor color)
     {
-        pos += new Vector3(Random.Range(-3, 3), Random.Range(-1, 1));
+        pos += new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f));
         var obj = Instantiate(TextPrefab,pos, Quaternion.identity, Tool.SceneController.Level.Canvas);
         var t = obj.transform.GetChild(1).GetComponent<Text>();
         t.text = text;

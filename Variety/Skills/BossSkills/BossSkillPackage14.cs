@@ -58,9 +58,9 @@ namespace Variety.Skill.Boss14
                 foreach (var enemy in enemies)
                 {
                     var b = GetBullet(4);
-                    b.Init(0.2f,ec:ec);
+                    b.Init(0.1f,ec:ec);
                     BulletStaticSystem.RegistObject(b,5,2,enemy);
-                    BulletDamageTimeSystem.Regist(b,0.2f);
+                    BulletDamageTimeSystem.Regist(b);
                     b.Shoot();
                 }
             });

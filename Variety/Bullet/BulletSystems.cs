@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Variety.Base;
 
@@ -14,6 +15,10 @@ public static class BulletSystemCommon
     {
         return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad));
     }
+    public static void DestroyAllBullet(IEnumerable<Bullet>bs)
+    {
+        foreach(var i in bs.ToList())i.DestroyBullet();
+    }
 }
 public static class BulletStaticSystem
 {
@@ -21,6 +26,8 @@ public static class BulletStaticSystem
     private static readonly List<Bullet>ToRemove = new List<Bullet>();
     public static void RegistObject(Bullet obj, float radius,float lifeTime, Vector3 pos)
     {
+        if (Collection.Count == 0) 
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.position = pos;
         obj.transform.localScale *=radius;
         Collection.Add(obj, Time.time + lifeTime);
@@ -32,6 +39,12 @@ public static class BulletStaticSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach(var i in Collection) if (Time.time > i.Value) ToRemove.Add(i.Key);
         if (ToRemove.Count > 0)
         {
@@ -65,6 +78,8 @@ public static class BulletStaticScaleChangeSystem
     private static readonly List<Bullet> ToRemove = new List<Bullet>();
     public static void RegistObject(Bullet obj, float startradius,float endradius, float lifeTime)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.position = BulletSystemCommon.CurrentShooter.transform.position;
         Collection.Add(obj, new ScaleChangeInfo(obj.transform.localScale.x,startradius,endradius,lifeTime));
         obj.transform.localScale *= startradius;
@@ -72,6 +87,8 @@ public static class BulletStaticScaleChangeSystem
     }
     public static void RegistObject(Bullet obj, float startradius, float endradius, float lifeTime,Vector3 pos)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.position = pos;
         Collection.Add(obj, new ScaleChangeInfo(obj.transform.localScale.x, startradius, endradius, lifeTime));
         obj.transform.localScale *= startradius;
@@ -83,6 +100,12 @@ public static class BulletStaticScaleChangeSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var i in Collection)
         {
             if (Time.time > i.Value.lifeTime+i.Value.spawnTime) ToRemove.Add(i.Key);
@@ -99,6 +122,8 @@ public static class BulletStaticScaleChangeSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if(Collection.Count==0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -121,6 +146,8 @@ public static class BulletFollowSystem
     private static Target t = null;
     public static void RegistObject(Bullet obj, float radius, float lifeTime,Target followTarget)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.position = BulletSystemCommon.CurrentShooter.transform.position;
         obj.transform.localScale *= radius;
         Collection.Add(obj, new FollowInfo(Time.time+lifeTime,followTarget.Camp,followTarget.ObjectId));
@@ -132,6 +159,12 @@ public static class BulletFollowSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var i in Collection)
         {
             if (Time.time > i.Value.destroyTime) ToRemove.Add(i.Key);
@@ -154,6 +187,8 @@ public static class BulletFollowSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -181,6 +216,8 @@ public static class BulletAngleSystem
     private static readonly List<Bullet> ToRemove = new List<Bullet>();
     public static void RegistObject(Bullet obj, float radius, float lifeTime, float speed, float angle)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.position = BulletSystemCommon.CurrentShooter.transform.position;
         obj.transform.localScale *= radius;
         Collection.Add(obj, new AngleInfo(Time.time, lifeTime,BulletSystemCommon.CurrentShooter.transform.position ,
@@ -193,6 +230,12 @@ public static class BulletAngleSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var i in Collection)
         {
             if (Time.time > i.Value.spawnTime+i.Value.lifeTime) ToRemove.Add(i.Key);
@@ -210,6 +253,8 @@ public static class BulletAngleSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -245,6 +290,8 @@ public static class BulletAngleNonFacingSystem
 
     public static void RegistObject(Bullet obj, float radius, float lifetime, float speed, float angle)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= radius;
         obj.transform.position = BulletSystemCommon.CurrentShooter.transform.position;
         Collection.Add(obj, new AngleNonFacingInfo(Time.time + lifetime,speed,angle * Mathf.Deg2Rad,radius));
@@ -257,6 +304,12 @@ public static class BulletAngleNonFacingSystem
 
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var pair in Collection)
         {
             if (Time.time > pair.Value.destroyTime) ToRemove.Add(pair.Key);
@@ -280,6 +333,8 @@ public static class BulletAngleNonFacingSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -313,6 +368,8 @@ public static class BulletDirSystem
 
     public static void RegistObject(Bullet obj, float radius, float lifetime, float speed, Vector2 dir)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= radius;
         obj.transform.position= BulletSystemCommon.CurrentShooter.transform.position;
         Collection.Add(obj, new DirInfo(Time.time + lifetime,speed,dir.normalized,radius));
@@ -325,6 +382,12 @@ public static class BulletDirSystem
 
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var pair in Collection)
         {
             if (Time.time > pair.Value.destroyTime) ToRemove.Add(pair.Key);
@@ -343,6 +406,8 @@ public static class BulletDirSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -372,6 +437,8 @@ public static class BulletAimSystem
 
     public static void RegistObject(Bullet obj, float radius, float lifetime, Vector3 worldStartPos, float speed, Vector3 aimAt)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= radius;
         obj.transform.position=worldStartPos;
         Collection.Add(obj, new AimInfo(
@@ -388,6 +455,12 @@ public static class BulletAimSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var pair in Collection)
         {
             if (Time.time > pair.Value.destroyTime) ToRemove.Add(pair.Key);
@@ -404,6 +477,8 @@ public static class BulletAimSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -446,6 +521,8 @@ public static class BulletOrbitSystem
     public static void RegistObject(Bullet obj, float scale, float lifetime, float radius, 
         float degreePerSec,float angleOffset,Vector3 offset)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= scale; 
         Vector3 localPos = BulletSystemCommon.AngleToVector(angleOffset)*radius + offset;
         Vector3 worldPos = BulletSystemCommon.CurrentShooter.transform.position +
@@ -462,6 +539,12 @@ public static class BulletOrbitSystem
 
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var i in Collection)
         {
             if (Time.time > i.Value.destroyTime) ToRemove.Add(i.Key);
@@ -489,6 +572,8 @@ public static class BulletOrbitSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -519,6 +604,8 @@ public static class BulletOrbitWorldSystem
     public static void RegistObject(Bullet obj, float scale, float lifetime, float radius,
         float degreePerSec,float angleOffset, Vector3 pos)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= scale;
         Vector3 localPos = BulletSystemCommon.AngleToVector(angleOffset)* radius;
         obj.transform.position = pos + localPos;
@@ -533,6 +620,12 @@ public static class BulletOrbitWorldSystem
 
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var i in Collection)
         {
             if (Time.time > i.Value.destroyTime) ToRemove.Add(i.Key);
@@ -550,6 +643,8 @@ public static class BulletOrbitWorldSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -578,6 +673,8 @@ public static class BulletDirAwaitSystem
 
     public static void RegistObject(Bullet obj, float radius, float lifetime, float waitfor,Vector3 worldStartPos, float speed, Vector3 dir)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= radius;
         obj.transform.position = worldStartPos;
         Collection.Add(obj, new AimAwaitInfo(
@@ -595,6 +692,12 @@ public static class BulletDirAwaitSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var pair in Collection)
         {
             if (Time.time > pair.Value.destroyTime) ToRemove.Add(pair.Key);
@@ -612,6 +715,8 @@ public static class BulletDirAwaitSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -638,6 +743,8 @@ public static class BulletFromToSystem
 
     public static void RegistObject(Bullet obj, float radius, float lifetime, Vector3 worldStartPos, Vector3 worldEndPos)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= radius;
         obj.transform.position = worldStartPos;
         Collection.Add(obj, new FromToInfo(
@@ -654,6 +761,12 @@ public static class BulletFromToSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var pair in Collection)
         {
             if (Time.time > pair.Value.destroyTime) ToRemove.Add(pair.Key);
@@ -671,6 +784,8 @@ public static class BulletFromToSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -699,6 +814,8 @@ public static class BulletProectileAimSystem
 
     public static void RegistObject(Bullet obj, float radius, float lifetime, Vector3 startPos, Vector3 startVelocity, Vector3 endPos, float hitTime)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= radius;
         obj.transform.position = startPos;
 
@@ -720,6 +837,12 @@ public static class BulletProectileAimSystem
     }
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var pair in Collection)
         {
             if (Time.time > pair.Value.destroyTime) ToRemove.Add(pair.Key);
@@ -737,6 +860,8 @@ public static class BulletProectileAimSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -763,6 +888,8 @@ public static class BulletProectileSystem
 
     public static void RegistObject(Bullet obj, float radius, float lifetime, Vector3 startPos, Vector3 startVelocity)
     {
+        if (Collection.Count == 0)
+            BulletManager.SystemUpdateLoop += Update;
         obj.transform.localScale *= radius;
         obj.transform.position = startPos;
 
@@ -781,6 +908,12 @@ public static class BulletProectileSystem
 
     public static void Update()
     {
+        if (!Tool.FightController.Fighting)
+        {
+            BulletSystemCommon.DestroyAllBullet(Collection.Keys);
+            BulletManager.SystemUpdateLoop -= Update;
+            return;
+        }
         foreach (var pair in Collection)
         {
             if (Time.time > pair.Value.destroyTime) ToRemove.Add(pair.Key);
@@ -798,6 +931,8 @@ public static class BulletProectileSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
