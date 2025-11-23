@@ -89,24 +89,24 @@ namespace Variety.Skill.Common
             });
             AddEvent(2, new TimeLineData(Target,p),(d) =>
             {
-                ShootAtPos(Pos1);
+                ShootAtPos(Pos1,d.pos);
             });
             AddEvent(2.5f, new TimeLineData(Target, p), (d) =>
             {
-                ShootAtPos(Pos1);
+                ShootAtPos(Pos1,d.pos);
             });
             AddEvent(3, new TimeLineData(Target, p), (d) =>
             {
-                ShootAtPos(Pos1);
+                ShootAtPos(Pos1, d.pos);
             });
         }
-        private void ShootAtPos(List<Vector3>pos)
+        private void ShootAtPos(List<Vector3>pos,Vector3 offset)
         {
             foreach (var p in pos)
             {
                 var b = GetBullet(0);
                 b.Init(1.5f);
-                BulletStaticSystem.RegistObject(b, 3f, 0.5f, p);
+                BulletStaticSystem.RegistObject(b, 3f, 0.5f, p+offset);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
             }

@@ -99,7 +99,7 @@ namespace Variety.Skill.Boss3
             var b = GetBullet(4);
             b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(10,b,t));
             BulletStaticScaleChangeSystem.RegistObject(b,20,0,3f);
-            BulletDamageTimeSystem.Regist(b,0.1f);
+            BulletDamageTimeSystem.Regist(b);
             b.Shoot();
         }
     }

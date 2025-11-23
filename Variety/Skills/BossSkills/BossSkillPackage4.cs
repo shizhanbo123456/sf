@@ -175,7 +175,7 @@ namespace Variety.Skill.Boss4
             var b = GetBullet(4);
             b.Init(0.1f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(8,b,t));
             BulletStaticSystem.RegistObject(b,8,4,Target.transform.position);
-            BulletDamageTimeSystem.Regist(b,0.1f);
+            BulletDamageTimeSystem.Regist(b);
             b.Shoot();
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
         }

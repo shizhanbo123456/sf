@@ -9,13 +9,27 @@ public class BulletParticleController : MonoBehaviour
 
     public void Play()
     {
-        foreach (var i in particleSystems) i.Play();
-        foreach (var i in particleSystemsActiveOnly) i.Play();
+        foreach (var i in particleSystems)
+        {
+            i.Play();
+        }
+        foreach (var i in particleSystemsActiveOnly)
+        {
+            i.Play();
+        }
     }
     public void Stop()
     {
-        foreach (var i in particleSystems) i.Stop();
-        foreach (var i in particleSystemsActiveOnly) i.Stop();
+        foreach (var i in particleSystems)
+        {
+            i.Stop();
+            i.Clear();
+        }
+        foreach (var i in particleSystemsActiveOnly)
+        {
+            i.Stop();
+            i.Clear();
+        }
     }
     public void ChangeColor(Color targetColor)
     {

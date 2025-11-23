@@ -7,8 +7,14 @@ using Variety.Base;
 
 public class TimeLineWork : MonoBehaviour
 {
-    private SortedDictionary<uint, (TimeLineCancel,TimeLineData, Action<TimeLineData>)> Events = 
-        new SortedDictionary<uint, (TimeLineCancel,TimeLineData, Action<TimeLineData>)>();
+    private Target target;
+    private SortedList<uint, (TimeLineCancel, TimeLineData, Action<TimeLineData>)> Events =
+        new SortedList<uint, (TimeLineCancel, TimeLineData, Action<TimeLineData>)>();
+    private uint indexOffset = 0;
+    private void Awake()
+    {
+        target = GetComponent<Target>();
+    }
     private void Update()
     {
         if (Events.Count == 0)
@@ -16,17 +22,23 @@ public class TimeLineWork : MonoBehaviour
             enabled = false;
             return;
         }
+        indexOffset = 0;
+        BulletSystemCommon.CurrentShooter = target;
         var first=Events.First();
         if (Time.time*1000 > first.Key)
         {
-            first.Value.Item3.Invoke(first.Value.Item2);
+            first.Value.Item3.Invoke(first.Value.Item2); 
             Events.Remove(first.Key);
         }
     }
     public void AddEvent(float delay,TimeLineData data,Action<TimeLineData> action,TimeLineCancel c)
     {
         uint t = (uint)((delay + Time.time) * 1000);
-        Events.Add(t,(c,data,action));
+        while (Events.ContainsKey(t+indexOffset))
+        {
+            indexOffset++;
+        }
+        Events.Add(t+indexOffset,(c,data,action));
         enabled=true;
     }
     public void CancelTrigged()

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,9 +11,9 @@ namespace SF.UI.Bar
         public List<Color> Colors = new List<Color>();
         public Color ColorEnd;
         [Space]
-        public TMP_Text Name;
-        public TMP_Text Num;
-        public TMP_Text Blood;
+        public Text Name;
+        public Text Num;
+        public Text Blood;
         public Image GraphicUpon;
         public Image GraphicBelow;
         public Transform TransformUpon;

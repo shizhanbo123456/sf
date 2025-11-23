@@ -169,14 +169,7 @@ public abstract class Target : EnsBehaviour
             foreach(var j in i.Value.Values)
             {
                 float s = j.transform.localScale.x;
-                if (j.collisionDetectors.Count == 0) Debug.LogError(j.gameObject.name + "Î´Ìí¼ÓCollisionDetector");
-                bool hit = false;
-                foreach(var k in j.collisionDetectors)
-                {
-                    hit = CalHit(k.transform.position, k.LastFramePos, playerPos, colliderRadius + k.radius*s);
-                    if (hit) break;
-                }
-                if (hit) result.Add(j);
+                if (CalHit(j.transform.position, j.LastFramePos, playerPos, colliderRadius + j.radius * s)) result.Add(j);
             }
         }
         return result;

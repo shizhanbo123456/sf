@@ -29,8 +29,8 @@ public class PlayModePage : BasePage
     private float FlickTime = -1f;
     [Space]
     [Header("Settings")]
-    [SerializeField] private TMPro.TMP_Text TimePassed;
-    [SerializeField] private TMPro.TMP_Text ModeName;
+    [SerializeField] private Text TimePassed;
+    [SerializeField] private Text ModeName;
     [SerializeField] private Transform SettingsRoot;
     [SerializeField] private Transform SettingsShow;
     [SerializeField] private Transform SettingsHide;

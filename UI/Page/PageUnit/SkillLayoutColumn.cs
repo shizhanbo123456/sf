@@ -1,16 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Variety.Base;
 
 public class SkillLayoutColumn : MonoBehaviour
 {
     public List<SkillPreviewUnit>Units = new List<SkillPreviewUnit>();
     public GameObject SelectedIcon;
-    [SerializeField]private TMP_Text ColumnName;
-    [SerializeField]private TMP_Text ColumnDes;
+    [SerializeField]private Text ColumnName;
+    [SerializeField]private Text ColumnDes;
 
     public void Init(Action<SkillBase> onUnitClicked,List<SkillBase> skill,string columnname,string columndes)
     {

@@ -73,14 +73,14 @@ namespace Variety.Skill.Boss8
             var b = GetBullet(5);
             b.Init(0.05f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(7,b,t));
             BulletStaticScaleChangeSystem.RegistObject(b,5f,2f,1f);
-            BulletDamageTimeSystem.Regist(b,0.2f);
+            BulletDamageTimeSystem.Regist(b);
             b.Shoot();
             AddEvent(1, (d) =>
             {
                 var b = GetBullet(5);
                 b.Init(0.05f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(8,b,t));
                 BulletAngleSystem.RegistObject(b,2f,1f,10f,-90);
-                BulletDamageTimeSystem.Regist(b,0.2f);
+                BulletDamageTimeSystem.Regist(b);
                 b.Shoot();
             });
         }

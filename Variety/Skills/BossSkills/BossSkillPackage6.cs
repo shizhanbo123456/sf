@@ -115,14 +115,14 @@ namespace Variety.Skill.Boss6
             var b = GetBullet(5);
             b.Init(0.2f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(10,b,t));
             BulletFollowSystem.RegistObject(b,4f,2f,Target);
-            BulletDamageTimeSystem.Regist(b,0.2f);
+            BulletDamageTimeSystem.Regist(b);
             b.Shoot();
             AddEvent(2, (d) =>
             {
                 var b = GetBullet(5);
                 b.Init(0.2f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(10,b,t));
                 BulletDirSystem.RegistObject(b,4,1f,15f,new Vector2(1,1));
-                BulletDamageTimeSystem.Regist(b,0.2f);
+                BulletDamageTimeSystem.Regist(b);
                 b.Shoot();
             });
         }
@@ -179,7 +179,7 @@ namespace Variety.Skill.Boss6
             var b = GetBullet(5);
             b.Init(0.05f,hitback:(b,t)=>Bullet.HitBackBulletAttracitve(10f,b,t));
             BulletStaticSystem.RegistObject(b,4,3,Target.transform.position+front*5f);
-            BulletDamageTimeSystem.Regist(b,0.2f);
+            BulletDamageTimeSystem.Regist(b);
             b.Shoot();
             Target.ApplyMotion(new MotionStatic(1, true, 1, true, true));
             AddEvent(1, (d) =>
