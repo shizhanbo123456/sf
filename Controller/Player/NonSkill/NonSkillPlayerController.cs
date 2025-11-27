@@ -5,17 +5,13 @@ using UnityEngine;
 public class NonSkillPlayerController : MonoBehaviour
 {
     private NonSkillPlayerData playerData;
+    private TargetInfoSync targetInfoSync;
 
-    private SyncPosition syncPosition;
-    public bool FaceRight
-    {
-        get { return syncPosition.FaceRight; }
-    }
+    public bool FaceRight;
+    public bool isGrounded;
 
     public Transform GroundCheck;
     public Transform GroundCheck2;
-
-
 
 
     private Rigidbody2D rb => GetComponent<Rigidbody2D>();
@@ -30,33 +26,28 @@ public class NonSkillPlayerController : MonoBehaviour
     [HideInInspector] public int JumpCount = 1;
 
 
-    private int id;
-    private bool isLocalPlayer = false;
     private bool Initialized = false;
 
     public void Init(int id, NonSkillPlayerData data)
     {
-        this.id = id;
-        isLocalPlayer = id == FightController.localPlayerId;
-
-        playerData = data;
-        syncPosition = GetComponent<SyncPosition>();
-        if (!isLocalPlayer)
+        playerData = data; 
+        if (!TryGetComponent(out targetInfoSync))
         {
-            rb.gravityScale = 0;
-            enabled = false;
+            Debug.LogError("未找到信息同步");
         }
-        else GetComponent<SyncPosition>().PreUpdate += _Update;
-
         Initialized = true;
     }
-    void _Update()
+    void Update()
     {
         if (!Initialized) return;
-        //此脚本如果不是本地会disable
 
         Ground();
         Motion_Update();
+
+        if (targetInfoSync.OnPlayerPostUpdate())
+        {
+            targetInfoSync.SyncMotion(transform.position, rb.velocity, isGrounded,Tool.SubInput.FallSignal());
+        }
     }
     private void Motion_Update()
     {
@@ -70,20 +61,17 @@ public class NonSkillPlayerController : MonoBehaviour
                 JumpCount += 1;
             }
         }
-        if (x==-1)
-        {
-            syncPosition.FaceRight = false;
-        }
-        else if (x ==1)
-        {
-            syncPosition.FaceRight = true;
-        }
     }
     private void Ground()
     {
         if (Physics2D.OverlapPoint(GroundCheck.position, Tool.Settings.Ground)|| Physics2D.OverlapPoint(GroundCheck2.position, Tool.Settings.Ground))// && rb.velocity.y <= 0)
         {
+            isGrounded = true;
             if (rb.velocity.y <= 0.01f) JumpCount = 0;
+        }
+        else
+        {
+            isGrounded = false;
         }
     }
 }

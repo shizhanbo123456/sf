@@ -13,10 +13,6 @@ public class Lantern : Target
     public SpriteRenderer Render;
     public Sprite On;
     public Sprite Off;
-    public bool Alive
-    {
-        get { return Shengming < 1; }
-    }
 
     public float TimeOfDie;//生命为0的时间
     public float RegenerationTime;
@@ -69,10 +65,5 @@ public class Lantern : Target
     {
         if(TimeOfDie<0.01f)return base.DetectBullet();
         return new HashSet<Bullet>();
-    }
-    public override bool FacingRight()
-    {
-        Debug.LogError("不应获取灯的朝向");
-        return true;
     }
 }

@@ -7,8 +7,7 @@ using UnityEngine.UI;
 public class NonSkillPlayerData : EnsBehaviour
 {
     public NonSkillPlayerController PlayerController;
-    public SyncPosition SyncPosition;
-    public TargetAnim Anim;
+    public TargetGraphic Anim;
 
     [HideInInspector] public float Jixing;
     [HideInInspector] public float Tengkong;
@@ -52,25 +51,20 @@ public class NonSkillPlayerData : EnsBehaviour
             Recog.transform.parent.gameObject.SetActive(false);
         }
 
-        GetComponent<SyncPosition>().Init(this);
-
         var att=Tool.AttributesManager.GetDynamicAttribute(null);
         Jixing = att.Jixing;
         Tengkong= att.Tengkong;
         Liantiao= att.Liantiao;
 
-        PlayerController.Init(id, this);
-        Anim.Init(gameObject);
         if (isLocalPlayer)
         {
-            SyncPosition.nomEnabled = true;
-            Tool.SceneController.Player = gameObject;
-            CameraInstance.instance.Init(transform);
+            PlayerController=gameObject.AddComponent<NonSkillPlayerController>();
+            PlayerController.Init(id, this);
         }
-        else
-        {
-            SyncPosition.nomEnabled= false;
-        }
+        Anim.Init(gameObject);
+
+        Tool.SceneController.Player = gameObject;
+        CameraInstance.instance.Init(transform);
 
         transform.position = Tool.SceneController.Level.GetSpawnPlace();
 

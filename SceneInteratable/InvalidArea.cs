@@ -15,11 +15,18 @@ public class InvalidArea : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        foreach (var c in Physics2D.OverlapAreaAll(zx, ys, Tool.Settings.Player))
+        foreach (var c in Physics2D.OverlapAreaAll(zx, ys, Tool.Settings.TargetLayer))
         {
             if(c.TryGetComponent<PlayerData>(out var data))
             {
                 if(data.UpdateLocally)data.Die(null);
+            }
+        }
+        foreach (var c in Physics2D.OverlapAreaAll(zx, ys, Tool.Settings.FallingTargetLayer))
+        {
+            if (c.TryGetComponent<PlayerData>(out var data))
+            {
+                if (data.UpdateLocally) data.Die(null);
             }
         }
     }
