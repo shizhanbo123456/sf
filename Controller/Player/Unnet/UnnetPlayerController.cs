@@ -5,14 +5,14 @@ using UnityEngine;
 public class UnnetPlayerController : MonoBehaviour
 {
     private UnnetPlayerData playerData;
+    private TargetInfoSync targetInfoSync;
 
     public bool FaceRight;
+    private bool isGrounded;
 
 
     public Transform GroundCheck;
     public Transform GroundCheck2;
-
-
 
 
     private Rigidbody2D rb;
@@ -32,11 +32,21 @@ public class UnnetPlayerController : MonoBehaviour
     {
         playerData = data;
         rb = GetComponent<Rigidbody2D>();
+
+        if (!TryGetComponent(out targetInfoSync))
+        {
+            targetInfoSync = gameObject.AddComponent<TargetInfoSync>();
+        }
     }
     void Update()
     {
         Ground();
         Motion_Update();
+
+        if (targetInfoSync.OnPlayerPostUpdate())
+        {
+            targetInfoSync.SyncMotion(transform.position, rb.velocity, isGrounded,Tool.SubInput.FallSignal());
+        }
     }
     private void Motion_Update()
     {
@@ -63,7 +73,12 @@ public class UnnetPlayerController : MonoBehaviour
     {
         if (Physics2D.OverlapPoint(GroundCheck.position, Tool.Settings.Ground) || Physics2D.OverlapPoint(GroundCheck2.position, Tool.Settings.Ground))// && rb.velocity.y <= 0)
         {
+            isGrounded = true;
             if (rb.velocity.y <= 0.01f) JumpCount = 0;
+        }
+        else
+        {
+            isGrounded=false;
         }
     }
 }

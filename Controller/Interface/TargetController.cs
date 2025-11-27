@@ -7,17 +7,10 @@ public abstract class TargetController : MonoBehaviour
 {
     protected Target target;
     protected Rigidbody2D rb;
-    private SyncPosition syncPosition;
 
-    public Transform GroundCheck;
-    public Transform GroundCheck2;
-    public float GroundCheckDistance = 1f;
+    
 
     public bool isGrounded;
-    public bool FaceRight
-    {
-        get { return syncPosition.FaceRight; }
-    }
     public float MoveSpeed
     {
         get { return Mathf.Max(target.DedicatedAttributes.Jixing.Value, 0); }
@@ -64,7 +57,6 @@ public abstract class TargetController : MonoBehaviour
 
     public Vector2 MotionVector;
 
-    private bool updateLocally = false;
     private bool Initialized = false;
 
     public LockChain OperationLock_Hit;
@@ -74,13 +66,14 @@ public abstract class TargetController : MonoBehaviour
 
     public virtual void Init(Target t)
     {
-        updateLocally = t.UpdateLocally;
+        if (!t.UpdateLocally)
+        {
+            Debug.LogError("非本地角色");
+            return;
+        }
 
         target = t;
         rb = GetComponent<Rigidbody2D>();
-        syncPosition = GetComponent<SyncPosition>();
-
-        if (updateLocally) syncPosition.PreUpdate += _Update;
 
         var operationlock = t.OperationLock;
         var skilllock= t.SkillLock;
@@ -91,15 +84,19 @@ public abstract class TargetController : MonoBehaviour
 
         Initialized = true;
     }
-    public abstract Vector2 GetInputVector();
-    protected virtual void Update()
+    private void Update()
     {
-        Ground();
-        LayerUpdate();
+        PlayerUpdate();
+        if (target.targetInfoSync.OnPlayerPostUpdate())
+        {
+            target.targetInfoSync.SyncController(transform.position, rb.velocity, Resistance,
+                MotionVector.y<-0.5f, OperationLock_Motion.LockedInHierechy, isGrounded, motion == null);
+        }
     }
-    private void _Update()
+    private void PlayerUpdate()
     {
         if (!Initialized) return;
+        Ground();
         if (InHitDuration)
         {
             OperationLock_Hit.Locked = true;
@@ -110,11 +107,11 @@ public abstract class TargetController : MonoBehaviour
         }
         else
         {
-            OperationLock_Hit.Locked=false;
+            OperationLock_Hit.Locked = false;
             SkillLock_Hit.Locked = false;
         }
 
-        if(Motion!=null)UpdateMotion();
+        if (Motion != null) UpdateMotion();
 
         MotionVector = new Vector2();
         if (InHitDuration)
@@ -130,13 +127,18 @@ public abstract class TargetController : MonoBehaviour
             MotionVector = GetInputVector();
             InputWalk(MotionVector.x, MotionVector.y > 0.5f);
         }
-        if (MotionVector.x < -0.01f) syncPosition.FaceRight = false;
-        else if (MotionVector.x > 0.01f) syncPosition.FaceRight = true;
     }
-    protected virtual void LayerUpdate()
+    private void Ground()
     {
-        if (Motion!=null|| MotionVector.y < -0.5f||!isGrounded) gameObject.layer = Tool.Settings.FallingTargetLayer;
-        else gameObject.layer=Tool.Settings.TargetLayer;
+        if (target.IsGround())
+        {
+            isGrounded = true;
+            if (rb.velocity.y <= 0.01f) JumpCount = 0;
+        }
+        else
+        {
+            isGrounded = false;
+        }
     }
     private float jumpcd=-1;
     private void InputWalk(float x, bool jump)
@@ -175,19 +177,8 @@ public abstract class TargetController : MonoBehaviour
             rb.velocity = Motion.GetVelocity(rb.velocity);
         }
     }
-    protected virtual void Ground()
-    {
-        if(Physics2D.Raycast(GroundCheck.position,Vector2.down, GroundCheckDistance,Tool.Settings.Ground)||Physics2D.Raycast(GroundCheck2.position, Vector2.down, GroundCheckDistance,Tool.Settings.Ground))
-        //if (Physics2D.OverlapPoint(GroundCheck.position, Tool.Settings.Ground) || Physics2D.OverlapPoint(GroundCheck2.position, Tool.Settings.Ground))// && rb.velocity.y <= 0)
-        {
-            isGrounded = true;
-            if (rb.velocity.y <= 0.01f) JumpCount = 0;
-        }
-        else
-        {
-            isGrounded = false;
-        }
-    }
+    public abstract Vector2 GetInputVector();
+
 
 
     public virtual bool OnHitBack(Bullet b)
@@ -228,19 +219,5 @@ public abstract class TargetController : MonoBehaviour
         {
             Motion = m;
         }
-    }
-    public Vector2 GroundUnderward(float distance)
-    {
-        var hit = Physics2D.Raycast(GroundCheck.position, Vector2.down, distance, Tool.Settings.Ground);
-        var hit2 = Physics2D.Raycast(GroundCheck2.position, Vector2.down, distance, Tool.Settings.Ground);
-        float y = transform.position.y - distance;
-        if (hit) y = Mathf.Max(hit.point.y, y);
-        if (hit2) y = Mathf.Max(hit2.point.y, y);
-        return new Vector2(transform.position.x, y);
-    }
-    protected virtual void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(GroundCheck.position,GroundCheck.position+Vector3.down*GroundCheckDistance);
-        Gizmos.DrawLine(GroundCheck2.position,GroundCheck2.position+Vector3.down*GroundCheckDistance);
     }
 }

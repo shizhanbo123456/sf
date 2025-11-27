@@ -80,7 +80,7 @@ namespace Variety.Skill.PackageA
         }
         protected override void OnUse()
         {
-            var v=(Vector3)Target.controller.GroundUnderward(10) - Target.transform.position;
+            var v=(Vector3)Target.GroundUnderward(10) - Target.transform.position;
             var t = v.magnitude / 20f;
             Target.ApplyMotion(new MotionDir(Vector3.down*20,t,true,1,true,true));
             AddEvent(t, (d) =>

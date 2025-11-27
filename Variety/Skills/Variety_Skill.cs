@@ -18,14 +18,6 @@ namespace Variety.Base
         public Sprite sprite;
         public float TimeNeeded;//释放所需的时间
 
-        protected bool FaceRight
-        {
-            get
-            {
-                return Target.FacingRight();
-            }
-        }
-
         public int cost = 10;
 
         private TimeLineCancel cancel;

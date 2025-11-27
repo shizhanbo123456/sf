@@ -8,8 +8,6 @@ using UnityEngine.UI;
 
 public class PlayerData : Target
 {
-    public SyncPosition SyncPosition;
-
     public int id;
     private bool Initialized;
     [HideInInspector]public bool isLocalPlayer;

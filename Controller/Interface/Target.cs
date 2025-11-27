@@ -16,16 +16,24 @@ public abstract class Target : EnsBehaviour
     /// </summary>
     public int Camp = -1;
 
+    public bool CanMove=true;
+    public bool Effectable = true;
+    public bool CanUseSkill = true;
+
+    public Transform GroundCheck;
+    public Transform GroundCheck2;
+    public float GroundCheckDistance = 1f;
 
     protected DynamicAttributes BaseAttributes;
     protected DynamicAttributes FloatingAttributes;
     [HideInInspector] public DynamicAttributes DedicatedAttributes;
 
+    [HideInInspector] public TargetInfoSync targetInfoSync;
     [HideInInspector]public TargetController controller;
     [HideInInspector]public TargetEffectController effectController;
     [HideInInspector]public TargetSkillController skillController;
     [Tooltip("anim可以设置为空")]
-    public TargetAnim anim;
+    public TargetGraphic graphic;
     public TargetVisible visible;
 
     public TimeLineWork TimeLineWork;
@@ -43,7 +51,7 @@ public abstract class Target : EnsBehaviour
     {
         get
         {
-            return anim.faceright;
+            return targetInfoSync.FaceRight;
         }
     }
     public virtual int Shengming
@@ -82,6 +90,10 @@ public abstract class Target : EnsBehaviour
     public Vector2 offset;
     private void OnDrawGizmos()
     {
+        if(GroundCheck)
+            Gizmos.DrawLine(GroundCheck.position, GroundCheck.position + Vector3.down * GroundCheckDistance);
+        if(GroundCheck2)
+            Gizmos.DrawLine(GroundCheck2.position, GroundCheck2.position + Vector3.down * GroundCheckDistance);
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position + (Vector3)offset, colliderRadius);
     }
@@ -93,17 +105,24 @@ public abstract class Target : EnsBehaviour
     {
         TimeLineWork=gameObject.AddComponent<TimeLineWork>();
 
-        controller=GetComponent<TargetController>();
-        effectController=GetComponent<TargetEffectController>();
-        skillController=GetComponent<TargetSkillController>();
+        if(!TryGetComponent(out targetInfoSync))
+        {
+            Debug.LogError("未找到同步");
+        }
+        targetInfoSync.nomEnabled = UpdateLocally;
 
-        if(controller!=null)controller.Init(this);
-        if(effectController!=null)effectController.Init(this,BaseAttributes,FloatingAttributes);
-        if(skillController!=null)skillController.Init(this);
-        if(anim!=null)anim.Init(gameObject,Camp);
+        if (graphic != null) graphic.Init(gameObject);
 
-        if(TryGetComponent<SyncPosition>(out var sync))sync.Init(this);
+        if (UpdateLocally)
+        {
+            if (CanMove) (controller = AddController()).Init(this);
+            if (Effectable) (effectController=AddEffectController()).Init(this, BaseAttributes, FloatingAttributes);
+            if (CanUseSkill) (skillController=AddSkillController()).Init(this);
+        }
     }
+    protected virtual TargetController AddController()=> throw new Exception("添加控制器必须重写添加方法");
+    protected virtual TargetEffectController AddEffectController() => gameObject.AddComponent<TargetEffectController>();
+    protected virtual TargetSkillController AddSkillController()=> gameObject.AddComponent<TargetSkillController>();
     /// <summary>
     /// 需要初始化Base/FloatingAttributes
     /// </summary>
@@ -154,8 +173,34 @@ public abstract class Target : EnsBehaviour
         Tool.SceneController.OnTargetPredestroy(this);
     }
 
-    protected virtual HashSet<Bullet> DetectBullet() 
+    protected virtual HashSet<Bullet> DetectBullet()
     {
+        static bool CalHit(Vector3 lineStart, Vector3 lineEnd, Vector3 point, float distanceThreshold)
+        {
+            float thresholdpos = point.x + distanceThreshold;
+            if (lineStart.x > thresholdpos && lineEnd.x > thresholdpos) return false;
+            thresholdpos = point.x - distanceThreshold;
+            if (lineStart.x < thresholdpos && lineEnd.x < thresholdpos) return false;
+            thresholdpos = point.y + distanceThreshold;
+            if (lineStart.y > thresholdpos && lineEnd.y > thresholdpos) return false;
+            thresholdpos = point.y - distanceThreshold;
+            if (lineStart.y < thresholdpos && lineEnd.y < thresholdpos) return false;
+
+            Vector3 lineVector = lineEnd - lineStart;
+            Vector3 pointVector = point - lineStart;
+
+            float lineLengthSquared = lineVector.sqrMagnitude;
+            if (lineLengthSquared < 0.001f)
+            {
+                return (point - lineStart).sqrMagnitude < distanceThreshold * distanceThreshold;
+            }
+            float t = Vector3.Dot(pointVector, lineVector) / lineLengthSquared;
+            t = Mathf.Clamp01(t);
+
+            Vector3 closestPoint = lineStart + t * lineVector;
+            float distanceSquared = (point - closestPoint).sqrMagnitude;
+            return distanceSquared < distanceThreshold * distanceThreshold;
+        }
         Vector3 playerPos = transform.position + (Vector3)offset;
         if (colliderRadius < 0)
         {
@@ -174,44 +219,11 @@ public abstract class Target : EnsBehaviour
         }
         return result;
     }
-    private bool CalHit(Vector3 lineStart, Vector3 lineEnd, Vector3 point, float distanceThreshold)
-    {
-        // 计算线段向量
-        Vector3 lineVector = lineEnd - lineStart;
-        // 计算点到线段起点的向量
-        Vector3 pointVector = point - lineStart;
-
-        // 计算线段长度的平方（避免开方，提高性能）
-        float lineLengthSquared = lineVector.sqrMagnitude;
-
-        // 处理线段长度为0的特殊情况（起点和终点重合）
-        if (lineLengthSquared < 0.001f)
-        {
-            // 此时线段退化为点，直接计算点到起点的距离
-            return (point - lineStart).sqrMagnitude < distanceThreshold * distanceThreshold;
-        }
-
-        // 计算投影参数t（点在直线上的投影位置相对于线段的比例）
-        float t = Vector3.Dot(pointVector, lineVector) / lineLengthSquared;
-        // 限制t在[0,1]范围内，得到线段上最近点的投影参数
-        t = Mathf.Clamp01(t);
-
-        // 计算线段上的最近点
-        Vector3 closestPoint = lineStart + t * lineVector;
-        // 计算点到最近点的距离平方
-        float distanceSquared = (point - closestPoint).sqrMagnitude;
-
-        // 比较距离平方与阈值平方（避免开方运算，提高效率）
-        return distanceSquared < distanceThreshold * distanceThreshold;
-    }
     public virtual bool HostilityWith(int camp)
     {
         return camp != Camp;
     }
 
-    /// <summary>
-    /// 默认根据DetectBullet被子弹击中，同步属性
-    /// </summary>
     public override void ManagedUpdate()
     {
         foreach (var b in DetectBullet())
@@ -318,10 +330,43 @@ public abstract class Target : EnsBehaviour
     {
         return ObjectId;
     }
-    public virtual bool FacingRight()
+
+    public void RegistEvent(string key, Action<Target> action)
     {
-        return controller.FaceRight;
+        Level.RegistEvent(key, this, action);
     }
+    public void TrigEvent(string key)
+    {
+        Level.TrigEvent(key, this);
+    }
+
+    private void Ssm(string data)
+    {
+        DedicatedAttributes.Shengming.Value = int.Parse(data);
+    }
+    private void Shd(string data)
+    {
+        DedicatedAttributes.Hudun.Value = int.Parse(data);
+    }
+    private void Sgj(string data)
+    {
+        DedicatedAttributes.Gongji.Value = int.Parse(data);
+    }
+    private void Smz(string data)
+    {
+        DedicatedAttributes.Mingzhong.Value = int.Parse(data);
+    }
+    private void Sbj(string data)
+    {
+        DedicatedAttributes.Baoji.Value = int.Parse(data);
+    }
+    private void Sjs(string data)
+    {
+        DedicatedAttributes.Jiashang.Value = int.Parse(data);
+    }
+
+
+
 
 
     private static readonly List<Target> targets = new List<Target>();
@@ -448,41 +493,20 @@ public abstract class Target : EnsBehaviour
 
     protected bool InFront(Target data)
     {
-        return (data.transform.position.x > transform.position.x) == FacingRight();
+        return (data.transform.position.x > transform.position.x) == FaceRight;
     }
-
-
-    public void RegistEvent(string key,Action<Target> action)
+    public Vector2 GroundUnderward(float distance)
     {
-        Level.RegistEvent(key, this,action);
+        var hit = Physics2D.Raycast(GroundCheck.position, Vector2.down, distance, Tool.Settings.Ground);
+        var hit2 = Physics2D.Raycast(GroundCheck2.position, Vector2.down, distance, Tool.Settings.Ground);
+        float y = transform.position.y - distance;
+        if (hit) y = Mathf.Max(hit.point.y, y);
+        if (hit2) y = Mathf.Max(hit2.point.y, y);
+        return new Vector2(transform.position.x, y);
     }
-    public void TrigEvent(string key)
+    public virtual bool IsGround()
     {
-        Level.TrigEvent(key,this);
-    }
-
-    private void Ssm(string data)
-    {
-        DedicatedAttributes.Shengming.Value = int.Parse(data);
-    }
-    private void Shd(string data)
-    {
-        DedicatedAttributes.Hudun.Value = int.Parse(data);
-    }
-    private void Sgj(string data)
-    {
-        DedicatedAttributes.Gongji.Value = int.Parse(data);
-    }
-    private void Smz(string data)
-    {
-        DedicatedAttributes.Mingzhong.Value = int.Parse(data);
-    }
-    private void Sbj(string data)
-    {
-        DedicatedAttributes.Baoji.Value = int.Parse(data);
-    }
-    private void Sjs(string data)
-    {
-        DedicatedAttributes.Jiashang.Value = int.Parse(data);
+        return Physics2D.Raycast(GroundCheck.position, Vector2.down, GroundCheckDistance, Tool.Settings.Ground) ||
+            Physics2D.Raycast(GroundCheck2.position, Vector2.down, GroundCheckDistance, Tool.Settings.Ground);
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
 using UnityEngine;
 using static PlayModePage;
 
@@ -40,6 +41,13 @@ public class Tool:MonoBehaviour
         Windows,Android
     }
     public TargetPlatform Platform;
+
+
+    public static StringBuilder stringBuilder=new StringBuilder();
+
+
+
+
     private void Awake()
     {
         Instance = this;

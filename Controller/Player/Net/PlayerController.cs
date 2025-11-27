@@ -11,11 +11,6 @@ public class PlayerController : TargetController
     {
         return new Vector2(Tool.SubInput.HorizontalInput(), (Tool.SubInput.JumpSignal() ? 1 : 0) + (Tool.SubInput.FallSignal() ? -1 : 0));
     }
-    protected override void LayerUpdate()
-    {
-        if (Motion!=null || MotionVector.y < -0.5f||!isGrounded) gameObject.layer = Tool.Settings.FallingPlayerLayer;
-        else gameObject.layer = Tool.Settings.PlayerLayer;
-    }
     public override bool OnHitBack(Bullet b)
     {
         var bo=base.OnHitBack(b);

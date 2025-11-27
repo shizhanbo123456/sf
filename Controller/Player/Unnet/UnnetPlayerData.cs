@@ -6,7 +6,7 @@ using UnityEngine;
 public class UnnetPlayerData : MonoBehaviour
 {
     public UnnetPlayerController PlayerController;
-    public TargetAnim Anim;
+    public TargetGraphic Anim;
 
     [HideInInspector] public float Jixing;
     [HideInInspector] public float Tengkong;

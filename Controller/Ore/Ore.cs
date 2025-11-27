@@ -46,11 +46,6 @@ public class Ore : Target
             }
         }
     }
-    public override bool FacingRight()
-    {
-        Debug.LogError("不应获取矿石的朝向");
-        return true;
-    }
 
     public static List<Ore> OreHealthRate(out int maxEach)
     {

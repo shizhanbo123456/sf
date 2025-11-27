@@ -37,22 +37,32 @@ public class VelocityInArea : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        foreach (var c in Physics2D.OverlapAreaAll(zx, ys,Tool.Settings.Player))
+        foreach (var c in Physics2D.OverlapAreaAll(zx, ys,Tool.Settings.TargetLayer))
         {
             if(c.TryGetComponent<Rigidbody2D>(out var rb))
             {
-                //c.transform.position += v * Time.fixedDeltaTime;
-                if (SetVx) x = Velocity.x;
-                else x = rb.velocity.x;
-                if (SetVy) y = Velocity.y;
-                else y= rb.velocity.y;
-                rb.velocity = new Vector2(x, y);
-
-                if (rb.TryGetComponent<TargetController>(out var con))
-                {
-                    con.Resistance = SetReisience;
-                }
+                OnDetected(rb);
             }
+        }
+        foreach (var c in Physics2D.OverlapAreaAll(zx, ys, Tool.Settings.FallingTargetLayer))
+        {
+            if (c.TryGetComponent<Rigidbody2D>(out var rb))
+            {
+                OnDetected(rb);
+            }
+        }
+    }
+    private void OnDetected(Rigidbody2D rb)
+    {
+        if (SetVx) x = Velocity.x;
+        else x = rb.velocity.x;
+        if (SetVy) y = Velocity.y;
+        else y = rb.velocity.y;
+        rb.velocity = new Vector2(x, y);
+
+        if (rb.TryGetComponent<TargetController>(out var con))
+        {
+            con.Resistance = SetReisience;
         }
     }
 }

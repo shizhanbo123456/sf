@@ -8,9 +8,12 @@ using Variety.Base;
 
 public class Monster : Target
 {
+    public bool MonsterCanMove = true;
+    public bool MonsterCanFly = false;
+
     public static SortedDictionary<int, Monster> Monsters = new SortedDictionary<int, Monster>();
     public static int MonsterIndexNext=0;
-    public int MonsterIndex;
+    private int MonsterIndex;
 
     public enum MonsterType
     {
@@ -73,7 +76,7 @@ public class Monster : Target
         }
         Monsters.Remove(MonsterIndex);
     }
-
+    protected override TargetController AddController()=>gameObject.AddComponent<MonsterController>();
     protected override bool DamageByBullet(Bullet b)
     {
         if (!base.DamageByBullet(b)) return false;

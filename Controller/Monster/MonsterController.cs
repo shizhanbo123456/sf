@@ -5,9 +5,8 @@ using Variety.Template;
 
 public class MonsterController : TargetController
 {
-    [Space]
-    [SerializeField] private bool CanMove = true;
-    [SerializeField] private bool CanFly = false;
+    private bool CanMove;
+    private bool CanFly;
     private enum MonsterState
     {
         Relax,RandomMove,MoveTowardPlayer
@@ -22,6 +21,8 @@ public class MonsterController : TargetController
     {
         base.Init(t);
         interval = (t as Monster).StateInterval;
+        CanMove = (t as Monster).CanMove;
+        CanFly = (t as Monster).MonsterCanFly;
         if (!CanMove)
         {
             ApplyMotion(new MotionStatic(99999999, true, 99999999, true, false));
@@ -79,9 +80,8 @@ public class MonsterController : TargetController
             }
         }
     }
-    protected override void Update()
+    void Update()
     {
-        base.Update();
         StateUpdate();
     }
     private void StateUpdate()
@@ -114,26 +114,6 @@ public class MonsterController : TargetController
         if (t.transform.position.y < transform.position.y - ythreshold) y = -1;
         else if (t.transform.position.y > transform.position.y + ythreshold) y = 1;
         return new Vector2(x, y);
-    }
-    protected override void Ground()
-    {
-        if(Physics2D.OverlapCircle(GroundCheck.position,GroundCheckDistance, Tool.Settings.Ground)|| Physics2D.OverlapCircle(GroundCheck2.position, GroundCheckDistance, Tool.Settings.Ground))
-        //if (Physics2D.Raycast(GroundCheck.position, Vector2.down, GroundCheckDistance, ) || Physics2D.Raycast(GroundCheck2.position, Vector2.down, GroundCheckDistance, Tool.Settings.Ground))
-        //if (Physics2D.OverlapPoint(GroundCheck.position, Tool.Settings.Ground) || Physics2D.OverlapPoint(GroundCheck2.position, Tool.Settings.Ground))// && rb.velocity.y <= 0)
-        {
-            isGrounded = true;
-            if (rb.velocity.y <= 0.01f) JumpCount = 0;
-        }
-        else
-        {
-            isGrounded = false;
-        }
-    }
-    protected override void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(GroundCheck.position,GroundCheckDistance);
-        Gizmos.DrawWireSphere(GroundCheck2.position,GroundCheckDistance);
     }
 
     private Vector2 inputVector;
