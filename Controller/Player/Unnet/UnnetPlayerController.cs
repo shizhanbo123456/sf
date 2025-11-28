@@ -6,13 +6,10 @@ public class UnnetPlayerController : MonoBehaviour
 {
     private UnnetPlayerData playerData;
     private TargetInfoSync targetInfoSync;
+    private GroundDetector groundDetector;
 
     public bool FaceRight;
     private bool isGrounded;
-
-
-    public Transform GroundCheck;
-    public Transform GroundCheck2;
 
 
     private Rigidbody2D rb;
@@ -71,7 +68,7 @@ public class UnnetPlayerController : MonoBehaviour
     }
     private void Ground()
     {
-        if (Physics2D.OverlapPoint(GroundCheck.position, Tool.Settings.Ground) || Physics2D.OverlapPoint(GroundCheck2.position, Tool.Settings.Ground))// && rb.velocity.y <= 0)
+        if (!groundDetector||groundDetector.IsGround())// && rb.velocity.y <= 0)
         {
             isGrounded = true;
             if (rb.velocity.y <= 0.01f) JumpCount = 0;

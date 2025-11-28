@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class FileManager : MonoBehaviour
 {
-    [SerializeField] private bool Initialized = false;
+    private bool Initialized = false;
     private bool TemData = false;
 
-    private string VersionKey = "SF_Version";
-    private string DataKey = "SF_Data";
+    private const string VersionKey = "SF_Version";
+    private const string DataKey = "SF_Data";
 
     public void Awake()
     {

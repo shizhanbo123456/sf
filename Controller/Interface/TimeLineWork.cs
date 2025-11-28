@@ -8,8 +8,8 @@ using Variety.Base;
 public class TimeLineWork : MonoBehaviour
 {
     private Target target;
-    private SortedList<uint, (TimeLineCancel, TimeLineData, Action<TimeLineData>)> Events =
-        new SortedList<uint, (TimeLineCancel, TimeLineData, Action<TimeLineData>)>();
+    private SortedList<uint, (TimeLineData, Action<TimeLineData>)> Events =
+        new SortedList<uint, (TimeLineData, Action<TimeLineData>)>();
     private uint indexOffset = 0;
     private void Awake()
     {
@@ -27,31 +27,22 @@ public class TimeLineWork : MonoBehaviour
         var first=Events.First();
         if (Time.time*1000 > first.Key)
         {
-            first.Value.Item3.Invoke(first.Value.Item2); 
+            first.Value.Item2.Invoke(first.Value.Item1); 
             Events.Remove(first.Key);
         }
     }
-    public void AddEvent(float delay,TimeLineData data,Action<TimeLineData> action,TimeLineCancel c)
+    public void AddEvent(float delay,TimeLineData data,Action<TimeLineData> action)
     {
         uint t = (uint)((delay + Time.time) * 1000);
         while (Events.ContainsKey(t+indexOffset))
         {
             indexOffset++;
         }
-        Events.Add(t+indexOffset,(c,data,action));
+        Events.Add(t+indexOffset,(data,action));
         enabled=true;
     }
-    public void CancelTrigged()
+    public void Interrupted()
     {
-        if (Events.Count == 0) return;
-        List<uint>toremove= new List<uint>();
-        foreach(var i in Events)
-        {
-            if(i.Value.Item1.Cancelled)toremove.Add(i.Key);
-        }
-        foreach(var i in toremove)
-        {
-            Events.Remove(i);
-        }
+        Events.Clear();
     }
 }

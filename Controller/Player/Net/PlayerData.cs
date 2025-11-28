@@ -39,11 +39,7 @@ public class PlayerData : Target
         }
     }
 
-    [Space]
-    [Header("Name")]
-    public Text Recog;
-    public Font Font;
-    public Image Back;
+    [SerializeField] private TargetName targetName;
     
 
     public void Init(string d)//由Spawner在生成时传入信息
@@ -81,19 +77,9 @@ public class PlayerData : Target
         OnCreated();
     }
     private void Init_Name()
-    {
-        Recog.text = "P" + id + " " + Name;
-        Recog.color = Tool.SpriteManager.TargetToColor(this);
-        GUIStyle style = new GUIStyle()
-        {
-            font = Font,
-            fontSize = Recog.fontSize,
-            fontStyle = Recog.fontStyle
-        };
-        Texture2D tex = new Texture2D(1024, 16);
-        Vector2 size = style.CalcSize(new GUIContent(Recog.text));
-        Destroy(tex);
-        Back.transform.localScale = new Vector3((size.x + 30) / 100, 0.01f, 1);
+    { 
+        targetName.text = $"P{id}-{Name}";
+        targetName.color = Tool.SpriteManager.TargetToColor(this);
     }
     private void Init_Bars()
     {
@@ -149,7 +135,7 @@ public class PlayerData : Target
         Tool.UIEventCenter.TrigEvent(new ShowKilledSignalEvent());
     }
 
-
+    protected override TargetController AddController() => gameObject.AddComponent<PlayerController>();
 
     
 

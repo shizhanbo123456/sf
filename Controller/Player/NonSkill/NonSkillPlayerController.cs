@@ -6,12 +6,12 @@ public class NonSkillPlayerController : MonoBehaviour
 {
     private NonSkillPlayerData playerData;
     private TargetInfoSync targetInfoSync;
+    private GroundDetector groundDetector;
 
     public bool FaceRight;
     public bool isGrounded;
 
-    public Transform GroundCheck;
-    public Transform GroundCheck2;
+    
 
 
     private Rigidbody2D rb => GetComponent<Rigidbody2D>();
@@ -31,6 +31,7 @@ public class NonSkillPlayerController : MonoBehaviour
     public void Init(int id, NonSkillPlayerData data)
     {
         playerData = data; 
+        groundDetector = GetComponent<GroundDetector>();
         if (!TryGetComponent(out targetInfoSync))
         {
             Debug.LogError("未找到信息同步");
@@ -64,7 +65,7 @@ public class NonSkillPlayerController : MonoBehaviour
     }
     private void Ground()
     {
-        if (Physics2D.OverlapPoint(GroundCheck.position, Tool.Settings.Ground)|| Physics2D.OverlapPoint(GroundCheck2.position, Tool.Settings.Ground))// && rb.velocity.y <= 0)
+        if (!groundDetector||groundDetector.IsGround())// && rb.velocity.y <= 0)
         {
             isGrounded = true;
             if (rb.velocity.y <= 0.01f) JumpCount = 0;

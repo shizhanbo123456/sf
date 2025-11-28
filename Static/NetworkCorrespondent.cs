@@ -199,6 +199,8 @@ public class NetworkCorrespondent : EnsBehaviour
     }
     #endregion
 
+
+
     private bool restarting = false;
     public void RestartGame()
     {

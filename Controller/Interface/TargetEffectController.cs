@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class TargetEffectController : EnsBehaviour
+public class TargetEffectController : MonoBehaviour
 {
     private Target target;
     private Dictionary<int,EffectBase> Effect=new Dictionary<int, EffectBase>();
@@ -21,9 +21,8 @@ public class TargetEffectController : EnsBehaviour
         target = t;
         BaseAttributes = b;
         FloatingAttributes = f;
-        nomEnabled = t.UpdateLocally;
     }
-    public override void ManagedUpdate()
+    private void Update()
     {
         foreach (var i in Effect.Keys)
         {

@@ -39,11 +39,17 @@ public class RoomListLayout : MonoBehaviour
         currentUnit.RoomType.text = type;
     }
 }
-public abstract class RoomOperationLogic:MonoBehaviour
+public struct RoomListUnitInfo
 {
-    public abstract void OnEnter();
-    public abstract void OnExit();
-    public abstract void Flash();
-    public abstract void _CreateRoom();
-    public abstract void _JoinRoom(string ip);
+    public string name;
+    public string id;
+    public string state;
+    public string type;
+    public RoomListUnitInfo(string name,string id,string state,string type)
+    {
+        this.name = name;
+        this.id = id;
+        this.state = state;
+        this.type = type;
+    }
 }
