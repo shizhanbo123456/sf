@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
 
-public class TargetSkillController : EnsBehaviour
+public class TargetSkillController : MonoBehaviour
 {
     protected Target target;
     public List<SkillBase> Skills = new List<SkillBase>();
@@ -28,11 +28,9 @@ public class TargetSkillController : EnsBehaviour
 
         SkillLock = data.SkillLock.GetChain();
 
-        nomEnabled = data.UpdateLocally;
-
         Initialized = true;
     }
-    public override void ManagedUpdate()
+    private void Update()
     {
         if (!Initialized) return;
         //此脚本如果不是本地会disable
@@ -82,12 +80,6 @@ public class TargetSkillController : EnsBehaviour
     }
     private void UseSkillRpc(string index)
     {
-        BulletSystemCommon.CurrentShooter = target;
         Skills[int.Parse(index)].UseSkill();
-    }
-    public void Interrupt()
-    {
-        foreach (var i in Skills) i.OnInterrupted();
-        TimeNeeded = 0.5f;
     }
 }

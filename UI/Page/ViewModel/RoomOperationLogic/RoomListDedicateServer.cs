@@ -1,22 +1,13 @@
 using Ens.Request.Client;
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class RoomListDedicateServer : RoomOperationLogic
+public class RoomListDedicateServer:Singleton<RoomListDedicateServer>
 {
-    private RoomListLayout roomListLayout;
-    private RoomListLayout RoomListLayout
-    {
-        get
-        {
-            if (roomListLayout == null) roomListLayout = GetComponent<RoomListLayout>();
-            return roomListLayout;
-        }
-    }
-
-
-    public override void OnEnter()
+    private List<RoomListUnitInfo> roomInfoList = new List<RoomListUnitInfo>();
+    public Action<List<RoomListUnitInfo>> onRoomInfoChanged;
+    public Action OnClearRoomListRequired;
+    public void OnEnter()
     {
         EnsInstance.OnServerConnect += Flash;
         GetRoomList.OnRecvReply += OnGetRoomList;
@@ -26,7 +17,7 @@ public class RoomListDedicateServer : RoomOperationLogic
         StartRecv();
     }
 
-    public override void OnExit()
+    public void OnExit()
     {
         EnsInstance.OnServerConnect -= Flash;
         GetRoomList.OnRecvReply -= OnGetRoomList;
@@ -41,17 +32,21 @@ public class RoomListDedicateServer : RoomOperationLogic
         }
         else
         {
-            RoomListLayout.ClearRoomList();
+            roomInfoList.Clear();
+            onRoomInfoChanged?.Invoke(roomInfoList);
+
             EnsInstance.Corr.IP = Tool.Instance.ServerIP;
             EnsInstance.Corr.StartClient();
         }
     }
 
-    public override void Flash()
+    public void Flash()
     {
         if (EnsInstance.LocalClientId < 0) return;
-        RoomListLayout.ClearRoomList();
-        GetRoomList.SendRequest(0,999);
+        roomInfoList.Clear();
+        onRoomInfoChanged?.Invoke(roomInfoList);
+
+        GetRoomList.SendRequest(0, 999);
     }
 
     private void OnGetRoomList(int totalCount, List<int> roomList)
@@ -75,19 +70,29 @@ public class RoomListDedicateServer : RoomOperationLogic
             if (roomDict.TryGetValue("Name", out string name) &&
                 roomDict.TryGetValue("State", out string state))
             {
-                RoomListLayout.AddRoomList(name, kvp.Key.ToString(), state, "远程联机");
+                roomInfoList.Add(new RoomListUnitInfo(name, kvp.Key.ToString(), state, "远程联机"));
+                onRoomInfoChanged?.Invoke(roomInfoList);
             }
         }
     }
 
-    public override void _CreateRoom()
+    public void _CreateRoom()
     {
         if (EnsInstance.LocalClientId < 0) return;
         CreateRoom.SendRequest();
     }
-    public override void _JoinRoom(string ip)
+    public void _JoinRoom(string ip)
     {
         if (EnsInstance.LocalClientId < 0) return;
         JoinRoom.SendRequest(int.Parse(ip));
     }
 }
+/*
+public abstract class RoomOperationLogic : MonoBehaviour
+{
+    public abstract void OnEnter();
+    public abstract void OnExit();
+    public abstract void Flash();
+    public abstract void _CreateRoom();
+    public abstract void _JoinRoom(string ip);
+}*/

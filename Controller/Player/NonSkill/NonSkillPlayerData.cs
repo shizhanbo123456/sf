@@ -2,12 +2,12 @@ using AttributeSystem.Attributes;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class NonSkillPlayerData : EnsBehaviour
 {
-    public NonSkillPlayerController PlayerController;
+    private NonSkillPlayerController PlayerController;
     public TargetGraphic Anim;
+    public TargetName targetName;
 
     [HideInInspector] public float Jixing;
     [HideInInspector] public float Tengkong;
@@ -16,12 +16,7 @@ public class NonSkillPlayerData : EnsBehaviour
     public int id;
     public bool isLocalPlayer;
     public bool Initialized;
-
-    [Space]
-    [Header("Visual")]
-    public Text Recog;
-    public Font Font;
-    public Image Back;
+    
 
 
     public void Init(string data)//由Spawner在生成时传入信息
@@ -33,22 +28,12 @@ public class NonSkillPlayerData : EnsBehaviour
         var Name = p.name;
         if (Name!=string.Empty)
         {
-            Recog.text = "P" + id + " " + Name;
-            Recog.color = Color.white;
-            GUIStyle style = new GUIStyle()
-            {
-                font = Font,
-                fontSize = Recog.fontSize,
-                fontStyle = Recog.fontStyle
-            };
-            Texture2D tex = new Texture2D(1024, 16);
-            Vector2 size = style.CalcSize(new GUIContent(Recog.text));
-            Destroy(tex);
-            Back.transform.localScale = new Vector3((size.x + 30) / 100, 0.01f, 1);
+            targetName.text = $"P{id}-{Name}";
+            targetName.color= Color.white;
         }
         else
         {
-            Recog.transform.parent.gameObject.SetActive(false);
+            targetName.gameObject.SetActive(false);
         }
 
         var att=Tool.AttributesManager.GetDynamicAttribute(null);

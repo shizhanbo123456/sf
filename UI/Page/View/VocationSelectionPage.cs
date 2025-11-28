@@ -15,16 +15,19 @@ public class VocationSelectionPage : BasePage
     [SerializeField] private Text SkillDes;
     public override void Init()
     {
-        var skillCollection= Tool.VarietyManager.GetAllSkills();
-        var names = Tool.VarietyManager.GetSkillPackageName();
-        var dess = Tool.VarietyManager.GetSkillPackageDes();
-        for (int i = 0; i < skillCollection.Count; i++)
+        for (int i = 0; i < VoctionSelectionViewModel.Instance.Skills.Count; i++)
         {
             var c=Instantiate(Tool.PrefabManager.SkillLayoutUnit, ColumnLayoutRoot).GetComponent<SkillLayoutColumn>();
-            c.Init(OnSkillUnitClicked, skillCollection[i], names[i], dess[i]);
+            c.Init(OnSkillUnitClicked, VoctionSelectionViewModel.Instance.Skills[i],
+                VoctionSelectionViewModel.Instance.SkillPackageNames[i],
+                VoctionSelectionViewModel.Instance.SkillDes[i]);
             c.SelectedIcon.SetActive(i == PlayerInfo.Vocation);
             Columns.Add(c);
         }
+    }
+    private void OnEnable()
+    {
+        Detail.SetActive(false);
     }
     public void SelectColumn(int cid)
     {
@@ -50,10 +53,6 @@ public class VocationSelectionPage : BasePage
         page.SkillName.text = skill.Name;
         page.SkillTag.text = skill.Tag;
         page.SkillDes.text = skill.Description;
-    }
-    public override void Enter()
-    {
-        Detail.SetActive(false);
     }
     public void Back()
     {

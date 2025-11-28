@@ -1,48 +1,41 @@
 using Ens.Request.Client;
 using ProtocolWrapper;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class RoomListHost : RoomOperationLogic
+public class RoomListHost:Singleton<RoomListHost>
 {
-    private RoomListLayout roomListLayout;
-    private RoomListLayout RoomListLayout
-    {
-        get
-        {
-            if (roomListLayout == null) roomListLayout = GetComponent<RoomListLayout>();
-            return roomListLayout;
-        }
-    }
-
-
-    public override void OnEnter()
+    private List<RoomListUnitInfo>roomInfoList=new List<RoomListUnitInfo>();
+    public Action<List<RoomListUnitInfo>> onRoomInfoChanged;
+    public Action OnClearRoomListRequired;
+    public void OnEnter()
     {
         Broadcast.StartRecv();
-        Invoke(nameof(Flash), 1);
         RoomInfoUnit.OnRoomInfoUnitClicked += _JoinRoom;
 
     }
-    public override void OnExit()
+    public void OnExit()
     {
         Broadcast.EndRecv();
         RoomInfoUnit.OnRoomInfoUnitClicked -= _JoinRoom;
     }
 
-    public override void Flash()
+    public void Flash()
     {
-        RoomListLayout.ClearRoomList();
-        if(Broadcast.TryGetContents("RoomInfo",out var c))
+        roomInfoList.Clear();
+        onRoomInfoChanged?.Invoke(roomInfoList);
+        if (Broadcast.TryGetContents("RoomInfo", out var c))
         {
-            foreach(var i in c)
+            foreach (var i in c)
             {
-                var d=Format.StringToDictionary(i.Content,t=>t,t=>t);
-                RoomListLayout.AddRoomList(d["Name"], d["IP"], d["State"], "局域网房间");
+                var d = Format.StringToDictionary(i.Content, t => t, t => t);
+                roomInfoList.Add(new RoomListUnitInfo(d["Name"], d["IP"], d["State"], "局域网房间"));
+                onRoomInfoChanged?.Invoke(roomInfoList);
             }
         }
     }
 
-    public override void _CreateRoom()
+    public void _CreateRoom()
     {
         EnsInstance.OnServerConnect += CreateRoomOnConnect;
         EnsInstance.Corr.StartHost();
@@ -52,7 +45,7 @@ public class RoomListHost : RoomOperationLogic
         EnsInstance.OnServerConnect -= CreateRoomOnConnect;
         CreateRoom.SendRequest();
     }
-    public override void _JoinRoom(string ip)
+    public void _JoinRoom(string ip)
     {
         EnsInstance.OnServerConnect += JoinRoomOnConnect;
         EnsInstance.Corr.IP = ip;

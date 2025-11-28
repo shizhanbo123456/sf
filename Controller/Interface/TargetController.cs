@@ -7,6 +7,7 @@ public abstract class TargetController : MonoBehaviour
 {
     protected Target target;
     protected Rigidbody2D rb;
+    private GroundDetector groundDetector;
 
     
 
@@ -74,6 +75,7 @@ public abstract class TargetController : MonoBehaviour
 
         target = t;
         rb = GetComponent<Rigidbody2D>();
+        groundDetector= GetComponent<GroundDetector>();
 
         var operationlock = t.OperationLock;
         var skilllock= t.SkillLock;
@@ -130,7 +132,7 @@ public abstract class TargetController : MonoBehaviour
     }
     private void Ground()
     {
-        if (target.IsGround())
+        if (!groundDetector||groundDetector.IsGround())
         {
             isGrounded = true;
             if (rb.velocity.y <= 0.01f) JumpCount = 0;

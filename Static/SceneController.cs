@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿ØÖÆ
 {
+    private void Awake()
+    {
+        Tool.SceneController = this;
+        Invoke(nameof(LateInit), 0.3f);
+    }
+    private void LateInit()
+    {
+        CreateUnnetPlayer();
+    }
+
+
     public enum LevelType
     {
         Home,Prepare,Luandou,Gongfang,
@@ -45,18 +56,6 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     {
         if (Targets.ContainsKey(camp) && Targets[camp].ContainsKey(id)) return Targets[camp][id];
         return null;
-    }
-
-
-
-    private void Awake()
-    {
-        Tool.SceneController=this;
-        Invoke(nameof(LateInit), 0.3f);
-    }
-    private void LateInit()
-    {
-        CreateUnnetPlayer();
     }
 
     public void CreateUnnetPlayer()

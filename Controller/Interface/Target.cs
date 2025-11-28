@@ -20,10 +20,6 @@ public abstract class Target : EnsBehaviour
     public bool Effectable = true;
     public bool CanUseSkill = true;
 
-    public Transform GroundCheck;
-    public Transform GroundCheck2;
-    public float GroundCheckDistance = 1f;
-
     protected DynamicAttributes BaseAttributes;
     protected DynamicAttributes FloatingAttributes;
     [HideInInspector] public DynamicAttributes DedicatedAttributes;
@@ -36,7 +32,7 @@ public abstract class Target : EnsBehaviour
     public TargetGraphic graphic;
     public TargetVisible visible;
 
-    public TimeLineWork TimeLineWork;
+    [HideInInspector]public TimeLineWork TimeLineWork;
     private RepeatWork repeatWork;
     public RepeatWork RepeatWork
     {
@@ -90,12 +86,8 @@ public abstract class Target : EnsBehaviour
     public Vector2 offset;
     private void OnDrawGizmos()
     {
-        if(GroundCheck)
-            Gizmos.DrawLine(GroundCheck.position, GroundCheck.position + Vector3.down * GroundCheckDistance);
-        if(GroundCheck2)
-            Gizmos.DrawLine(GroundCheck2.position, GroundCheck2.position + Vector3.down * GroundCheckDistance);
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position + (Vector3)offset, colliderRadius);
+        Gizmos.color = new Color(0.5f,1f,0.5f,0.7f);
+        Gizmos.DrawSphere(transform.position + (Vector3)offset, colliderRadius);
     }
 
     /// <summary>
@@ -494,19 +486,5 @@ public abstract class Target : EnsBehaviour
     protected bool InFront(Target data)
     {
         return (data.transform.position.x > transform.position.x) == FaceRight;
-    }
-    public Vector2 GroundUnderward(float distance)
-    {
-        var hit = Physics2D.Raycast(GroundCheck.position, Vector2.down, distance, Tool.Settings.Ground);
-        var hit2 = Physics2D.Raycast(GroundCheck2.position, Vector2.down, distance, Tool.Settings.Ground);
-        float y = transform.position.y - distance;
-        if (hit) y = Mathf.Max(hit.point.y, y);
-        if (hit2) y = Mathf.Max(hit2.point.y, y);
-        return new Vector2(transform.position.x, y);
-    }
-    public virtual bool IsGround()
-    {
-        return Physics2D.Raycast(GroundCheck.position, Vector2.down, GroundCheckDistance, Tool.Settings.Ground) ||
-            Physics2D.Raycast(GroundCheck2.position, Vector2.down, GroundCheckDistance, Tool.Settings.Ground);
     }
 }

@@ -36,6 +36,7 @@ namespace Variety.Template
         public sealed override void UseSkill()
         {
             if (Target is PlayerData player) player.Mofa -= cost;
+            BulletSystemCommon.CurrentShooter = Target;
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             OnUse();
         }
@@ -101,6 +102,7 @@ namespace Variety.Template
         {
             if (Target is PlayerData player) player.Mofa -= cost;
             storeTime = 0;
+            BulletSystemCommon.CurrentShooter = Target;
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             OnUse();
         }
@@ -113,6 +115,7 @@ namespace Variety.Template
                 if (Target is PlayerData player && player.Mofa >= cost) skill.SetAvailableTime(storeTime);
                 else skill.SetAvailableTime(0);
             }
+            BulletSystemCommon.CurrentShooter = Target;
             OnUpdate();
         }
 
@@ -167,7 +170,7 @@ namespace Variety.Template
         {
             if (Target is PlayerData player) player.Mofa -= cost;
             storeTime -= 1;
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
+            BulletSystemCommon.CurrentShooter = Target;
             OnUse();
         }
         public sealed override void Update()
@@ -199,7 +202,6 @@ namespace Variety.Template
     }
     public class SkillBoss : SkillBase
     {
-        protected Skill_NonCD skill;
         protected float cd;
         protected float restoreTime;
         public SkillBoss(Target t)
@@ -220,11 +222,12 @@ namespace Variety.Template
         public sealed override void UseSkill()
         {
             restoreTime = 0;
+            BulletSystemCommon.CurrentShooter = Target;
             OnUseSkill();
         }
         protected virtual void OnUseSkill()
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
+            
         }
         public override void Update()
         {
