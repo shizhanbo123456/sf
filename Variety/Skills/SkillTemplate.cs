@@ -12,10 +12,8 @@ namespace Variety.Template
     public class SkillNonCD : SkillBase
     {
         protected Skill_NonCD skill;
-        public SkillNonCD(Target t,Sprite s)
+        public SkillNonCD()
         {
-            Target = t;
-            sprite = s;
             /*
             Name = "霰弹";
             Description = "向前发射三颗子弹，倍率0.6，耗魔10";
@@ -24,46 +22,23 @@ namespace Variety.Template
             TimeNeeded = 0.5f;
             cost = 30;
             */
-
-            if (t != null && t is PlayerData && (t as PlayerData).isLocalPlayer)
-                skill = Tool.Instance.CreateSkillColumn<Skill_NonCD>(sprite);
         }
-        public sealed override bool CanUse()
+        public override SkillBaseContrller CreateSkillColumn(Target t)
         {
-            if (Target is PlayerData player && player.Mofa < cost) return false;
-            return IfCanUse();
+            return SkillNonCDController.Create(t, cost);
         }
-        public sealed override void UseSkill()
+        public sealed override bool CanUse(Target Target)
         {
-            if (Target is PlayerData player) player.Mofa -= cost;
+            return true;
+        }
+        public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
+        {
             BulletSystemCommon.CurrentShooter = Target;
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             OnUse();
         }
-        public sealed override void Update()
-        {
-            if (skill != null)
-            {
-                if (Target is PlayerData player && player.Mofa >= cost)
-                {
-                    skill.SetAvailableTime(1);
-                }
-                else skill.SetAvailableTime(0);
-            }
-            OnUpdate();
-        }
-
-        protected virtual bool IfCanUse()
-        {
-            return true;
-        }
 
         protected virtual void OnUse()
-        {
-
-        }
-
-        protected virtual void OnUpdate()
         {
 
         }
@@ -71,14 +46,10 @@ namespace Variety.Template
     public class SkillCD : SkillBase
     {
         protected Skill_CD skill;
-        protected float storeTime;
         protected float CD;
 
-        public SkillCD(Target t,Sprite s)
+        public SkillCD()
         {
-            Target = t;
-            sprite = s;
-
             /*
             Name = "霰弹";
             Description = "向前发射三颗子弹，倍率0.6，耗魔10";
@@ -89,47 +60,23 @@ namespace Variety.Template
             CD = 20f;
             storeTime = 1;//初始储存次数
             */
-
-            if (t != null && t is PlayerData && (t as PlayerData).isLocalPlayer)
-                skill = Tool.Instance.CreateSkillColumn<Skill_CD>(sprite);
         }
-        public sealed override bool CanUse()
+        public override SkillBaseContrller CreateSkillColumn(Target t)
         {
-            if (Target is PlayerData player && player.Mofa < cost) return false;
-            return storeTime >= 0.99999f&&IfCanUse();
+            return SkillCDController.Create(t, cost, CD);
         }
-        public sealed override void UseSkill()
-        {
-            if (Target is PlayerData player) player.Mofa -= cost;
-            storeTime = 0;
-            BulletSystemCommon.CurrentShooter = Target;
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            OnUse();
-        }
-        public sealed override void Update()
-        {
-            storeTime += Time.deltaTime / CD;
-            if (storeTime > 1) storeTime = 1;
-            if (skill != null)
-            {
-                if (Target is PlayerData player && player.Mofa >= cost) skill.SetAvailableTime(storeTime);
-                else skill.SetAvailableTime(0);
-            }
-            BulletSystemCommon.CurrentShooter = Target;
-            OnUpdate();
-        }
-
-        protected virtual bool IfCanUse()
+        public sealed override bool CanUse(Target Target)
         {
             return true;
         }
-
-        protected virtual void OnUse()
+        public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
-
+            if (Target is PlayerData player) player.Mofa -= cost;
+            BulletSystemCommon.CurrentShooter = Target;
+            OnUse();
         }
 
-        protected virtual void OnUpdate()
+        protected virtual void OnUse()
         {
 
         }
@@ -143,9 +90,6 @@ namespace Variety.Template
 
         public SkillStorable(Target t,Sprite s)
         {
-            Target = t;
-            sprite = s;
-
             /*
             Name = "霰弹";
             Description = "向前发射三颗子弹，倍率0.6，耗魔10";
@@ -157,45 +101,23 @@ namespace Variety.Template
             storeTime = 3;//初始储存
             CD = 10f;
             */
-
-            if (t != null && t is PlayerData && (t as PlayerData).isLocalPlayer)
-                skill = Tool.Instance.CreateSkillColumn<Skill_Storable>(sprite);
         }
-        public sealed override bool CanUse()
+        public override SkillBaseContrller CreateSkillColumn(Target t)
         {
-            if (Target is PlayerData player && player.Mofa < cost) return false;
-            return storeTime > 0.99999f&&IfCanUse();
+            return SkillStorableController.Create(t,cost,int.MaxValue,CD);
         }
-        public sealed override void UseSkill()
+        public sealed override bool CanUse(Target Target)
+        {
+            return true;
+        }
+        public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
             if (Target is PlayerData player) player.Mofa -= cost;
             storeTime -= 1;
             BulletSystemCommon.CurrentShooter = Target;
             OnUse();
         }
-        public sealed override void Update()
-        {
-            storeTime += Time.deltaTime / CD;
-            if (storeTime > MaxstoreTime) storeTime = MaxstoreTime;
-            if (skill != null)
-            {
-                if (Target is PlayerData player && player.Mofa >= cost) skill.SetAvailableTime(storeTime);
-                else skill.SetAvailableTime(0);
-            }
-            OnUpdate();
-        }
-
-        protected virtual bool IfCanUse()
-        {
-            return true;
-        }
-
         protected virtual void OnUse()
-        {
-            
-        }
-
-        protected virtual void OnUpdate()
         {
             
         }
@@ -204,10 +126,8 @@ namespace Variety.Template
     {
         protected float cd;
         protected float restoreTime;
-        public SkillBoss(Target t)
+        public SkillBoss()
         {
-            Target = t;
-            TimeNeeded = -0.1f;
             /*
             Description = "向前发射三颗子弹，倍率0.6，耗魔10";
             TimeNeeded = 0.5f;
@@ -215,11 +135,7 @@ namespace Variety.Template
             restoreTime=1;
             */
         }
-        public override bool CanUse()
-        {
-            return restoreTime > 0.999f;
-        }
-        public sealed override void UseSkill()
+        public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
             restoreTime = 0;
             BulletSystemCommon.CurrentShooter = Target;
@@ -228,11 +144,6 @@ namespace Variety.Template
         protected virtual void OnUseSkill()
         {
             
-        }
-        public override void Update()
-        {
-            restoreTime += Time.deltaTime / cd;
-            if (restoreTime > 1) restoreTime = 1;
         }
         protected static float Dt2Degree(Vector3 dt)
         {
