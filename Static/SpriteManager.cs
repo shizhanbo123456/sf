@@ -25,6 +25,16 @@ public class SpriteManager : MonoBehaviour
     {
         Name,Bullet1,Bullet2,Bullet3
     }
+    public Sprite GetSprite(Vector2Int v)
+    {
+        switch (v.x)
+        {
+            case 1:return SkillPackageA[v.y];
+            case 2:return SkillPackageB[v.y];
+            case 3:return SkillPackageC[v.y];
+        }
+        return null;
+    }
     public Color TargetToColor(Target t,ColorType type=ColorType.Name)
     {
         if (t is PlayerData p) return GetByIndex(p.Camp,type);

@@ -34,15 +34,4 @@ public class AttributesManager : MonoBehaviour
     {
         return ModeManifest.GetLevel(Tool.FightController.ModeList);
     }
-    public bool AsBoss(PlayerData data)
-    {
-        if (Tool.FightController.ModeList[0] == '1')
-        {
-            if (data.Camp == 3)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }

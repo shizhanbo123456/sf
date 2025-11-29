@@ -2,7 +2,6 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Variety.Base;
 using Variety.Template;
 
@@ -33,23 +32,22 @@ namespace Variety.Skill.Boss17
     {
         private Lantern lantern;
 
-        public Skill0(Target t) : base(t)
+        public Skill0() : base()
         {
             Description = "根据敌人移动速度预测位置发射火球";
             TimeNeeded = 2.2f;
             cd = 7f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
             List<(Vector3, Vector3)> pos = new List<(Vector3, Vector3)>();
@@ -66,39 +64,38 @@ namespace Variety.Skill.Boss17
 
                 WarningRect.Warn(pos[^1].Item1, pos[^1].Item2, 1.2f, 0.8f);
             }
-            AddEvent(0.8f, (d) =>
+            foreach (var i in pos)
             {
-                foreach (var i in pos)
+                AddEvent(0.8f, (d) =>
                 {
                     var b = GetBullet(12);
                     b.Init(2);
-                    BulletFromToSystem.RegistObject(b,0.6f,0.5f,i.Item1,i.Item2);
+                    BulletFromToSystem.RegistObject(b, 0.6f, 0.5f, i.Item1, i.Item2);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
-                }
-            });
+                });
+            }
         }
     }
     public class Skill1 : SkillBoss
     {
         private Lantern lantern;
-        public Skill1(Target t) : base(t)
+        public Skill1() : base()
         {
             Description = "在敌人路径生成地雷，移动越快伤害越高";
             TimeNeeded = 2.5f;
             cd = 10f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
             List<Vector3>pos=new List<Vector3>();
@@ -134,12 +131,11 @@ namespace Variety.Skill.Boss17
         private Lantern lantern;
         private EffectCollection ec;
 
-        public Skill2(Target t) : base(t)
+        public Skill2() : base()
         {
             Description = "生成禁锢环，减缓敌人速度并造成持续伤害";
             TimeNeeded = 3f;
             cd = 12f;
-            restoreTime = 0;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
@@ -147,12 +143,12 @@ namespace Variety.Skill.Boss17
             ec = new EffectCollection(Target, (Effects.Slowness, 3, 5));
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
             if (nearestEnemy == null) return;
@@ -169,29 +165,26 @@ namespace Variety.Skill.Boss17
             });
         }
     }
-
-    // 技能3：分向速度弹幕（根据敌人移动方向发射弹幕）
     public class Skill3 : SkillBoss
     {
         private Lantern lantern;
 
-        public Skill3(Target t) : base(t)
+        public Skill3() : base()
         {
             Description = "沿敌人移动方向两侧发射弹幕";
             TimeNeeded = 2f;
             cd = 8f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(20);
+            return (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(20);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
             foreach (var i in enemies) WarningCircle.Warn(i.transform, 2f, 5f);
@@ -231,23 +224,22 @@ namespace Variety.Skill.Boss17
     {
         private Lantern lantern;
 
-        public Skill4(Target t) : base(t)
+        public Skill4() : base()
         {
             Description = "发射跟随敌人速度变化的追踪导弹";
             TimeNeeded = 2.8f;
             cd = 15f;
-            restoreTime = 0;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
 
@@ -269,10 +261,9 @@ namespace Variety.Skill.Boss17
     }
     public class Skill5 : Common.Skill5For14_18
     {
-        public Skill5(Target t) : base(t)
+        public Skill5() : base()
         {
             cd = 55f;
-            restoreTime = 0.8f;
         }
         protected override void GetLantern()
         {

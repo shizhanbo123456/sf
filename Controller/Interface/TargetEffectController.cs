@@ -65,25 +65,17 @@ public class TargetEffectController : MonoBehaviour
     {
         if (Effect.Count == 0)
         {
-            CallFuncRpc(nameof(SyncEffectsRpc), SendTo.Everyone, "null");
-            return;
+            target.SyncEffectIconRpc(null);
         }
-        List<int> values=new List<int>();
-        foreach(var i in Effect.Values)
+        else
         {
-            values.Add((int)i.GetEffectType());
+            List<int> values = new List<int>();
+            foreach (var i in Effect.Values)
+            {
+                values.Add((int)i.GetEffectType());
+            }
+            target.SyncEffectIconRpc(values);
         }
-        CallFuncRpc(nameof(SyncEffectsRpc), SendTo.Everyone, Format.ListToString(values, '+'));
-    }
-    private void SyncEffectsRpc(string data)
-    {
-        if (data == "null")
-        {
-            target.visible.ShowEffects(new List<Effects>());
-            return;
-        }
-        var list=Format.StringToList(data,int.Parse,'+');
-        target.visible.ShowEffects(list.Select(i => (Effects)i).ToList());
     }
     public DynamicAttributes GetBaseAttributes()
     {

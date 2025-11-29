@@ -51,12 +51,11 @@ namespace Variety.Skill.Common
             new Vector3(-9.8f,-4.2f),
         };
 
-        public Skill5For14_18(Target t) : base(t)
+        public Skill5For14_18() : base()
         {
             Description = "";
             TimeNeeded = 2f;
             cd = 3f;//子类重写
-            restoreTime = 1f;//子类重写
 
             GetLantern();
         }
@@ -65,7 +64,7 @@ namespace Variety.Skill.Common
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[0];
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target,Vector3 pos,bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var p = Target.GetNearestEnemy().transform.position;

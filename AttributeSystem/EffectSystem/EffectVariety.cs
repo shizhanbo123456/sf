@@ -644,7 +644,7 @@ namespace AttributeSystem.Effect
         }
         public override void Repeat()
         {
-            receiver.skillController.Interrupt();
+            receiver.InterruptRpc();
             receiver.controller.ApplyMotion(new MotionStatic(0.01f, false, 2, true, true));
         }
         public override Effects GetEffectType()

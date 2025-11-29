@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace AttributeSystem.Attributes
 {
-    [Serializable]
     public class DynamicAttributes
     {
         public RegistableVariable<int> Shengming=new RegistableVariable<int>(0);
@@ -21,7 +20,6 @@ namespace AttributeSystem.Attributes
         public RegistableVariable<float> Jixing = new RegistableVariable<float>(0);
         public RegistableVariable<float> Tengkong = new RegistableVariable<float>(0);
         public RegistableVariable<int> Liantiao = new RegistableVariable<int>(0);
-        public RegistableVariable<int> Hudun = new RegistableVariable<int>(0);
 
 
 
@@ -41,7 +39,6 @@ namespace AttributeSystem.Attributes
             d.Jixing.Value = Jixing.Value;
             d.Tengkong.Value = Tengkong.Value;
             d.Liantiao.Value = Liantiao.Value;
-            d.Hudun.Value = Hudun.Value;
             return d;
         }
         public void SetAllDirty()
@@ -59,7 +56,6 @@ namespace AttributeSystem.Attributes
             Jixing.OnValueChanged?.Invoke(Jixing.Value);
             Tengkong.OnValueChanged?.Invoke(Tengkong.Value);
             Liantiao.OnValueChanged?.Invoke(Liantiao.Value);
-            Hudun.OnValueChanged?.Invoke(Hudun.Value);
         }
     }
 }

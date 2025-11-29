@@ -9,18 +9,17 @@ namespace Variety.Skill.Boss12
 {
     public class Skill0 : SkillBoss
     {
-        public Skill0(Target t) : base(t)
+        public Skill0() : base()
         {
             Description = "";
             TimeNeeded = 0.3f;
             cd = 3f;
-            restoreTime = 1;
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && Target.GetEnemyInRange(4, true).Count > 0;
+            return Target.GetEnemyInRange(4, true).Count > 0;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = Target.FaceRight ? 1 : -1;
@@ -34,18 +33,17 @@ namespace Variety.Skill.Boss12
     }
     public class Skill1 : SkillBoss
     {
-        public Skill1(Target t) : base(t)
+        public Skill1() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 3f;
-            restoreTime = 1;
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && Target.GetEnemyInRange(4, true).Count > 0;
+            return Target.GetEnemyInRange(4, true).Count > 0;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for(int a = -10; a <= 10; a += 10)
@@ -71,14 +69,13 @@ namespace Variety.Skill.Boss12
     }
     public class Skill2 : SkillBoss
     {
-        public Skill2(Target t) : base(t)
+        public Skill2() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 3f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 3f, 1f);
@@ -98,18 +95,17 @@ namespace Variety.Skill.Boss12
     }
     public class Skill3 : SkillBoss
     {
-        public Skill3(Target t) : base(t)
+        public Skill3() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 3f;
-            restoreTime = 1;
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && Target.GetEnemyInRange(8, true).Count > 0;
+            return Target.GetEnemyInRange(8, true).Count > 0;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(5);
@@ -132,14 +128,13 @@ namespace Variety.Skill.Boss12
     }
     public class Skill4 : SkillBoss
     {
-        public Skill4(Target t) : base(t)
+        public Skill4() : base()
         {
             Description = "";
             TimeNeeded = 1f;
             cd = 3f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = Target.FaceRight ? 1 : -1;
@@ -159,14 +154,13 @@ namespace Variety.Skill.Boss12
     }
     public class Skill5 : SkillBoss
     {
-        public Skill5(Target t) : base(t)
+        public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 5f;
             cd = 32f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionDir(Vector2.up * 40, 0.25f, true, 1, true, true));

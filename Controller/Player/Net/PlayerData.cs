@@ -15,7 +15,7 @@ public class PlayerData : Target
     [HideInInspector] public string Name;
     [HideInInspector] public int Vocation;
 
-    [HideInInspector]public Bar_Main bar;
+    [HideInInspector]public Bar_Float bar;
     [HideInInspector]public Bar_Float magic;
     
 
@@ -56,7 +56,6 @@ public class PlayerData : Target
         maxMofa=new RegistableVariable<int>((int)att.Mofa.GetValue(level));
         mofa = new RegistableVariable<int>(maxMofa.Value);
         BaseAttributes = att.GetDynamicAttributes(level).Clone();
-        if (Tool.AttributesManager.AsBoss(this)) BaseAttributes.Shengming.Value *= 80;
         FloatingAttributes = BaseAttributes.Clone();
 
         GetAndInitComponents();
@@ -83,18 +82,15 @@ public class PlayerData : Target
     }
     private void Init_Bars()
     {
-        bar = Tool.Instance.CreateBar(PlayModePage.BarType.Main) as Bar_Main;
+        bar = Tool.Instance.CreateBar(PlayModePage.BarType.Float) as Bar_Float;
         magic = Tool.Instance.CreateBar(PlayModePage.BarType.Float) as Bar_Float;
 
         BaseAttributes.Shengming.OnValueChanged += v =>
         {
             bar.Max = v;
             bar.SetValue(FloatingAttributes.Shengming.Value);
-            bar.SubMax = v;
-            bar.SetValue(FloatingAttributes.Hudun.Value);
         };
         FloatingAttributes.Shengming.OnValueChanged += v => { bar.SetValue(v); };
-        FloatingAttributes.Hudun.OnValueChanged += v => { bar.SetSubValue(v); };
 
         maxMofa.OnValueChanged += v =>
         { magic.Max = v; magic.SetValue(mofa.Value); };
@@ -102,7 +98,6 @@ public class PlayerData : Target
 
         BaseAttributes.Shengming.OnValueChanged.Invoke(BaseAttributes.Shengming.Value);
         FloatingAttributes.Shengming.OnValueChanged.Invoke(FloatingAttributes.Shengming.Value);
-        FloatingAttributes.Hudun.OnValueChanged.Invoke(FloatingAttributes.Hudun.Value);
         maxMofa.OnValueChanged.Invoke(maxMofa.Value);
         mofa.OnValueChanged.Invoke(mofa.Value);
     }
@@ -129,43 +124,10 @@ public class PlayerData : Target
     {
         Tool.FightController.OnDeathRpc(Camp, ((t!=null&&t is PlayerData)?t.Camp:9));
         Shengming = BaseAttributes.Shengming.Value;
-        Hudun = 0;
         Mofa = maxMofa.Value;
         transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
         Tool.UIEventCenter.TrigEvent(new ShowKilledSignalEvent());
     }
 
     protected override TargetController AddController() => gameObject.AddComponent<PlayerController>();
-
-    
-
-    protected override int GetId()
-    {
-        return id;
-    }
-
-    public override Target GetNearestEnemy(float range, bool requireInFront)
-    {
-        if (Tool.FightController.ModeList[0] =='3'&&Camp==3)
-        {
-            float DMin = 999999;
-            Target r = null;
-            foreach (var i in Tool.SceneController.Targets)
-            {
-                if (i.Key != 0) continue;
-                foreach (var j in i.Value.Values)
-                {
-                    if (requireInFront && !InFront(j)) continue;
-                    var m = Tool.GetDistance(transform.position, j.transform.position);
-                    if (m < DMin && m <= range)
-                    {
-                        r = j;
-                        DMin = m;
-                    }
-                }
-            }
-            return r;
-        }
-        return base.GetNearestEnemy(range, requireInFront);
-    }
 }

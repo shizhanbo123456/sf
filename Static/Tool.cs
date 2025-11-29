@@ -3,7 +3,6 @@ using SF.UI.Bar;
 using SF.UI.Skill;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -18,7 +17,6 @@ public class Tool:MonoBehaviour
     public static PrefabManager PrefabManager;
     public static SpriteManager SpriteManager;
     public static FightController FightController;
-    public static VarietyManager VarietyManager=new VarietyManager();
     public static PageManager PageManager;
     public static SceneController SceneController;//生成/摧毁 玩家/场景
     public static WorldTextController WorldTextController;
@@ -81,23 +79,6 @@ public class Tool:MonoBehaviour
     {
         return PageManager.PlayModePage.CreateBossBar();
     }
-    public T CreateSkillColumn<T>(Sprite s) where T: Skill_Base
-    {
-        var type = typeof(T);
-        if (type == typeof(Skill_NonCD))
-        {
-            return PageManager.PlayModePage.CreateSkillColumn(SkillColumnType.NonCD, s) as T;
-        }
-        if (type == typeof(Skill_CD))
-        {
-            return PageManager.PlayModePage.CreateSkillColumn(SkillColumnType.CD, s) as T;
-        }
-        if (type== typeof(Skill_Storable))
-        {
-            return PageManager.PlayModePage.CreateSkillColumn(SkillColumnType.Storable, s) as T;
-        }
-        throw new System.Exception("错误的传入类型:" + type.ToString());
-    }
     public void DestroyAllBars()
     {
         foreach (var i in PageManager.PlayModePage.BarList.Bars) Destroy(i.gameObject);
@@ -116,19 +97,6 @@ public class Tool:MonoBehaviour
 
 
 
-
-
-    public static float GetDistance(Vector3 a,Vector3 b)
-    {
-        var d = a - b;
-        return Mathf.Sqrt(d.x * d.x + d.y * d.y);
-    }
-    public static int FindIndexOf(int num,List<int> data)
-    {
-        int i = 0;
-        while (i<data.Count&&num != data[i]) i++;
-        return i;
-    }
     public static string GetIP()
     {
         /*
@@ -222,19 +190,5 @@ public class Tool:MonoBehaviour
         // iOS热点常见网段：172.20.x.x（如172.20.10.x）
         return (bytes[0] == 192 && bytes[1] == 168 && bytes[2] == 43) || // Android热点
                (bytes[0] == 172 && bytes[1] == 20);                     // iOS热点常见网段
-    }
-
-
-    public static void Destroy(Component c)
-    {
-        Destroy(c.gameObject);
-    }
-    public static Vector3 DTV(float degree)
-    {
-        return new Vector3(Mathf.Cos(degree / 57.3f), Mathf.Sin(degree / 57.3f));
-    }
-    public static float VTD(Vector3 v)
-    {
-        return Mathf.Atan2(v.y, v.x) * 57.3f;
     }
 }

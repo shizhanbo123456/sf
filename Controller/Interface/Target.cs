@@ -2,7 +2,7 @@ using AttributeSystem.Attributes;
 using AttributeSystem.Effect;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using UnityEngine;
 using Variety.Base;
 using static WorldTextController;
@@ -20,9 +20,9 @@ public abstract class Target : EnsBehaviour
     public bool Effectable = true;
     public bool CanUseSkill = true;
 
-    protected DynamicAttributes BaseAttributes;
-    protected DynamicAttributes FloatingAttributes;
-    [HideInInspector] public DynamicAttributes DedicatedAttributes;
+    public DynamicAttributes BaseAttributes;
+    public DynamicAttributes FloatingAttributes;
+    public DedicateSyncAttributes DedicatedAttributes;
 
     [HideInInspector] public TargetInfoSync targetInfoSync;
     [HideInInspector]public TargetController controller;
@@ -58,14 +58,6 @@ public abstract class Target : EnsBehaviour
             FloatingAttributes.Shengming.Value = Mathf.Clamp(value, 0, BaseAttributes.Shengming.Value);
         }
     }
-    public virtual int Hudun
-    {
-        get { return FloatingAttributes.Hudun.Value; }
-        set
-        {
-            FloatingAttributes.Hudun.Value = Mathf.Max(value,0);
-        }
-    }
     public virtual bool UpdateLocally
     {
         get
@@ -79,8 +71,6 @@ public abstract class Target : EnsBehaviour
 
     protected float HealthDirtyClearCD;
     protected bool HealthDirty;
-    protected float ShieldDirtyClearCD;
-    protected bool ShieldDirty;
 
     public float colliderRadius = -1;
     public Vector2 offset;
@@ -124,28 +114,13 @@ public abstract class Target : EnsBehaviour
         //攻击类属性远程同步
         //防御类属性本地同步
         FloatingAttributes.Shengming.OnValueChanged += _ => { HealthDirty = true; };
-        FloatingAttributes.Gongji.OnValueChanged += v => { CallFuncRpc(nameof(Sgj), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Gongji.Value = v; };
-        FloatingAttributes.Mingzhong.OnValueChanged += v => { CallFuncRpc(nameof(Smz), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Mingzhong.Value = v; };
-        FloatingAttributes.Baoji.OnValueChanged += v => { CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Baoji.Value = v; };
-        FloatingAttributes.Jiashang.OnValueChanged += v => { CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, v.ToString());DedicatedAttributes.Jiashang.Value = v; };
-        if (UpdateLocally)
-        {
-            FloatingAttributes.Fangyu.OnValueChanged += v => DedicatedAttributes.Gongji.Value = v;
-            FloatingAttributes.Shanbi.OnValueChanged += v => DedicatedAttributes.Shanbi.Value = v;
-            FloatingAttributes.Renxing.OnValueChanged += v => DedicatedAttributes.Renxing.Value = v;
-            FloatingAttributes.Jianshang.OnValueChanged += v => DedicatedAttributes.Jianshang.Value = v;
+        FloatingAttributes.Gongji.OnValueChanged += v => { CallFuncRpc(nameof(Sgj), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Gongji = v; };
+        FloatingAttributes.Mingzhong.OnValueChanged += v => { CallFuncRpc(nameof(Smz), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Mingzhong = v; };
+        FloatingAttributes.Baoji.OnValueChanged += v => { CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Baoji = v; };
+        FloatingAttributes.Jiashang.OnValueChanged += v => { CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, v.ToString());DedicatedAttributes.Jiashang = v; };
 
-            FloatingAttributes.Kangjitui.OnValueChanged += v => DedicatedAttributes.Kangjitui.Value = v;
-            FloatingAttributes.Jixing.OnValueChanged += v => DedicatedAttributes.Jixing.Value = v;
-            FloatingAttributes.Tengkong.OnValueChanged += v => DedicatedAttributes.Tengkong.Value = v;
-            FloatingAttributes.Liantiao.OnValueChanged += v=>DedicatedAttributes.Liantiao.Value = v;
-        }
         FloatingAttributes.SetAllDirty();
-
-        DedicatedAttributes.Shengming.OnValueChanged += v =>
-        {
-            if (visible != null) visible.SetNum(v * 1f / BaseAttributes.Shengming.Value);
-        };
+        HealthDirty = true;
     }
     protected void InitEssential()
     {
@@ -226,18 +201,13 @@ public abstract class Target : EnsBehaviour
         else if (HealthDirty)
         {
             HealthDirty = false;
-            CallFuncRpc(nameof(Ssm), SendTo.ExcludeSender,FloatingAttributes.Shengming.Value.ToString());
-            DedicatedAttributes.Shengming.Value=FloatingAttributes.Shengming.Value;
+            OnSyncHealth();
             HealthDirtyClearCD = 0.15f;
         }
-        if (ShieldDirtyClearCD > 0) ShieldDirtyClearCD -= Time.deltaTime;
-        else if (ShieldDirty)
-        {
-            ShieldDirty = false;
-            CallFuncRpc(nameof(Shd), SendTo.ExcludeSender, FloatingAttributes.Shengming.Value.ToString());
-            DedicatedAttributes.Hudun.Value = FloatingAttributes.Hudun.Value;
-            ShieldDirtyClearCD = 0.15f;
-        }
+    }
+    public virtual void OnSyncHealth()
+    {
+
     }
     protected virtual bool DamageByBullet(Bullet b)
     {
@@ -251,7 +221,11 @@ public abstract class Target : EnsBehaviour
         {
             OnHitBack(b);
             ApplyEffects(b);
-            Damaged(d);
+            Shengming -= d;
+            if (Shengming <= 0)
+            {
+                Shengming = 0;
+            }
         }
         return true;
     }
@@ -271,28 +245,6 @@ public abstract class Target : EnsBehaviour
         string[] s=data.Split('_');
         Tool.WorldTextController.ShowTextLocal(s[0], visible.transform.position+Vector3.up*1.5f, (TextColor)int.Parse(s[1]));
     }
-    protected void Damaged(int d)
-    {
-        if (d == 0) { }
-        else if (Hudun > d)
-        {
-            Hudun -= d;
-        }
-        else
-        {
-            if (Hudun > 0)
-            {
-                d -= Hudun;
-                Hudun = 0;
-            }
-            Shengming -= d;
-            if (Shengming <= 0)
-            {
-                Shengming = 0;
-            }
-        }
-    }
-
     protected virtual void OnHitBack(Bullet b)
     {
         if(controller!=null)controller.OnHitBack(b);
@@ -318,10 +270,6 @@ public abstract class Target : EnsBehaviour
         if (effectController == null) return;
         effectController.AddEffect(e);
     }
-    protected virtual int GetId()
-    {
-        return ObjectId;
-    }
 
     public void RegistEvent(string key, Action<Target> action)
     {
@@ -332,33 +280,69 @@ public abstract class Target : EnsBehaviour
         Level.TrigEvent(key, this);
     }
 
-    private void Ssm(string data)
-    {
-        DedicatedAttributes.Shengming.Value = int.Parse(data);
-    }
-    private void Shd(string data)
-    {
-        DedicatedAttributes.Hudun.Value = int.Parse(data);
-    }
     private void Sgj(string data)
     {
-        DedicatedAttributes.Gongji.Value = int.Parse(data);
+        DedicatedAttributes.Gongji = int.Parse(data);
     }
     private void Smz(string data)
     {
-        DedicatedAttributes.Mingzhong.Value = int.Parse(data);
+        DedicatedAttributes.Mingzhong = int.Parse(data);
     }
     private void Sbj(string data)
     {
-        DedicatedAttributes.Baoji.Value = int.Parse(data);
+        DedicatedAttributes.Baoji = int.Parse(data);
     }
     private void Sjs(string data)
     {
-        DedicatedAttributes.Jiashang.Value = int.Parse(data);
+        DedicatedAttributes.Jiashang = int.Parse(data);
     }
 
-
-
+    public void UseSkillRpc(int index)
+    {
+        var sb = Tool.stringBuilder;
+        sb.Clear();
+        sb.Append(index).Append('_').
+            Append(transform.position.x.ToString("F1")).Append('_').
+            Append(transform.position.y.ToString("F2")).Append('_').
+            Append(FaceRight ? '1' : '0');
+        CallFuncRpc(nameof(UseSkillLocal), SendTo.Everyone, sb.ToString());
+    }
+    private void UseSkillLocal(string param)
+    {
+        string[] s = param.Split('_');
+        int index=int.Parse(s[0]);
+        Vector3 pos = new Vector3(float.Parse(s[1]), float.Parse(s[2]));
+        bool faceright = s[3][0] == '1';
+        VarietyManager.GetSkill(index).UseSkill(this, pos, faceright);
+    }
+    public void SyncEffectIconRpc(List<int> values)
+    {
+        if (values==null||values.Count==0)
+        {
+            CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, "null");
+            return;
+        }
+        CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, Format.ListToString(values, '+'));
+    }
+    private void SyncEffectIconLocal(string data)
+    {
+        if (data == "null")
+        {
+            visible.ShowEffects(new List<Effects>());
+            return;
+        }
+        var list = Format.StringToList(data, int.Parse, '+');
+        visible.ShowEffects(list.Select(i => (Effects)i).ToList());
+    }
+    public void InterruptRpc()
+    {
+        CallFuncRpc(nameof(InterruptLocal), SendTo.ExcludeSender);
+        InterruptLocal();
+    }
+    public void InterruptLocal()
+    {
+        TimeLineWork.Interrupted();
+    }
 
 
     private static readonly List<Target> targets = new List<Target>();
@@ -392,7 +376,7 @@ public abstract class Target : EnsBehaviour
             if (i.Key != Camp) continue;
             foreach (var j in i.Value.Values)
             {
-                if (j.GetId() == GetId()) continue;
+                if (j.ObjectId == ObjectId) continue;
                 if (requireInFront && !InFront(j)) continue;
                 var mSqr = (transform.position - j.transform.position).sqrMagnitude;
                 if (mSqr < DMin)
@@ -433,7 +417,7 @@ public abstract class Target : EnsBehaviour
             if (i.Key != Camp) continue;
             foreach (var j in i.Value.Values)
             {
-                if (j.GetId() == GetId()) continue;
+                if (j.ObjectId == ObjectId) continue;
                 if (requireInFront && !InFront(j)) continue;
                 if ((transform.position - j.transform.position).sqrMagnitude <= rangeSqr)
                 {
@@ -471,7 +455,7 @@ public abstract class Target : EnsBehaviour
             if (i.Key != Camp) continue;
             foreach (var j in i.Value.Values)
             {
-                if (j.GetId() == GetId()) continue;
+                if (j.ObjectId==ObjectId) continue;
                 if (requireInFront && !InFront(j)) continue;
                 if (Mathf.Abs(j.transform.position.x - transform.position.x) <= halfx &&
                     Mathf.Abs(j.transform.position.y - transform.position.y) <= halfy)

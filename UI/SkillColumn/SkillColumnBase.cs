@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace SF.UI.Skill
 {
-    public abstract class Skill_Base : MonoBehaviour
+    public abstract class SkillColumnBase : MonoBehaviour
     {
         [SerializeField] private Image MainIcon;
         [SerializeField] protected Image PieShade;
@@ -16,13 +16,17 @@ namespace SF.UI.Skill
         }
         public abstract void SetAvailableTime(float time);
     }
-    public abstract class SkillBaseContrller
+}
+public abstract class SkillBaseController
+{
+    public int SkillIndex { get; protected set; }
+    public virtual void Update()
     {
-        protected int SkillIndex;
-        public abstract bool CanUse();
-        public virtual void OnUse()
-        {
 
-        }
+    }
+    public abstract bool CanUse();
+    public virtual void OnUse()
+    {
+
     }
 }

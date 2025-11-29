@@ -23,14 +23,13 @@ namespace Variety.Skill.Boss4
     }
     public class Skill0 : SkillBoss
     {
-        public Skill0(Target t) : base(t)
+        public Skill0() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 8f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
@@ -50,14 +49,13 @@ namespace Variety.Skill.Boss4
     }
     public class Skill1 : SkillBoss
     {
-        public Skill1(Target t) : base(t)
+        public Skill1() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 10f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t=Target.GetNearestEnemy();
             t.ApplyMotion(new MotionDir(Vector2.up * 10, 0.7f, false, 1, false,false));
@@ -77,17 +75,16 @@ namespace Variety.Skill.Boss4
     {
         private EffectCollection ec1;
         private EffectCollection ec2;
-        public Skill2(Target t) : base(t)
+        public Skill2() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 30f;
-            restoreTime = 1;
 
             ec1 = new EffectCollection(t, (Effects.Slowness, 2f, 1f));
             ec2 = new EffectCollection(t, (Effects.ArmorShatter, 55f, 10f));
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             foreach(var i in Ore.Ores.Values)
@@ -107,14 +104,13 @@ namespace Variety.Skill.Boss4
     }
     public class Skill3 : SkillBoss
     {
-        public Skill3(Target t) : base(t)
+        public Skill3() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 10f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t=Target.GetNearestEnemy().transform.position;
             WarningRect.Warn(Target.transform.position, (t - Target.transform.position).normalized * 60 + Target.transform.position, 3, 1f);
@@ -131,14 +127,13 @@ namespace Variety.Skill.Boss4
     }
     public class Skill4 : SkillBoss
     {
-        public Skill4(Target t) : base(t)
+        public Skill4() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 14f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t = Target.GetNearestEnemy().transform.position;
             WarningCircle.Warn(t,2,0.5f);
@@ -159,18 +154,17 @@ namespace Variety.Skill.Boss4
     }
     public class Skill5 : SkillBoss
     {
-        public Skill5(Target t) : base(t)
+        public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 30f;
-            restoreTime = 1;
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse()&&Target.GetEnemyInRange(8,false).Count>0;
+            return Target.GetEnemyInRange(8,false).Count>0;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var b = GetBullet(4);
             b.Init(0.1f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));

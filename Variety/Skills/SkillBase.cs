@@ -12,39 +12,25 @@ namespace Variety.Base
     /// </summary>
     public abstract class SkillBase
     {
-        public Vector2 sprite;
+        public Vector2Int sprite;
         public string Name;
         public string Description;
         public string Tag;
-        public float TimeNeeded;//释放所需的时间
-        public int cost = 10;
+        public float TimeNeeded=2;//释放所需的时间
+        public int cost = 44;
 
-        /// <summary>
-        /// Init中需要对PlayerData是否为null进行判断(技能选择界面需要)<br></br>
-        /// Init中需要对是否为Init中需要对PlayerData是否为null进行判断进行判断
-        /// </summary>
+        private static int indexsource = 0;
+        private int index;
         public SkillBase()
         {
-            sprite=new Vector2();
-            Name = "Test";
-            Description = "Des";
-            Tag = "近战";
-            //sprite = Tool.VarietyManager.GetSkillIcon(0, 0);
-            TimeNeeded = 2;
-            cost = 30;
+            index = indexsource++;
         }
-        public virtual SkillBaseContrller CreateSkillColumn(Target t)
-        {
-            return null;
-        }
+        public virtual SkillBaseController CreateSkillColumn(Target t) => throw new Exception("该类不可创建技能栏");
         public virtual bool CanUse(Target Target)
         {
             return true;
         }
-        public virtual void UseSkill(Target Target,Vector3 pos,bool faceright)
-        {
-
-        }
+        public abstract void UseSkill(Target Target, Vector3 pos, bool faceright);
         protected void AddEvent(float delay,TimeLineData data,Action<TimeLineData>action)
         {
             BulletSystemCommon.CurrentShooter.TimeLineWork.AddEvent(delay, data, action);
@@ -61,6 +47,11 @@ namespace Variety.Base
         protected static Bullet GetBullet(int index)
         {
             return Tool.BulletManager.GetBullet(index);
+        }
+
+        public override int GetHashCode()
+        {
+            return index;
         }
     }
 }

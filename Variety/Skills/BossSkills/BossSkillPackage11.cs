@@ -35,14 +35,13 @@ namespace Variety.Skill.Boss11
     }
     public class Skill0 : SkillBoss
     {
-        public Skill0(Target t) : base(t)
+        public Skill0() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 3f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
@@ -70,21 +69,20 @@ namespace Variety.Skill.Boss11
     public class Skill1 : SkillBoss
     {
         private Lantern lantern;
-        public Skill1(Target t) : base(t)
+        public Skill1() : base()
         {
             Description = "";
             TimeNeeded = 4f;
             cd = 30f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[^1];
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && lantern && lantern.TimeOfDie < 0.01f;
+            return lantern && lantern.TimeOfDie < 0.01f;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for (int i = 0; i < 30; i++)
@@ -109,21 +107,20 @@ namespace Variety.Skill.Boss11
     public class Skill2 : SkillBoss
     {
         private Lantern lantern;
-        public Skill2(Target t) : base(t)
+        public Skill2() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 3f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[^1];
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && lantern && lantern.TimeOfDie < 0.01f;
+            return lantern && lantern.TimeOfDie < 0.01f;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
@@ -143,21 +140,20 @@ namespace Variety.Skill.Boss11
     public class Skill3 : SkillBoss
     {
         private Lantern lantern;
-        public Skill3(Target t) : base(t)
+        public Skill3() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 7f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[^1];
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && lantern && lantern.TimeOfDie < 0.01f;
+            return lantern && lantern.TimeOfDie < 0.01f;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var p = Target.GetNearestEnemy().transform.position;
@@ -181,21 +177,20 @@ namespace Variety.Skill.Boss11
     public class Skill4 : SkillBoss
     {
         private Lantern lantern;
-        public Skill4(Target t) : base(t)
+        public Skill4() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 28f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[^1];
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && lantern && lantern.TimeOfDie < 0.01f;
+            return lantern && lantern.TimeOfDie < 0.01f;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
@@ -264,21 +259,20 @@ namespace Variety.Skill.Boss11
             (new Vector3( 7 , -19 ),new Vector3( -12 , -7 )),
             (new Vector3( 20 , -17 ),new Vector3( -8 , 5 )),
         };
-        public Skill5(Target t) : base(t)
+        public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 4f;
             cd = 25f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[^1];
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && lantern && lantern.TimeOfDie < 0.01f;
+            return lantern && lantern.TimeOfDie < 0.01f;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var p = Target.GetNearestEnemy().transform.position;
