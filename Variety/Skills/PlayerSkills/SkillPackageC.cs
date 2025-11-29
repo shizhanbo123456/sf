@@ -14,7 +14,6 @@ namespace Variety.Skill.PackageC
             Description = "召唤两发子弹射向前方，耗魔15";
             Tag = "平a";
             TimeNeeded = 0.3f;
-            cost = 15;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -38,7 +37,6 @@ namespace Variety.Skill.PackageC
             Description = "迅速向后位移，期间中幅提升减伤";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            cost = 00;
             MaxstoreTime = 2;
             CD = 10f;
         }
@@ -46,7 +44,7 @@ namespace Variety.Skill.PackageC
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
             Target.ApplyMotion(new MotionDir(front*-20,0.25f,true,1,true,true));
-            Target.effectController.AddEffect(new ArmorFortity(Target, Target, 50, 0.5f));
+            Target.effectController.AddEffect(new ArmorFortity(Target.ObjectId, Target, 50, 0.5f));
         }
     }
     public class Skill2 : SkillCD
@@ -57,7 +55,6 @@ namespace Variety.Skill.PackageC
             Description = "向前发射三颗子弹，耗魔100";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            cost = 100;
             CD = 2f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
@@ -81,7 +78,6 @@ namespace Variety.Skill.PackageC
             Description = "召唤一圈子弹围绕自身，耗魔75";
             Tag = "平a";
             TimeNeeded = 0.2f;
-            cost = 75;
             CD = 20f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
@@ -148,7 +144,6 @@ namespace Variety.Skill.PackageC
             Description = "前方地面不断喷发出子弹，耗魔150";
             Tag = "平a";
             TimeNeeded = 0.6f;
-            cost = 150;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -176,7 +171,6 @@ namespace Variety.Skill.PackageC
             Description = "向周围10m内的敌人施加诅咒";
             Tag = "平a";
             TimeNeeded = 2f;
-            cost = 0;
             CD = 25f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
@@ -188,7 +182,7 @@ namespace Variety.Skill.PackageC
             b.Shoot();
             foreach (var i in Target.GetEnemyInRange(10, false))
             {
-                i.ApplyEffect(new BadLuck(Target, i, 20, 10f));
+                i.ApplyEffect(new BadLuck(Target.ObjectId, i, 20, 10f));
             }
         }
     }

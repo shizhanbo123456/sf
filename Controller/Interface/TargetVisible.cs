@@ -19,7 +19,7 @@ public class TargetVisible : MonoBehaviour
         Bar.transform.localPosition = new Vector3(Mathf.Lerp(-5, 0, value), 0, 0);
         Bar.transform.localScale = new Vector3(Mathf.Lerp(0, 10, value), 0.4f, 0);
     }
-    public void ShowEffects(List<Effects> effects)
+    public void ShowEffects(List<EffectType> effects)
     {
         foreach (var unit in EffectUnits) unit.gameObject.SetActive(false);
 
@@ -40,7 +40,7 @@ public class TargetVisible : MonoBehaviour
             effectUnit.sprite = GetIcon(effects[i]);
         }
     }
-    public Sprite GetIcon(Effects e)
+    public Sprite GetIcon(EffectType e)
     {
         return Tool.SpriteManager.EffectIcons[(int)e];
     }

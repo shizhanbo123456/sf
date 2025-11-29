@@ -2,7 +2,6 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Variety.Base;
 using Variety.Template;
 
@@ -18,19 +17,18 @@ namespace Variety.Skill.Boss14
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[0];
 
-            if (lantern != null) lantern.ApplyEffect(new Burning(target, lantern, (int)(lantern.Shengming * 0.02f), 999999));
+            if (lantern != null) lantern.ApplyEffect(new Burning(Target.SceneEffectId, lantern, (int)(lantern.Shengming * 0.02f), 999999));
         }
         protected override void Repeat()
         {
             if (!lantern) return;
-            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target, target, 90, 1));
-            else if(lantern.Shengming==1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target, t, 30, 1)));
+            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
+            else if(lantern.Shengming>=1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
     public class Skill0 : SkillBoss
     {
         private Lantern lantern;
-        private EffectCollection ec;
         public Skill0() : base()
         {
             Description = "在靠近的敌人周围生成持续伤害雾气";
@@ -40,7 +38,7 @@ namespace Variety.Skill.Boss14
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[0];
 
-            ec = new EffectCollection(Target, (Effects.Slowness, 2f, 5f));
+            
         }
 
         public override bool CanUse(Target Target)
@@ -50,6 +48,7 @@ namespace Variety.Skill.Boss14
 
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
+            var ec = new EffectCollection(Target, (EffectType.Slowness, 2f, 5f));
             var enemies = Target.GetEnemyInRange().Select(t=>t.transform.position); // 获取范围内敌人
             foreach (var i in enemies)
             {
@@ -149,7 +148,6 @@ namespace Variety.Skill.Boss14
     public class Skill3 : SkillBoss
     {
         private Lantern lantern;
-        private EffectCollection ec;
         public Skill3() : base()
         {
             Description = "标记靠近的敌人，使其受到持续伤害并降低防御";
@@ -159,9 +157,6 @@ namespace Variety.Skill.Boss14
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[0];
 
-            ec = new EffectCollection(Target, 
-                (Effects.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value * 0.5f, 10), 
-                (Effects.DefenseDecrease, 0.2f, 10));
         }
 
         public override bool CanUse(Target Target)
@@ -171,6 +166,9 @@ namespace Variety.Skill.Boss14
 
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
+            var ec = new EffectCollection(Target,
+                (EffectType.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value * 0.5f, 10),
+                (EffectType.DefenseDecrease, 0.2f, 10));
             var enemies = Target.GetEnemyInRange().Select(t=>t.transform.position);
             foreach (var i in enemies)
             {

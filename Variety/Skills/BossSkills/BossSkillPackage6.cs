@@ -160,14 +160,11 @@ namespace Variety.Skill.Boss6
     }
     public class Skill5 : SkillBoss
     {
-        private EffectCollection ec;
         public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 50f;
-
-            ec = new EffectCollection(Target, (Effects.ArmorShatter, 30, 10));
         }
         public override bool CanUse(Target Target)
         {
@@ -190,7 +187,7 @@ namespace Variety.Skill.Boss6
             {
                 d.Target.ApplyMotion(new MotionDir(10f * d.index * Vector3.right, 2, true, 1, true, true));
                 var b = GetBullet(5);
-                b.Init(5f,liftstoiclevel:2,ec:ec);
+                b.Init(5f,liftstoiclevel:2,ec: new EffectCollection(d.Target, (EffectType.ArmorShatter, 30, 10)));
                 BulletFollowSystem.RegistObject(b,4f,2f,Target);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();

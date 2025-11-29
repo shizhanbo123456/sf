@@ -17,13 +17,13 @@ namespace Variety.Skill.Boss18
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 4) lantern = list[4];
 
-            if (lantern != null) lantern.ApplyEffect(new Burning(target, lantern, (int)(lantern.Shengming * 0.02f), 999999));
+            if (lantern != null) lantern.ApplyEffect(new Burning(target.ObjectId, lantern, (int)(lantern.Shengming * 0.02f), 999999));
         }
         protected override void Repeat()
         {
             if (!lantern) return;
-            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target, target, 90, 1));
-            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target, t, 30, 1)));
+            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
+            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
     public class Skill0 : SkillBoss
@@ -136,7 +136,7 @@ namespace Variety.Skill.Boss18
             var e = Target.GetNearestEnemy();
             if (!e) return;
             WarningCircle.Warn(e.transform.position, 12f, 1.5f);
-            e.ApplyEffect(new Slowness(Target, e, 3, 3f));
+            e.ApplyEffect(new Slowness(Target.ObjectId, e, 3, 3f));
             // 1.5秒后生成禁锢场
             AddEvent(1.5f, new TimeLineData(Target,e.transform.position),(d) =>
             {
@@ -192,7 +192,6 @@ namespace Variety.Skill.Boss18
     public class Skill4 : SkillBoss
     {
         private Lantern lantern;
-        private EffectCollection ec;
         public Skill4() : base()
         {
             Description = "标记敌人并在延迟后引发爆发伤害";
@@ -201,8 +200,6 @@ namespace Variety.Skill.Boss18
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 4) lantern = list[4];
-
-            ec = new EffectCollection(Target, (Effects.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value * 0.05f, 4f));
         }
 
         public override bool CanUse(Target Target)
@@ -219,7 +216,7 @@ namespace Variety.Skill.Boss18
                 AddEvent(2f, new TimeLineData(Target, e.transform.position),(d) =>
                 {
                     var b = GetBullet(11);
-                    b.Init(2, ec: ec);
+                    b.Init(2, ec:new EffectCollection(d.Target, (EffectType.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value * 0.05f, 4f)));
                     BulletStaticSystem.RegistObject(b, 4f, 0.5f, d.pos);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();

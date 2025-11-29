@@ -5,19 +5,18 @@ using UnityEngine.UI;
 
 namespace SF.UI.Bar
 {
-    public class Bar_Float : Bar_Base
+    public class BarBase : MonoBehaviour
     {
+        public Vector2 OccupyArea;
+        public float Min = 0;
+        public float Max = 100;
         [Space]
         [Header("Grapic")]
         public Vector2 LocalXRange = new Vector2(-1147, 0);
         public Transform Grapic;
         public Text Num;
         public Text NumShade;
-        public override void Init()
-        {
-
-        }
-        public override void SetValue(float value)
+        public void SetValue(float value)
         {
             Num.text = value.ToString() + "/" + Max.ToString();
             NumShade.text = Num.text;

@@ -8,8 +8,6 @@ namespace AttributeSystem.Attributes
     public class PlayerAttributes : TargetAttributes
     {
         [Space]
-        public LinerGrowth Mofa;
         public LinerGrowth Huixie;
-        public LinerGrowth Huimo;
     }
 }

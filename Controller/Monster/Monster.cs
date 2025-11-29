@@ -59,7 +59,7 @@ public class Monster : Target
         base.RegistSyncAttributesEvent();
         DedicatedAttributes.Shengming.OnValueChanged += v => 
         {
-            Bar.SetBlood(v);
+            Bar.SetBlood(v.Item2);
         };
     }
     protected override void OnCreated()

@@ -45,7 +45,7 @@ public class Lantern : Target
     }
     private void Update()
     {
-        if (DedicatedAttributes.Shengming.Value == 0)
+        if (DedicatedAttributes.Shengming.Value.Item2 == 0)
         {
             Render.sprite = Off;
             TimeOfDie += Time.deltaTime;

@@ -20,8 +20,8 @@ namespace Variety.Skill.Boss2
             {
                 if (i.TimeOfDie <0.1f) c++;
             }
-            target.ApplyEffect(new AgileBoost(target, target, c * 10, 1));
-            target.ApplyEffect(new AttackBoost(target, target, c * 0.1f, 1));
+            target.ApplyEffect(new AgileBoost(target.ObjectId, target, c * 10, 1));
+            target.ApplyEffect(new AttackBoost(target.ObjectId, target, c * 0.1f, 1));
         }
     }
     public class Skill0 : SkillBoss
@@ -94,10 +94,9 @@ namespace Variety.Skill.Boss2
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            if(eff==null)eff = new EffectCollection(Target, (Effects.Burning, Target.DedicatedAttributes.Gongji.Value*0.5f, 10f));
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(4);
-            b.Init(0.2f,liftstoiclevel:0,ec:eff);
+            b.Init(0.2f,liftstoiclevel:0,ec: new EffectCollection(Target, (EffectType.Burning, Target.DedicatedAttributes.Gongji * 0.5f, 10f)));
             BulletStaticScaleChangeSystem.RegistObject(b,0f,15f,1f);
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
@@ -204,14 +203,11 @@ namespace Variety.Skill.Boss2
     }
     public class Skill5 : SkillBoss
     {
-        private EffectCollection eff;
         public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 20f;
-
-            eff = new EffectCollection(t, (Effects.Stun,0, 3f));
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -223,7 +219,7 @@ namespace Variety.Skill.Boss2
                 AddEvent(i * 0.2f + 0.6f,(d) =>
                 {
                     var b = GetBullet(4);
-                    b.Init(0.2f,liftstoiclevel:2,ec:eff);
+                    b.Init(0.2f,liftstoiclevel:2,ec: new EffectCollection(d.Target, (EffectType.Stun, 0, 3f)));
                     BulletStaticScaleChangeSystem.RegistObject(b,0f,12f,1f);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();

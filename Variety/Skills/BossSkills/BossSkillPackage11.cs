@@ -23,13 +23,13 @@ namespace Variety.Skill.Boss11
             {
                 foreach (var p in target.GetEnemyInRange())
                 {
-                    p.ApplyEffect(new ArmorFortity(target, p, 20, 1));
+                    p.ApplyEffect(new ArmorFortity(target.ObjectId, p, 20, 1));
                 }
-                target.ApplyEffect(new Luck(target, target, 10, 1));
+                target.ApplyEffect(new Luck(target.ObjectId, target, 10, 1));
             }
             else
             {
-                target.ApplyEffect(new AttackDecrease(target, target, 0.5f, 1));
+                target.ApplyEffect(new AttackDecrease(target.ObjectId, target, 0.5f, 1));
             }
         }
     }

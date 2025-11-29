@@ -14,7 +14,6 @@ namespace Variety.Skill.PackageA
             Description = "向前发射三颗子弹，耗魔10";
             Tag = "平a";
             TimeNeeded = 0.25f;
-            cost = 30;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -37,12 +36,11 @@ namespace Variety.Skill.PackageA
             Description = "连续向前二段突刺并造成伤害，期间有高额闪避";
             Tag = "平a";
             TimeNeeded = 0.6f;
-            cost = 0;
             CD = 4f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new AgileBoost(Target, Target, 100, 0.5f));
+            Target.effectController.AddEffect(new AgileBoost(Target.ObjectId, Target, 100, 0.5f));
             float vx = Target.FaceRight ? 15 : -15;
             AddEvent(0.02f, (d) => { 
                 d.Target.ApplyMotion(
@@ -75,7 +73,6 @@ namespace Variety.Skill.PackageA
             Description = "向下坠落并造成爆炸，可储存3次，耗魔50";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            cost = 50;
             MaxstoreTime = 3;
             CD = 10f;
         }
@@ -102,7 +99,6 @@ namespace Variety.Skill.PackageA
             Description = "跃起，向前砸出引力弹，牵引敌人，可储存两次，耗魔50";
             Tag = "平a";
             TimeNeeded = 1.2f;
-            cost = 100;
             MaxstoreTime = 2;
             CD = 20f;
         }
@@ -128,7 +124,6 @@ namespace Variety.Skill.PackageA
             Description = "后撤，并向前释放多发子弹，耗魔140";
             Tag = "平a";
             TimeNeeded = 1f;
-            cost = 140;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -161,13 +156,12 @@ namespace Variety.Skill.PackageA
             Description = "立即向上飞起，5s内大幅提升跳跃高度";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            cost = 0;
             CD = 20f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             Target.ApplyMotion(new MotionDir(new Vector2(0, 15), 0.2f, true, 1, true, true));
-            Target.effectController.AddEffect(new JumpBoost(Target, Target, 8, 5));
+            Target.effectController.AddEffect(new JumpBoost(Target.ObjectId, Target, 8, 5));
         }
     }
 }

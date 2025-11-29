@@ -10,12 +10,8 @@ public class PrefabManager : MonoBehaviour
     }
 
     [Header("UI")]
-    public GameObject Bar_Main;
-    public GameObject Bar_Float;
-    public GameObject Bar_Int;
-    public GameObject Bar_Pie;
+    public GameObject BarBase;
     public GameObject BossBar;
-    public List<GameObject> Bars => new List<GameObject>() { Bar_Main, Bar_Float, Bar_Int, Bar_Pie };
     [Space]
     public GameObject Skill_NonCD;
     public GameObject Skill_CD;

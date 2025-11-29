@@ -99,7 +99,7 @@ public class LevelGuard : Level
 
         var h = Ore.OreHealthRate(out int max);//Æ½¾ùÊ£Óà±ÈÀý
         float s = 0;
-        foreach (var i in h) s += i.DedicatedAttributes.Shengming.Value;
+        foreach (var i in h) s += i.DedicatedAttributes.Shengming.Value.Item2;
         s /= (max * h.Count);
         if (d.Camp == 3)
         {

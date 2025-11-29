@@ -156,14 +156,11 @@ namespace Variety.Skill.Boss7
     }
     public class Skill5 : SkillBoss
     {
-        private EffectCollection ec;
         public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 60f;
-
-            ec = new EffectCollection(Target, (Effects.ArmorShatter, 20, 30));
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -176,15 +173,15 @@ namespace Variety.Skill.Boss7
             AddEvent(5, (d) =>
             {
                 var b = GetBullet(5);
-                b.Init(2,liftstoiclevel:0, ec: ec);
+                b.Init(2,liftstoiclevel:0, ec: new EffectCollection(d.Target, (EffectType.ArmorShatter, 20, 30)));
                 BulletStaticScaleChangeSystem.RegistObject(b,0f,20f,1f);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
                 var t=Target.GetPartnerInRange(999999, false);
                 foreach(var i in t)
                 {
-                    i.ApplyEffect(new DamageBoost(d.Target, i, 30, 30));
-                    i.ApplyEffect(new Luck(d.Target, i, 20, 30));
+                    i.ApplyEffect(new DamageBoost(d.Target.ObjectId, i, 30, 30));
+                    i.ApplyEffect(new Luck(d.Target.ObjectId, i, 20, 30));
                 }
             });
         }

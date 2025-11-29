@@ -20,9 +20,9 @@ namespace AttributeSystem.Attributes
         public float Tengkong;
         public int Liantiao;
 
-        public DynamicAttributes GetDynamicAttributes(int level)
+        public GameTimeAttributes GetDynamicAttributes(int level)
         {
-            var d = new DynamicAttributes();
+            var d = new GameTimeAttributes();
             d.Shengming.Value = (int)Shengming.GetValue(level);
             d.Gongji.Value = (int)Gongji.GetValue(level);
             d.Fangyu.Value = (int)Fangyu.GetValue(level);
@@ -30,8 +30,8 @@ namespace AttributeSystem.Attributes
             d.Shanbi.Value = (int)Shanbi.GetValue(level);
             d.Baoji.Value = (int)Baoji.GetValue(level);
             d.Renxing.Value = (int)Renxing.GetValue(level);
-            d.Jiashang.Value = Jiashang.GetValue(level);
-            d.Jianshang.Value = Jianshang.GetValue(level);
+            d.Jiashang.Value = (int)Jiashang.GetValue(level);
+            d.Jianshang.Value = (int)Jianshang.GetValue(level);
             d.Kangjitui.Value = Kangjitui;
             d.Jixing.Value = Jixing;
             d.Tengkong.Value = Tengkong;

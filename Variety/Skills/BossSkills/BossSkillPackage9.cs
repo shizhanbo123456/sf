@@ -32,16 +32,11 @@ namespace Variety.Skill.Boss9
     }
     public class Skill1 : SkillBoss
     {
-        private EffectCollection ec1;
-        private EffectCollection ec2;
         public Skill1() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 40f;
-
-            ec1 = new EffectCollection(t, (Effects.LifeSteal, 0.5f, 10));
-            ec2 = new EffectCollection(t, (Effects.Silence, 0, 1));
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -55,12 +50,12 @@ namespace Variety.Skill.Boss9
                 foreach (var i in Ore.Ores.Values)
                 {
                     var b = GetBullet(11);
-                    b.Init(3,liftstoiclevel:2, ec:ec1);
+                    b.Init(3,liftstoiclevel:2, ec: new EffectCollection(d.Target, (EffectType.LifeSteal, 0.5f, 10)));
                     BulletStaticSystem.RegistObject(b,3f,0.5f,i.transform.position);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                     b = GetBullet(6);
-                    b.Init(0.2f,liftstoiclevel:0, ec: ec2);
+                    b.Init(0.2f,liftstoiclevel:0, ec: new EffectCollection(d.Target, (EffectType.Silence, 0, 1)));
                     BulletStaticSystem.RegistObject(b, 3f, 0.5f, i.transform.position);
                     BulletDamageTimeSystem.Regist(b,0.5f);
                     b.Shoot();
@@ -146,14 +141,11 @@ namespace Variety.Skill.Boss9
     }
     public class Skill4 : SkillBoss
     {
-        private EffectCollection ec;
         public Skill4() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 20f;
-
-            ec = new EffectCollection(t, (Effects.AttackDecrease, 0.2f, 10), (Effects.BadLuck, 10, 10));
         }
         public override bool CanUse(Target Target)
         {
@@ -166,7 +158,7 @@ namespace Variety.Skill.Boss9
             AddEvent(1f, (d) =>
             {
                 var b = GetBullet(6);
-                b.Init(2.5f,liftstoiclevel:0,ec:ec);
+                b.Init(2.5f,liftstoiclevel:0,ec: new EffectCollection(d.Target, (EffectType.AttackDecrease, 0.2f, 10), (EffectType.BadLuck, 10, 10)));
                 BulletStaticScaleChangeSystem.RegistObject(b,0f,6f,1f);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
@@ -193,12 +185,12 @@ namespace Variety.Skill.Boss9
                     var a = i.GetEnemyInRange(6, false);
                     foreach (var j in a)
                     {
-                        j.ApplyEffect(new ArmorFortity(i, j, 95, 10));
-                        j.ApplyEffect(new DamageBoost(i, j, 40, 10));
+                        j.ApplyEffect(new ArmorFortity(i.ObjectId, j, 95, 10));
+                        j.ApplyEffect(new DamageBoost(i.ObjectId, j, 40, 10));
                     }
                 }
                 var c = d.Target.GetEnemyInRange();
-                foreach (var i in c) i.ApplyEffect(new Freeze(d.Target, i, 2));
+                foreach (var i in c) i.ApplyEffect(new Freeze(d.Target.ObjectId, i, 2));
                 var b = GetBullet(3);
                 b.Init(32f);
                 BulletStaticScaleChangeSystem.RegistObject(b,0f,30f,1f);
