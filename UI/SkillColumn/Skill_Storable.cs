@@ -16,7 +16,6 @@ namespace SF.UI.Skill
         /// </summary>
         public override void SetAvailableTime(float time)
         {
-            if (time < 0) Debug.LogWarning("错误的可用次数" + time);
             if (time < 0.01f)
             {
                 PieShade.fillAmount = 1;
@@ -27,6 +26,50 @@ namespace SF.UI.Skill
             if (t > 0.999f) t = 0;
             PieShade.fillAmount = t;
             StoredTime.text = ((int)time).ToString();
+        }
+    }
+    public class SkillStorableController : SkillBaseContrller
+    {
+        private Skill_Storable skill;
+        private PlayerData Player;
+        private int cost;
+        private int maxStoreTime;
+        private float cd;
+        private float storeTime;
+        public void Update()
+        {
+            storeTime += Time.deltaTime / cd;
+            if (storeTime > maxStoreTime) storeTime = maxStoreTime;
+            if (Player && skill != null)
+            {
+                if (Player.Mofa >= cost) skill.SetAvailableTime(storeTime);
+                else skill.SetAvailableTime(0);
+            }
+        }
+        public override bool CanUse()
+        {
+            if (Player && Player.Mofa < cost) return false;
+            return storeTime >= 0.999f;
+        }
+        public override void OnUse()
+        {
+            if (Player) Player.Mofa -= cost;
+            storeTime -= 1f;
+            base.OnUse();
+        }
+        public static SkillBaseContrller Create(Target t, int cost, int maxStoreTime,float cd)
+        {
+            var r = new SkillStorableController();
+            if (t && t is PlayerData p)
+            {
+                r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.Storable) as Skill_Storable;
+                r.Player= p;
+            }
+            r.cost = cost;
+            r.maxStoreTime = maxStoreTime;
+            r.cd = cd;
+            r.storeTime = 1;
+            return r;
         }
     }
 }

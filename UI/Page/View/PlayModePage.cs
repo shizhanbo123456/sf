@@ -129,11 +129,11 @@ public class PlayModePage : BasePage
         BarList.LayoutBars();
         return bar;
     }
-    public Skill_Base CreateSkillColumn(SkillColumnType type, Sprite sprite)
+    public Skill_Base CreateSkillColumn(SkillColumnType type)
     {
         GameObject obj = Instantiate(Tool.PrefabManager.SkillColumns[(int)type], SkillColumn);
         var _base = obj.GetComponent<Skill_Base>();
-        _base.Init(PlayerSkillController.Keys[SkillColumn.childCount - 1], sprite);
+        _base.SetKey(PlayerSkillController.Keys[SkillColumn.childCount - 1]);
         return _base;
     }
     public BossBar CreateBossBar()

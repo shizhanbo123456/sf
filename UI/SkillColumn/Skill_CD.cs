@@ -15,8 +15,50 @@ namespace SF.UI.Skill
         /// </summary>
         public override void SetAvailableTime(float time)
         {
-            if (time < 0 || time > 1) Debug.LogWarning("错误的可用次数" + time);
             PieShade.fillAmount = 1 - time;
+        }
+        
+    }
+    public class SkillCDController:SkillBaseContrller
+    {
+        private Skill_CD skill;
+        private PlayerData Player;
+        private int cost;
+        private float cd;
+        private float storeTime;
+        public void Update()
+        {
+            storeTime += Time.deltaTime / cd;
+            if (storeTime > 1) storeTime = 1;
+            if (Player&&skill != null)
+            {
+                if (Player.Mofa >= cost) skill.SetAvailableTime(storeTime);
+                else skill.SetAvailableTime(0);
+            }
+        }
+        public override bool CanUse()
+        {
+            if (Player && Player.Mofa < cost) return false;
+            return storeTime >= 0.999f;
+        }
+        public override void OnUse()
+        {
+            if (Player)Player.Mofa -= cost;
+            storeTime -= 1f;
+            base.OnUse();
+        }
+        public static SkillBaseContrller Create(Target t,int cost,float cd)
+        {
+            var r=new SkillCDController();
+            if (t && t is PlayerData p)
+            {
+                r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.CD) as Skill_CD;
+                r.Player = p;
+            }
+            r.cost=cost;
+            r.cd=cd;
+            r.storeTime=1;
+            return r;
         }
     }
 }
