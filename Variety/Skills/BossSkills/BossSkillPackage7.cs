@@ -9,14 +9,13 @@ namespace Variety.Skill.Boss7
 {
     public class Skill0 : SkillBoss
     {
-        public Skill0(Target t) : base(t)
+        public Skill0() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 8f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 4, 1);
@@ -42,18 +41,17 @@ namespace Variety.Skill.Boss7
     }
     public class Skill1 : SkillBoss
     {
-        public Skill1(Target t) : base(t)
+        public Skill1() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 3f;
-            restoreTime = 1;
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && Target.GetEnemyInRange(10, true).Count > 0;
+            return Target.GetEnemyInRange(10, true).Count > 0;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
@@ -70,14 +68,13 @@ namespace Variety.Skill.Boss7
     }
     public class Skill2 : SkillBoss
     {
-        public Skill2(Target t) : base(t)
+        public Skill2() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 3f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var p = Target.transform.position;
@@ -100,18 +97,17 @@ namespace Variety.Skill.Boss7
     }
     public class Skill3 : SkillBoss
     {
-        public Skill3(Target t) : base(t)
+        public Skill3() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 25f;
-            restoreTime = 1;
         }
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && Target.GetEnemyInRange(3, false).Count > 0;
+            return Target.GetEnemyInRange(3, false).Count > 0;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(5);
@@ -132,14 +128,13 @@ namespace Variety.Skill.Boss7
     }
     public class Skill4 : SkillBoss
     {
-        public Skill4(Target t) : base(t)
+        public Skill4() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 30f;
-            restoreTime = 1;
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionStatic(2,true, 1, true, true));
@@ -162,16 +157,15 @@ namespace Variety.Skill.Boss7
     public class Skill5 : SkillBoss
     {
         private EffectCollection ec;
-        public Skill5(Target t) : base(t)
+        public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 0.5f;
             cd = 60f;
-            restoreTime = 1;
 
             ec = new EffectCollection(Target, (Effects.ArmorShatter, 20, 30));
         }
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionStatic(5, true, 1, true, true));

@@ -11,21 +11,12 @@ namespace Variety.Template
 {
     public class SkillNonCD : SkillBase
     {
-        protected Skill_NonCD skill;
-        public SkillNonCD()
-        {
-            /*
-            Name = "霰弹";
-            Description = "向前发射三颗子弹，倍率0.6，耗魔10";
-            Tag = "平a";
-            sprite = Tool.VarietyManager.GetSkillIcon(0, 1);
-            TimeNeeded = 0.5f;
-            cost = 30;
-            */
+        public SkillNonCD():base()
+        { 
         }
-        public override SkillBaseContrller CreateSkillColumn(Target t)
+        public override SkillBaseController CreateSkillColumn(Target t)
         {
-            return SkillNonCDController.Create(t, cost);
+            return SkillNonCDController.Create(GetHashCode(),t, cost);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -34,36 +25,23 @@ namespace Variety.Template
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
             BulletSystemCommon.CurrentShooter = Target;
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            OnUse();
+            OnUse(Target,pos,faceright);
         }
 
-        protected virtual void OnUse()
+        protected virtual void OnUse(Target Target, Vector3 pos, bool faceright)
         {
 
         }
     }
     public class SkillCD : SkillBase
     {
-        protected Skill_CD skill;
         protected float CD;
-
-        public SkillCD()
-        {
-            /*
-            Name = "霰弹";
-            Description = "向前发射三颗子弹，倍率0.6，耗魔10";
-            Tag = "平a";
-            sprite = Tool.VarietyManager.GetSkillIcon(0, 1);
-            TimeNeeded = 0.5f;
-            cost = 30;
-            CD = 20f;
-            storeTime = 1;//初始储存次数
-            */
+        public SkillCD():base()
+        { 
         }
-        public override SkillBaseContrller CreateSkillColumn(Target t)
+        public override SkillBaseController CreateSkillColumn(Target t)
         {
-            return SkillCDController.Create(t, cost, CD);
+            return SkillCDController.Create(GetHashCode(),t, cost, CD);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -71,40 +49,25 @@ namespace Variety.Template
         }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
-            if (Target is PlayerData player) player.Mofa -= cost;
             BulletSystemCommon.CurrentShooter = Target;
-            OnUse();
+            OnUse(Target,pos,faceright);
         }
 
-        protected virtual void OnUse()
+        protected virtual void OnUse(Target Target, Vector3 pos, bool faceright)
         {
 
         }
     }
     public class SkillStorable : SkillBase
     {
-        protected Skill_Storable skill;
-        protected float storeTime;
         protected float MaxstoreTime;
         protected float CD;
-
-        public SkillStorable(Target t,Sprite s)
+        public SkillStorable() : base()
         {
-            /*
-            Name = "霰弹";
-            Description = "向前发射三颗子弹，倍率0.6，耗魔10";
-            Tag = "平a";
-            sprite = Tool.VarietyManager.GetSkillIcon(0, 1);
-            TimeNeeded = 0.5f;
-            cost = 30;
-            MaxstoreTime = 3;
-            storeTime = 3;//初始储存
-            CD = 10f;
-            */
         }
-        public override SkillBaseContrller CreateSkillColumn(Target t)
+        public override SkillBaseController CreateSkillColumn(Target t)
         {
-            return SkillStorableController.Create(t,cost,int.MaxValue,CD);
+            return SkillStorableController.Create(GetHashCode(),t,cost,int.MaxValue,CD);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -112,12 +75,10 @@ namespace Variety.Template
         }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
-            if (Target is PlayerData player) player.Mofa -= cost;
-            storeTime -= 1;
             BulletSystemCommon.CurrentShooter = Target;
-            OnUse();
+            OnUse(Target,pos,faceright);
         }
-        protected virtual void OnUse()
+        protected virtual void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             
         }
@@ -125,23 +86,15 @@ namespace Variety.Template
     public class SkillBoss : SkillBase
     {
         protected float cd;
-        protected float restoreTime;
-        public SkillBoss()
+        public SkillBoss() : base()
         {
-            /*
-            Description = "向前发射三颗子弹，倍率0.6，耗魔10";
-            TimeNeeded = 0.5f;
-            cd=2f;
-            restoreTime=1;
-            */
         }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
-            restoreTime = 0;
             BulletSystemCommon.CurrentShooter = Target;
-            OnUseSkill();
+            OnUse(Target,pos,faceright);
         }
-        protected virtual void OnUseSkill()
+        protected virtual void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             
         }

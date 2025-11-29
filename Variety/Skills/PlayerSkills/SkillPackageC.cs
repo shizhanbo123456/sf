@@ -8,7 +8,7 @@ namespace Variety.Skill.PackageC
 {
     public class Skill0 : SkillNonCD
     {
-        public Skill0(Target t) : base(t, Tool.SpriteManager.SkillPackageC[0])
+        public Skill0() : base()
         {
             Name = "上下开弓";
             Description = "召唤两发子弹射向前方，耗魔15";
@@ -16,7 +16,7 @@ namespace Variety.Skill.PackageC
             TimeNeeded = 0.3f;
             cost = 15;
         }
-        protected override void OnUse()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             Target.ApplyMotion(new MotionStatic(0.2f, true, 1, true, true));
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1,0);
@@ -32,7 +32,7 @@ namespace Variety.Skill.PackageC
     }
     public class Skill1 : SkillStorable
     {
-        public Skill1(Target t) : base(t, Tool.SpriteManager.SkillPackageC[1])
+        public Skill1() : base()
         {
             Name = "后撤步";
             Description = "迅速向后位移，期间中幅提升减伤";
@@ -40,10 +40,9 @@ namespace Variety.Skill.PackageC
             TimeNeeded = 0.5f;
             cost = 00;
             MaxstoreTime = 2;
-            storeTime = 2;//初始储存
             CD = 10f;
         }
-        protected override void OnUse()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
             Target.ApplyMotion(new MotionDir(front*-20,0.25f,true,1,true,true));
@@ -52,7 +51,7 @@ namespace Variety.Skill.PackageC
     }
     public class Skill2 : SkillCD
     {
-        public Skill2(Target t) : base(t, Tool.SpriteManager.SkillPackageC[2])
+        public Skill2() : base()
         {
             Name = "挥符";
             Description = "向前发射三颗子弹，耗魔100";
@@ -60,12 +59,10 @@ namespace Variety.Skill.PackageC
             TimeNeeded = 0.5f;
             cost = 100;
             CD = 2f;
-            storeTime = 1;//初始储存次数
         }
-        protected override void OnUse()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
-            var pos = Target.transform.position;
             for (int i = 1; i >= -1; i--)
             {
                 var b = GetBullet(14);
@@ -78,7 +75,7 @@ namespace Variety.Skill.PackageC
     }
     public class Skill3 : SkillCD
     {
-        public Skill3(Target t) : base(t, Tool.SpriteManager.SkillPackageC[3])
+        public Skill3() : base()
         {
             Name = "守卫者";
             Description = "召唤一圈子弹围绕自身，耗魔75";
@@ -86,9 +83,8 @@ namespace Variety.Skill.PackageC
             TimeNeeded = 0.2f;
             cost = 75;
             CD = 20f;
-            storeTime = 1;//初始储存次数
         }
-        protected override void OnUse()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
             for (int i = 0; i < 4; i++)
@@ -146,7 +142,7 @@ namespace Variety.Skill.PackageC
             5.4f,
             6.2f,
         };
-        public Skill4(Target t) : base(t, Tool.SpriteManager.SkillPackageC[4])
+        public Skill4() : base()
         {
             Name = "子弹风暴";
             Description = "前方地面不断喷发出子弹，耗魔150";
@@ -154,10 +150,9 @@ namespace Variety.Skill.PackageC
             TimeNeeded = 0.6f;
             cost = 150;
         }
-        protected override void OnUse()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var front = Target.FaceRight ? 1:-1;
-            var pos = Target.transform.position;
             for (int i = 0; i < offset.Count; i++)
             {
                 int j = i;
@@ -175,7 +170,7 @@ namespace Variety.Skill.PackageC
     }
     public class Skill5 : SkillCD
     {
-        public Skill5(Target t) : base(t, Tool.SpriteManager.SkillPackageC[5])
+        public Skill5() : base()
         {
             Name = "诅咒";
             Description = "向周围10m内的敌人施加诅咒";
@@ -183,9 +178,8 @@ namespace Variety.Skill.PackageC
             TimeNeeded = 2f;
             cost = 0;
             CD = 25f;
-            storeTime = 1;//初始储存次数
         }
-        protected override void OnUse()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var b = GetBullet(7);
             b.Init(0.8f);

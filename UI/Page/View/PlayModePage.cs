@@ -10,7 +10,7 @@ public class PlayModePage : BasePage
 {
     public enum BarType
     {
-        Main,Float,Int,Pie
+        Float,Int,Pie
     }
     public enum SkillColumnType
     {
@@ -129,10 +129,10 @@ public class PlayModePage : BasePage
         BarList.LayoutBars();
         return bar;
     }
-    public Skill_Base CreateSkillColumn(SkillColumnType type)
+    public SkillColumnBase CreateSkillColumn(SkillColumnType type)
     {
         GameObject obj = Instantiate(Tool.PrefabManager.SkillColumns[(int)type], SkillColumn);
-        var _base = obj.GetComponent<Skill_Base>();
+        var _base = obj.GetComponent<SkillColumnBase>();
         _base.SetKey(PlayerSkillController.Keys[SkillColumn.childCount - 1]);
         return _base;
     }

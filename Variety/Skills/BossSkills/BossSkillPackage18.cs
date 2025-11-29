@@ -30,23 +30,22 @@ namespace Variety.Skill.Boss18
     {
         private Lantern lantern;
 
-        public Skill0(Target t) : base(t)
+        public Skill0() : base()
         {
             Description = "在敌人周围生成多层扩散能量环";
             TimeNeeded = 2.5f;
             cd = 8f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 4) lantern = list[4];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
             if (nearestEnemy == null) return;
@@ -73,23 +72,22 @@ namespace Variety.Skill.Boss18
     {
         private Lantern lantern;
 
-        public Skill1(Target t) : base(t)
+        public Skill1() : base()
         {
             Description = "向多个敌人发射带烟火特效的追踪弹幕";
             TimeNeeded = 2f;
             cd = 6f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 4) lantern = list[4];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(30);
+            return (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(30);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange().Select(t=> 
             {
@@ -114,29 +112,26 @@ namespace Variety.Skill.Boss18
             }
         }
     }
-
-    // 技能2：范围禁锢场（初始储存0次）
     public class Skill2 : SkillBoss
     {
         private Lantern lantern;
 
-        public Skill2(Target t) : base(t)
+        public Skill2() : base()
         {
             Description = "生成禁锢场，使范围内敌人无法移动并持续受伤";
             TimeNeeded = 3f;
             cd = 15f;
-            restoreTime = 0;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 4) lantern = list[4];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var e = Target.GetNearestEnemy();
             if (!e) return;
@@ -158,23 +153,22 @@ namespace Variety.Skill.Boss18
     {
         private Lantern lantern;
 
-        public Skill3(Target t) : base(t)
+        public Skill3() : base()
         {
             Description = "在敌人路径生成连环爆炸陷阱";
             TimeNeeded = 2.5f;
             cd = 12f;
-            restoreTime = 1;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 4) lantern = list[4];
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
             foreach (var i in enemies)
@@ -199,12 +193,11 @@ namespace Variety.Skill.Boss18
     {
         private Lantern lantern;
         private EffectCollection ec;
-        public Skill4(Target t) : base(t)
+        public Skill4() : base()
         {
             Description = "标记敌人并在延迟后引发爆发伤害";
             TimeNeeded = 3f;
             cd = 10f;
-            restoreTime = 0;
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 4) lantern = list[4];
@@ -212,20 +205,18 @@ namespace Variety.Skill.Boss18
             ec = new EffectCollection(Target, (Effects.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value * 0.05f, 4f));
         }
 
-        public override bool CanUse()
+        public override bool CanUse(Target Target)
         {
-            return base.CanUse() && (lantern == null || lantern.Shengming < 3);
+            return (lantern == null || lantern.Shengming < 3);
         }
 
-        protected override void OnUseSkill()
+        protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
-            var pos = enemies.Select(t => t.transform.position);
-
-            foreach (var p in pos)
+            foreach (var e in enemies)
             {
-                WarningCircle.Warn(p, 4, 2);
-                AddEvent(2f, new TimeLineData(Target, p),(d) =>
+                WarningCircle.Warn(e.transform.position, 4, 2);
+                AddEvent(2f, new TimeLineData(Target, e.transform.position),(d) =>
                 {
                     var b = GetBullet(11);
                     b.Init(2, ec: ec);
@@ -238,10 +229,9 @@ namespace Variety.Skill.Boss18
     }
     public class Skill5 : Common.Skill5For14_18
     {
-        public Skill5(Target t) : base(t)
+        public Skill5() : base()
         {
             cd = 72f;
-            restoreTime = 1;
         }
         protected override void GetLantern()
         {

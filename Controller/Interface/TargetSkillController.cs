@@ -6,7 +6,7 @@ using Variety.Base;
 public class TargetSkillController : MonoBehaviour
 {
     protected Target target;
-    public List<SkillBase> Skills = new List<SkillBase>();
+    public List<SkillBaseController> Skills = new List<SkillBaseController>();
     private HashSet<int>UseSkillCommandBuffer=new HashSet<int>();
     private float TimeNeeded = 0;
 
@@ -18,10 +18,10 @@ public class TargetSkillController : MonoBehaviour
     {
         target=data;
         Skills.Clear();
-        var skills = Tool.VarietyManager.GetSkill(data);
+        var skills = VarietyManager.GetSkillPackage(data);
         for (int i = 0; i < skills.Count; i++)
         {
-            Skills.Add(skills[i]);
+            Skills.Add(skills[i].CreateSkillColumn(data));
         }
 
         TimeNeeded = 0;
@@ -55,31 +55,31 @@ public class TargetSkillController : MonoBehaviour
         {
             var s = Skills[i];
             if (!s.CanUse()) continue;
-            TimeNeeded = s.TimeNeeded;
-            CallFuncRpc(nameof(UseSkillRpc), SendTo.Everyone, i.ToString());
+            var skill = VarietyManager.GetSkill(s.SkillIndex);
+            if (!skill.CanUse(target)) continue;
+            TimeNeeded = skill.TimeNeeded;
+            target.UseSkillRpc(s.SkillIndex);
             break;
         }
         UseSkillCommandBuffer.Clear();
+    }
+    public virtual void PreUpdate()
+    {
+
     }
     public bool UseSkillInstantly(int x)
     {
         if (SkillLock.LockedInHierechy) return false; 
         var s = Skills[x];
         if (!s.CanUse()) return false;
-        TimeNeeded = s.TimeNeeded;
-        CallFuncRpc(nameof(UseSkillRpc), SendTo.Everyone, x.ToString());
+        var skill = VarietyManager.GetSkill(s.SkillIndex);
+        if (!skill.CanUse(target)) return false;
+        TimeNeeded = skill.TimeNeeded;
+        target.UseSkillRpc(s.SkillIndex);
         return true;
-    }
-    public virtual void PreUpdate()
-    {
-
     }
     public void UseSkill(int index)
     {
         if (!UseSkillCommandBuffer.Contains(index)) UseSkillCommandBuffer.Add(index);
-    }
-    private void UseSkillRpc(string index)
-    {
-        Skills[int.Parse(index)].UseSkill();
     }
 }
