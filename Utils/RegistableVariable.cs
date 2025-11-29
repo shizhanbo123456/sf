@@ -1,7 +1,13 @@
 using System;
+using UnityEngine.Pool;
 
 public class RegistableVariable<T>
 {
+    private static ObjectPool<RegistableVariable<T>> pool = new(
+        createFunc: () => new RegistableVariable<T>(default),
+        actionOnRelease: v => v.OnValueChanged = null,
+        actionOnGet: v => v.value = default
+        );
     private T value;
     public T Value
     {
@@ -20,4 +26,11 @@ public class RegistableVariable<T>
     {
         this.value = value;
     }
+    public static RegistableVariable<T> Get(T value = default)
+    {
+        var v=pool.Get();
+        v.value = value;
+        return v;
+    }
+    public static void Release(RegistableVariable<T> v)=>pool.Release(v);
 }

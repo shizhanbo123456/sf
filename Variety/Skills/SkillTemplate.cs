@@ -16,7 +16,7 @@ namespace Variety.Template
         }
         public override SkillBaseController CreateSkillColumn(Target t)
         {
-            return SkillNonCDController.Create(GetHashCode(),t, cost);
+            return SkillNonCDController.Create(GetHashCode(),t);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -41,7 +41,7 @@ namespace Variety.Template
         }
         public override SkillBaseController CreateSkillColumn(Target t)
         {
-            return SkillCDController.Create(GetHashCode(),t, cost, CD);
+            return SkillCDController.Create(GetHashCode(),t, CD);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -60,14 +60,14 @@ namespace Variety.Template
     }
     public class SkillStorable : SkillBase
     {
-        protected float MaxstoreTime;
+        protected int MaxstoreTime;
         protected float CD;
         public SkillStorable() : base()
         {
         }
         public override SkillBaseController CreateSkillColumn(Target t)
         {
-            return SkillStorableController.Create(GetHashCode(),t,cost,int.MaxValue,CD);
+            return SkillStorableController.Create(GetHashCode(),t,MaxstoreTime,CD);
         }
         public sealed override bool CanUse(Target Target)
         {

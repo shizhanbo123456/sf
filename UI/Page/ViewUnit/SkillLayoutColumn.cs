@@ -20,7 +20,7 @@ public class SkillLayoutColumn : MonoBehaviour
         {
             Units[i].OnClicked = onUnitClicked;
             Units[i].skill = skill[i];
-            Units[i].skillIcon.sprite = skill[i].sprite;
+            Units[i].skillIcon.sprite = Tool.SpriteManager.GetSprite(skill[i].sprite);
         }
         SelectedIcon.SetActive(false);
     }

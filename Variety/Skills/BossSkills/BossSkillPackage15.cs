@@ -18,13 +18,13 @@ namespace Variety.Skill.Boss15
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 1) lantern = list[1];
 
-            if (lantern != null) lantern.ApplyEffect(new Burning(target, lantern, (int)(lantern.Shengming * 0.02f), 999999));
+            if (lantern != null) lantern.ApplyEffect(new Burning(target.ObjectId, lantern, (int)(lantern.Shengming * 0.02f), 999999));
         }
         protected override void Repeat()
         {
             if (!lantern) return;
-            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target, target, 90, 1));
-            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target, t, 30, 1)));
+            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
+            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
     public class Skill0 : SkillBoss
@@ -171,8 +171,8 @@ namespace Variety.Skill.Boss15
                 var enemies = d.Target.GetEnemyInRange(15);
                 foreach (var enemy in enemies)
                 {
-                    enemy.ApplyEffect(new Burning(d.Target, enemy, (int)(enemy.Shengming * 0.03f), 5));
-                    enemy.ApplyEffect(new DefenseDecrease(d.Target, enemy, 0.2f, 8));
+                    enemy.ApplyEffect(new Burning(d.Target.ObjectId, enemy, (int)(enemy.Shengming * 0.03f), 5));
+                    enemy.ApplyEffect(new DefenseDecrease(d.Target.ObjectId, enemy, 0.2f, 8));
                 }
             });
         }

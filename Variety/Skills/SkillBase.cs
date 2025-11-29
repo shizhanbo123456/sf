@@ -17,7 +17,6 @@ namespace Variety.Base
         public string Description;
         public string Tag;
         public float TimeNeeded=2;//释放所需的时间
-        public int cost = 44;
 
         private static int indexsource = 0;
         private int index;

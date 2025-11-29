@@ -170,7 +170,7 @@ namespace Variety.Skill.Boss1
             {
                 if (i.effectController != null)
                 {
-                    i.effectController.AddEffect(new Silence(Target, i, 3));
+                    i.effectController.AddEffect(new Silence(Target.ObjectId, i, 3));
                 }
             }
             for(int i = -5; i < 5; i+=2)

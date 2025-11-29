@@ -17,13 +17,13 @@ namespace Variety.Skill.Boss17
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
 
-            if (lantern != null) lantern.ApplyEffect(new Burning(target, lantern, (int)(lantern.Shengming * 0.02f), 999999));
+            if (lantern != null) lantern.ApplyEffect(new Burning(target.ObjectId, lantern, (int)(lantern.Shengming * 0.02f), 999999));
         }
         protected override void Repeat()
         {
             if (!lantern) return;
-            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target, target, 90, 1));
-            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target, t, 30, 1)));
+            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
+            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
 
@@ -129,8 +129,6 @@ namespace Variety.Skill.Boss17
     public class Skill2 : SkillBoss
     {
         private Lantern lantern;
-        private EffectCollection ec;
-
         public Skill2() : base()
         {
             Description = "生成禁锢环，减缓敌人速度并造成持续伤害";
@@ -139,8 +137,6 @@ namespace Variety.Skill.Boss17
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
-
-            ec = new EffectCollection(Target, (Effects.Slowness, 3, 5));
         }
 
         public override bool CanUse(Target Target)
@@ -158,7 +154,7 @@ namespace Variety.Skill.Boss17
             AddEvent(1,new TimeLineData(Target,enemyPos), (d) =>
             {
                 var b = GetBullet(5);
-                b.Init(0.6f,liftstoiclevel:0,ec:ec);
+                b.Init(0.6f,liftstoiclevel:0, new EffectCollection(d.Target, (EffectType.Slowness, 3, 5)));
                 BulletStaticSystem.RegistObject(b,3,5,d.pos);
                 BulletDamageTimeSystem.Regist(b,0.3f);
                 b.Shoot();

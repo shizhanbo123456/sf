@@ -13,7 +13,7 @@ public class SpriteManager : MonoBehaviour
     public List<Sprite>SkillPackageB=new List<Sprite>();
     public List<Sprite>SkillPackageC=new List<Sprite>();
     [Space]
-    [SerializeField] private Effects effects;
+    [SerializeField] private EffectType effects;
     public List<Sprite> EffectIcons;
     [Space]
     [Header("Colors")]

@@ -18,8 +18,8 @@ namespace Variety.Skill.Boss5
         {
             int c = Ore.Ores.Values.Count;
             if (c == 6) return;
-            target.ApplyEffect(new Speed(target, target, (6-c) * 0.7f, 1));
-            target.ApplyEffect(new DefenseBoost(target, target, (6-c) * 1.2f, 1));
+            target.ApplyEffect(new Speed(target.ObjectId, target, (6-c) * 0.7f, 1));
+            target.ApplyEffect(new DefenseBoost(target.ObjectId, target, (6-c) * 1.2f, 1));
         }
     }
     public class Skill0 : SkillBoss

@@ -18,13 +18,13 @@ namespace Variety.Skill.Boss16
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 2) lantern = list[2];
 
-            if (lantern != null) lantern.ApplyEffect(new Burning(target, lantern, (int)(lantern.Shengming * 0.02f), 999999));
+            if (lantern != null) lantern.ApplyEffect(new Burning(target.ObjectId, lantern, (int)(lantern.Shengming * 0.02f), 999999));
         }
         protected override void Repeat()
         {
             if (!lantern) return;
-            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target, target, 90, 1));
-            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target, t, 30, 1)));
+            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
+            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
 
@@ -154,8 +154,6 @@ namespace Variety.Skill.Boss16
     {
         private Lantern lantern;
 
-        private EffectCollection ec;
-
         public Skill3() : base()
         {
             Description = "在敌人周围生成诅咒环，附加燃烧与易伤";
@@ -164,8 +162,6 @@ namespace Variety.Skill.Boss16
 
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 2) lantern = list[2];
-
-            ec = new EffectCollection(Target,(Effects.Burning,Target.effectController.GetFloatingAttributes().Gongji.Value,8));
         }
 
         public override bool CanUse(Target Target)
@@ -189,7 +185,7 @@ namespace Variety.Skill.Boss16
                 foreach (var p in pos)
                 {
                     var b = GetBullet(6);
-                    b.Init(0.2f,liftstoiclevel: 0,ec:ec);
+                    b.Init(0.2f,liftstoiclevel: 0, new EffectCollection(d.Target, (EffectType.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value, 8)));
                     BulletStaticScaleChangeSystem.RegistObject(b,0,8,5,p);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();

@@ -10,7 +10,7 @@ public class TargetInfoSync:EnsBehaviour
 {
     public Action OnPostSyncRpc;
 
-    [HideInInspector] public DynamicAttributes DedicatedAttributes;
+    [HideInInspector] public GameTimeAttributes DedicatedAttributes;
     public bool FaceRight { get; private set; } = true;
     public bool isGrounded { get; private set; } = true;
     public float Resistance { get; private set; } = 1f;

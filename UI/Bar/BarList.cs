@@ -6,7 +6,7 @@ namespace SF.UI.Bar
 {
     public class BarList : MonoBehaviour
     {
-        public List<Bar_Base> Bars = new List<Bar_Base>();
+        public List<BarBase> Bars = new List<BarBase>();
 
 
         public void LayoutBars()

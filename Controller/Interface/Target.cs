@@ -10,6 +10,9 @@ using static WorldTextController;
 
 public abstract class Target : EnsBehaviour
 {
+    public const int RegenerationAdderId = -10000;
+    public const int SceneEffectId = -10001;
+
     [Space]
     /// <summary>
     /// 除了玩家都是-1
@@ -20,11 +23,11 @@ public abstract class Target : EnsBehaviour
     public bool Effectable = true;
     public bool CanUseSkill = true;
 
-    public DynamicAttributes BaseAttributes;
-    public DynamicAttributes FloatingAttributes;
+    public GameTimeAttributes BaseAttributes;
+    public GameTimeAttributes FloatingAttributes;
     public DedicateSyncAttributes DedicatedAttributes;
 
-    [HideInInspector] public TargetInfoSync targetInfoSync;
+    [HideInInspector]public TargetInfoSync targetInfoSync;
     [HideInInspector]public TargetController controller;
     [HideInInspector]public TargetEffectController effectController;
     [HideInInspector]public TargetSkillController skillController;
@@ -205,9 +208,14 @@ public abstract class Target : EnsBehaviour
             HealthDirtyClearCD = 0.15f;
         }
     }
-    public virtual void OnSyncHealth()
+    private void OnSyncHealth()
     {
-
+        CallFuncRpc(nameof(OnSyncHealthLocal),SendTo.ExcludeSender,BaseAttributes.Shengming.ToString()+'_'+FloatingAttributes.Shengming.ToString());
+    }
+    private void OnSyncHealthLocal(string param)
+    {
+        var s = param.Split('_');
+        DedicatedAttributes.Shengming.Value = (int.Parse(s[0]), int.Parse(s[1]));
     }
     protected virtual bool DamageByBullet(Bullet b)
     {
@@ -252,10 +260,10 @@ public abstract class Target : EnsBehaviour
     protected virtual void ApplyEffects(Bullet b)
     {
         if (effectController == null) return;
-        var ec = b.GetEffects();
-        if (ec != null)
+        var effs = b.GetEffects().GetEffectBases(this);
+        if (effs != null)
         {
-            foreach (var i in ec.GetEffectBases(this))
+            foreach (var i in effs)
             {
                 effectController.AddEffect(i);
             }
@@ -328,11 +336,11 @@ public abstract class Target : EnsBehaviour
     {
         if (data == "null")
         {
-            visible.ShowEffects(new List<Effects>());
+            visible.ShowEffects(new List<EffectType>());
             return;
         }
         var list = Format.StringToList(data, int.Parse, '+');
-        visible.ShowEffects(list.Select(i => (Effects)i).ToList());
+        visible.ShowEffects(list.Select(i => (EffectType)i).ToList());
     }
     public void InterruptRpc()
     {

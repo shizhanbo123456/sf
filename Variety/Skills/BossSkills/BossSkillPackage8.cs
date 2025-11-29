@@ -26,9 +26,9 @@ namespace Variety.Skill.Boss8
             {
                 foreach(var i in target.GetEnemyInRange())
                 {
-                    i.ApplyEffect(new Speed(target, i, 6, 1));
-                    i.ApplyEffect(new JumpBoost(target, i, 10, 1));
-                    i.ApplyEffect(new Stoic(target, i, 1, 1));
+                    i.ApplyEffect(new Speed(target.ObjectId, i, 6, 1));
+                    i.ApplyEffect(new JumpBoost(target.ObjectId, i, 10, 1));
+                    i.ApplyEffect(new Stoic(target.ObjectId, i, 1, 1));
                 }
             }
         }
@@ -104,14 +104,11 @@ namespace Variety.Skill.Boss8
     }
     public class Skill3 : SkillBoss
     {
-        private EffectCollection ec;
         public Skill3() : base()
         {
             Description = "";
             TimeNeeded = 3f;
             cd = 60f;
-
-            ec = new EffectCollection(Target, (Effects.Paralysis, 0, 3));
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -124,12 +121,12 @@ namespace Variety.Skill.Boss8
             {
                 foreach(var i in Monster.Monsters.Values)
                 {
-                    i.ApplyEffect(new DamageBoost(Target, i, 50, 30));
+                    i.ApplyEffect(new DamageBoost(Target.ObjectId, i, 50, 30));
                 }
                 for (int startangle = 0; startangle <= 270; startangle += 90)
                 {
                     var b_ = GetBullet(4);
-                    b_.Init(1.2f,ec:ec);
+                    b_.Init(1.2f,ec: new EffectCollection(d.Target, (EffectType.Paralysis, 0, 3)));
                     BulletOrbitSystem.RegistObject(b_,0.5f,10f,4f,90f,startangle);
                     BulletDamageOnceSystem.Regist(b_);
                     b_.Shoot();
@@ -144,14 +141,11 @@ namespace Variety.Skill.Boss8
     }
     public class Skill4 : SkillBoss
     {
-        private EffectCollection ec;
         public Skill4() : base()
         {
             Description = "";
             TimeNeeded = 3f;
             cd = 20f;
-
-            ec = new EffectCollection(t,(Effects.Sticky,0,3),(Effects.AccuracyDecrease,20,5));
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -160,7 +154,7 @@ namespace Variety.Skill.Boss8
             for(int i = -20; i <= 20; i += 5)
             {
                 var b = GetBullet(7);
-                b.Init(1.4f, liftstoiclevel: 0,ec:ec);
+                b.Init(1.4f, liftstoiclevel: 0,ec: new EffectCollection(Target, (EffectType.Sticky, 0, 3), (EffectType.AccuracyDecrease, 20, 5)));
                 BulletAngleNonFacingSystem.RegistObject(b,0.6f,5f,8f,angle+i);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();

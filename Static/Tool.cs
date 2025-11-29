@@ -71,9 +71,9 @@ public class Tool:MonoBehaviour
     }
 
 
-    public Bar_Base CreateBar(BarType type)
+    public BarBase CreateBar()
     {
-        return PageManager.PlayModePage.CreateBar(type);
+        return PageManager.PlayModePage.CreateBar();
     }
     public BossBar CreateBossBar()
     {

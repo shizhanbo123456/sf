@@ -14,11 +14,10 @@ namespace Variety.Skill.PackageB
             Description = "前方小范围造成高额伤害,并获得幸运效果3s，耗魔10";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            cost = 10;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new Luck(Target, Target, 20, 3));
+            Target.effectController.AddEffect(new Luck(Target.ObjectId, Target, 20, 3));
             var b = GetBullet(11);
             b.Init(2.2f);
             BulletStaticSystem.RegistObject(b,0.8f,0.3f, Target.transform.position + (Target.FaceRight ? new Vector3(2, 0) : new Vector3(-2, 0)));
@@ -34,12 +33,11 @@ namespace Variety.Skill.PackageB
             Description = "震飞周围敌人，可击破霸体单位，期间有超级霸体且防御大幅提升，耗魔10";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            cost = 30;
             CD = 20f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new DefenseBoost(Target, Target, 8f, 0.5f));
+            Target.effectController.AddEffect(new DefenseBoost(Target.ObjectId, Target, 8f, 0.5f));
             Target.ApplyMotion(new MotionStatic(0.5f, true, 2, true, true));
             var b = GetBullet(6);
             b.Init(0.2f,liftstoiclevel:2);
@@ -56,7 +54,6 @@ namespace Variety.Skill.PackageB
             Description = "向前下方发射三发子弹，魔20";
             Tag = "平a";
             TimeNeeded = 0.2f;
-            cost = 20;
             CD = 1f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
@@ -80,7 +77,6 @@ namespace Variety.Skill.PackageB
             Description = "释放力场持续伤害范围内敌人，耗魔180";
             Tag = "平a";
             TimeNeeded = 0.1f;
-            cost = 180;
             CD = 20f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
@@ -107,7 +103,6 @@ namespace Variety.Skill.PackageB
             Description = "在周围召唤大量子弹落下，耗魔200";
             Tag = "平a";
             TimeNeeded = 1f;
-            cost = 200;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -133,13 +128,12 @@ namespace Variety.Skill.PackageB
             Description = "向前冲刺一段距离，期间中幅提升闪避";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            cost = 0;
             MaxstoreTime = 4;
             CD = 10f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new AgileBoost(Target, Target, 40, 0.5f));
+            Target.effectController.AddEffect(new AgileBoost(Target.ObjectId, Target, 40, 0.5f));
             Target.ApplyMotion(new MotionDir(Target.FaceRight ? new Vector2(15, 0) : new Vector2(-15, 0), 0.5f, true, 1, true, true));
         }
     }

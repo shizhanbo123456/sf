@@ -10,13 +10,13 @@ public class TargetEffectController : MonoBehaviour
     private Dictionary<int,EffectBase> Effect=new Dictionary<int, EffectBase>();
     private List<int>ToRemoveKeys= new List<int>();
 
-    protected DynamicAttributes BaseAttributes;
-    protected DynamicAttributes FloatingAttributes;
+    protected GameTimeAttributes BaseAttributes;
+    protected GameTimeAttributes FloatingAttributes;
 
     private bool Dirty = false;
 
 
-    public void Init(Target t,DynamicAttributes b,DynamicAttributes f)
+    public void Init(Target t,GameTimeAttributes b,GameTimeAttributes f)
     {
         target = t;
         BaseAttributes = b;
@@ -26,8 +26,8 @@ public class TargetEffectController : MonoBehaviour
     {
         foreach (var i in Effect.Keys)
         {
-            Effect[i].Update();
-            if (Effect[i].End.End) ToRemoveKeys.Add(i);
+            if (Effect[i].end.Reached) ToRemoveKeys.Add(i);
+            else Effect[i].Update();
         }
         if (ToRemoveKeys.Count > 0)
         {
@@ -77,11 +77,11 @@ public class TargetEffectController : MonoBehaviour
             target.SyncEffectIconRpc(values);
         }
     }
-    public DynamicAttributes GetBaseAttributes()
+    public GameTimeAttributes GetBaseAttributes()
     {
         return BaseAttributes;
     }
-    public DynamicAttributes GetFloatingAttributes()
+    public GameTimeAttributes GetFloatingAttributes()
     {
         return FloatingAttributes;
     }

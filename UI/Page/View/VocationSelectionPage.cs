@@ -49,7 +49,7 @@ public class VocationSelectionPage : BasePage
     {
         var page = Tool.PageManager.VocationSelectionPage;
         page.Detail.SetActive(true);
-        page.SkillIcon.sprite = skill.sprite;
+        page.SkillIcon.sprite = Tool.SpriteManager.GetSprite(skill.sprite);
         page.SkillName.text = skill.Name;
         page.SkillTag.text = skill.Tag;
         page.SkillDes.text = skill.Description;

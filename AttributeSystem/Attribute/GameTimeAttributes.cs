@@ -5,27 +5,27 @@ using UnityEngine;
 
 namespace AttributeSystem.Attributes
 {
-    public class DynamicAttributes
+    public class GameTimeAttributes
     {
-        public RegistableVariable<int> Shengming=new RegistableVariable<int>(0);
-        public RegistableVariable<int> Gongji=new RegistableVariable<int>(0);
-        public RegistableVariable<int> Fangyu= new RegistableVariable<int>(0);
-        public RegistableVariable<int> Mingzhong = new RegistableVariable<int>(0);
-        public RegistableVariable<int> Shanbi = new RegistableVariable<int>(0);
-        public RegistableVariable<int> Baoji = new RegistableVariable<int>(0);
-        public RegistableVariable<int> Renxing = new RegistableVariable<int>(0);
-        public RegistableVariable<float> Jiashang=new RegistableVariable<float>(0);
-        public RegistableVariable<float> Jianshang=new RegistableVariable<float>(0);
-        public RegistableVariable<int> Kangjitui = new RegistableVariable<int>(0);
-        public RegistableVariable<float> Jixing = new RegistableVariable<float>(0);
-        public RegistableVariable<float> Tengkong = new RegistableVariable<float>(0);
-        public RegistableVariable<int> Liantiao = new RegistableVariable<int>(0);
+        public RegistableVariable<int> Shengming=RegistableVariable<int>.Get();
+        public RegistableVariable<int> Gongji= RegistableVariable<int>.Get();
+        public RegistableVariable<int> Fangyu= RegistableVariable<int>.Get();
+        public RegistableVariable<int> Mingzhong = RegistableVariable<int>.Get();
+        public RegistableVariable<int> Shanbi = RegistableVariable<int>.Get();
+        public RegistableVariable<int> Baoji = RegistableVariable<int>.Get();
+        public RegistableVariable<int> Renxing = RegistableVariable<int>.Get();
+        public RegistableVariable<int> Jiashang= RegistableVariable<int>.Get();
+        public RegistableVariable<int> Jianshang= RegistableVariable<int>.Get();
+        public RegistableVariable<int> Kangjitui = RegistableVariable<int>.Get();
+        public RegistableVariable<float> Jixing = RegistableVariable<float>.Get();
+        public RegistableVariable<float> Tengkong = RegistableVariable<float>.Get();
+        public RegistableVariable<int> Liantiao = RegistableVariable<int>.Get();
 
 
 
-        public DynamicAttributes Clone()
+        public GameTimeAttributes Clone()
         {
-            var d= new DynamicAttributes();
+            var d= new GameTimeAttributes();
             d.Shengming.Value = Shengming.Value;
             d.Gongji.Value = Gongji.Value;
             d.Fangyu.Value = Fangyu.Value;

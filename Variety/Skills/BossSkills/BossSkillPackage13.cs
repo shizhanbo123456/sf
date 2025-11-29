@@ -23,15 +23,15 @@ namespace Variety.Skill.Boss13
             {
                 foreach (var p in target.GetEnemyInRange())
                 {
-                    p.ApplyEffect(new DefenseDecrease(target, p, 0.3f, 1f));
-                    p.ApplyEffect(new BadLuck(target, p, 10, 1f));
+                    p.ApplyEffect(new DefenseDecrease(target.ObjectId, p, 0.3f, 1f));
+                    p.ApplyEffect(new BadLuck(target.ObjectId, p, 10, 1f));
                 }
             }
             else
             {
                 foreach (var p in target.GetEnemyInRange())
                 {
-                    p.ApplyEffect(new JumpBoost(target,p,8,1));
+                    p.ApplyEffect(new JumpBoost(target.ObjectId,p,8,1));
                 }
             }
         }
@@ -189,7 +189,7 @@ namespace Variety.Skill.Boss13
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyEffect(new AttackBoost(Target, Target, 0.3f, 20));
+            Target.ApplyEffect(new AttackBoost(Target.ObjectId, Target, 0.3f, 20));
             for (float i = 0; i < 4.9f; i += 0.5f)
             {
                 AddEvent(i, (d) =>

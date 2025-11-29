@@ -38,7 +38,7 @@ public class Bullet : MonoBehaviour
         particleController = GetComponent<BulletParticleController>();
         particleController.Stop();
     }
-    public void Init(float rate=1,int liftstoiclevel=1,EffectCollection ec=null, Func<Vector3, Vector3, Vector2>hitback=null)
+    public void Init(float rate=1,int liftstoiclevel=1,EffectCollection ec=default, Func<Vector3, Vector3, Vector2>hitback=null)
     {
         damageRate= rate;
         liftStoicLevel = liftstoiclevel;
@@ -81,30 +81,30 @@ public class Bullet : MonoBehaviour
     {
         LastFramePos = transform.position;
     }
-    public int FigureDamage(DynamicAttributes defenser, out bool hit, out bool strike)//受击者数据
+    public int FigureDamage(GameTimeAttributes defenser, out bool hit, out bool strike)//受击者数据
     {
         return FigureDamage(Shooter.DedicatedAttributes, defenser,damageRate, out hit, out strike);
     }
 
     public EffectCollection GetEffects()=> Effects;
-    public static int FigureDamage(DynamicAttributes attacker, DynamicAttributes defenser,float damageRate, out bool hit, out bool strike)
+    public static int FigureDamage(DedicateSyncAttributes attacker, GameTimeAttributes defenser,float damageRate, out bool hit, out bool strike)
     {
         strike = false;
         hit = true;
-        if (UnityEngine.Random.Range(0f, 1f) < Lerp01((defenser.Shanbi.Value - attacker.Mingzhong.Value) / 100f))
+        if (UnityEngine.Random.Range(0f, 1f) < Lerp01((defenser.Shanbi.Value - attacker.Mingzhong) / 100f))
         {
             hit = false;
             return 0;
         }
-        float damage = damageRate * attacker.Gongji.Value / Mathf.Max(attacker.Gongji.Value + defenser.Fangyu.Value, 1) * attacker.Gongji.Value;
+        float damage = damageRate * attacker.Gongji / Mathf.Max(attacker.Gongji + defenser.Fangyu.Value, 1) * attacker.Gongji;
 
-        if (UnityEngine.Random.Range(0f, 1f) > Lerp01((defenser.Renxing.Value + 100 - attacker.Baoji.Value) / 100f))
+        if (UnityEngine.Random.Range(0f, 1f) > Lerp01((defenser.Renxing.Value + 100 - attacker.Baoji) / 100f))
         {
             damage *= 2;
             strike = true;
         }
 
-        damage *= (attacker.Jiashang.Value - defenser.Jianshang.Value) / 100f + 1;
+        damage *= (attacker.Jiashang - defenser.Jianshang.Value) / 100f + 1;
 
         if (damage <= 1) return 1;
         return (int)damage;

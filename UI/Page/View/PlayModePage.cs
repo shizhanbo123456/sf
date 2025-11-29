@@ -8,10 +8,6 @@ using UnityEngine.UI;
 
 public class PlayModePage : BasePage
 {
-    public enum BarType
-    {
-        Float,Int,Pie
-    }
     public enum SkillColumnType
     {
         NonCD,CD,Storable
@@ -121,10 +117,10 @@ public class PlayModePage : BasePage
 
 
 
-    public Bar_Base CreateBar(BarType type)
+    public BarBase CreateBar()
     {
-        GameObject obj = Instantiate(Tool.PrefabManager.Bars[(int)type], BarList.transform);
-        Bar_Base bar = obj.GetComponent<Bar_Base>();
+        GameObject obj = Instantiate(Tool.PrefabManager.BarBase, BarList.transform);
+        BarBase bar = obj.GetComponent<BarBase>();
         BarList.Bars.Add(bar);
         BarList.LayoutBars();
         return bar;

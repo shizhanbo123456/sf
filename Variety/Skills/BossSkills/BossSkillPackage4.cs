@@ -17,8 +17,8 @@ namespace Variety.Skill.Boss4
         {
             int c = Ore.Ores.Values.Count;
             if (c == 0) return;
-            target.ApplyEffect(new Speed(target, target, c * 0.7f,1));
-            target.ApplyEffect(new DefenseBoost(target, target, c * 1.2f, 1));
+            target.ApplyEffect(new Speed(target.ObjectId, target, c * 0.7f,1));
+            target.ApplyEffect(new DefenseBoost(target.ObjectId, target, c * 1.2f, 1));
         }
     }
     public class Skill0 : SkillBoss
@@ -80,9 +80,6 @@ namespace Variety.Skill.Boss4
             Description = "";
             TimeNeeded = 0.5f;
             cd = 30f;
-
-            ec1 = new EffectCollection(t, (Effects.Slowness, 2f, 1f));
-            ec2 = new EffectCollection(t, (Effects.ArmorShatter, 55f, 10f));
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -90,12 +87,12 @@ namespace Variety.Skill.Boss4
             foreach(var i in Ore.Ores.Values)
             {
                 var b = GetBullet(11);
-                b.Init(3f,ec:ec2,liftstoiclevel:2);
+                b.Init(3f, liftstoiclevel: 2, ec: new EffectCollection(Target, (EffectType.ArmorShatter, 55f, 10f)));
                 BulletStaticSystem.RegistObject(b,3f,0.5f,i.transform.position);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
                 b = GetBullet(6);
-                b.Init(0.2f, ec: ec1, liftstoiclevel: 0);
+                b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(Target, (EffectType.Slowness, 2f, 1f)));
                 BulletStaticSystem.RegistObject(b, 0,20f, i.transform.position);
                 BulletDamageTimeSystem.Regist(b,0.5f);
                 b.Shoot();

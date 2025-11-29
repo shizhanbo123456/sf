@@ -14,11 +14,11 @@ public abstract class TargetController : MonoBehaviour
     public bool isGrounded;
     public float MoveSpeed
     {
-        get { return Mathf.Max(target.DedicatedAttributes.Jixing.Value, 0); }
+        get { return Mathf.Max(target.FloatingAttributes.Jixing.Value, 0); }
     }
     public float JumpSpeed
     {
-        get { return Mathf.Sqrt(Mathf.Max(target.DedicatedAttributes.Tengkong.Value *20, 0)); }
+        get { return Mathf.Sqrt(Mathf.Max(target.FloatingAttributes.Tengkong.Value *20, 0)); }
     }
     public int JumpCount = 1;
 
@@ -154,7 +154,7 @@ public abstract class TargetController : MonoBehaviour
         {
             if (Time.time - jumpcd < 0.2f) return;
             jumpcd = Time.time;
-            if (JumpCount < target.DedicatedAttributes.Liantiao.Value)
+            if (JumpCount < target.FloatingAttributes.Liantiao.Value)
             {
                 rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
                 JumpCount += 1;
@@ -185,7 +185,7 @@ public abstract class TargetController : MonoBehaviour
 
     public virtual bool OnHitBack(Bullet b)
     {
-        int hitbackResist = target.DedicatedAttributes.Kangjitui.Value;
+        int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
         if (InHitDuration) hitbackResist = 0;
         else if (Motion != null&&Motion.ActiveAdded) hitbackResist = Mathf.Max(hitbackResist, Motion.StoicLevel);
         if (b.liftStoicLevel > hitbackResist)
@@ -195,7 +195,7 @@ public abstract class TargetController : MonoBehaviour
                 Motion.Exit(rb.velocity);
                 Motion = null;
             }
-            target.skillController.Interrupt();
+            target.TimeLineWork.Interrupted();
 
             rb.velocity = b.hitbackForce.Invoke(b.transform.position, transform.position);
 
@@ -213,7 +213,7 @@ public abstract class TargetController : MonoBehaviour
         }
         if (Motion == null)
         {
-            int hitbackResist = target.DedicatedAttributes.Kangjitui.Value;
+            int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
             if (InHitDuration) hitbackResist = 0;
             if(m.StoicLevel>=hitbackResist)Motion = m;
         }

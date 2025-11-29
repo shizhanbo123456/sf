@@ -4,7 +4,6 @@ using EC;
 using SF.UI.Bar;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerData : Target
 {
@@ -15,21 +14,7 @@ public class PlayerData : Target
     [HideInInspector] public string Name;
     [HideInInspector] public int Vocation;
 
-    [HideInInspector]public Bar_Float bar;
-    [HideInInspector]public Bar_Float magic;
-    
-
-    private RegistableVariable<int> mofa;
-    private RegistableVariable<int> maxMofa;
-    public int Mofa
-    {
-        get { return mofa.Value; }
-        set
-        {
-            mofa.Value = Mathf.Clamp(value, 0, maxMofa.Value);
-        }
-    }
-
+    [HideInInspector]public BarBase bar;
 
     public override bool UpdateLocally
     {
@@ -53,8 +38,6 @@ public class PlayerData : Target
 
         var att = Tool.AttributesManager.GetDynamicAttribute(this) as PlayerAttributes;
         int level = Tool.AttributesManager.GetLevel();
-        maxMofa=new RegistableVariable<int>((int)att.Mofa.GetValue(level));
-        mofa = new RegistableVariable<int>(maxMofa.Value);
         BaseAttributes = att.GetDynamicAttributes(level).Clone();
         FloatingAttributes = BaseAttributes.Clone();
 
@@ -65,8 +48,7 @@ public class PlayerData : Target
         InitEssential();
         Init_Name();
 
-        effectController.AddEffect(new HealthRegeneration(this,this, (int)att.Huixie.GetValue(level), 100000));
-        effectController.AddEffect(new MagicRegeneration(this,this, (int)att.Huimo.GetValue(level), 100000));
+        effectController.AddEffect(new HealthRegeneration(RegenerationAdderId,this, (int)att.Huixie.GetValue(level), 100000));
 
         transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
         if(isLocalPlayer)Tool.SceneController.Player = gameObject;
@@ -82,8 +64,7 @@ public class PlayerData : Target
     }
     private void Init_Bars()
     {
-        bar = Tool.Instance.CreateBar(PlayModePage.BarType.Float) as Bar_Float;
-        magic = Tool.Instance.CreateBar(PlayModePage.BarType.Float) as Bar_Float;
+        bar = Tool.Instance.CreateBar();
 
         BaseAttributes.Shengming.OnValueChanged += v =>
         {
@@ -92,14 +73,8 @@ public class PlayerData : Target
         };
         FloatingAttributes.Shengming.OnValueChanged += v => { bar.SetValue(v); };
 
-        maxMofa.OnValueChanged += v =>
-        { magic.Max = v; magic.SetValue(mofa.Value); };
-        mofa.OnValueChanged += v => { magic.SetValue(v); };
-
         BaseAttributes.Shengming.OnValueChanged.Invoke(BaseAttributes.Shengming.Value);
         FloatingAttributes.Shengming.OnValueChanged.Invoke(FloatingAttributes.Shengming.Value);
-        maxMofa.OnValueChanged.Invoke(maxMofa.Value);
-        mofa.OnValueChanged.Invoke(mofa.Value);
     }
 
 
@@ -124,7 +99,6 @@ public class PlayerData : Target
     {
         Tool.FightController.OnDeathRpc(Camp, ((t!=null&&t is PlayerData)?t.Camp:9));
         Shengming = BaseAttributes.Shengming.Value;
-        Mofa = maxMofa.Value;
         transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
         Tool.UIEventCenter.TrigEvent(new ShowKilledSignalEvent());
     }

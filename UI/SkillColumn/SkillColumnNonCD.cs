@@ -10,7 +10,7 @@ namespace SF.UI.Skill
     /// <summary>
     /// 可用次数只可为0/1
     /// </summary>
-    public class Skill_NonCD : SkillColumnBase
+    public class SkillColumnNonCD : SkillColumnBase
     {
         /// <summary>
         /// 只可为0/1
@@ -24,37 +24,27 @@ namespace SF.UI.Skill
 }
 public class SkillNonCDController : SkillBaseController
 {
-    private Skill_NonCD skill;
-    private PlayerData Player;
-    private int cost;
+    private SkillColumnNonCD skill;
     public override void Update()
     {
-        if (Player && skill != null)
-        {
-            if (Player.Mofa >= cost) skill.SetAvailableTime(1);
-            else skill.SetAvailableTime(0);
-        }
+        skill.SetAvailableTime(1);
     }
     public override bool CanUse()
     {
-        if (Player && Player.Mofa < cost) return false;
         return true;
     }
     public override void OnUse()
     {
-        if (Player) Player.Mofa -= cost;
         base.OnUse();
     }
-    public static SkillBaseController Create(int index,Target t, int cost)
+    public static SkillBaseController Create(int index,Target t)
     {
         var r = new SkillNonCDController();
         r.SkillIndex = index;
         if (t && t is PlayerData p)
         {
-            r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.NonCD) as Skill_NonCD;
-            r.Player = p;
+            r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.NonCD) as SkillColumnNonCD;
         }
-        r.cost = cost;
         return r;
     }
 }
