@@ -21,13 +21,13 @@ public class MonsterController : TargetController
     {
         base.Init(t);
         interval = (t as Monster).StateInterval;
-        CanMove = (t as Monster).CanMove;
+        CanMove = (t as Monster).MonsterCanMove;
         CanFly = (t as Monster).MonsterCanFly;
         if (!CanMove)
         {
             ApplyMotion(new MotionStatic(99999999, true, 99999999, true, false));
         }
-        SwitchState(MonsterState.Relax);
+        else SwitchState(MonsterState.Relax);
     }
     private void SwitchState(MonsterState state)
     {

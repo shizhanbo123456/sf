@@ -11,7 +11,7 @@ public abstract class TargetController : MonoBehaviour
 
     
 
-    public bool isGrounded;
+    [HideInInspector] public bool isGrounded;
     public float MoveSpeed
     {
         get { return Mathf.Max(target.FloatingAttributes.Jixing.Value, 0); }
@@ -20,7 +20,7 @@ public abstract class TargetController : MonoBehaviour
     {
         get { return Mathf.Sqrt(Mathf.Max(target.FloatingAttributes.Tengkong.Value *20, 0)); }
     }
-    public int JumpCount = 1;
+    [HideInInspector] public int JumpCount = 1;
 
 
     private MotionBase motion;
@@ -47,7 +47,7 @@ public abstract class TargetController : MonoBehaviour
     private bool MotionEntered = true;
 
     protected virtual float MinResisiance => -1f;
-    public float Resistance=0.01f;
+    [HideInInspector]public float Resistance=0.01f;
     public bool InHitDuration
     {
         get
@@ -56,7 +56,7 @@ public abstract class TargetController : MonoBehaviour
         }
     }
 
-    public Vector2 MotionVector;
+    [HideInInspector]public Vector2 MotionVector;
 
     private bool Initialized = false;
 
