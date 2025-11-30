@@ -2,8 +2,8 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Variety.Base;
+using Variety.Skill.Common;
 using Variety.Template;
 
 namespace Variety.Skill.Boss15
@@ -27,65 +27,37 @@ namespace Variety.Skill.Boss15
             else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
-    public class Skill0 : SkillBoss
+    public class Skill0 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill0() : base()
         {
             Description = "在靠近的敌人周围生成环绕能量弹";
             TimeNeeded = 2.5f;
             cd = 8f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 1) lantern = list[1];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            var enemies = Target.GetEnemyInRange();
+            var enemy = Target.GetNearestEnemy();
+            Vector3 enemyPos = enemy.transform.position;
 
-            foreach (var enemy in enemies)
+            for (int i = 0; i < 6; i++)
             {
-                if (enemy == null) continue;
-                Vector3 enemyPos = enemy.transform.position;
-
-                for (int i = 0; i < 6; i++)
-                {
-                    if (enemy == null) return;
-                    var b = GetBullet(4);
-                    b.Init(1.6f,liftstoiclevel:0);
-                    BulletOrbitWorldSystem.RegistObject(b,0.4f,7f,3f,120,i*60,enemyPos);
-                    BulletDamageOnceSystem.Regist(b);
-                    b.Shoot();
-                }
+                var b = GetBullet(4);
+                b.Init(0.6f, liftstoiclevel: 0);
+                BulletOrbitWorldSystem.RegistObject(b, 0.4f, 7f, 3f, 120, i * 60, enemyPos);
+                BulletDamageTimeSystem.Regist(b,0.3f);
+                b.Shoot();
             }
         }
     }
-    public class Skill1 : SkillBoss
+    public class Skill1 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill1() : base()
         {
             Description = "在敌人位置显示警告后引发爆炸";
             TimeNeeded = 2f;
             cd = 6f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 1) lantern = list[1];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
@@ -106,25 +78,14 @@ namespace Variety.Skill.Boss15
             });
         }
     }
-    public class Skill2 : SkillBoss
+    public class Skill2 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill2() : base()
         {
             Description = "在敌人周围生成持续伤害雾气";
             TimeNeeded = 3f;
             cd = 12f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 1) lantern = list[1];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
@@ -144,25 +105,14 @@ namespace Variety.Skill.Boss15
             }
         }
     }
-    public class Skill3 : SkillBoss
+    public class Skill3 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill3() : base()
         {
             Description = "标记敌人并施加燃烧与防御降低";
             TimeNeeded = 2f;
             cd = 10f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 1) lantern = list[1];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(15);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             WarningCircle.Warn(Target.transform.position, 15, 5f);
@@ -177,27 +127,14 @@ namespace Variety.Skill.Boss15
             });
         }
     }
-
-    // 技能4：追踪火球弹幕
-    public class Skill4 : SkillBoss
+    public class Skill4 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill4() : base()
         {
             Description = "向靠近的敌人发射追踪火球";
             TimeNeeded = 2.5f;
             cd = 7f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 1) lantern = list[1];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(20);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             for (int i = 0; i < 12; i++)
@@ -212,6 +149,7 @@ namespace Variety.Skill.Boss15
                         b.Init(0.6f,liftstoiclevel:0);
                         BulletAngleNonFacingSystem.RegistObject(b,0.8f,2,15,angle);
                         BulletDamageOnceSystem.Regist(b);
+                        b.Shoot();
                     }
                 });
             }
@@ -222,11 +160,6 @@ namespace Variety.Skill.Boss15
         public Skill5() : base()
         {
             cd = 26f;
-        }
-        protected override void GetLantern()
-        {
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 1) lantern = list[1];
         }
     }
 }

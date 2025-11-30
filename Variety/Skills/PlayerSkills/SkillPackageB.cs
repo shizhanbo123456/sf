@@ -10,6 +10,7 @@ namespace Variety.Skill.PackageB
     {
         public Skill0() : base()
         {
+            sprite = new Vector2Int(2, 0);
             Name = "肘击";
             Description = "前方小范围造成高额伤害,并获得幸运效果3s，耗魔10";
             Tag = "平a";
@@ -29,6 +30,7 @@ namespace Variety.Skill.PackageB
     {
         public Skill1() : base()
         {
+            sprite = new Vector2Int(2, 1);
             Name = "震撼";
             Description = "震飞周围敌人，可击破霸体单位，期间有超级霸体且防御大幅提升，耗魔10";
             Tag = "平a";
@@ -50,6 +52,7 @@ namespace Variety.Skill.PackageB
     {
         public Skill2() : base()
         {
+            sprite = new Vector2Int(2, 2);
             Name = "三发箭";
             Description = "向前下方发射三发子弹，魔20";
             Tag = "平a";
@@ -73,6 +76,7 @@ namespace Variety.Skill.PackageB
     {
         public Skill3() : base()
         {
+            sprite = new Vector2Int(2, 3);
             Name = "力场";
             Description = "释放力场持续伤害范围内敌人，耗魔180";
             Tag = "平a";
@@ -99,6 +103,7 @@ namespace Variety.Skill.PackageB
         };
         public Skill4() : base()
         {
+            sprite = new Vector2Int(2, 4);
             Name = "引雷";
             Description = "在周围召唤大量子弹落下，耗魔200";
             Tag = "平a";
@@ -124,6 +129,7 @@ namespace Variety.Skill.PackageB
     {
         public Skill5() : base()
         {
+            sprite = new Vector2Int(2, 5);
             Name = "冲刺";
             Description = "向前冲刺一段距离，期间中幅提升闪避";
             Tag = "平a";

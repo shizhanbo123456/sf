@@ -631,7 +631,7 @@ public static class BulletOrbitWorldSystem
             if (Time.time > i.Value.destroyTime) ToRemove.Add(i.Key);
             else
             {
-                Vector3 localPos = BulletSystemCommon.RadToVector(i.Value.radOffset + i.Value.spawntime * i.Value.radSpeed)* i.Value.radius;
+                Vector3 localPos = BulletSystemCommon.RadToVector(i.Value.radOffset + (Time.time-i.Value.spawntime) * i.Value.radSpeed)* i.Value.radius;
                 i.Key.transform.position = i.Value.pos + localPos;
                 i.Key.UpdateDetectors();
             }
