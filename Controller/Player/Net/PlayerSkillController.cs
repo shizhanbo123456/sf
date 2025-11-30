@@ -11,6 +11,6 @@ public class PlayerSkillController : TargetSkillController
 
         for (int i = 0; i < Keys.Count; i++)
             if (Tool.SubInput.CanUseSkill(i))
-                UseSkill(i);
+                UseSkillBuffer(i);
     }
 }

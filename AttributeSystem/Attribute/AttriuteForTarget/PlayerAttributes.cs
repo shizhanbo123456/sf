@@ -8,6 +8,6 @@ namespace AttributeSystem.Attributes
     public class PlayerAttributes : TargetAttributes
     {
         [Space]
-        public LinerGrowth Huixie;
+        public float Huixie;
     }
 }

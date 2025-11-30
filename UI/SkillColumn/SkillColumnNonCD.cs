@@ -31,7 +31,7 @@ public class SkillNonCDController : SkillBaseController
     }
     public override bool CanUse()
     {
-        return true;
+        return base.CanUse();
     }
     public override void OnUse()
     {
@@ -40,10 +40,12 @@ public class SkillNonCDController : SkillBaseController
     public static SkillBaseController Create(int index,Target t)
     {
         var r = new SkillNonCDController();
+        r.target = t;
         r.SkillIndex = index;
         if (t && t is PlayerData p)
         {
             r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.NonCD) as SkillColumnNonCD;
+            r.skill.SetSprite(Tool.SpriteManager.GetSprite(VarietyManager.GetSkill(index).sprite));
         }
         return r;
     }

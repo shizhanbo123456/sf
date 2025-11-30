@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class PlayerData : Target
 {
-    public int id;
+    [HideInInspector]public int id;
     private bool Initialized;
     [HideInInspector]public bool isLocalPlayer;
 
@@ -48,7 +48,7 @@ public class PlayerData : Target
         InitEssential();
         Init_Name();
 
-        effectController.AddEffect(new HealthRegeneration(RegenerationAdderId,this, (int)att.Huixie.GetValue(level), 100000));
+        effectController.AddEffect(new HealthRegeneration(RegenerationAdderId,this, (int)(att.Huixie*BaseAttributes.Shengming.Value), 100000));
 
         transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
         if(isLocalPlayer)Tool.SceneController.Player = gameObject;
@@ -65,18 +65,19 @@ public class PlayerData : Target
     private void Init_Bars()
     {
         bar = Tool.Instance.CreateBar();
+        bar.SetScale(1f);
+        bar.SetColor(new Color(1f, 0.4f, 0.4f, 1f));
 
-        BaseAttributes.Shengming.OnValueChanged += v =>
-        {
-            bar.Max = v;
-            bar.SetValue(FloatingAttributes.Shengming.Value);
-        };
-        FloatingAttributes.Shengming.OnValueChanged += v => { bar.SetValue(v); };
+        BaseAttributes.Shengming.OnValueChanged += _ => UpdateBar();
+        FloatingAttributes.Shengming.OnValueChanged += _ => UpdateBar();
 
         BaseAttributes.Shengming.OnValueChanged.Invoke(BaseAttributes.Shengming.Value);
         FloatingAttributes.Shengming.OnValueChanged.Invoke(FloatingAttributes.Shengming.Value);
     }
-
+    private void UpdateBar()
+    {
+        bar.SetValue(FloatingAttributes.Shengming.Value, BaseAttributes.Shengming.Value);
+    }
 
     public override void ManagedUpdate()
     {
@@ -104,4 +105,5 @@ public class PlayerData : Target
     }
 
     protected override TargetController AddController() => gameObject.AddComponent<PlayerController>();
+    protected override TargetSkillController AddSkillController() => gameObject.AddComponent<PlayerSkillController>();
 }

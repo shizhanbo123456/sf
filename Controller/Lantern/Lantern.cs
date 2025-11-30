@@ -8,7 +8,7 @@ public class Lantern : Target
 {
     public static SortedDictionary<int, Lantern> Lanterns = new SortedDictionary<int, Lantern>();
     public static int LanternIndexNext = 0;//服务器带参创建时访问
-    public int LanternIndex;
+    private int LanternIndex;
 
     public SpriteRenderer Render;
     public Sprite On;
@@ -61,9 +61,10 @@ public class Lantern : Target
             Shengming = 999999999;
         }
     }
+    private static HashSet<Bullet> Empty= new HashSet<Bullet>();
     protected override HashSet<Bullet> DetectBullet()
     {
         if(TimeOfDie<0.01f)return base.DetectBullet();
-        return new HashSet<Bullet>();
+        return Empty;
     }
 }

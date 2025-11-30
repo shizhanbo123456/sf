@@ -89,6 +89,10 @@ namespace Variety.Template
         public SkillBoss() : base()
         {
         }
+        public override SkillBaseController CreateSkillColumn(Target t)
+        {
+            return SkillCDController.Create(GetHashCode(), t, cd);
+        }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
             BulletSystemCommon.CurrentShooter = Target;

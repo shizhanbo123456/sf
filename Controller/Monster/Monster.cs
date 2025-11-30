@@ -32,6 +32,7 @@ public class Monster : Target
     private int BloodPerM;
     [HideInInspector]public float StateInterval=5;
 
+    private const int LayerMax = 100;
 
     public void Init(string data)
     {
@@ -42,25 +43,22 @@ public class Monster : Target
         var att = Tool.AttributesManager.GetDynamicAttribute(this) as MonsterAttributes;
         StateInterval = att.StateInterval.GetValue(Tool.AttributesManager.GetLevel());
         BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
-        BloodPerM = BaseAttributes.Shengming.Value / 100;
-        BaseAttributes.Shengming.Value = BaseAttributes.Shengming.Value / BloodPerM * BloodPerM;
+        BloodPerM = BaseAttributes.Shengming.Value / LayerMax;
+        BaseAttributes.Shengming.Value = LayerMax * BloodPerM;
         FloatingAttributes = BaseAttributes.Clone();
         GetAndInitComponents();
         RegistSyncAttributesEvent();
         InitEssential();
 
         Bar = Tool.Instance.CreateBossBar();
-        Bar.Enter(Type.ToString(), 100,Shengming);
+        Bar.Init(Type.ToString(), LayerMax,Shengming);
 
         OnCreated();
     }
     protected override void RegistSyncAttributesEvent()
     {
         base.RegistSyncAttributesEvent();
-        DedicatedAttributes.Shengming.OnValueChanged += v => 
-        {
-            Bar.SetBlood(v.Item2);
-        };
+        DedicatedAttributes.Shengming.OnValueChanged += v => Bar.SetValue(v.Item2, v.Item1, LayerMax);
     }
     protected override void OnCreated()
     {
@@ -72,7 +70,7 @@ public class Monster : Target
         base.OnDestroy();
         if (Bar != null)
         {
-            Bar.SetBlood(0);
+            Bar.SetValue(0,BaseAttributes.Shengming.Value,LayerMax);
         }
         Monsters.Remove(MonsterIndex);
     }

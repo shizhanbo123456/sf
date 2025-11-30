@@ -8,20 +8,37 @@ namespace SF.UI.Bar
     public class BarBase : MonoBehaviour
     {
         public Vector2 OccupyArea;
-        public float Min = 0;
-        public float Max = 100;
         [Space]
         [Header("Grapic")]
-        public Vector2 LocalXRange = new Vector2(-1147, 0);
-        public Transform Grapic;
-        public Text Num;
-        public Text NumShade;
+        [SerializeField] private Transform Grapic;
+        [SerializeField]private Text Num;
+
+        private float parentWidth=0;
+        private float scaleStart = 0;
         public void SetValue(float value)
         {
-            Num.text = value.ToString() + "/" + Max.ToString();
-            NumShade.text = Num.text;
-            float percent = (value - Min) / (Max - Min);
-            Grapic.localPosition = new Vector3(Mathf.Lerp(LocalXRange.x, LocalXRange.y, percent), 0, 0);
+            if (parentWidth < 1f) parentWidth = Grapic.parent.GetComponent<RectTransform>().rect.width;
+            Num.text = value.ToString("F2");
+            float percent = value;
+            Grapic.localPosition = new Vector3(Mathf.Lerp(-parentWidth, 0, percent), 0, 0);
+        }
+        public void SetValue(int value,int maxValue)
+        {
+            if (parentWidth < 1f) parentWidth = Grapic.parent.GetComponent<RectTransform>().rect.width;
+            Num.text = value.ToString() + "/" + maxValue.ToString();
+            float percent = (float)value / maxValue;
+            Grapic.localPosition = new Vector3(Mathf.Lerp(-parentWidth,0,percent),0,0);
+        }
+        public void SetScale(float factor)
+        {
+            if (parentWidth < 1f) parentWidth = Grapic.parent.GetComponent<RectTransform>().rect.width;
+            if (scaleStart < 0.01f) scaleStart = Grapic.parent.localScale.x;
+            Grapic.parent.localScale = new Vector3(factor * scaleStart, Grapic.parent.localScale.y, 1);
+            Grapic.parent.localPosition = new Vector3(parentWidth*Grapic.parent.localScale.x*0.5f, 0, 0);
+        }
+        public void SetColor(Color c)
+        {
+            Grapic.GetChild(0).GetComponent<Image>().color = c;
         }
     }
 }

@@ -48,7 +48,7 @@ public class SkillStorableController : SkillBaseController
     }
     public override bool CanUse()
     {
-        return storeTime >= 0.999f;
+        return storeTime >= 0.999f && base.CanUse();
     }
     public override void OnUse()
     {
@@ -58,10 +58,12 @@ public class SkillStorableController : SkillBaseController
     public static SkillBaseController Create(int index, Target t, int maxStoreTime, float cd)
     {
         var r = new SkillStorableController();
+        r.target = t;
         r.SkillIndex = index;
         if (t && t is PlayerData p)
         {
             r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.Storable) as SkillColumnStorable;
+            r.skill.SetSprite(Tool.SpriteManager.GetSprite(VarietyManager.GetSkill(index).sprite));
         }
         r.maxStoreTime = maxStoreTime;
         r.cd = cd;

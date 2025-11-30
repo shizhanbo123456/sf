@@ -8,7 +8,7 @@ public class VoctionSelectionViewModel:Singleton<VoctionSelectionViewModel>
     public List<string>SkillDes=new List<string>();
     public VoctionSelectionViewModel()
     {
-        Skills = VarietyManager.BossSkills;
+        Skills = VarietyManager.PlayerSkills;
         SkillPackageNames = VarietyManager.SkillPackageName;
         SkillDes = VarietyManager.SkillPackageDes;
     }

@@ -15,16 +15,26 @@ namespace SF.UI.Skill
             Key.text = key.ToString();
         }
         public abstract void SetAvailableTime(float time);
+        public void SetSprite(Sprite sprite)
+        {
+            MainIcon.sprite = sprite;
+        }
     }
 }
 public abstract class SkillBaseController
 {
     public int SkillIndex { get; protected set; }
+    protected Target target;
     public virtual void Update()
     {
 
     }
-    public abstract bool CanUse();
+    public virtual bool CanUse()
+    {
+        var skill = VarietyManager.GetSkill(SkillIndex);
+        if (!skill.CanUse(target)) return false;
+        return true;
+    }
     public virtual void OnUse()
     {
 

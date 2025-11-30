@@ -28,7 +28,7 @@ public abstract class TargetController : MonoBehaviour
     {
         get { return motion; }
         set 
-        { 
+        {
             motion = value;
             MotionEntered = false;
             rb.gravityScale = value == null ? 1 : 0;
@@ -86,7 +86,7 @@ public abstract class TargetController : MonoBehaviour
 
         Initialized = true;
     }
-    private void Update()
+    protected virtual void Update()
     {
         PlayerUpdate();
         if (target.targetInfoSync.OnPlayerPostUpdate())
@@ -112,7 +112,6 @@ public abstract class TargetController : MonoBehaviour
             OperationLock_Hit.Locked = false;
             SkillLock_Hit.Locked = false;
         }
-
         if (Motion != null) UpdateMotion();
 
         MotionVector = new Vector2();
@@ -168,8 +167,7 @@ public abstract class TargetController : MonoBehaviour
             rb.velocity = Motion.Entry(rb.velocity);
             MotionEntered = true;
         }
-
-        if (Motion.SpawnTime > Motion.WorkTime)
+        else if (Motion.SpawnTime > Motion.WorkTime)
         {
             rb.velocity = Motion.Exit(rb.velocity);
             Motion = null;
@@ -217,7 +215,7 @@ public abstract class TargetController : MonoBehaviour
             if (InHitDuration) hitbackResist = 0;
             if(m.StoicLevel>=hitbackResist)Motion = m;
         }
-        else if (m.StoicLevel >= Motion.StoicLevel)
+        else if (m.StoicLevel >= Motion.StoicLevel||m.ActiveAdded)
         {
             Motion = m;
         }

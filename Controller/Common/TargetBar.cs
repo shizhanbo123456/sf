@@ -1,15 +1,15 @@
-Ôªøusing AttributeSystem.Effect;
+using AttributeSystem.Effect;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TargetVisible : MonoBehaviour
+public class TargetBar : MonoBehaviour
 {
     [SerializeField] private Transform Bar;
     [Space]
     [SerializeField] private Transform EffectLayoutRoot;
-    [SerializeField] private Transform EffectUnitTemplate;//ÊåÇËΩΩ‰∫ÜEffectRender
-    private List<SpriteRenderer> EffectUnits=new List<SpriteRenderer>();
+    [SerializeField] private Transform EffectUnitTemplate;//π“‘ÿ¡ÀEffectRender
+    private List<SpriteRenderer> EffectUnits = new List<SpriteRenderer>();
     private void Awake()
     {
         EffectUnitTemplate.gameObject.SetActive(false);
