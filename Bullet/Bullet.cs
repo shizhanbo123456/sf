@@ -9,7 +9,7 @@ using Variety.Base;
 
 public class Bullet : MonoBehaviour
 {
-    public static Dictionary<int, Dictionary<int, Bullet>> Bullets = new Dictionary<int, Dictionary<int, Bullet>>();
+    public static readonly Dictionary<int, Dictionary<int, Bullet>> Bullets = new Dictionary<int, Dictionary<int, Bullet>>();
 
     //Detector
     public float radius = 2;
@@ -54,6 +54,7 @@ public class Bullet : MonoBehaviour
     }
     public void Shoot()
     {
+        if (ReleaseBulletSystemReference == null) Debug.LogError("δ�ڹ켣ϵͳע��");
         Shooter = BulletSystemCommon.CurrentShooter;
 
         SpriteManager.ColorType ct = liftStoicLevel switch
@@ -73,13 +74,23 @@ public class Bullet : MonoBehaviour
     }
     public void DestroyBullet()
     {
+        particleController.Stop();
+
         ReleaseBulletSystemReference?.Invoke(this);
         ReleaseDamageableReference?.Invoke(this);
 
-        particleController.Stop();
-
-        Bullets[Camp].Remove(GetInstanceID());
-        if (Bullets[Camp].Count==0)Bullets.Remove(Camp);
+        try
+        {
+            if (Bullets.ContainsKey(Camp))
+            {
+                Bullets[Camp].Remove(GetInstanceID());
+                if (Bullets[Camp].Count == 0) Bullets.Remove(Camp);
+            }
+        }
+        catch(System.Exception e)
+        {
+            Debug.LogException(e);
+        }
 
         Tool.BulletManager.ReturnBullet(this);
     }

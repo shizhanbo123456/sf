@@ -64,7 +64,34 @@ public class Lantern : Target
     private static HashSet<Bullet> Empty= new HashSet<Bullet>();
     protected override HashSet<Bullet> DetectBullet()
     {
-        if(TimeOfDie<0.01f)return base.DetectBullet();
+        if(TimeOfDie<0.0001f)return base.DetectBullet();
         return Empty;
+    }
+    public static Lantern GetNearestLantern(Vector3 pos, float range = 99999f)
+    {
+        if (Lanterns.Count == 0) return null;
+        float DMin = range * range;
+        Lantern r = null;
+        foreach (var i in Lanterns.Values)
+        {
+            var mSqr = (pos - i.transform.position).sqrMagnitude;
+            if (mSqr < DMin)
+            {
+                r = i;
+                DMin = mSqr;
+            }
+        }
+        return r;
+    }
+    public static float GetAverageHealth()
+    {
+        int healthSum = 0;
+        int each = 0;
+        foreach(var i in Lanterns.Values)
+        {
+            if (each == 0) each = i.BaseAttributes.Shengming.Value;
+            healthSum += i.FloatingAttributes.Shengming.Value;
+        }
+        return healthSum/(Lanterns.Count*(float)each);
     }
 }

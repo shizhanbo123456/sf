@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Variety.Base;
+using Variety.Skill.Common;
 using Variety.Template;
 
 namespace Variety.Skill.Boss17
@@ -28,25 +29,14 @@ namespace Variety.Skill.Boss17
     }
 
     // 技能0：速度预测火球（根据敌人速度预判位置）
-    public class Skill0 : SkillBoss
+    public class Skill0 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill0() : base()
         {
             Description = "根据敌人移动速度预测位置发射火球";
             TimeNeeded = 2.2f;
             cd = 7f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 3) lantern = list[3];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
@@ -77,24 +67,14 @@ namespace Variety.Skill.Boss17
             }
         }
     }
-    public class Skill1 : SkillBoss
+    public class Skill1 : SkillCommonFor14_18
     {
-        private Lantern lantern;
         public Skill1() : base()
         {
             Description = "在敌人路径生成地雷，移动越快伤害越高";
             TimeNeeded = 2.5f;
             cd = 10f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 3) lantern = list[3];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
@@ -126,24 +106,14 @@ namespace Variety.Skill.Boss17
         }
     }
 
-    public class Skill2 : SkillBoss
+    public class Skill2 : SkillCommonFor14_18
     {
-        private Lantern lantern;
         public Skill2() : base()
         {
             Description = "生成禁锢环，减缓敌人速度并造成持续伤害";
             TimeNeeded = 3f;
             cd = 12f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 3) lantern = list[3];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
@@ -161,25 +131,14 @@ namespace Variety.Skill.Boss17
             });
         }
     }
-    public class Skill3 : SkillBoss
+    public class Skill3 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill3() : base()
         {
             Description = "沿敌人移动方向两侧发射弹幕";
             TimeNeeded = 2f;
             cd = 8f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 3) lantern = list[3];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(20);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
@@ -216,25 +175,14 @@ namespace Variety.Skill.Boss17
         }
     }
 
-    public class Skill4 : SkillBoss
+    public class Skill4 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill4() : base()
         {
             Description = "发射跟随敌人速度变化的追踪导弹";
             TimeNeeded = 2.8f;
             cd = 15f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 3) lantern = list[3];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
@@ -260,11 +208,6 @@ namespace Variety.Skill.Boss17
         public Skill5() : base()
         {
             cd = 55f;
-        }
-        protected override void GetLantern()
-        {
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 3) lantern = list[3];
         }
     }
 }

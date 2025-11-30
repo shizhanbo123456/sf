@@ -7,10 +7,20 @@ using Variety.Template;
 
 namespace Variety.Skill.Common
 {
+    public class SkillCommonFor14_18 : SkillBoss
+    {
+        public SkillCommonFor14_18() : base()
+        {
+        }
+
+        public override sealed bool CanUse(Target Target)
+        {
+            var lantern = Lantern.GetNearestLantern(Target.transform.position);
+            return (lantern == null || lantern.Shengming < 3) && Target.GetNearestEnemy(15);
+        }
+    }
     public class Skill5For14_18 : SkillBoss
     {
-        protected Lantern lantern;
-
         private static List<Vector3> Pos1 = new List<Vector3>()
         {
             new Vector3(-3.8f,-0.2f),
@@ -55,14 +65,11 @@ namespace Variety.Skill.Common
         {
             Description = "";
             TimeNeeded = 2f;
-            cd = 3f;//×ÓÀàÖØÐ´
-
-            GetLantern();
+            cd = 3f;
         }
-        protected virtual void GetLantern()
+        public override sealed bool CanUse(Target Target)
         {
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
+            return Target.GetNearestEnemy(Mathf.Lerp(25,5,Lantern.GetAverageHealth()));
         }
         protected override void OnUse(Target Target,Vector3 pos,bool faceright)
         {

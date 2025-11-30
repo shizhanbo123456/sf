@@ -47,7 +47,22 @@ public class Ore : Target
             }
         }
     }
-
+    public static Ore GetNearestOre(Vector3 pos, float range = 99999f)
+    {
+        if(Ores.Count== 0) return null;
+        float DMin = range * range;
+        Ore r = null;
+        foreach (var i in Ores.Values)
+        {
+            var mSqr = (pos - i.transform.position).sqrMagnitude;
+            if (mSqr < DMin)
+            {
+                r = i;
+                DMin = mSqr;
+            }
+        }
+        return r;
+    }
     public static List<Ore> OreHealthRate(out int maxEach)
     {
         maxEach = Tool.AttributesManager.GetDynamicAttribute(Ores.First().Value).

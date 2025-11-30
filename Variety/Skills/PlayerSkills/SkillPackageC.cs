@@ -10,6 +10,7 @@ namespace Variety.Skill.PackageC
     {
         public Skill0() : base()
         {
+            sprite = new Vector2Int(3, 0);
             Name = "上下开弓";
             Description = "召唤两发子弹射向前方，耗魔15";
             Tag = "平a";
@@ -33,6 +34,7 @@ namespace Variety.Skill.PackageC
     {
         public Skill1() : base()
         {
+            sprite = new Vector2Int(3, 1);
             Name = "后撤步";
             Description = "迅速向后位移，期间中幅提升减伤";
             Tag = "平a";
@@ -51,6 +53,7 @@ namespace Variety.Skill.PackageC
     {
         public Skill2() : base()
         {
+            sprite = new Vector2Int(3, 2);
             Name = "挥符";
             Description = "向前发射三颗子弹，耗魔100";
             Tag = "平a";
@@ -74,6 +77,7 @@ namespace Variety.Skill.PackageC
     {
         public Skill3() : base()
         {
+            sprite = new Vector2Int(3, 3);
             Name = "守卫者";
             Description = "召唤一圈子弹围绕自身，耗魔75";
             Tag = "平a";
@@ -140,6 +144,7 @@ namespace Variety.Skill.PackageC
         };
         public Skill4() : base()
         {
+            sprite = new Vector2Int(3, 4);
             Name = "子弹风暴";
             Description = "前方地面不断喷发出子弹，耗魔150";
             Tag = "平a";
@@ -147,13 +152,12 @@ namespace Variety.Skill.PackageC
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            var front = Target.FaceRight ? 1:-1;
+            var front = Target.FaceRight ? Vector3.right:Vector3.left;
             for (int i = 0; i < offset.Count; i++)
             {
-                int j = i;
-                AddEvent(j * 0.05f, new TimeLineData(Target,front,pos),(d) =>
+                AddEvent(i * 0.05f, new TimeLineData(Target,Target.transform.position +front * offset[i]),(d) =>
                 {
-                    Vector3 start = new Vector3(d.index,0) + d.pos * offset[j] + Vector3.down * 2; 
+                    Vector3 start = d.pos + Vector3.down * 2; 
                     var b = GetBullet(7);
                     b.Init(0.4f);
                     BulletFromToSystem.RegistObject(b, 0.3f, 0.5f, start, start + Vector3.up * 10);
@@ -167,6 +171,7 @@ namespace Variety.Skill.PackageC
     {
         public Skill5() : base()
         {
+            sprite = new Vector2Int(3, 5);
             Name = "诅咒";
             Description = "向周围10m内的敌人施加诅咒";
             Tag = "平a";
@@ -175,7 +180,7 @@ namespace Variety.Skill.PackageC
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            var b = GetBullet(7);
+            var b = GetBullet(4);
             b.Init(0.8f);
             BulletStaticScaleChangeSystem.RegistObject(b,0,10,0.5f);
             //BulletDamageTimeSystem.Regist(b, 0.5f);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Variety.Base;
+using Variety.Skill.Common;
 using Variety.Template;
 
 namespace Variety.Skill.Boss14
@@ -26,26 +27,14 @@ namespace Variety.Skill.Boss14
             else if(lantern.Shengming>=1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
-    public class Skill0 : SkillBoss
+    public class Skill0 : SkillCommonFor14_18
     {
-        private Lantern lantern;
         public Skill0() : base()
         {
             Description = "在靠近的敌人周围生成持续伤害雾气";
             TimeNeeded = 2f;
             cd = 10f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
-
-            
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null||lantern.Shengming<3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var ec = new EffectCollection(Target, (EffectType.Slowness, 2f, 5f));
@@ -64,25 +53,14 @@ namespace Variety.Skill.Boss14
             }
         }
     }
-    public class Skill1 : SkillBoss
+    public class Skill1 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill1():base()
         {
             Description = "向靠近的敌人发射追踪火球";
             TimeNeeded = 2.5f;
             cd = 7f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3)&&Target.GetNearestEnemy(20);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy(); // 获取最近敌人
@@ -104,25 +82,14 @@ namespace Variety.Skill.Boss14
         }
     }
 
-    public class Skill2 : SkillBoss
+    public class Skill2 : SkillCommonFor14_18
     {
-        private Lantern lantern;
-
         public Skill2() : base()
         {
             Description = "在密集敌人区域引发能量爆发";
             TimeNeeded = 3f;
             cd = 12f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemy = Target.GetNearestEnemy();
@@ -143,27 +110,14 @@ namespace Variety.Skill.Boss14
             });
         }
     }
-
-    // 技能3：诅咒标记（给敌人叠加debuff）
-    public class Skill3 : SkillBoss
+    public class Skill3 : SkillCommonFor14_18
     {
-        private Lantern lantern;
         public Skill3() : base()
         {
             Description = "标记靠近的敌人，使其受到持续伤害并降低防御";
             TimeNeeded = 2f;
             cd = 15f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
-
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var ec = new EffectCollection(Target,
@@ -184,26 +138,14 @@ namespace Variety.Skill.Boss14
             }
         }
     }
-
-    // 技能4：延迟陷阱（敌人经过时触发）
-    public class Skill4 : SkillBoss
+    public class Skill4 : SkillCommonFor14_18
     {
-        private Lantern lantern;
         public Skill4() : base()
         {
             Description = "在敌人路径上生成延迟陷阱，触发后造成范围伤害";
             TimeNeeded = 2.5f;
             cd = 9f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
         }
-
-        public override bool CanUse(Target Target)
-        {
-            return (lantern == null || lantern.Shengming < 3);
-        }
-
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
@@ -230,11 +172,6 @@ namespace Variety.Skill.Boss14
         public Skill5():base()
         {
             cd = 21f;
-        }
-        protected override void GetLantern()
-        {
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
         }
     }
 }

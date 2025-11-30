@@ -321,6 +321,22 @@ public abstract class Target : EnsBehaviour
 
 
     private static readonly List<Target> targets = new List<Target>();
+    public Target GetNearest<T>(Dictionary<int,T>src,float range = 99999f, bool requireInFront = false)where T:Target
+    {
+        float DMin = range * range; // 使用距离平方进行比较
+        Target r = null;
+        foreach (var i in src.Values)
+        {
+            if (requireInFront && !InFront(i)) continue;
+            var mSqr = (transform.position - i.transform.position).sqrMagnitude;
+            if (mSqr < DMin)
+            {
+                r = i;
+                DMin = mSqr;
+            }
+        }
+        return r;
+    }
     public virtual Target GetNearestEnemy(float range = 99999f, bool requireInFront = false)
     {
         float DMin = range * range; // 使用距离平方进行比较
@@ -364,6 +380,20 @@ public abstract class Target : EnsBehaviour
         return r;
     }
 
+    public List<Target> GetInRange<T>(Dictionary<int, T> src,float range = 99999f, bool requireInFront = false)where T : Target
+    {
+        targets.Clear();
+        float rangeSqr = range * range;
+        foreach (var i in src.Values)
+        {
+            if (requireInFront && !InFront(i)) continue;
+            if ((transform.position - i.transform.position).sqrMagnitude <= rangeSqr)
+            {
+                targets.Add(i);
+            }
+        }
+        return targets;
+    }
     public virtual List<Target> GetEnemyInRange(float range = 99999f, bool requireInFront = false)
     {
         targets.Clear();
@@ -402,7 +432,20 @@ public abstract class Target : EnsBehaviour
         }
         return targets;
     }
-
+    public List<Target> GetInRect<T>(Dictionary<int, T> src,float halfx, float halfy, bool requireInFront = false)where T:Target
+    {
+        targets.Clear();
+        foreach (var i in src.Values)
+        {
+            if (requireInFront && !InFront(i)) continue;
+            if (Mathf.Abs(i.transform.position.x - transform.position.x) <= halfx &&
+                Mathf.Abs(i.transform.position.y - transform.position.y) <= halfy)
+            {
+                targets.Add(i);
+            }
+        }
+        return targets;
+    }
     public virtual List<Target> GetEnemyInRect(float halfx, float halfy, bool requireInFront = false)
     {
         targets.Clear();
