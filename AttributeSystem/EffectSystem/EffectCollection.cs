@@ -18,6 +18,7 @@ namespace AttributeSystem.Effect
         }
         public List<EffectBase> GetEffectBases(Target receiver)
         {
+            if (effects == null) return null;
             if(effects.Length == 0) return null;
             Effects.Clear();
             foreach (var effect in effects)

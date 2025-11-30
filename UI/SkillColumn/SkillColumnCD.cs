@@ -36,7 +36,7 @@ public class SkillCDController : SkillBaseController
     }
     public override bool CanUse()
     {
-        return storeTime >= 0.999f;
+        return storeTime >= 0.999f&&base.CanUse();
     }
     public override void OnUse()
     {
@@ -46,10 +46,12 @@ public class SkillCDController : SkillBaseController
     public static SkillBaseController Create(int index,Target t, float cd)
     {
         var r = new SkillCDController();
+        r.target = t;
         r.SkillIndex= index;
         if (t && t is PlayerData p)
         {
             r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.CD) as SkillColumnCD;
+            r.skill.SetSprite(Tool.SpriteManager.GetSprite(VarietyManager.GetSkill(index).sprite));
         }
         r.cd = cd;
         r.storeTime = 1;

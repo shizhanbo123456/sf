@@ -53,13 +53,7 @@ public class TargetSkillController : MonoBehaviour
 
         foreach (var i in UseSkillCommandBuffer)
         {
-            var s = Skills[i];
-            if (!s.CanUse()) continue;
-            var skill = VarietyManager.GetSkill(s.SkillIndex);
-            if (!skill.CanUse(target)) continue;
-            TimeNeeded = skill.TimeNeeded;
-            target.UseSkillRpc(s.SkillIndex);
-            break;
+            if(UseSkill(i))break;
         }
         UseSkillCommandBuffer.Clear();
     }
@@ -67,18 +61,18 @@ public class TargetSkillController : MonoBehaviour
     {
 
     }
-    public bool UseSkillInstantly(int x)
+    public bool UseSkill(int x)
     {
         if (SkillLock.LockedInHierechy) return false; 
         var s = Skills[x];
         if (!s.CanUse()) return false;
         var skill = VarietyManager.GetSkill(s.SkillIndex);
-        if (!skill.CanUse(target)) return false;
         TimeNeeded = skill.TimeNeeded;
+        s.OnUse();
         target.UseSkillRpc(s.SkillIndex);
         return true;
     }
-    public void UseSkill(int index)
+    public void UseSkillBuffer(int index)
     {
         if (!UseSkillCommandBuffer.Contains(index)) UseSkillCommandBuffer.Add(index);
     }

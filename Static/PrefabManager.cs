@@ -18,7 +18,6 @@ public class PrefabManager : MonoBehaviour
     public GameObject Skill_Storable;
     public List<GameObject> SkillColumns => new List<GameObject>() { Skill_NonCD, Skill_CD, Skill_Storable };
     [Space]
-    public GameObject ClientLayoutUnit;
     public GameObject SkillLayoutUnit;
     public GameObject RoomInfoUnit;
     [Header("Bullet")]

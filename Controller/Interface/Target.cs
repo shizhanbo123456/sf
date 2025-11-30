@@ -13,12 +13,11 @@ public abstract class Target : EnsBehaviour
     public const int RegenerationAdderId = -10000;
     public const int SceneEffectId = -10001;
 
-    [Space]
     /// <summary>
     /// 除了玩家都是-1
     /// </summary>
-    public int Camp = -1;
-
+    [HideInInspector]public int Camp = -1;
+    [Space]
     public bool CanMove=true;
     public bool Effectable = true;
     public bool CanUseSkill = true;
@@ -27,20 +26,22 @@ public abstract class Target : EnsBehaviour
     public GameTimeAttributes FloatingAttributes;
     public DedicateSyncAttributes DedicatedAttributes;
 
+    private BulletDetector bulletDetector;
     [HideInInspector]public TargetInfoSync targetInfoSync;
     [HideInInspector]public TargetController controller;
     [HideInInspector]public TargetEffectController effectController;
     [HideInInspector]public TargetSkillController skillController;
     [Tooltip("anim可以设置为空")]
+    [Space]
     public TargetGraphic graphic;
-    public TargetVisible visible;
+    public TargetBar targetBar;
 
     [HideInInspector]public TimeLineWork TimeLineWork;
-    private RepeatWork repeatWork;
     public RepeatWork RepeatWork
     {
         get
         {
+            var repeatWork=GetComponent<RepeatWork>();
             if(repeatWork==null)repeatWork=gameObject.AddComponent<RepeatWork>();
             return repeatWork;
         }
@@ -69,19 +70,11 @@ public abstract class Target : EnsBehaviour
         }
     }
 
-    public LockChain OperationLock=new LockChain();
-    public LockChain SkillLock=new LockChain();
+    public LockChain OperationLock=LockChain.CreateLock();
+    public LockChain SkillLock=LockChain.CreateLock();
 
-    protected float HealthDirtyClearCD;
-    protected bool HealthDirty;
-
-    public float colliderRadius = -1;
-    public Vector2 offset;
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = new Color(0.5f,1f,0.5f,0.7f);
-        Gizmos.DrawSphere(transform.position + (Vector3)offset, colliderRadius);
-    }
+    private float HealthDirtyClearCD;
+    private bool HealthDirty;
 
     /// <summary>
     ///需要初始化Base/FloatingAttributes
@@ -113,6 +106,8 @@ public abstract class Target : EnsBehaviour
     /// </summary>
     protected virtual void RegistSyncAttributesEvent()
     {
+        DedicatedAttributes = new DedicateSyncAttributes();
+        DedicatedAttributes.Shengming.OnValueChanged += v => targetBar.SetNum(v.Item2 / (float)v.Item1);
         //生命每过一段时间同步(脏标记)
         //攻击类属性远程同步
         //防御类属性本地同步
@@ -141,53 +136,24 @@ public abstract class Target : EnsBehaviour
     {
         Level.ClearEvent(this);
         Tool.SceneController.OnTargetPredestroy(this);
+
+        OperationLock.Discard();
+        SkillLock.Discard();
+        OperationLock=null;
+        SkillLock=null;
     }
 
     protected virtual HashSet<Bullet> DetectBullet()
     {
-        static bool CalHit(Vector3 lineStart, Vector3 lineEnd, Vector3 point, float distanceThreshold)
+        if (bulletDetector == null)
         {
-            float thresholdpos = point.x + distanceThreshold;
-            if (lineStart.x > thresholdpos && lineEnd.x > thresholdpos) return false;
-            thresholdpos = point.x - distanceThreshold;
-            if (lineStart.x < thresholdpos && lineEnd.x < thresholdpos) return false;
-            thresholdpos = point.y + distanceThreshold;
-            if (lineStart.y > thresholdpos && lineEnd.y > thresholdpos) return false;
-            thresholdpos = point.y - distanceThreshold;
-            if (lineStart.y < thresholdpos && lineEnd.y < thresholdpos) return false;
-
-            Vector3 lineVector = lineEnd - lineStart;
-            Vector3 pointVector = point - lineStart;
-
-            float lineLengthSquared = lineVector.sqrMagnitude;
-            if (lineLengthSquared < 0.001f)
+            if(!TryGetComponent(out bulletDetector))
             {
-                return (point - lineStart).sqrMagnitude < distanceThreshold * distanceThreshold;
-            }
-            float t = Vector3.Dot(pointVector, lineVector) / lineLengthSquared;
-            t = Mathf.Clamp01(t);
-
-            Vector3 closestPoint = lineStart + t * lineVector;
-            float distanceSquared = (point - closestPoint).sqrMagnitude;
-            return distanceSquared < distanceThreshold * distanceThreshold;
-        }
-        Vector3 playerPos = transform.position + (Vector3)offset;
-        if (colliderRadius < 0)
-        {
-            Debug.Log(gameObject.name + "未初始化");
-            return new HashSet<Bullet>();
-        }
-        HashSet<Bullet> result = new HashSet<Bullet>();
-        foreach(var i in Bullet.Bullets)
-        {
-            if (!HostilityWith(i.Key)) continue;
-            foreach(var j in i.Value.Values)
-            {
-                float s = j.transform.localScale.x;
-                if (CalHit(j.transform.position, j.LastFramePos, playerPos, colliderRadius + j.radius * s)) result.Add(j);
+                Debug.LogError(gameObject.name + "未挂载子弹检测器");
+                return new();
             }
         }
-        return result;
+        return bulletDetector.DetectBullet();
     }
     public virtual bool HostilityWith(int camp)
     {
@@ -211,6 +177,7 @@ public abstract class Target : EnsBehaviour
     private void OnSyncHealth()
     {
         CallFuncRpc(nameof(OnSyncHealthLocal),SendTo.ExcludeSender,BaseAttributes.Shengming.ToString()+'_'+FloatingAttributes.Shengming.ToString());
+        DedicatedAttributes.Shengming.Value = (BaseAttributes.Shengming.Value, FloatingAttributes.Shengming.Value);
     }
     private void OnSyncHealthLocal(string param)
     {
@@ -251,7 +218,7 @@ public abstract class Target : EnsBehaviour
     private void ShowTextLocal(string data)
     {
         string[] s=data.Split('_');
-        Tool.WorldTextController.ShowTextLocal(s[0], visible.transform.position+Vector3.up*1.5f, (TextColor)int.Parse(s[1]));
+        Tool.WorldTextController.ShowTextLocal(s[0], targetBar.transform.position+Vector3.up*1.5f, (TextColor)int.Parse(s[1]));
     }
     protected virtual void OnHitBack(Bullet b)
     {
@@ -336,11 +303,11 @@ public abstract class Target : EnsBehaviour
     {
         if (data == "null")
         {
-            visible.ShowEffects(new List<EffectType>());
+            targetBar.ShowEffects(new List<EffectType>());
             return;
         }
         var list = Format.StringToList(data, int.Parse, '+');
-        visible.ShowEffects(list.Select(i => (EffectType)i).ToList());
+        targetBar.ShowEffects(list.Select(i => (EffectType)i).ToList());
     }
     public void InterruptRpc()
     {

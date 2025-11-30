@@ -33,6 +33,12 @@ public class Bullet : MonoBehaviour
     public Action<Bullet> ReleaseDamageableReference;
     public Func<Target, Bullet, bool> CanDamage;
 
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, radius * transform.lossyScale.x);
+    }
     private void Awake()
     {
         particleController = GetComponent<BulletParticleController>();
@@ -91,29 +97,30 @@ public class Bullet : MonoBehaviour
     {
         strike = false;
         hit = true;
-        if (UnityEngine.Random.Range(0f, 1f) < Lerp01((defenser.Shanbi.Value - attacker.Mingzhong) / 100f))
+        if (UnityEngine.Random.Range(0f, 1f) < RateFigure(defenser.Shanbi.Value,attacker.Mingzhong))
         {
             hit = false;
             return 0;
         }
-        float damage = damageRate * attacker.Gongji / Mathf.Max(attacker.Gongji + defenser.Fangyu.Value, 1) * attacker.Gongji;
+        float damage = 2*damageRate * attacker.Gongji / Mathf.Max(attacker.Gongji + defenser.Fangyu.Value, 1) * attacker.Gongji;
 
-        if (UnityEngine.Random.Range(0f, 1f) > Lerp01((defenser.Renxing.Value + 100 - attacker.Baoji) / 100f))
+        if (UnityEngine.Random.Range(0f, 1f) < RateFigure(attacker.Baoji, defenser.Renxing.Value))
         {
             damage *= 2;
             strike = true;
         }
 
         damage *= (attacker.Jiashang - defenser.Jianshang.Value) / 100f + 1;
-
+        damage *= UnityEngine.Random.value * 0.4f + 0.8f;
         if (damage <= 1) return 1;
         return (int)damage;
     }
-    protected static float Lerp01(float x)
+    private static float RateFigure(int triggerValue,int negativeValue)
     {
-        if (x < 0) return 0.1f / (1 - x);
-        if (x < 1) return 0.8f * x + 0.1f;
-        return 1 - 0.1f / x;
+        if (negativeValue <= 0) return 1;
+        if (triggerValue <= negativeValue) return 0;
+        if (triggerValue >= negativeValue * 2) return 1;
+        return triggerValue / (float)negativeValue - 1f;
     }
 
     public static Vector2 FigureHitBackForce(float power,Vector3 bullet,Vector3 target)
@@ -124,11 +131,5 @@ public class Bullet : MonoBehaviour
     {
         float maxPower = (bullet - target).magnitude;
         return (bullet - target).normalized * Mathf.Min(maxPower*3,power)+Vector3.up*0.1962f;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, radius * transform.lossyScale.x);
     }
 }

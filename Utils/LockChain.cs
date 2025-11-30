@@ -1,9 +1,11 @@
 using System.Collections.Generic;
-using System.Diagnostics;
+using UnityEngine.Pool;
 
 public class LockChain
 {
     private bool locked=false;
+    public bool InUse { get; private set; } = true;
+    public bool IsLeaveLock { get; private set; } = false;
     public bool Locked
     {
         get
@@ -12,7 +14,8 @@ public class LockChain
         }
         set
         {
-            if (LockChains.Count > 0) throw new System.Exception("只能设置叶子节点的锁");
+            if (!InUse) throw new System.Exception("锁已被弃用，引用已失效");
+            if (!IsLeaveLock) throw new System.Exception("只能设置叶子节点的锁");
             if (locked != value)
             {
                 locked = value;
@@ -24,58 +27,63 @@ public class LockChain
     {
         get
         {
-            if(parentChain!=null)return parentChain.LockedInHierechy;
+            if (!InUse) throw new System.Exception("锁已被弃用，引用已失效");
+            if (parentChain!=null)return parentChain.LockedInHierechy;
             return locked;
         }
     }
-    private bool inUse=true;
 
     private LockChain parentChain;
     private List<LockChain> LockChains = new List<LockChain>();
-    /*
-    private static int _index = 0;
-    public int index = 0;
-    public int rootindex()
-    {
-        if(parentChain==null)return index;
-        return parentChain.rootindex();
-    }*/
-    public LockChain() 
-    {
-        //index=_index++; 
-    }
-    private LockChain(LockChain chain)
-    {
-        //index = _index++;
-        parentChain = chain;
-    }
+
+    private LockChain() { }
     private void UpdateLock()
     {
         locked= false;
         for(int index = LockChains.Count - 1;index >= 0; index--)
         {
-            LockChain i=LockChains[index];
-            if (!i.inUse)
+            if (!LockChains[index].InUse)
             {
                 LockChains.RemoveAt(index);
                 continue;
             }
-            if (i.locked)
+            if (LockChains[index].locked)
             {
                 locked= true;
                 break;
             }
         }
+        if (parentChain != null) parentChain.UpdateLock();
     }
     public void Discard()
     {
-        inUse = false;
-        if (parentChain != null) parentChain.UpdateLock();
+        if (!InUse) throw new System.Exception("锁已被弃用，引用已失效");
+        InUse = false;
+        if (parentChain != null)
+        {
+            parentChain.UpdateLock();
+            parentChain = null;
+        }
+        foreach(var i in LockChains)
+        {
+            i.parentChain = null;
+            i.Discard();
+        }
+        pool.Release(this);
     }
-    public LockChain GetChain()
+    public LockChain GetChain(bool isLeaveLock=true)
     {
-        var c = new LockChain(this);
+        if (!InUse) throw new System.Exception("锁已被弃用，引用已失效");
+        if (IsLeaveLock&&isLeaveLock) throw new System.Exception("不能从叶子锁引出子锁");
+        var c = pool.Get();
+        c.parentChain = this;
         LockChains.Add(c);
+        c.IsLeaveLock = isLeaveLock;
         return c;
     }
+
+    private static ObjectPool<LockChain> pool = new(
+        () => new LockChain(),
+        actionOnGet: c => { c.locked = false; c.parentChain=null; c.IsLeaveLock = false;c.InUse = true;c.LockChains.Clear(); });
+    public static LockChain CreateLock()=> pool.Get();
 }

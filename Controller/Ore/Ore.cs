@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Variety.Base;
 
@@ -7,7 +8,7 @@ public class Ore : Target
 {
     public static SortedDictionary<int,Ore>Ores=new SortedDictionary<int,Ore>();
     public static int OreIndexNext=0;//服务器带参创建时访问
-    public int OreIndex;
+    private int OreIndex;
     public void Init(string data)
     {
         string[] s = data.Split('_', System.StringSplitOptions.RemoveEmptyEntries);
@@ -49,17 +50,9 @@ public class Ore : Target
 
     public static List<Ore> OreHealthRate(out int maxEach)
     {
-        List<Ore> ores=new List<Ore>();
-        maxEach = -1;
+        maxEach = Tool.AttributesManager.GetDynamicAttribute(Ores.First().Value).
+            GetDynamicAttributes(Tool.AttributesManager.GetLevel()).Shengming.Value;
         if (Ores.Count == 0) return null;
-        foreach (var i in Ores.Values)
-        {
-            ores.Add(i);
-            if (maxEach < 0)
-            {
-                maxEach = (int)Tool.AttributesManager.GetDynamicAttribute(i).Shengming.GetValue(Tool.AttributesManager.GetLevel());
-            }
-        }
-        return ores;
+        return Ores.Values.ToList();
     }
 }

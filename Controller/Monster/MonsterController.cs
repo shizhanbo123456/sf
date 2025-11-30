@@ -80,8 +80,9 @@ public class MonsterController : TargetController
             }
         }
     }
-    void Update()
+    protected override void Update()
     {
+        base.Update();
         StateUpdate();
     }
     private void StateUpdate()
@@ -126,7 +127,7 @@ public class MonsterController : TargetController
     private void UseSkill()
     {
         if (useSkillCD > 0) return;
-        var b=target.skillController.UseSkillInstantly(skillIndex);
+        var b=target.skillController.UseSkill(skillIndex);
         if (!b)
         {
             useSkillCD = 0.3f;

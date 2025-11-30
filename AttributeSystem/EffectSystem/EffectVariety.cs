@@ -542,8 +542,8 @@ namespace AttributeSystem.Effect
         }
         public override void OnExit()
         {
-            operationLock.Discard();
-            skillLock.Discard();
+            if (operationLock.InUse) operationLock.Discard();
+            if (skillLock.InUse) skillLock.Discard();
             operationLock = null;
             skillLock= null;
             GetAttributes().Kangjitui.Value -= 2;
@@ -573,8 +573,8 @@ namespace AttributeSystem.Effect
         }
         public override void OnExit()
         {
-            operationLock.Discard();
-            skillLock.Discard();
+            if(operationLock.InUse)operationLock.Discard();
+            if (skillLock.InUse) skillLock.Discard();
             operationLock = null;
             skillLock = null;
         }
@@ -600,7 +600,7 @@ namespace AttributeSystem.Effect
         }
         public override void OnExit()
         {
-            operationLock.Discard();
+            if (operationLock.InUse) operationLock.Discard();
             operationLock = null;
         }
         public override EffectType GetEffectType()
