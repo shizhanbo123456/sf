@@ -6,7 +6,7 @@ public class OreSpawnHandle : SpawnHandle
 {
     public override void Spawn()
     {
-        string s = $"{transform.position.x:F1}_{transform.position.y:F1}_{Ore.OreIndexNext++}";
+        string s = $"{transform.position.x:F1}_{transform.position.y:F1}";
         EnsInstance.NOMSpawner.CreateServerRpc(Tool.PrefabManager.OreCollection.NOMCollectionId, EnsBehaviour.SendTo.Everyone,s, KeyLibrary.KeyFormatType.Nonsequential);
     }
     private void OnDrawGizmos()

@@ -12,8 +12,6 @@ public class Monster : Target
     public bool MonsterCanFly = false;
 
     public static SortedDictionary<int, Monster> Monsters = new SortedDictionary<int, Monster>();
-    public static int MonsterIndexNext=0;
-    private int MonsterIndex;
 
     public enum MonsterType
     {
@@ -38,7 +36,6 @@ public class Monster : Target
     {
         string[] s = data.Split('_', StringSplitOptions.RemoveEmptyEntries);
         transform.position = new Vector3(float.Parse(s[0]), float.Parse(s[1]), 0);
-        MonsterIndex = int.Parse(s[2]);
 
         var att = Tool.AttributesManager.GetDynamicAttribute(this) as MonsterAttributes;
         StateInterval = att.StateInterval.GetValue(Tool.AttributesManager.GetLevel());
@@ -63,7 +60,7 @@ public class Monster : Target
     protected override void OnCreated()
     {
         base.OnCreated();
-        Monsters.Add(MonsterIndex, this);
+        Monsters.Add(ObjectId, this);
     }
     protected override void OnDestroy()
     {
@@ -72,7 +69,7 @@ public class Monster : Target
         {
             Bar.SetValue(0,BaseAttributes.Shengming.Value,LayerMax);
         }
-        Monsters.Remove(MonsterIndex);
+        Monsters.Remove(ObjectId);
     }
     protected override TargetController AddController()=>gameObject.AddComponent<MonsterController>();
     protected override bool DamageByBullet(Bullet b)

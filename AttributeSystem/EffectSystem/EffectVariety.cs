@@ -58,7 +58,7 @@ namespace AttributeSystem.Effect
         }
         public override void Repeat()
         {
-            var a = GetAttributes();
+            var a = GetBaseAttributes();
             if (a.Shengming.Value <= 1) return;
             if (a.Shengming.Value > damageValue) a.Shengming.Value -= damageValue;
             else a.Shengming.Value = 1;
@@ -81,11 +81,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Jixing.Value += value;
+            GetFloatingAttributes().Jixing.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Jixing.Value -= value;
+            GetFloatingAttributes().Jixing.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -105,11 +105,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Jixing.Value -= value;
+            GetFloatingAttributes().Jixing.Value -= value;
         }
         public override void OnExit()
         {
-            GetAttributes().Jixing.Value += value;
+            GetFloatingAttributes().Jixing.Value += value;
         }
         public override EffectType GetEffectType()
         {
@@ -129,11 +129,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Tengkong.Value += value;
+            GetFloatingAttributes().Tengkong.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Tengkong.Value -= value;
+            GetFloatingAttributes().Tengkong.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -147,17 +147,17 @@ namespace AttributeSystem.Effect
     public class AgileBoost : EffectBase
     {
         private int value;
-        public AgileBoost(int adder, Target receiver, int rate, float time) : base(receiver, 70000 + adder, time)
+        public AgileBoost(int adder, Target receiver, float rate, float time) : base(receiver, 70000 + adder, time)
         {
-            value = rate;
+            value = (int)(GetBaseAttributes().Shanbi.Value*rate);
         }
         public override void OnEntry()
         {
-            GetAttributes().Shanbi.Value += value;
+            GetBaseAttributes().Shanbi.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Shanbi.Value -= value;
+            GetBaseAttributes().Shanbi.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -171,17 +171,17 @@ namespace AttributeSystem.Effect
     public class AccuracyBoost : EffectBase
     {
         private int value;
-        public AccuracyBoost(int adder, Target receiver, int rate, float time) : base(receiver, 80000 + adder, time)
+        public AccuracyBoost(int adder, Target receiver, float rate, float time) : base(receiver, 80000 + adder, time)
         {
-            value = rate;
+            value =(int)(GetBaseAttributes().Mingzhong.Value* rate);
         }
         public override void OnEntry()
         {
-            GetAttributes().Mingzhong.Value += value;
+            GetBaseAttributes().Mingzhong.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Mingzhong.Value -= value;
+            GetBaseAttributes().Mingzhong.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -201,11 +201,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Gongji.Value += value;
+            GetBaseAttributes().Gongji.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Gongji.Value -= value;
+            GetBaseAttributes().Gongji.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -225,11 +225,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Fangyu.Value += value;
+            GetBaseAttributes().Fangyu.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Fangyu.Value -= value;
+            GetBaseAttributes().Fangyu.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -243,17 +243,17 @@ namespace AttributeSystem.Effect
     public class AgileDecrease : EffectBase
     {
         private int value;
-        public AgileDecrease(int adder, Target receiver, int rate, float time) : base(receiver, 110000 + adder, time)
+        public AgileDecrease(int adder, Target receiver, float rate, float time) : base(receiver, 110000 + adder, time)
         {
-            value = rate;
+            value =(int)(GetBaseAttributes().Shanbi.Value* rate);
         }
         public override void OnEntry()
         {
-            GetAttributes().Shanbi.Value -= value;
+            GetBaseAttributes().Shanbi.Value -= value;
         }
         public override void OnExit()
         {
-            GetAttributes().Shanbi.Value += value;
+            GetBaseAttributes().Shanbi.Value += value;
         }
         public override EffectType GetEffectType()
         {
@@ -267,17 +267,17 @@ namespace AttributeSystem.Effect
     public class AccuracyDecrease : EffectBase
     {
         private int value;
-        public AccuracyDecrease(int adder, Target receiver, int rate, float time) : base(receiver, 120000 + adder, time)
+        public AccuracyDecrease(int adder, Target receiver, float rate, float time) : base(receiver, 120000 + adder, time)
         {
-            value = rate;
+            value =(int)(GetBaseAttributes().Mingzhong.Value* rate);
         }
         public override void OnEntry()
         {
-            GetAttributes().Mingzhong.Value -= value;
+            GetBaseAttributes().Mingzhong.Value -= value;
         }
         public override void OnExit()
         {
-            GetAttributes().Mingzhong.Value += value;
+            GetBaseAttributes().Mingzhong.Value += value;
         }
         public override EffectType GetEffectType()
         {
@@ -297,11 +297,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Gongji.Value -= value;
+            GetBaseAttributes().Gongji.Value -= value;
         }
         public override void OnExit()
         {
-            GetAttributes().Gongji.Value += value;
+            GetBaseAttributes().Gongji.Value += value;
         }
         public override EffectType GetEffectType()
         {
@@ -321,11 +321,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Fangyu.Value -= value;
+            GetBaseAttributes().Fangyu.Value -= value;
         }
         public override void OnExit()
         {
-            GetAttributes().Fangyu.Value += value;
+            GetBaseAttributes().Fangyu.Value += value;
         }
         public override EffectType GetEffectType()
         {
@@ -345,11 +345,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Jianshang.Value += value;
+            GetBaseAttributes().Jianshang.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Jianshang.Value -= value;
+            GetBaseAttributes().Jianshang.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -369,11 +369,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Jianshang.Value -= value;
+            GetBaseAttributes().Jianshang.Value -= value;
         }
         public override void OnExit()
         {
-            GetAttributes().Jianshang.Value += value;
+            GetBaseAttributes().Jianshang.Value += value;
         }
         public override EffectType GetEffectType()
         {
@@ -393,11 +393,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Jiashang.Value += value;
+            GetBaseAttributes().Jiashang.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Jiashang.Value -= value;
+            GetBaseAttributes().Jiashang.Value -= value;
         }
         public override EffectType GetEffectType()
         {
@@ -417,11 +417,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Jiashang.Value -= value;
+            GetBaseAttributes().Jiashang.Value -= value;
         }
         public override void OnExit()
         {
-            GetAttributes().Jiashang.Value += value;
+            GetBaseAttributes().Jiashang.Value += value;
         }
         public override EffectType GetEffectType()
         {
@@ -437,8 +437,8 @@ namespace AttributeSystem.Effect
         private int value;
         public LifeSteal(int adder, Target receiver, float rate, float time) : base(receiver, 1900000 + adder, time)
         {
-            value = (int)(receiver.effectController.GetBaseAttributes().Shengming.Value*rate);
-            var f = GetAttributes().Shengming.Value;
+            value = (int)(GetFloatingAttributes().Shengming.Value*rate);
+            var f = GetBaseAttributes().Shengming.Value;
             if (value>= f)
             {
                 value = f - 1;
@@ -463,26 +463,32 @@ namespace AttributeSystem.Effect
     }
     public class Luck : EffectBase
     {
-        private int value;
-        public Luck(int adder, Target receiver, int rate, float time) : base(receiver, 200000 + adder, time)
+        private int a;
+        private int b;
+        private int c;
+        private int d;
+        public Luck(int adder, Target receiver, float rate, float time) : base(receiver, 200000 + adder, time)
         {
-            value = rate;
+            a = (int)(GetBaseAttributes().Mingzhong.Value * rate);
+            b = (int)(GetBaseAttributes().Shanbi.Value * rate);
+            c = (int)(GetBaseAttributes().Baoji.Value * rate);
+            d = (int)(GetBaseAttributes().Renxing.Value * rate);
         }
         public override void OnEntry()
         {
-            var e = GetAttributes();
-            e.Mingzhong.Value += value;
-            e.Shanbi.Value += value;
-            e.Baoji.Value += value;
-            e.Renxing.Value += value;
+            var e = GetBaseAttributes();
+            e.Mingzhong.Value += a;
+            e.Shanbi.Value += b;
+            e.Baoji.Value += c;
+            e.Renxing.Value += d;
         }
         public override void OnExit()
         {
-            var e = GetAttributes();
-            e.Mingzhong.Value -= value;
-            e.Shanbi.Value -= value;
-            e.Baoji.Value -= value;
-            e.Renxing.Value -= value;
+            var e = GetBaseAttributes();
+            e.Mingzhong.Value -= a;
+            e.Shanbi.Value -= b;
+            e.Baoji.Value -= c;
+            e.Renxing.Value -= d;
         }
         public override EffectType GetEffectType()
         {
@@ -495,26 +501,32 @@ namespace AttributeSystem.Effect
     }
     public class BadLuck : EffectBase
     {
-        private int value;
-        public BadLuck(int adder, Target receiver, int rate, float time) : base(receiver, 210000 + adder, time)
+        private int a;
+        private int b;
+        private int c;
+        private int d;
+        public BadLuck(int adder, Target receiver, float rate, float time) : base(receiver, 210000 + adder, time)
         {
-            value = rate;
+            a = (int)(GetBaseAttributes().Mingzhong.Value * rate);
+            b = (int)(GetBaseAttributes().Shanbi.Value * rate);
+            c = (int)(GetBaseAttributes().Baoji.Value * rate);
+            d = (int)(GetBaseAttributes().Renxing.Value * rate);
         }
         public override void OnEntry()
         {
-            var e = GetAttributes();
-            e.Mingzhong.Value -= value;
-            e.Shanbi.Value -= value;
-            e.Baoji.Value -= value;
-            e.Renxing.Value -= value;
+            var e = GetBaseAttributes();
+            e.Mingzhong.Value -= a;
+            e.Shanbi.Value -= b;
+            e.Baoji.Value -= c;
+            e.Renxing.Value -= d;
         }
         public override void OnExit()
         {
-            var e = GetAttributes();
-            e.Mingzhong.Value += value;
-            e.Shanbi.Value += value;
-            e.Baoji.Value += value;
-            e.Renxing.Value += value;
+            var e = GetBaseAttributes();
+            e.Mingzhong.Value += a;
+            e.Shanbi.Value += b;
+            e.Baoji.Value += c;
+            e.Renxing.Value += d;
         }
         public override EffectType GetEffectType()
         {
@@ -538,7 +550,7 @@ namespace AttributeSystem.Effect
             skillLock=receiver.SkillLock.GetChain();
             operationLock.Locked = true;
             skillLock.Locked = true;
-            GetAttributes().Kangjitui.Value += 2;
+            GetBaseAttributes().Kangjitui.Value += 2;
         }
         public override void OnExit()
         {
@@ -546,7 +558,7 @@ namespace AttributeSystem.Effect
             if (skillLock.InUse) skillLock.Discard();
             operationLock = null;
             skillLock= null;
-            GetAttributes().Kangjitui.Value -= 2;
+            GetBaseAttributes().Kangjitui.Value -= 2;
         }
         public override EffectType GetEffectType()
         {
@@ -645,7 +657,7 @@ namespace AttributeSystem.Effect
         public override void Repeat()
         {
             receiver.InterruptRpc();
-            receiver.controller.ApplyMotion(new MotionStatic(0.01f, false, 2, true, true));
+            receiver.ApplyMotion(new MotionStatic(0.01f, false, 2, true, true));
         }
         public override EffectType GetEffectType()
         {
@@ -665,11 +677,11 @@ namespace AttributeSystem.Effect
         }
         public override void OnEntry()
         {
-            GetAttributes().Kangjitui.Value += value;
+            GetBaseAttributes().Kangjitui.Value += value;
         }
         public override void OnExit()
         {
-            GetAttributes().Kangjitui.Value -= value;
+            GetBaseAttributes().Kangjitui.Value -= value;
         }
         public override EffectType GetEffectType()
         {

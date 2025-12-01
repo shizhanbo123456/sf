@@ -37,12 +37,12 @@ namespace AttributeSystem.Effect
                 case EffectType.Speed:return new Speed(adder,receiver,value,time);
                 case EffectType.Slowness:return new Slowness(adder,receiver,value,time);
                 case EffectType.JumpBoost:return new JumpBoost(adder,receiver,value,time);
-                case EffectType.AgileBoost:return new AgileBoost(adder,receiver,(int)value,time);
-                case EffectType.AccuracyBoost:return new AccuracyBoost(adder,receiver,(int)value,time);
+                case EffectType.AgileBoost:return new AgileBoost(adder,receiver,value,time);
+                case EffectType.AccuracyBoost:return new AccuracyBoost(adder,receiver,value,time);
                 case EffectType.AttackBoost:return new AttackBoost(adder,receiver,value,time);
                 case EffectType.DefenseBoost:return new DefenseBoost(adder,receiver,value,time);
-                case EffectType.AgileDecrease:return new AgileDecrease(adder,receiver,(int)value,time);
-                case EffectType.AccuracyDecrease:return new AccuracyDecrease(adder,receiver,(int)value,time);
+                case EffectType.AgileDecrease:return new AgileDecrease(adder,receiver,value,time);
+                case EffectType.AccuracyDecrease:return new AccuracyDecrease(adder,receiver,value,time);
                 case EffectType.AttackDecrease:return new AttackDecrease(adder,receiver,value,time);
                 case EffectType.DefenseDecrease:return new DefenseDecrease(adder,receiver,value,time);
                 case EffectType.ArmorFortity:return new ArmorFortity(adder,receiver,(int)value,time);
@@ -50,8 +50,8 @@ namespace AttributeSystem.Effect
                 case EffectType.DamageBoost: return new DamageBoost(adder, receiver, (int)value, time);
                 case EffectType.DamageDecrease: return new DamageDecrease(adder, receiver, (int)value, time);
                 case EffectType.LifeSteal: return new LifeSteal(adder, receiver, value, time);
-                case EffectType.Luck: return new Luck(adder, receiver, (int)value, time);
-                case EffectType.BadLuck: return new BadLuck(adder, receiver, (int)value, time);
+                case EffectType.Luck: return new Luck(adder, receiver, value, time);
+                case EffectType.BadLuck: return new BadLuck(adder, receiver, value, time);
                 case EffectType.Freeze: return new Freeze(adder, receiver, time);
                 case EffectType.Stun: return new Stun(adder, receiver, time);
                 case EffectType.Sticky: return new Sticky(adder, receiver, time);

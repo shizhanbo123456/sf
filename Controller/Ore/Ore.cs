@@ -7,13 +7,10 @@ using Variety.Base;
 public class Ore : Target
 {
     public static SortedDictionary<int,Ore>Ores=new SortedDictionary<int,Ore>();
-    public static int OreIndexNext=0;//服务器带参创建时访问
-    private int OreIndex;
     public void Init(string data)
     {
         string[] s = data.Split('_', System.StringSplitOptions.RemoveEmptyEntries);
         transform.position = new Vector3(float.Parse(s[0]), float.Parse(s[1]));
-        OreIndex = int.Parse(s[2]);
 
         var att = Tool.AttributesManager.GetDynamicAttribute(this);
         BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
@@ -27,12 +24,12 @@ public class Ore : Target
     protected override void OnCreated()
     {
         base.OnCreated();
-        Ores.Add(OreIndex, this);
+        Ores.Add(ObjectId, this);
     }
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        Ores.Remove(OreIndex);
+        Ores.Remove(ObjectId);
     }
     private float framecount = 0;
     private void Update()

@@ -17,9 +17,7 @@ public class Level : MonoBehaviour
     public List<Transform> Anchors = new List<Transform>();
     [Space]
     [Header("Background")]
-    public Color StartColor = new Color(183f / 255, 243f / 255, 237f / 255, 1);
-    public bool ColorTint;
-    public Color EndColor;
+    public Color BgColor = new Color(183f / 255, 243f / 255, 237f / 255, 1);
     [Space]
     [Header("SpawnHandles")]
     public List<OreSpawnHandle>OreSpawnHandles = new List<OreSpawnHandle>();
@@ -40,27 +38,9 @@ public class Level : MonoBehaviour
             return Tool.FightController.ModeList[1]-'0';
         }
     }
-    protected List<int> KillCount
-    {
-        get
-        {
-            return Tool.FightController.KillCount;
-        }
-    }
-    protected List<int> KilledCount
-    {
-        get
-        {
-            return Tool.FightController.KilledCount;
-        }
-    }
-    protected float TimeUsed
-    {
-        get
-        {
-            return Tool.FightController.FightTimeCount;
-        }
-    }
+    protected List<int> KillCount=>Tool.FightController.KillCount;
+    protected List<int> KilledCount=> Tool.FightController.KilledCount;
+    protected float TimeUsed=> Tool.FightController.FightTimeCount;
 
     private void OnDrawGizmos()
     {
@@ -92,18 +72,7 @@ public class Level : MonoBehaviour
         {
             yield return null;
         }
-        Tool.BackgroundController.UpdateColor(StartColor);
-
-        if (!ColorTint) yield break;
-        int d = 10;
-        int count=0;
-        while (count < 300)
-        {
-            count+=d;
-            yield return new WaitForSeconds(d);
-
-            Tool.BackgroundController.UpdateColor(StartColor*(1-(float)count/300)+EndColor*((float)count/300));
-        }
+        Tool.BackgroundController.UpdateColor(BgColor);
     }
     void OnDestroy()
     {

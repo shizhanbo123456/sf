@@ -22,7 +22,11 @@ namespace AttributeSystem.Effect
             reachTime.ReachAfter(updateInterval);
             this.hash= hash;
         }
-        protected GameTimeAttributes GetAttributes()
+        protected GameTimeAttributes GetBaseAttributes()
+        {
+            return receiver.BaseAttributes;
+        }
+        protected GameTimeAttributes GetFloatingAttributes()
         {
             return receiver.FloatingAttributes;
         }

@@ -6,7 +6,7 @@ public class LanternSpawnHandle : SpawnHandle
 {
     public override void Spawn()
     {
-        string s = $"{transform.position.x:F1}_{transform.position.y:F1}_{Lantern.LanternIndexNext++}";
+        string s = $"{transform.position.x:F1}_{transform.position.y:F1}";
         EnsInstance.NOMSpawner.CreateServerRpc(Tool.PrefabManager.LanternCollection.NOMCollectionId, EnsBehaviour.SendTo.Everyone, s, KeyLibrary.KeyFormatType.Nonsequential);
     }
     private void OnDrawGizmos()
