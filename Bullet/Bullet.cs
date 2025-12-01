@@ -11,7 +11,10 @@ public class Bullet : MonoBehaviour
 {
     public static readonly Dictionary<int, Dictionary<int, Bullet>> Bullets = new Dictionary<int, Dictionary<int, Bullet>>();
 
+    public bool BulletShot = false;
+
     //Detector
+    [Space]
     public float radius = 2;
     [HideInInspector] public Vector3 LastFramePos;
     
@@ -71,6 +74,8 @@ public class Bullet : MonoBehaviour
 
         if (!Bullets.ContainsKey(Camp))Bullets.Add(Camp, new Dictionary<int, Bullet>());
         Bullets[Camp].Add(GetInstanceID(),this);
+
+        BulletShot = true;
     }
     public void DestroyBullet()
     {
@@ -79,25 +84,23 @@ public class Bullet : MonoBehaviour
         ReleaseBulletSystemReference?.Invoke(this);
         ReleaseDamageableReference?.Invoke(this);
 
-        try
+        if (Bullets.ContainsKey(Camp))
         {
-            if (Bullets.ContainsKey(Camp))
-            {
-                Bullets[Camp].Remove(GetInstanceID());
-                if (Bullets[Camp].Count == 0) Bullets.Remove(Camp);
-            }
-        }
-        catch(System.Exception e)
-        {
-            Debug.LogException(e);
+            Bullets[Camp].Remove(GetInstanceID());
+            if (Bullets[Camp].Count == 0) Bullets.Remove(Camp);
         }
 
         Tool.BulletManager.ReturnBullet(this);
+
+        BulletShot = false;
     }
     public void UpdateDetectors()
     {
         LastFramePos = transform.position;
     }
+
+
+
     public int FigureDamage(GameTimeAttributes defenser, out bool hit, out bool strike)//受击者数据
     {
         return FigureDamage(Shooter.DedicatedAttributes, defenser,damageRate, out hit, out strike);

@@ -29,6 +29,7 @@ public class Tool:MonoBehaviour
     public static UIEventCenter UIEventCenter;
     public static AttributesManager AttributesManager;
     public static BulletManager BulletManager;
+    public static LuaManager LuaManager;
     [Space]
     public GameObject WindowsUI;
     public GameObject AndroidUI;

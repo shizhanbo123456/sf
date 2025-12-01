@@ -15,8 +15,7 @@ namespace Variety.Skill.Common
 
         public override sealed bool CanUse(Target Target)
         {
-            var lantern = Lantern.GetNearestLantern(Target.transform.position);
-            return (lantern == null || lantern.Shengming < 3) && Target.GetNearestEnemy(15);
+            return Target.GetNearestEnemy(Mathf.Lerp(25, 5, Lantern.GetAverageHealth()));
         }
     }
     public class Skill5For14_18 : SkillBoss
@@ -69,7 +68,7 @@ namespace Variety.Skill.Common
         }
         public override sealed bool CanUse(Target Target)
         {
-            return Target.GetNearestEnemy(Mathf.Lerp(25,5,Lantern.GetAverageHealth()));
+            return Target.GetNearestEnemy(15) && Lantern.GetAverageHealth()<0.2f;
         }
         protected override void OnUse(Target Target,Vector3 pos,bool faceright)
         {

@@ -7,8 +7,6 @@ using Variety.Base;
 public class Lantern : Target
 {
     public static SortedDictionary<int, Lantern> Lanterns = new SortedDictionary<int, Lantern>();
-    public static int LanternIndexNext = 0;//服务器带参创建时访问
-    private int LanternIndex;
 
     public SpriteRenderer Render;
     public Sprite On;
@@ -21,7 +19,6 @@ public class Lantern : Target
     {
         string[] s = data.Split('_',System.StringSplitOptions.RemoveEmptyEntries);
         transform.position = new Vector3(float.Parse(s[0]), float.Parse(s[1]));
-        LanternIndex = int.Parse(s[2]);
 
         var att = Tool.AttributesManager.GetDynamicAttribute(this) as LanternAttributes;
         BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
@@ -36,12 +33,12 @@ public class Lantern : Target
     protected override void OnCreated()
     {
         base.OnCreated();
-        Lanterns.Add(LanternIndex, this);
+        Lanterns.Add(ObjectId, this);
     }
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        Lanterns.Remove(LanternIndex);
+        Lanterns.Remove(ObjectId);
     }
     private void Update()
     {
@@ -61,6 +58,10 @@ public class Lantern : Target
             Shengming = 999999999;
         }
     }
+
+
+
+
     private static HashSet<Bullet> Empty= new HashSet<Bullet>();
     protected override HashSet<Bullet> DetectBullet()
     {

@@ -78,9 +78,6 @@ public class FightController : EnsBehaviour
     
     public void StartFight()//网络通讯器会创建玩家
     {
-        Ore.OreIndexNext = 0;
-        Lantern.LanternIndexNext = 0;
-        Monster.MonsterIndexNext = 0;
         Tool.SceneController.DestroyLevel();
         Tool.SceneController.DestroyNonSkillPlayer();
         Tool.PageManager.TurnPage(PageManager.PageType.PlayMode);

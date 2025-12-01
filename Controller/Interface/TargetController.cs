@@ -12,16 +12,12 @@ public abstract class TargetController : MonoBehaviour
     
 
     [HideInInspector] public bool isGrounded;
-    public float MoveSpeed
-    {
-        get { return Mathf.Max(target.FloatingAttributes.Jixing.Value, 0); }
-    }
-    public float JumpSpeed
-    {
-        get { return Mathf.Sqrt(Mathf.Max(target.FloatingAttributes.Tengkong.Value *20, 0)); }
-    }
-    [HideInInspector] public int JumpCount = 1;
+    public float MoveSpeed=> Mathf.Max(target.FloatingAttributes.Jixing.Value, 0);
+    public float JumpSpeed=> Mathf.Sqrt(Mathf.Max(target.FloatingAttributes.Tengkong.Value * 20, 0));
+    private int JumpCount = 1;
 
+
+    private bool ignoreLevitatingPlatform;
 
     private MotionBase motion;
     public MotionBase Motion
@@ -48,22 +44,13 @@ public abstract class TargetController : MonoBehaviour
 
     protected virtual float MinResisiance => -1f;
     [HideInInspector]public float Resistance=0.01f;
-    public bool InHitDuration
-    {
-        get
-        {
-            return Resistance < 0;
-        }
-    }
-
-    [HideInInspector]public Vector2 MotionVector;
-
-    private bool Initialized = false;
 
     public LockChain OperationLock_Hit;
     public LockChain SkillLock_Hit;
     public LockChain OperationLock_Motion;
     public LockChain SkillLock_Motion;
+
+    private bool Initialized = false;
 
     public virtual void Init(Target t)
     {
@@ -88,18 +75,26 @@ public abstract class TargetController : MonoBehaviour
     }
     protected virtual void Update()
     {
+        if (!Initialized) return;
         PlayerUpdate();
         if (target.targetInfoSync.OnPlayerPostUpdate())
         {
             target.targetInfoSync.SyncController(transform.position, rb.velocity, Resistance,
-                MotionVector.y<-0.5f, OperationLock_Motion.LockedInHierechy, isGrounded, motion == null);
+                ignoreLevitatingPlatform, OperationLock_Motion.LockedInHierechy, isGrounded, motion == null);
         }
     }
     private void PlayerUpdate()
     {
-        if (!Initialized) return;
-        Ground();
-        if (InHitDuration)
+        if (!groundDetector || groundDetector.IsGround())
+        {
+            isGrounded = true;
+            if (rb.velocity.y <= 0.01f) JumpCount = 0;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+        if (Resistance < 0)
         {
             OperationLock_Hit.Locked = true;
             SkillLock_Hit.Locked = true;
@@ -112,53 +107,16 @@ public abstract class TargetController : MonoBehaviour
             OperationLock_Hit.Locked = false;
             SkillLock_Hit.Locked = false;
         }
-        if (Motion != null) UpdateMotion();
 
-        MotionVector = new Vector2();
-        if (InHitDuration)
-        {
-            if (isGrounded && Mathf.Abs(rb.velocity.y) < 0.01f)
-            {
-                rb.velocity = new Vector2();
-            }
-            return;
-        }
+        if (Motion != null) UpdateMotion();
+        
         if (!OperationLock_Motion.LockedInHierechy)
         {
-            MotionVector = GetInputVector();
+            var MotionVector = GetInputVector();
             InputWalk(MotionVector.x, MotionVector.y > 0.5f);
+            ignoreLevitatingPlatform= MotionVector.y<-0.5f;
         }
-    }
-    private void Ground()
-    {
-        if (!groundDetector||groundDetector.IsGround())
-        {
-            isGrounded = true;
-            if (rb.velocity.y <= 0.01f) JumpCount = 0;
-        }
-        else
-        {
-            isGrounded = false;
-        }
-    }
-    private float jumpcd=-1;
-    private void InputWalk(float x, bool jump)
-    {
-        if (Motion == null) rb.velocity = new Vector2(x * MoveSpeed, rb.velocity.y);
-        else
-        {
-            rb.velocity = new Vector2(x * MoveSpeed + rb.velocity.x, rb.velocity.y);
-        }
-        if (jump)
-        {
-            if (Time.time - jumpcd < 0.2f) return;
-            jumpcd = Time.time;
-            if (JumpCount < target.FloatingAttributes.Liantiao.Value)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
-                JumpCount += 1;
-            }
-        }
+        else ignoreLevitatingPlatform = false;
     }
     private void UpdateMotion()
     {
@@ -177,6 +135,25 @@ public abstract class TargetController : MonoBehaviour
             rb.velocity = Motion.GetVelocity(rb.velocity);
         }
     }
+    private float jumpcd = -1;
+    private void InputWalk(float x, bool jump)
+    {
+        if (Motion == null) rb.velocity = new Vector2(x * MoveSpeed, rb.velocity.y);
+        else
+        {
+            rb.velocity = new Vector2(x * MoveSpeed + rb.velocity.x, rb.velocity.y);
+        }
+        if (jump)
+        {
+            if (Time.time - jumpcd < 0.2f) return;
+            jumpcd = Time.time;
+            if (JumpCount < target.FloatingAttributes.Liantiao.Value)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
+                JumpCount += 1;
+            }
+        }
+    }
     public abstract Vector2 GetInputVector();
 
 
@@ -184,7 +161,7 @@ public abstract class TargetController : MonoBehaviour
     public virtual bool OnHitBack(Bullet b)
     {
         int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
-        if (InHitDuration) hitbackResist = 0;
+        if (Resistance < 0) hitbackResist = 0;
         else if (Motion != null&&Motion.ActiveAdded) hitbackResist = Mathf.Max(hitbackResist, Motion.StoicLevel);
         if (b.liftStoicLevel > hitbackResist)
         {
@@ -212,7 +189,7 @@ public abstract class TargetController : MonoBehaviour
         if (Motion == null)
         {
             int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
-            if (InHitDuration) hitbackResist = 0;
+            if (Resistance < 0) hitbackResist = 0;
             if(m.StoicLevel>=hitbackResist)Motion = m;
         }
         else if (m.StoicLevel >= Motion.StoicLevel||m.ActiveAdded)
