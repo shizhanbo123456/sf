@@ -45,7 +45,7 @@ namespace Variety.Skill.Boss8
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * 20, 1f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * 20, 1f, true, 1));
             var b = GetBullet(4);
             b.Init(2f,liftstoiclevel:0);
             BulletFollowSystem.RegistObject(b,4f,1f, Target);

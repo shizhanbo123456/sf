@@ -25,7 +25,7 @@ public class MonsterController : TargetController
         CanFly = (t as Monster).MonsterCanFly;
         if (!CanMove)
         {
-            ApplyMotion(new MotionStatic(99999999, true, 99999999, true, false));
+            ApplyMotion(new MotionStatic(99999999, true, 99999999));
         }
         else SwitchState(MonsterState.Relax);
     }
@@ -44,17 +44,17 @@ public class MonsterController : TargetController
             switch (state)
             {
                 case MonsterState.Relax: 
-                    ApplyMotion(new MotionStatic(99999, true, 1, false, false)); 
+                    ApplyMotion(new MotionStatic(99999, true, 1)); 
                     stateTimeLeft = 5; 
                     break;
                 case MonsterState.RandomMove:
                     float x = Random.Range(-1, 2);
                     float y = Random.Range(-1, 2);
-                    ApplyMotion(new MotionDir(new Vector2(x,y), 99999, true, 1, false, false)); 
+                    ApplyMotion(new MotionDir(new Vector2(x,y), 99999, true, 1)); 
                     stateTimeLeft = 2; 
                     break;
                 case MonsterState.MoveTowardPlayer: 
-                    ApplyMotion(new MotionDir(GetVToNearestPlayer() * MoveSpeed, 99999, true, 1, false, false)); 
+                    ApplyMotion(new MotionDir((Vector2)GetVToNearestPlayer() * MoveSpeed, 99999, true, 1)); 
                     stateTimeLeft = 0.5f; 
                     break;
             }
@@ -66,11 +66,11 @@ public class MonsterController : TargetController
             switch (state)
             {
                 case MonsterState.Relax:
-                    inputVector = new Vector2(); 
+                    inputVector = new Vector2Int(); 
                     stateTimeLeft = 5; 
                     break;
                 case MonsterState.RandomMove:
-                    inputVector = new Vector2(Random.Range(-1, 2), 0); 
+                    inputVector = new Vector2Int(Random.Range(-1, 2), 0); 
                     stateTimeLeft = 2; 
                     break;
                 case MonsterState.MoveTowardPlayer:
@@ -103,22 +103,22 @@ public class MonsterController : TargetController
         if (v >= 20) return MonsterState.RandomMove;
         return MonsterState.MoveTowardPlayer;
     }
-    private Vector2 GetVToNearestPlayer()
+    private Vector2Int GetVToNearestPlayer()
     {
         const int xthreshold= 5;
         const int ythreshold= 2;
         var t=target.GetNearestEnemy();
-        float x = 0;
-        float y = 0;
+        int x = 0;
+        int y = 0;
         if (t.transform.position.x < transform.position.x - xthreshold) x = -1;
         else if (t.transform.position.x > transform.position.x + xthreshold) x = 1;
         if (t.transform.position.y < transform.position.y - ythreshold) y = -1;
         else if (t.transform.position.y > transform.position.y + ythreshold) y = 1;
-        return new Vector2(x, y);
+        return new Vector2Int(x, y);
     }
 
-    private Vector2 inputVector;
-    public override Vector2 GetInputVector()
+    private Vector2Int inputVector;
+    public override Vector2Int GetInputVector()
     {
         return inputVector;
     }

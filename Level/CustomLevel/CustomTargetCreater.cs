@@ -27,7 +27,7 @@ public class CustomTargetCreater
     private GraphicType graphicType;
 
     private TargetControllerType controllerType;
-    private bool canFly;
+    private bool canFly=false;
     private TargetSkillControllerType skillControllerType;
     private int[] skillIndex;
     private TargetEffectControllerType effectControllerType;
@@ -54,7 +54,6 @@ public class CustomTargetCreater
         effectControllerType= effectcontrollertype;
     }
 
-
     public override string ToString()
     {
         var sb = Tool.stringBuilder;
@@ -66,13 +65,21 @@ public class CustomTargetCreater
         sb.Append((int)controllerType).Append('_');
         sb.Append(canFly?1:0).Append('_');
         sb.Append((int)skillControllerType).Append('_');
-        sb.Append(Format.ArrayToString(skillIndex,'+')).Append('_');
+        sb.Append(skillIndex==null||skillIndex.Length==0?"null":Format.ArrayToString(skillIndex,'+')).Append('_');
         sb.Append((int)effectControllerType);
         return sb.ToString();
     }
     public CustomTargetCreater(string data)
     {
         var s = data.Split('_');
-
+        camp = int.Parse(s[0]);
+        updateAt = int.Parse(s[1]);
+        targetType=(TargetType)int.Parse(s[2]);
+        graphicType = (GraphicType)int.Parse(s[3]);
+        controllerType=(TargetControllerType)int.Parse(s[4]);
+        canFly=int.Parse(s[5])==1;
+        skillControllerType = (TargetSkillControllerType)int.Parse(s[6]);
+        skillIndex = s[7] == "null" ? null : Format.StringToArray(s[7], int.Parse);
+        effectControllerType=(TargetEffectControllerType)int.Parse(s[8]);
     }
 }

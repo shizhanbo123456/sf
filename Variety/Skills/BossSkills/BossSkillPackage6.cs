@@ -20,7 +20,7 @@ namespace Variety.Skill.Boss6
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
-            Target.ApplyMotion(new MotionDir(front * 10, 3, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(front * 10, 3, true, 1));
             for(int offset = -10; offset <= 10; offset+=5)
             {
                 var b = GetBullet(5);
@@ -52,7 +52,7 @@ namespace Variety.Skill.Boss6
             WarningRect.Warn(Target.transform.position, (p - Target.transform.position).normalized * 20 + Target.transform.position, 1, 1);
             AddEvent(1f, new TimeLineData(Target,p),(d) =>
             {
-                d.Target.ApplyMotion(new MotionDir((d.pos - d.Target.transform.position).normalized * 10, 2, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir((d.pos - d.Target.transform.position).normalized * 10, 2, true, 1));
                 var b = GetBullet(6);
                 b.Init(3.5f);
                 BulletFollowSystem.RegistObject(b, 3f, 2f, Target);
@@ -77,7 +77,7 @@ namespace Variety.Skill.Boss6
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
-            Target.ApplyMotion(new MotionDir(front * 10, 1, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(front * 10, 1, true, 1));
             var b = GetBullet(6);
             b.Init(2.5f);
             BulletFollowSystem.RegistObject(b,3f,4f,Target);
@@ -85,15 +85,15 @@ namespace Variety.Skill.Boss6
             b.Shoot();
             AddEvent(1f, new TimeLineData(Target,front),(d) =>
             {
-                d.Target.ApplyMotion(new MotionDir(d.pos * -10, 1, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(d.pos * -10, 1, true, 1));
             });
             AddEvent(2f, new TimeLineData(Target, front), (d) =>
             {
-                d.Target.ApplyMotion(new MotionDir(d.pos * 10, 1, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(d.pos * 10, 1, true, 1));
             });
             AddEvent(3f, new TimeLineData(Target, front), (d) =>
             {
-                d.Target.ApplyMotion(new MotionDir(d.pos * -10, 1, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(d.pos * -10, 1, true, 1));
             });
         }
     }
@@ -113,7 +113,7 @@ namespace Variety.Skill.Boss6
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
-            Target.ApplyMotion(new MotionDir(front * 10, 2, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(front * 10, 2, true, 1));
             var b = GetBullet(5);
             b.Init(0.2f, hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletFollowSystem.RegistObject(b,4f,2f,Target);
@@ -173,7 +173,7 @@ namespace Variety.Skill.Boss6
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionStatic(1.5f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(1.5f, true, 1));
             int r = Target.FaceRight ? 1 : -1;
             AddEvent(0.5f,new TimeLineData(Target,r) ,(d) =>
             {
@@ -185,7 +185,7 @@ namespace Variety.Skill.Boss6
             });
             AddEvent(1.5f,new TimeLineData(Target,r), (d) =>
             {
-                d.Target.ApplyMotion(new MotionDir(10f * d.index * Vector3.right, 2, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(10f * d.index * Vector3.right, 2, true, 1));
                 var b = GetBullet(5);
                 b.Init(5f,liftstoiclevel:2,ec: new EffectCollection(d.Target, (EffectType.ArmorShatter, 30, 10)));
                 BulletFollowSystem.RegistObject(b,4f,2f,Target);

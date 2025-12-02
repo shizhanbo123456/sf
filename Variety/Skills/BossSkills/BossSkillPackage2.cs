@@ -61,7 +61,7 @@ namespace Variety.Skill.Boss2
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t=Target.GetNearestEnemy();
-            Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * 20, 1.5f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * 20, 1.5f, true, 1));
             var b = GetBullet(4);
             b.Init(2.5f);
             BulletFollowSystem.RegistObject(b,4f,1.5f,Target);
@@ -117,7 +117,7 @@ namespace Variety.Skill.Boss2
         protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionStatic(2.2f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(2.2f, true, 1));
             for(int i= 0; i < 6; i++)
             {
                 var pos = Target.transform.position + Vector3.up*2+10*new Vector3(Mathf.Cos(3.14f/6f*i),Mathf.Sin(3.14f/6f*i));
@@ -173,7 +173,7 @@ namespace Variety.Skill.Boss2
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionStatic(2f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(2f, true, 1));
             for (int a = -1; a < 2; a++)
             {
                 AddEvent(a * 0.4f, new TimeLineData(Target,a),(d) =>
@@ -213,7 +213,7 @@ namespace Variety.Skill.Boss2
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 12, 0.6f);
-            Target.ApplyMotion(new MotionStatic(3f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(3f, true, 1));
             for (int i = 0; i < 6; i++)
             {
                 AddEvent(i * 0.2f + 0.6f,(d) =>

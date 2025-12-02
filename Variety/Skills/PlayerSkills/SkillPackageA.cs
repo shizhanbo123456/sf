@@ -44,7 +44,7 @@ namespace Variety.Skill.PackageA
             float vx = Target.FaceRight ? 15 : -15;
             AddEvent(0.02f, (d) => { 
                 d.Target.ApplyMotion(
-                new MotionDir(new Vector2(vx,0),0.2f,true,1,true,true)
+                new MotionDir(new Vector2(vx,0),0.2f,true,1)
                 );
                 var b=GetBullet(7);
                 b.Init(1.5f);
@@ -54,7 +54,7 @@ namespace Variety.Skill.PackageA
             });
             AddEvent(0.3f, (d) => {
                 d.Target.ApplyMotion(
-                new MotionDir(new Vector2(vx, 0), 0.2f, true, 1, true, true)
+                new MotionDir(new Vector2(vx, 0), 0.2f, true, 1)
                 );
                 var b = GetBullet(7);
                 b.Init(1.5f);
@@ -78,10 +78,10 @@ namespace Variety.Skill.PackageA
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyMotion(new MotionDir(Vector3.down*20,0.5f,true,1,true,true));
+            Target.ApplyMotion(new MotionDir(Vector3.down*20,0.5f,true,1));
             AddEvent(0.5f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionVelocityChange(new Vector2(0,8),true,1,true,true));
+                d.Target.ApplyMotion(new MotionVelocityChange(new Vector2(0,8),true,1));
                 var b = GetBullet(11);
                 b.Init(3.6f,liftstoiclevel:2);
                 BulletStaticSystem.RegistObject(b,3f,0.2f,d.Target.transform.position);
@@ -104,7 +104,7 @@ namespace Variety.Skill.PackageA
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyMotion(new MotionDir(new Vector2(0, 10), 0.3f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(new Vector2(0, 10), 0.3f, true, 1));
             AddEvent(0.3f, (d) =>
             {
                 var b = GetBullet(5);
@@ -128,7 +128,7 @@ namespace Variety.Skill.PackageA
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             float vx = Target.FaceRight ? 15 : -15;
-            Target.ApplyMotion(new MotionDir(new Vector2(-vx, 0), 0.3f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(new Vector2(-vx, 0), 0.3f, true, 1));
             for(int i = 0; i < 5; i++)
             {
                 AddEvent(0.07f*i, new TimeLineData(Target,i),(d) =>
@@ -143,7 +143,7 @@ namespace Variety.Skill.PackageA
             }
             AddEvent(0.3f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionStatic(0.25f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionStatic(0.25f, true, 1));
             });
         }
     }
@@ -160,7 +160,7 @@ namespace Variety.Skill.PackageA
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyMotion(new MotionDir(new Vector2(0, 15), 0.2f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(new Vector2(0, 15), 0.2f, true, 1));
             Target.effectController.AddEffect(new JumpBoost(Target.ObjectId, Target, 8, 5));
         }
     }

@@ -58,10 +58,10 @@ namespace Variety.Skill.Boss4
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t=Target.GetNearestEnemy();
-            t.ApplyMotion(new MotionDir(Vector2.up * 10, 0.7f, false, 1, false,false));
+            t.ApplyMotion(new MotionDir(Vector2.up * 10, 0.7f, false, 1));
             AddEvent(0.7f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionDir((t.transform.position- d.Target.transform.position).normalized*30,1,true,1,true,true)); 
+                d.Target.ApplyMotion(new MotionDir((t.transform.position- d.Target.transform.position).normalized*30,1,true,1)); 
                 var b = GetBullet(12);
                 b.Init(2.5f,liftstoiclevel:2);
                 BulletFollowSystem.RegistObject(b,3f,1f,Target);

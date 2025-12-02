@@ -9,8 +9,6 @@ namespace Variety.Base
         public float WorkTime = 10;
         public bool ActiveAdded;
         public int StoicLevel;
-        public bool MoveLock;
-        public bool SkillLock;
 
         public float StartTime;
         public float SpawnTime
@@ -18,13 +16,11 @@ namespace Variety.Base
             get { return Time.time - StartTime; }
         }
 
-        public MotionBase(float workTime, bool activeAdded, int stoicLevel,bool moveLock,bool skillLock)
+        public MotionBase(float workTime, bool activeAdded, int stoicLevel)
         {
             WorkTime = workTime;
             ActiveAdded = activeAdded;
             StoicLevel = stoicLevel;
-            MoveLock= moveLock;
-            SkillLock= skillLock;
 
             StartTime = Time.time;
         }

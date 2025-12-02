@@ -87,7 +87,7 @@ namespace Variety.Skill.Boss5
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionDir(Vector2.up * 20, 1f, true, 2, true, true));
+            Target.ApplyMotion(new MotionDir(Vector2.up * 20, 1f, true, 2));
             AddEvent(1f, (d) =>
             {
                 var p = d.Target.GetNearestEnemy();
@@ -154,7 +154,7 @@ namespace Variety.Skill.Boss5
             AddEvent(0.6f, (d) =>
             {
                 v= t.transform.position;
-                d.Target.ApplyMotion(new MotionDir((t.transform.position - d.Target.transform.position) * 2.5f, 0.4f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir((t.transform.position - d.Target.transform.position) * 2.5f, 0.4f, true, 1));
             });
             AddEvent(1f, (d) =>
             {

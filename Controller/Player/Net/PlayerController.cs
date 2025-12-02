@@ -7,9 +7,9 @@ using Variety.Base;
 public class PlayerController : TargetController
 {
     protected override float MinResisiance => -0.5f;
-    public override Vector2 GetInputVector()
+    public override Vector2Int GetInputVector()
     {
-        return new Vector2(Tool.SubInput.HorizontalInput(), (Tool.SubInput.JumpSignal() ? 1 : 0) + (Tool.SubInput.FallSignal() ? -1 : 0));
+        return new Vector2Int(Tool.SubInput.HorizontalInput(), (Tool.SubInput.JumpSignal() ? 1 : 0) + (Tool.SubInput.FallSignal() ? -1 : 0));
     }
     public override bool OnHitBack(Bullet b)
     {
