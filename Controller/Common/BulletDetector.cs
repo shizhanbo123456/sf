@@ -27,7 +27,7 @@ public class BulletDetector : MonoBehaviour
         Vector3 playerPos = transform.position + Vector3.up*offsetY;
         foreach (var i in Bullet.Bullets)
         {
-            if (!target.HostilityWith(i.Key)) continue;
+            if (target.Camp!=i.Key) continue;
             foreach (var j in i.Value.Values)
             {
                 float s = j.transform.localScale.x;

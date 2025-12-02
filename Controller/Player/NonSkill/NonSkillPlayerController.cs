@@ -5,7 +5,7 @@ using UnityEngine;
 public class NonSkillPlayerController : MonoBehaviour
 {
     private NonSkillPlayerData playerData;
-    private TargetInfoSync targetInfoSync;
+    private TargetControllerSync targetInfoSync;
     private GroundDetector groundDetector;
 
     public bool FaceRight;

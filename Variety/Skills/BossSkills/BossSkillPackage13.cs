@@ -19,7 +19,7 @@ namespace Variety.Skill.Boss13
         }
         protected override void Repeat()
         {
-            if (lantern.TimeOfDie<0.01f)
+            if (lantern.Alive)
             {
                 foreach (var p in target.GetEnemyInRange())
                 {
@@ -68,19 +68,11 @@ namespace Variety.Skill.Boss13
     }
     public class Skill1 : SkillBoss
     {
-        private Lantern lantern;
         public Skill1() : base()
         {
             Description = "";
             TimeNeeded = 2f;
             cd = 3f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
-        }
-        public override bool CanUse(Target Target)
-        {
-            return lantern && lantern.TimeOfDie < 0.01f;
         }
         protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
@@ -104,19 +96,11 @@ namespace Variety.Skill.Boss13
     }
     public class Skill2 : SkillBoss
     {
-        private Lantern lantern;
         public Skill2() : base()
         {
             Description = "";
             TimeNeeded = 2f;
             cd = 3f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
-        }
-        public override bool CanUse(Target Target)
-        {
-            return lantern && lantern.TimeOfDie < 0.01f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -133,19 +117,11 @@ namespace Variety.Skill.Boss13
     }
     public class Skill3 : SkillBoss
     {
-        private Lantern lantern;
         public Skill3() : base()
         {
             Description = "";
             TimeNeeded = 1.5f;
             cd = 15f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
-        }
-        public override bool CanUse(Target Target)
-        {
-            return lantern && lantern.TimeOfDie < 0.01f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -172,19 +148,11 @@ namespace Variety.Skill.Boss13
     }
     public class Skill4 : SkillBoss
     {
-        private Lantern lantern;
         public Skill4() : base()
         {
             Description = "";
             TimeNeeded = 10f;
             cd = 30f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
-        }
-        public override bool CanUse(Target Target)
-        {
-            return lantern && lantern.TimeOfDie < 0.01f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -217,19 +185,11 @@ namespace Variety.Skill.Boss13
     }
     public class Skill5 : SkillBoss
     {
-        private Lantern lantern;
         public Skill5() : base()
         {
             Description = "";
             TimeNeeded = 3f;
             cd = 40f;
-
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[0];
-        }
-        public override bool CanUse(Target Target)
-        {
-            return lantern && lantern.TimeOfDie < 0.01f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

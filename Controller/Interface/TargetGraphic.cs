@@ -4,22 +4,32 @@ using UnityEngine;
 
 public class TargetGraphic : MonoBehaviour
 {
+    public float SpawnOffset = 1;
+    [SerializeField] private bool UseAnim = true;
+    [SerializeField] private bool SetState = true;
     private static readonly Vector3 R = new Vector3(1, 1, 1);
     private static readonly Vector3 L = new Vector3(-1, 1, 1);
 
     private Animator anim;
-    private TargetInfoSync targetInfoSync;
+    private TargetControllerSync targetInfoSync;
     private Rigidbody2D rb;
 
     public SpriteRenderer MinimapIcon;
-    [SerializeField] private bool SetState = true;
-
+    [Space]
+    public BulletDetector bulletDetector;
+    public GroundDetector groundDetector;
 
     private bool Initialized = false;
 
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(transform.position - Vector3.up * SpawnOffset, 0.2f);
+    }
     public void Init(GameObject obj)
     {
-        targetInfoSync= obj.GetComponent<TargetInfoSync>();
+        if (!UseAnim) return;
+        targetInfoSync= obj.GetComponent<TargetControllerSync>();
         rb = obj.GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 

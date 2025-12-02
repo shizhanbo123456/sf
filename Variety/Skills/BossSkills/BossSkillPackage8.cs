@@ -17,7 +17,7 @@ namespace Variety.Skill.Boss8
         {
             bool f = false;
             foreach(var i in Lantern.Lanterns.Values) 
-                if (i.TimeOfDie > 0.01f)
+                if (!i.Alive)
                 {
                     f=true; 
                     break;

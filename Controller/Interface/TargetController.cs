@@ -204,7 +204,7 @@ public abstract class TargetController : MonoBehaviour
 
     protected Target target;
     protected Rigidbody2D rb;
-    private GroundDetector groundDetector;
+    private GroundDetector groundDetector=>target.graphic.groundDetector;
 
     protected float MoveSpeed=> Mathf.Max(target.FloatingAttributes.Jixing.Value, 0);
     protected float JumpSpeed=> Mathf.Sqrt(Mathf.Max(target.FloatingAttributes.Tengkong.Value * 20, 0));
@@ -239,7 +239,6 @@ public abstract class TargetController : MonoBehaviour
     {
         target = t;
         rb = GetComponent<Rigidbody2D>();
-        groundDetector= GetComponent<GroundDetector>();
 
         SkillLock = t.SkillLock.GetChain();
 
