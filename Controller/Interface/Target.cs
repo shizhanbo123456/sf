@@ -7,11 +7,15 @@ using UnityEngine;
 using Variety.Base;
 using static WorldTextController;
 
-
-public abstract class Target : EnsBehaviour
+/// <summary>
+/// 需要添加TargetDataSync,TargetControllerSync
+/// </summary>
+public abstract class Target : MonoBehaviour
 {
     public const int RegenerationAdderId = -10000;
     public const int SceneEffectId = -10001;
+
+    public int ObjectId=>targetDataSync.ObjectId;
 
     /// <summary>
     /// 除了玩家都是-1
@@ -24,14 +28,13 @@ public abstract class Target : EnsBehaviour
 
     public GameTimeAttributes BaseAttributes;
     public GameTimeAttributes FloatingAttributes;
-    public DedicateSyncAttributes DedicatedAttributes;
+    public DedicateSyncAttributes DedicatedAttributes=>targetDataSync.DedicatedAttributes;
 
-    private BulletDetector bulletDetector;
-    [HideInInspector]public TargetInfoSync targetInfoSync;
+    [HideInInspector]public TargetDataSync targetDataSync;
+    [HideInInspector]public TargetControllerSync targetInfoSync;
     [HideInInspector]public TargetController controller;
     [HideInInspector]public TargetEffectController effectController;
     [HideInInspector]public TargetSkillController skillController;
-    [Tooltip("anim可以设置为空")]
     [Space]
     public TargetGraphic graphic;
     public TargetBar targetBar;
@@ -73,9 +76,6 @@ public abstract class Target : EnsBehaviour
     public LockChain OperationLock=LockChain.CreateLock();
     public LockChain SkillLock=LockChain.CreateLock();
 
-    private float HealthDirtyClearCD;
-    private bool HealthDirty;
-
     /// <summary>
     ///需要初始化Base/FloatingAttributes
     /// </summary>
@@ -83,11 +83,9 @@ public abstract class Target : EnsBehaviour
     {
         TimeLineWork=gameObject.AddComponent<TimeLineWork>();
 
-        if(!TryGetComponent(out targetInfoSync))
-        {
-            Debug.LogError("未找到同步");
-        }
-        targetInfoSync.nomEnabled = UpdateLocally;
+        if(!TryGetComponent(out targetInfoSync)) Debug.LogError("未找到同步");
+        if (TryGetComponent(out targetDataSync)) targetDataSync.Init(this);
+        else Debug.LogError("未找到信息同步");
 
         if (graphic != null) graphic.Init(gameObject);
 
@@ -104,25 +102,27 @@ public abstract class Target : EnsBehaviour
     /// <summary>
     /// 需要初始化Base/FloatingAttributes
     /// </summary>
-    protected virtual void RegistSyncAttributesEvent()
+    protected virtual void RegistSyncDedicateAttributes()
     {
-        DedicatedAttributes = new DedicateSyncAttributes();
-        DedicatedAttributes.Shengming.OnValueChanged += v => targetBar.SetNum(v.Item2 / (float)v.Item1);
+        void SyncShengming()
+        {
+            targetDataSync.SyncShengming(BaseAttributes.Shengming.Value, FloatingAttributes.Shengming.Value);
+        }
         //生命每过一段时间同步(脏标记)
         //攻击类属性远程同步
         //防御类属性本地同步
-        FloatingAttributes.Shengming.OnValueChanged += _ => { HealthDirty = true; };
-        FloatingAttributes.Gongji.OnValueChanged += v => { CallFuncRpc(nameof(Sgj), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Gongji = v; };
-        FloatingAttributes.Mingzhong.OnValueChanged += v => { CallFuncRpc(nameof(Smz), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Mingzhong = v; };
-        FloatingAttributes.Baoji.OnValueChanged += v => { CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender,v.ToString());DedicatedAttributes.Baoji = v; };
-        FloatingAttributes.Jiashang.OnValueChanged += v => { CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, v.ToString());DedicatedAttributes.Jiashang = v; };
+        BaseAttributes.Shengming.OnValueChanged += _ => SyncShengming();
+        FloatingAttributes.Shengming.OnValueChanged += _ => SyncShengming();
+        FloatingAttributes.Gongji.OnValueChanged += v => targetDataSync.SyncGongji(v);
+        FloatingAttributes.Mingzhong.OnValueChanged += v => targetDataSync.SyncMingzhong(v);
+        FloatingAttributes.Baoji.OnValueChanged += v => targetDataSync.SyncBaoji(v);
+        FloatingAttributes.Jiashang.OnValueChanged += v => targetDataSync.SyncJiashang(v);
 
         FloatingAttributes.SetAllDirty();
-        HealthDirty = true;
     }
-    protected void InitEssential()
+    protected virtual void RegistDedicateAttributePostSyncEvent()
     {
-        nomEnabled = UpdateLocally;
+        DedicatedAttributes.Shengming.OnValueChanged += v => targetBar.SetNum(v.Item2 / (float)v.Item1);
     }
 
     /// <summary>
@@ -143,46 +143,14 @@ public abstract class Target : EnsBehaviour
         SkillLock=null;
     }
 
-    protected virtual HashSet<Bullet> DetectBullet()
-    {
-        if (bulletDetector == null)
-        {
-            if(!TryGetComponent(out bulletDetector))
-            {
-                Debug.LogError(gameObject.name + "未挂载子弹检测器");
-                return new();
-            }
-        }
-        return bulletDetector.DetectBullet();
-    }
-    public virtual bool HostilityWith(int camp)
-    {
-        return camp != Camp;
-    }
+    protected virtual HashSet<Bullet> DetectBullet()=>graphic.bulletDetector.DetectBullet();
 
-    public override void ManagedUpdate()
+    public void Update()
     {
         foreach (var b in DetectBullet())
         {
             DamageByBullet(b);
         }
-        if (HealthDirtyClearCD > 0) HealthDirtyClearCD -= Time.deltaTime;
-        else if (HealthDirty)
-        {
-            HealthDirty = false;
-            OnSyncHealth();
-            HealthDirtyClearCD = 0.15f;
-        }
-    }
-    private void OnSyncHealth()
-    {
-        CallFuncRpc(nameof(OnSyncHealthLocal),SendTo.ExcludeSender,BaseAttributes.Shengming.ToString()+'_'+FloatingAttributes.Shengming.ToString());
-        DedicatedAttributes.Shengming.Value = (BaseAttributes.Shengming.Value, FloatingAttributes.Shengming.Value);
-    }
-    private void OnSyncHealthLocal(string param)
-    {
-        var s = param.Split('_');
-        DedicatedAttributes.Shengming.Value = (int.Parse(s[0]), int.Parse(s[1]));
     }
     protected virtual bool DamageByBullet(Bullet b)
     {
@@ -204,22 +172,7 @@ public abstract class Target : EnsBehaviour
         }
         return true;
     }
-    protected virtual void ShowDamageText(int value,bool hit,bool strike)
-    {
-        if (!hit) ShowTextServerRpc("miss", TextColor.Blue);
-        else if (!strike) ShowTextServerRpc('-' + value.ToString(),  TextColor.Orange);
-        else ShowTextServerRpc('-' + value.ToString(), TextColor.Red);
-    }
-    protected void ShowTextServerRpc(string text,TextColor color)
-    {
-        string s = $"{text}_{(int)color}";
-        CallFuncRpc(nameof(ShowTextLocal), SendTo.Everyone, s);
-    }
-    private void ShowTextLocal(string data)
-    {
-        string[] s=data.Split('_');
-        Tool.WorldTextController.ShowTextLocal(s[0], targetBar.transform.position+Vector3.up*1.5f, (TextColor)int.Parse(s[1]));
-    }
+    protected void ShowDamageText(int value,bool hit,bool strike)=>targetDataSync.ShowDamageText(value, hit, strike);
     protected virtual void OnHitBack(Bullet b)
     {
         if(controller!=null)controller.OnHitBack(b);
@@ -255,72 +208,19 @@ public abstract class Target : EnsBehaviour
         Level.TrigEvent(key, this);
     }
 
-    private void Sgj(string data)
-    {
-        DedicatedAttributes.Gongji = int.Parse(data);
-    }
-    private void Smz(string data)
-    {
-        DedicatedAttributes.Mingzhong = int.Parse(data);
-    }
-    private void Sbj(string data)
-    {
-        DedicatedAttributes.Baoji = int.Parse(data);
-    }
-    private void Sjs(string data)
-    {
-        DedicatedAttributes.Jiashang = int.Parse(data);
-    }
+    
 
-    public void UseSkillRpc(int index)
-    {
-        var sb = Tool.stringBuilder;
-        sb.Clear();
-        sb.Append(index).Append('_').
-            Append(transform.position.x.ToString("F1")).Append('_').
-            Append(transform.position.y.ToString("F2")).Append('_').
-            Append(FaceRight ? '1' : '0');
-        CallFuncRpc(nameof(UseSkillLocal), SendTo.Everyone, sb.ToString());
-    }
-    private void UseSkillLocal(string param)
-    {
-        string[] s = param.Split('_');
-        int index=int.Parse(s[0]);
-        Vector3 pos = new Vector3(float.Parse(s[1]), float.Parse(s[2]));
-        bool faceright = s[3][0] == '1';
-        VarietyManager.GetSkill(index).UseSkill(this, pos, faceright);
-    }
-    public void SyncEffectIconRpc(List<int> values)
-    {
-        if (values==null||values.Count==0)
-        {
-            CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, "null");
-            return;
-        }
-        CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, Format.ListToString(values, '+'));
-    }
-    private void SyncEffectIconLocal(string data)
-    {
-        if (data == "null")
-        {
-            targetBar.ShowEffects(new List<EffectType>());
-            return;
-        }
-        var list = Format.StringToList(data, int.Parse, '+');
-        targetBar.ShowEffects(list.Select(i => (EffectType)i).ToList());
-    }
-    public void InterruptRpc()
-    {
-        CallFuncRpc(nameof(InterruptLocal), SendTo.ExcludeSender);
-        InterruptLocal();
-    }
-    public void InterruptLocal()
-    {
-        TimeLineWork.Interrupted();
-    }
+    public void UseSkillRpc(int index)=>targetDataSync.UseSkillRpc(index);
+    public void SyncEffectIconRpc(List<int> values)=>targetDataSync.SyncEffectIconRpc(values);
+    public void InterruptRpc()=>targetDataSync.InterruptRpc();
 
 
     private static readonly List<Target> targets = new List<Target>();
+
+    protected bool InFront(Target data)
+    {
+        return (data.transform.position.x > transform.position.x) == FaceRight;
+    }
     public Target GetNearest<T>(Dictionary<int,T>src,float range = 99999f, bool requireInFront = false)where T:Target
     {
         float DMin = range * range; // 使用距离平方进行比较
@@ -357,7 +257,6 @@ public abstract class Target : EnsBehaviour
         }
         return r;
     }
-
     public virtual Target GetNearestPartner(float range = 99999f, bool requireInFront = false)
     {
         float DMin = range * range;
@@ -379,7 +278,6 @@ public abstract class Target : EnsBehaviour
         }
         return r;
     }
-
     public List<Target> GetInRange<T>(Dictionary<int, T> src,float range = 99999f, bool requireInFront = false)where T : Target
     {
         targets.Clear();
@@ -412,7 +310,6 @@ public abstract class Target : EnsBehaviour
         }
         return targets;
     }
-
     public virtual List<Target> GetPartnerInRange(float range = 99999f, bool requireInFront = false)
     {
         targets.Clear();
@@ -464,7 +361,6 @@ public abstract class Target : EnsBehaviour
         }
         return targets;
     }
-
     public virtual List<Target> GetPartnerInRect(float halfx, float halfy, bool requireInFront = false)
     {
         targets.Clear();
@@ -483,10 +379,5 @@ public abstract class Target : EnsBehaviour
             }
         }
         return targets;
-    }
-
-    protected bool InFront(Target data)
-    {
-        return (data.transform.position.x > transform.position.x) == FaceRight;
     }
 }

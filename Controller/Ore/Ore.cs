@@ -16,7 +16,7 @@ public class Ore : Target
         BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
         FloatingAttributes = BaseAttributes.Clone();
         GetAndInitComponents();
-        RegistSyncAttributesEvent();
+        RegistSyncDedicateAttributes();
         InitEssential();
 
         OnCreated();

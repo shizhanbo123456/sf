@@ -44,7 +44,7 @@ public class PlayerData : Target
         GetAndInitComponents();
         if (isLocalPlayer) CameraInstance.instance.Init(transform);
         if (isLocalPlayer) Init_Bars();
-        RegistSyncAttributesEvent();
+        RegistSyncDedicateAttributes();
         InitEssential();
         Init_Name();
 

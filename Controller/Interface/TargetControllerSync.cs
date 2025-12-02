@@ -6,7 +6,7 @@ using UnityEngine;
 /// 手动调用OnPlayerPostUpdate，第一时间同步<br></br>
 /// 必须调用SyncMotion/SyncController来同步
 /// </summary>
-public class TargetInfoSync:EnsBehaviour
+public class TargetControllerSync:EnsBehaviour
 {
     public Action OnPostSyncRpc;
 

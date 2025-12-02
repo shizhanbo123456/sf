@@ -5,7 +5,7 @@ using UnityEngine;
 public class UnnetPlayerController : MonoBehaviour
 {
     private UnnetPlayerData playerData;
-    private TargetInfoSync targetInfoSync;
+    private TargetControllerSync targetInfoSync;
     private GroundDetector groundDetector;
 
     public bool FaceRight;
@@ -32,7 +32,7 @@ public class UnnetPlayerController : MonoBehaviour
 
         if (!TryGetComponent(out targetInfoSync))
         {
-            targetInfoSync = gameObject.AddComponent<TargetInfoSync>();
+            targetInfoSync = gameObject.AddComponent<TargetControllerSync>();
         }
     }
     void Update()

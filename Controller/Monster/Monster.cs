@@ -44,17 +44,16 @@ public class Monster : Target
         BaseAttributes.Shengming.Value = LayerMax * BloodPerM;
         FloatingAttributes = BaseAttributes.Clone();
         GetAndInitComponents();
-        RegistSyncAttributesEvent();
-        InitEssential();
+        RegistSyncDedicateAttributes();
 
         Bar = Tool.Instance.CreateBossBar();
         Bar.Init(Type.ToString(), LayerMax,Shengming);
 
         OnCreated();
     }
-    protected override void RegistSyncAttributesEvent()
+    protected override void RegistDedicateAttributePostSyncEvent()
     {
-        base.RegistSyncAttributesEvent();
+        base.RegistDedicateAttributePostSyncEvent();
         DedicatedAttributes.Shengming.OnValueChanged += v => Bar.SetValue(v.Item2, v.Item1, LayerMax);
     }
     protected override void OnCreated()
@@ -75,7 +74,7 @@ public class Monster : Target
     protected override bool DamageByBullet(Bullet b)
     {
         if (!base.DamageByBullet(b)) return false;
-        if(Shengming<=1)DestroyRpc();
+        if(Shengming<=1)targetDataSync.DestroyRpc();
         return true;
     }
 }

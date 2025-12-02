@@ -18,7 +18,7 @@ namespace Variety.Skill.Boss3
             int c = 0;
             foreach (var i in Lantern.Lanterns.Values)
             {
-                if (i.TimeOfDie <0.1f) c++;
+                if (i.Alive) c++;
             }
             target.ApplyEffect(new DefenseBoost(target.ObjectId, target, c * 0.3f, 1));
             target.ApplyEffect(new ArmorFortity(target.ObjectId, target, c * 10, 1));

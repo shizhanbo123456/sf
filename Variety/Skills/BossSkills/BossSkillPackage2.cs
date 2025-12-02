@@ -18,7 +18,7 @@ namespace Variety.Skill.Boss2
             int c = 0;
             foreach(var i in Lantern.Lanterns.Values)
             {
-                if (i.TimeOfDie <0.1f) c++;
+                if (i.Alive) c++;
             }
             target.ApplyEffect(new AgileBoost(target.ObjectId, target, c * 10, 1));
             target.ApplyEffect(new AttackBoost(target.ObjectId, target, c * 0.1f, 1));

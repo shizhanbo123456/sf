@@ -12,8 +12,9 @@ public class Lantern : Target
     public Sprite On;
     public Sprite Off;
 
-    public float TimeOfDie;//生命为0的时间
-    public float RegenerationTime;
+    public bool Alive => TimeOfDie < 0.001f;
+    private float TimeOfDie;//生命为0的时间
+    private float RegenerationTime;
 
     public void Init(string data)
     {
@@ -25,7 +26,7 @@ public class Lantern : Target
         FloatingAttributes = BaseAttributes.Clone();
         RegenerationTime = att.RegenerationTime.GetValue(Tool.AttributesManager.GetLevel());
         GetAndInitComponents();
-        RegistSyncAttributesEvent();
+        RegistSyncDedicateAttributes();
         InitEssential();
 
         OnCreated();
