@@ -65,7 +65,7 @@ namespace Variety.Skill.Boss1
             if (t != null)
             {
                 var x = t.transform.position.x - Target.transform.position.x;
-                Target.ApplyMotion(new MotionDir(new Vector2(x*15,0),1,true,2,true,true));
+                Target.ApplyMotion(new MotionDir(new Vector2(x*15,0),1,true,2));
                 var b = GetBullet(14);
                 b.Init(3.2f);
                 BulletFollowSystem.RegistObject(b,2f,2f,Target);
@@ -91,16 +91,16 @@ namespace Variety.Skill.Boss1
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyMotion(new MotionDir(Vector2.up * 30, 1, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(Vector2.up * 30, 1, true, 1));
             AddEvent(1, (d) =>
             {
                 var t=d.Target.GetNearestEnemy();
                 float x=t.transform.position.x-d.Target.transform.position.x;
-                Target.ApplyMotion(new MotionDir(new Vector2(x*2,0), 0.5f, true, 1, true, true));
+                Target.ApplyMotion(new MotionDir(new Vector2(x*2,0), 0.5f, true, 1));
             });
             AddEvent(1.5f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionDir(Vector2.down * 60, 0.5f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(Vector2.down * 60, 0.5f, true, 1));
             });
             AddEvent(2f, (d) =>
             {

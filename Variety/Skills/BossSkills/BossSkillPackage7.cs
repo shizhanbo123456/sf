@@ -19,18 +19,18 @@ namespace Variety.Skill.Boss7
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 4, 1);
-            Target.ApplyMotion(new MotionDir(new Vector2(0, 20), 0.5f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(new Vector2(0, 20), 0.5f, true, 1));
             AddEvent(0.5f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionStatic(0.3f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionStatic(0.3f, true, 1));
             });
             AddEvent(0.8f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionDir(Vector2.down*50,0.2f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(Vector2.down * 50, 0.2f, true, 1));
             });
             AddEvent(1, (d) =>
             {
-                d.Target.ApplyMotion(new MotionDir(new Vector2(0, 10), 0.2f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(new Vector2(0, 10), 0.2f, true, 1));
                 var b = GetBullet(11);
                 b.Init(1.5f);
                 BulletStaticSystem.RegistObject(b,4f,0.5f,d.Target.transform.position);
@@ -55,7 +55,7 @@ namespace Variety.Skill.Boss7
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
-            Target.ApplyMotion(new MotionDir(front * 10, 0.5f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(front * 10, 0.5f, true, 1));
             for(int offset=-10;offset<=10;offset+=5)
             {
                 var b = GetBullet(7);
@@ -78,7 +78,7 @@ namespace Variety.Skill.Boss7
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var p = Target.transform.position;
-            Target.ApplyMotion(new MotionVelocityChange(Vector2.up*10,true,1,true,true));
+            Target.ApplyMotion(new MotionVelocityChange(Vector2.up*10,true,1));
             WarningCircle.Warn(p, 2, 0.5f);
             WarningCircle.Warn(p+Vector3.right*5, 2, 0.5f);
             WarningCircle.Warn(p+Vector3.left*5, 2, 0.5f);
@@ -115,7 +115,7 @@ namespace Variety.Skill.Boss7
             BulletFollowSystem.RegistObject(b,3,2,Target);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
-            Target.ApplyMotion(new MotionVelocityLerp(Vector2.up * 10, Vector2.up * 5, 2, true, 1, true, true));
+            Target.ApplyMotion(new MotionVelocityLerp(Vector2.up * 10, Vector2.up * 5, 2, true, 1));
             AddEvent(2, (d) =>
             {
                 var b = GetBullet(5);
@@ -137,13 +137,13 @@ namespace Variety.Skill.Boss7
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionStatic(2,true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(2, true, 1));
             var b = GetBullet(5);
             b.Init(0.1f,  hitback: (b, t) => Bullet.FigureAttractForce(b, t));
             BulletStaticScaleChangeSystem.RegistObject(b,8f,3f,2f);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
-            Target.ApplyMotion(new MotionVelocityLerp(Vector2.up * 10, Vector2.up * 5, 2, true, 1, true, true));
+            Target.ApplyMotion(new MotionVelocityLerp(Vector2.up * 10, Vector2.up * 5, 2, true, 1));
             AddEvent(2, (d) =>
             {
                 var b = GetBullet(5);
@@ -165,7 +165,7 @@ namespace Variety.Skill.Boss7
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionStatic(5, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(5, true, 1));
             var b = GetBullet(5);
             b.Init(0f);
             BulletStaticScaleChangeSystem.RegistObject(b,20,0,5);

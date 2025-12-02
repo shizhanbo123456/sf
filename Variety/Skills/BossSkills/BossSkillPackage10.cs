@@ -73,10 +73,10 @@ namespace Variety.Skill.Boss10
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionDir(Vector2.up*12, 0.5f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(Vector2.up*12, 0.5f, true, 1));
             AddEvent(0.5f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionStatic(0.5f, true, 1, true,true));
+                d.Target.ApplyMotion(new MotionStatic(0.5f, true, 1));
                 for(int i = -15; i >= -75; i -= 15)
                 {
                     var b = GetBullet(7);
@@ -148,15 +148,15 @@ namespace Variety.Skill.Boss10
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionDir(Vector2.up * 10, 1f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(Vector2.up * 10, 1f, true, 1));
             AddEvent(1f, (d) =>
             {
                 var t = Target.GetNearestEnemy();
-                d.Target.ApplyMotion(new MotionDir((t.transform.position - d.Target.transform.position) * 4, 0.25f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir((t.transform.position - d.Target.transform.position) * 4, 0.25f, true, 1));
             });
             AddEvent(1.25f, (d) =>
             {
-                d.Target.ApplyMotion(new MotionStatic(0.3f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionStatic(0.3f, true, 1));
                 var t = d.Target.GetNearestEnemy();
                 var b = GetBullet(11);
                 b.Init(4f);

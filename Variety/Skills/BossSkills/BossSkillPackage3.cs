@@ -61,7 +61,7 @@ namespace Variety.Skill.Boss3
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t = Target.GetNearestEnemy();
-            Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * -10, 1f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * -10, 1f, true, 1));
             var b = GetBullet(4);
             b.Init(2.5f);
             BulletFollowSystem.RegistObject(b,4f,1.5f,Target);
@@ -115,7 +115,7 @@ namespace Variety.Skill.Boss3
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionStatic(2.2f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(2.2f, true, 1));
             for (int i = 0; i < 6; i++)
             {
                 AddEvent(0.2f * i, new TimeLineData(Target,i),(d) =>
@@ -157,7 +157,7 @@ namespace Variety.Skill.Boss3
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionStatic(2f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(2f, true, 1));
             var List = Lantern.Lanterns.Values.ToList();
             for (int a = 0; a < 3; a++)
             {
@@ -195,7 +195,7 @@ namespace Variety.Skill.Boss3
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 12, 0.6f);
-            Target.ApplyMotion(new MotionStatic(3f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(3f, true, 1));
             for (int i = 0; i < 6; i++)
             {
                 AddEvent(i * 0.2f + 0.6f, (d) =>

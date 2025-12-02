@@ -18,7 +18,7 @@ namespace Variety.Skill.PackageC
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyMotion(new MotionStatic(0.2f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(0.2f, true, 1));
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1,0);
             for(int i = 1; i >= -1; i -= 2)
             {
@@ -45,7 +45,7 @@ namespace Variety.Skill.PackageC
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
-            Target.ApplyMotion(new MotionDir(front*-20,0.25f,true,1,true,true));
+            Target.ApplyMotion(new MotionDir(front * -20, 0.25f, true, 1));
             Target.effectController.AddEffect(new ArmorFortity(Target.ObjectId, Target, 50, 0.5f));
         }
     }

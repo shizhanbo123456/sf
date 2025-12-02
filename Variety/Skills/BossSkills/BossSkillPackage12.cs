@@ -28,7 +28,7 @@ namespace Variety.Skill.Boss12
             BulletFollowSystem.RegistObject(b,0.4f,0.25f,Target);
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
-            Target.ApplyMotion(new MotionDir(new Vector2(front * 20, 0), 0.25f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(new Vector2(front * 20, 0), 0.25f, true, 1));
         }
     }
     public class Skill1 : SkillBoss
@@ -63,7 +63,7 @@ namespace Variety.Skill.Boss12
                 BulletFollowSystem.RegistObject(b,1,0.25f,Target);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
-                d.Target.ApplyMotion(new MotionDir(new Vector2(front * 30, 0), 0.25f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionDir(new Vector2(front * 30, 0), 0.25f, true, 1));
             });
         }
     }
@@ -113,7 +113,7 @@ namespace Variety.Skill.Boss12
             BulletStaticScaleChangeSystem.RegistObject(b,4,0,1f);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
-            Target.ApplyMotion(new MotionStatic(0.7f, true, 1, true, true));
+            Target.ApplyMotion(new MotionStatic(0.7f, true, 1));
             AddEvent(0.8f, (d) =>
             {
                 var front = d.Target.FaceRight ? 1 : -1;
@@ -122,7 +122,7 @@ namespace Variety.Skill.Boss12
                 BulletFollowSystem.RegistObject(b,0.4f,0.25f,d.Target);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
-                Target.ApplyMotion(new MotionDir(new Vector2(front * 30, 0), 0.25f, true, 1, true, true));
+                Target.ApplyMotion(new MotionDir(new Vector2(front * 30, 0), 0.25f, true, 1));
             });
         }
     }
@@ -138,7 +138,7 @@ namespace Variety.Skill.Boss12
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = Target.FaceRight ? 1 : -1;
-            Target.ApplyMotion(new MotionDir(new Vector2(front * 20, 0), 1, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(new Vector2(front * 20, 0), 1, true, 1));
             for (int i = 0; i < 4; i++)
             {
                 AddEvent(i * 0.25f,new TimeLineData(Target,i), (d) =>
@@ -163,13 +163,13 @@ namespace Variety.Skill.Boss12
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            Target.ApplyMotion(new MotionDir(Vector2.up * 40, 0.25f, true, 1, true, true));
+            Target.ApplyMotion(new MotionDir(Vector2.up * 40, 0.25f, true, 1));
             var t = Target.GetNearestEnemy();
             if (!t) return;
             Vector3 p=t.transform.position;
             AddEvent(0.25f,new TimeLineData(Target,p), (d) =>
             {
-                d.Target.ApplyMotion(new MotionStatic(5f, true, 1, true, true));
+                d.Target.ApplyMotion(new MotionStatic(5f, true, 1));
                 WarningCircle.Warn(d.pos, 2, 0.6f);
             });
             for (int i = 0; i < 36; i++)

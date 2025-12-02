@@ -62,7 +62,7 @@ public class VelocityInArea : MonoBehaviour
 
         if (rb.TryGetComponent<TargetController>(out var con))
         {
-            con.Resistance = SetReisience;
+            con.SetResistance(SetReisience, true);
         }
     }
 }
