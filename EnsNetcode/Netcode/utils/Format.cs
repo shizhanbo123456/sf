@@ -70,6 +70,28 @@ public static class Format
         foreach (var i in s) list.Add(converter.Invoke(i));
         return list;
     }
+    public static string ArrayToString<T>(T[] list, char c = ListSeparator)
+    {
+        StringBuilder sb = new StringBuilder();
+        foreach (var i in list)
+        {
+            sb.Append(c);
+            sb.Append(i.ToString());
+        }
+        sb.Append(c);
+        return sb.ToString();
+    }
+    public static T[] StringToArray<T>(string a, Func<string, T> converter, char c = ListSeparator)
+    {
+        string[] s = a.Split(new char[] { c }, StringSplitOptions.RemoveEmptyEntries);
+        var list = new T[s.Length];
+        for (int index = 0; index < s.Length; index++)
+        {
+            string i = s[index];
+            list[index] = converter.Invoke(i);
+        }
+        return list;
+    }
 
 
     public static List<string> SplitWithBoundaries(string s, char separator, char boundaryStart = BoundaryStart, char boundaryEnd = BoundaryEnd,bool removeBoundary=true)
