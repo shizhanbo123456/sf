@@ -7,83 +7,47 @@ using UnityEngine;
 
 public class PlayerData : Target
 {
-    [HideInInspector]public int id;
-    private bool Initialized;
-    [HideInInspector]public bool isLocalPlayer;
-
-    [HideInInspector] public string Name;
-    [HideInInspector] public int Vocation;
+    public bool isLocalPlayer => FightController.localPlayerId == Owner;
+    public override bool UpdateLocally => isLocalPlayer;
 
     [HideInInspector]public BarBase bar;
 
-    public override bool UpdateLocally
+    public override void Init(CustomTargetCreater.TargetInfo info)
     {
-        get
+        base.Init(info); 
+
+        if (isLocalPlayer)
         {
-            return isLocalPlayer;
+            var att = Tool.AttributesManager.GetDynamicAttribute(this) as PlayerAttributes;
+            BaseAttributes = att.GetDynamicAttributes(Level).Clone();
+            FloatingAttributes = BaseAttributes.Clone();
+
+            CameraInstance.instance.Init(transform);
+            RegistSyncAttributes();
+            ApplyEffect(new HealthRegeneration(RegenerationAdderId, this, (int)(att.Huixie * BaseAttributes.Shengming.Value), 100000));
+            Tool.SceneController.Player = gameObject;
         }
     }
-
-    [SerializeField] private TargetName targetName;
-    
-
-    public void Init(string d)//由Spawner在生成时传入信息
+    protected override void InitNameAndBar()
     {
-        ServerDataContainer.PlayerDataContainer playerData= new ServerDataContainer.PlayerDataContainer(d);
-        id = playerData.id;
-        Name = playerData.name;
-        Vocation=playerData.vocation;
-        Camp = playerData.camp;
-        isLocalPlayer=FightController.localPlayerId == id;
+        base.InitNameAndBar();
 
-        var att = Tool.AttributesManager.GetDynamicAttribute(this) as PlayerAttributes;
-        int level = Tool.AttributesManager.GetLevel();
-        BaseAttributes = att.GetDynamicAttributes(level).Clone();
-        FloatingAttributes = BaseAttributes.Clone();
+        if (isLocalPlayer)
+        {
+            bar = Tool.Instance.CreateBar();
+            bar.SetScale(1f);
+            bar.SetColor(new Color(1f, 0.4f, 0.4f, 1f));
 
-        GetAndInitComponents();
-        if (isLocalPlayer) CameraInstance.instance.Init(transform);
-        if (isLocalPlayer) Init_Bars();
-        RegistSyncDedicateAttributes();
-        InitEssential();
-        Init_Name();
+            BaseAttributes.Shengming.OnValueChanged += _ => UpdateBar();
+            FloatingAttributes.Shengming.OnValueChanged += _ => UpdateBar();
 
-        effectController.AddEffect(new HealthRegeneration(RegenerationAdderId,this, (int)(att.Huixie*BaseAttributes.Shengming.Value), 100000));
-
-        transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
-        if(isLocalPlayer)Tool.SceneController.Player = gameObject;
-
-        Initialized =true;
-
-        OnCreated();
-    }
-    private void Init_Name()
-    { 
-        targetName.text = $"P{id}-{Name}";
-        targetName.color = Tool.SpriteManager.TargetToColor(this);
-    }
-    private void Init_Bars()
-    {
-        bar = Tool.Instance.CreateBar();
-        bar.SetScale(1f);
-        bar.SetColor(new Color(1f, 0.4f, 0.4f, 1f));
-
-        BaseAttributes.Shengming.OnValueChanged += _ => UpdateBar();
-        FloatingAttributes.Shengming.OnValueChanged += _ => UpdateBar();
-
-        BaseAttributes.Shengming.OnValueChanged.Invoke(BaseAttributes.Shengming.Value);
-        FloatingAttributes.Shengming.OnValueChanged.Invoke(FloatingAttributes.Shengming.Value);
+            BaseAttributes.Shengming.OnValueChanged.Invoke(BaseAttributes.Shengming.Value);
+            FloatingAttributes.Shengming.OnValueChanged.Invoke(FloatingAttributes.Shengming.Value);
+        }
     }
     private void UpdateBar()
     {
         bar.SetValue(FloatingAttributes.Shengming.Value, BaseAttributes.Shengming.Value);
-    }
-
-    public override void ManagedUpdate()
-    {
-        if (!Initialized) return;
-
-        base.ManagedUpdate();
     }
     protected override bool DamageByBullet(Bullet b)
     {
@@ -103,7 +67,4 @@ public class PlayerData : Target
         transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
         Tool.UIEventCenter.TrigEvent(new ShowKilledSignalEvent());
     }
-
-    protected override TargetController AddController() => gameObject.AddComponent<PlayerController>();
-    protected override TargetSkillController AddSkillController() => gameObject.AddComponent<PlayerSkillController>();
 }

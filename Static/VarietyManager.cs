@@ -235,30 +235,6 @@ public static class VarietyManager
     {
         return BossRepeatContents[(int)m.Type].Invoke(m);
     }
-    public static List<SkillBase> GetSkillPackage(Target t)
-    {
-        if (t is PlayerData pd)
-        {
-            ServerDataContainer.TryGet(pd.id, out var data);
-            var skillindex = data.vocation;
-            return PlayerSkills[skillindex];
-        }
-        else if(t is Monster m)
-        {
-            var r = GetBossRepeatContent(m);
-            if(r!=null)m.RepeatWork.Add(r);
-
-            var coll = BossSkills[(int)m.Type];
-            int indexmax = Tool.AttributesManager.GetLevel()/10;
-            List<SkillBase>s=new List<SkillBase>();
-            for(int i = 0; i < indexmax&&i<coll.Count; i++)
-            {
-                s.Add(coll[i]);
-            }
-            return s;
-        }
-        return null;
-    }
     private static Dictionary<int, SkillBase> FlattenSkillCollection;
     public static SkillBase GetSkill(int index)
     {

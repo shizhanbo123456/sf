@@ -45,9 +45,16 @@ public abstract class TargetController : MonoBehaviour
             {
                 c.isGrounded = false;
             }
-            var vector = c.GetInputVector();
-            if(vector==Vector2Int.zero)c.InputWalk(vector.x, vector.y ==1);
-            c.ignoreLevitatingPlatform = vector.y ==-1;
+            if (!c.target.OperationLock.LockedInHierechy)
+            {
+                var vector = c.GetInputVector();
+                c.InputWalk(vector.x, vector.y == 1);
+                c.ignoreLevitatingPlatform = vector.y == -1;
+            }
+            else
+            {
+                c.ignoreLevitatingPlatform = false;
+            }
         }
     }
     private class FlyIdle: StateBase
@@ -67,8 +74,12 @@ public abstract class TargetController : MonoBehaviour
                 c.SwitchState(WalkIdle.Instance);
                 return;
             }
-            var vector = c.GetInputVector();
-            c.InputFly(vector.x, vector.y);
+            if (!c.target.OperationLock.LockedInHierechy)
+            {
+                var vector = c.GetInputVector();
+                c.InputFly(vector.x, vector.y);
+            }
+            
         }
         public override void Exit(TargetController controller)
         {
@@ -235,14 +246,16 @@ public abstract class TargetController : MonoBehaviour
 
     private bool Initialized = false;
 
-    public virtual void Init(Target t)
+    public virtual void Init(Target t,bool canFly)
     {
         target = t;
         rb = GetComponent<Rigidbody2D>();
 
         SkillLock = t.SkillLock.GetChain();
 
-        SwitchState(WalkIdle.Instance);
+        this.canFly = canFly;
+        if (canFly) SwitchState(FlyIdle.Instance);
+        else SwitchState(WalkIdle.Instance);
 
         Initialized = true;
     }

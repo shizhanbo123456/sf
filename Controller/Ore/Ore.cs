@@ -7,43 +7,41 @@ using Variety.Base;
 public class Ore : Target
 {
     public static SortedDictionary<int,Ore>Ores=new SortedDictionary<int,Ore>();
-    public void Init(string data)
+    public override void Init(CustomTargetCreater.TargetInfo info)
     {
-        string[] s = data.Split('_', System.StringSplitOptions.RemoveEmptyEntries);
-        transform.position = new Vector3(float.Parse(s[0]), float.Parse(s[1]));
+        base.Init(info);
 
-        var att = Tool.AttributesManager.GetDynamicAttribute(this);
-        BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
-        FloatingAttributes = BaseAttributes.Clone();
-        GetAndInitComponents();
-        RegistSyncDedicateAttributes();
-        InitEssential();
-
-        OnCreated();
-    }
-    protected override void OnCreated()
-    {
-        base.OnCreated();
-        Ores.Add(ObjectId, this);
-    }
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        Ores.Remove(ObjectId);
-    }
-    private float framecount = 0;
-    private void Update()
-    {
-        framecount += Time.deltaTime;
-        if (framecount > 0.5f)
+        if (UpdateLocally)
         {
-            framecount = 0;
-            if (FloatingAttributes.Shengming.Value == 0)
-            {
-                DestroyRpc();
-            }
+            var att = Tool.AttributesManager.GetDynamicAttribute(this);
+            BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
+            FloatingAttributes = BaseAttributes.Clone();
+            RegistSyncAttributes();
         }
     }
+    protected override void InitNameAndBar()
+    {
+        graphic.SetName(string.Empty);
+    }
+    protected override void RegistOnCreated()
+    {
+        base.RegistOnCreated();
+        Ores.Add(ObjectId, this);
+    }
+    protected override void RegistOnDestroy()
+    {
+        base.RegistOnDestroy();
+        Ores.Remove(ObjectId);
+    }
+    protected override bool DamageByBullet(Bullet b)
+    {
+        if (!base.DamageByBullet(b)) return false;
+
+        targetDataSync.DestroyRpc();
+        return true;
+    }
+
+
     public static Ore GetNearestOre(Vector3 pos, float range = 99999f)
     {
         if(Ores.Count== 0) return null;

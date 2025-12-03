@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(BulletDetector))]
+[RequireComponent(typeof(GroundDetector))]
 public class TargetGraphic : MonoBehaviour
 {
     public float SpawnOffset = 1;
@@ -15,16 +17,19 @@ public class TargetGraphic : MonoBehaviour
     private Rigidbody2D rb;
 
     public SpriteRenderer MinimapIcon;
+
+    [HideInInspector]public BulletDetector bulletDetector;
+    [HideInInspector]public GroundDetector groundDetector;
     [Space]
-    public BulletDetector bulletDetector;
-    public GroundDetector groundDetector;
+    public TargetBar targetBar;
+    public TargetName targetName;
 
     private bool Initialized = false;
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(transform.position - Vector3.up * SpawnOffset, 0.2f);
+        Gizmos.DrawSphere(transform.position - Vector3.up * SpawnOffset, 0.1f);
     }
     public void Init(GameObject obj)
     {
@@ -47,6 +52,20 @@ public class TargetGraphic : MonoBehaviour
             Debug.LogError(gameObject.name + "未挂载同步组件");
         }
         Initialized = true;
+    }
+    public void SetName(string text,Color color=default)
+    {
+        if (text == string.Empty)
+        {
+            targetName.gameObject.SetActive(false);
+            return;
+        }
+        else
+        {
+            targetName.gameObject.SetActive(true);
+        }
+        targetName.text = text;
+        targetName.color = color;
     }
     private void OnSync()
     {

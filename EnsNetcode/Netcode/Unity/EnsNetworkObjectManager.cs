@@ -104,8 +104,8 @@ public static class EnsNetworkObjectManager
             return;
         }
         int objectId = behaviour.ObjectId;
-        if (objectId == 0) Debug.Log(behaviour.name);
-        if (objectMap.ContainsKey(objectId))
+        if (objectId == 0) Debug.Log(behaviour.name+"id未分配");
+        if (objectMap.ContainsKey(objectId) && objectMap[objectId]!=null)
         {
             Debug.LogWarning($"id为{objectId}的物体{behaviour.gameObject.name}-{behaviour.GetType().ToString()}已经被添加");
             return;

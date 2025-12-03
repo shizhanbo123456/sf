@@ -85,7 +85,7 @@ public class TargetDataSync : EnsBehaviour
     private void ShowTextLocal(string data)
     {
         string[] s = data.Split('_');
-        Tool.WorldTextController.ShowTextLocal(s[0], target.targetBar.transform.position + Vector3.up * 1.5f, (TextColor)int.Parse(s[1]));
+        Tool.WorldTextController.ShowTextLocal(s[0], target.graphic.targetBar.transform.position + Vector3.up * 1.5f, (TextColor)int.Parse(s[1]));
     }
     public void UseSkillRpc(int index)
     {
@@ -118,11 +118,11 @@ public class TargetDataSync : EnsBehaviour
     {
         if (data == "null")
         {
-            target.targetBar.ShowEffects(new List<EffectType>());
+            target.graphic.targetBar.ShowEffects(new List<EffectType>());
             return;
         }
         var list = Format.StringToList(data, int.Parse, '+');
-        target.targetBar.ShowEffects(list.Select(i => (EffectType)i).ToList());
+        target.graphic.targetBar.ShowEffects(list.Select(i => (EffectType)i).ToList());
     }
     public void InterruptRpc()
     {

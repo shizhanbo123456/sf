@@ -111,19 +111,19 @@ public class FightController : EnsBehaviour
         for (int index = 0; index < orelist.Count; index++)
         {
             Ore i = orelist[index];
-            i.DestroyLocal();
+            i.targetDataSync.DestroyLocal();
         }
         List<Lantern> lanternlist = Lantern.Lanterns.Values.ToList();
         for (int index = 0; index < lanternlist.Count; index++)
         {
             Lantern i = lanternlist[index];
-            i.DestroyLocal();
+            i.targetDataSync.DestroyLocal();
         }
         List<Monster> monsterlist = Monster.Monsters.Values.ToList();
         for (int index = 0; index < monsterlist.Count; index++)
         {
             Monster i = monsterlist[index];
-            i.DestroyLocal();
+            i.targetDataSync.DestroyLocal();
         }
     }
 

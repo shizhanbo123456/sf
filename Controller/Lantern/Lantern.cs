@@ -16,32 +16,35 @@ public class Lantern : Target
     private float TimeOfDie;//生命为0的时间
     private float RegenerationTime;
 
-    public void Init(string data)
+    public override void Init(CustomTargetCreater.TargetInfo info)
     {
-        string[] s = data.Split('_',System.StringSplitOptions.RemoveEmptyEntries);
-        transform.position = new Vector3(float.Parse(s[0]), float.Parse(s[1]));
+        base.Init(info);
 
-        var att = Tool.AttributesManager.GetDynamicAttribute(this) as LanternAttributes;
-        BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
-        FloatingAttributes = BaseAttributes.Clone();
-        RegenerationTime = att.RegenerationTime.GetValue(Tool.AttributesManager.GetLevel());
-        GetAndInitComponents();
-        RegistSyncDedicateAttributes();
-        InitEssential();
+        if (UpdateLocally)
+        {
+            var att = Tool.AttributesManager.GetDynamicAttribute(this) as LanternAttributes;
+            BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
+            FloatingAttributes = BaseAttributes.Clone();
+            RegenerationTime = att.RegenerationTime.GetValue(Tool.AttributesManager.GetLevel());
 
-        OnCreated();
+            RegistSyncAttributes();
+        }
     }
-    protected override void OnCreated()
+    protected override void InitNameAndBar()
     {
-        base.OnCreated();
+        graphic.SetName(string.Empty);
+    }
+    protected override void RegistOnCreated()
+    {
+        base.RegistOnCreated();
         Lanterns.Add(ObjectId, this);
     }
-    protected override void OnDestroy()
+    protected override void RegistOnDestroy()
     {
-        base.OnDestroy();
+        base.RegistOnDestroy();
         Lanterns.Remove(ObjectId);
     }
-    private void Update()
+    protected override void FixedUpdate()
     {
         if (DedicatedAttributes.Shengming.Value.Item2 == 0)
         {

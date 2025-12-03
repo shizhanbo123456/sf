@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Variety.Base;
+using static UnityEngine.UI.GridLayoutGroup;
 using static WorldTextController;
 
 /// <summary>
@@ -21,10 +22,9 @@ public abstract class Target : MonoBehaviour
     /// 除了玩家都是-1
     /// </summary>
     [HideInInspector]public int Camp = -1;
-    [Space]
-    public bool CanMove=true;
-    public bool Effectable = true;
-    public bool CanUseSkill = true;
+    [HideInInspector] public int Level = -1;
+    [HideInInspector] public int Owner = -1;
+    [HideInInspector] public string Name;
 
     public GameTimeAttributes BaseAttributes;
     public GameTimeAttributes FloatingAttributes;
@@ -32,12 +32,11 @@ public abstract class Target : MonoBehaviour
 
     [HideInInspector]public TargetDataSync targetDataSync;
     [HideInInspector]public TargetControllerSync targetInfoSync;
+
+    [HideInInspector]public TargetGraphic graphic;
     [HideInInspector]public TargetController controller;
     [HideInInspector]public TargetEffectController effectController;
     [HideInInspector]public TargetSkillController skillController;
-    [Space]
-    public TargetGraphic graphic;
-    public TargetBar targetBar;
 
     [HideInInspector]public TimeLineWork TimeLineWork;
     public RepeatWork RepeatWork
@@ -50,13 +49,7 @@ public abstract class Target : MonoBehaviour
         }
     }
 
-    public bool FaceRight
-    {
-        get
-        {
-            return targetInfoSync.FaceRight;
-        }
-    }
+    public bool FaceRight=> targetInfoSync.FaceRight;
     public virtual int Shengming
     {
         get { return FloatingAttributes.Shengming.Value; }
@@ -65,44 +58,39 @@ public abstract class Target : MonoBehaviour
             FloatingAttributes.Shengming.Value = Mathf.Clamp(value, 0, BaseAttributes.Shengming.Value);
         }
     }
-    public virtual bool UpdateLocally
-    {
-        get
-        {
-            return FightController.localPlayerId == 0;
-        }
-    }
+    public virtual bool UpdateLocally=> EnsInstance.HasAuthority;
 
     public LockChain OperationLock=LockChain.CreateLock();
     public LockChain SkillLock=LockChain.CreateLock();
 
     /// <summary>
-    ///需要初始化Base/FloatingAttributes
+    /// 分配信息，设置位置，获取组件，注册OnCreate。注册属性同步需要额外调用
     /// </summary>
-    protected void GetAndInitComponents()
+    /// <param name="info"></param>
+    public virtual void Init(CustomTargetCreater.TargetInfo info)
     {
-        TimeLineWork=gameObject.AddComponent<TimeLineWork>();
+        Camp = info.camp;
+        Level = info.level;
+        Owner= info.owner;
+        Name = info.name;
+        transform.position = info.spawnPos;
+        InitNameAndBar();
 
-        if(!TryGetComponent(out targetInfoSync)) Debug.LogError("未找到同步");
+        TimeLineWork = gameObject.AddComponent<TimeLineWork>();
+        if (!TryGetComponent(out targetInfoSync)) Debug.LogError("未找到同步");
         if (TryGetComponent(out targetDataSync)) targetDataSync.Init(this);
         else Debug.LogError("未找到信息同步");
 
-        if (graphic != null) graphic.Init(gameObject);
-
-        if (UpdateLocally)
-        {
-            if (CanMove) (controller = AddController()).Init(this);
-            if (Effectable) (effectController=AddEffectController()).Init(this, BaseAttributes, FloatingAttributes);
-            if (CanUseSkill) (skillController=AddSkillController()).Init(this);
-        }
+        RegistOnCreated();
     }
-    protected virtual TargetController AddController()=> throw new Exception("添加控制器必须重写添加方法");
-    protected virtual TargetEffectController AddEffectController() => gameObject.AddComponent<TargetEffectController>();
-    protected virtual TargetSkillController AddSkillController()=> gameObject.AddComponent<TargetSkillController>();
+    protected virtual void InitNameAndBar()
+    {
+        graphic.SetName(Name, Tool.SpriteManager.TargetToColor(this));
+    }
     /// <summary>
     /// 需要初始化Base/FloatingAttributes
     /// </summary>
-    protected virtual void RegistSyncDedicateAttributes()
+    protected virtual void RegistSyncAttributes()
     {
         void SyncShengming()
         {
@@ -119,22 +107,17 @@ public abstract class Target : MonoBehaviour
         FloatingAttributes.Jiashang.OnValueChanged += v => targetDataSync.SyncJiashang(v);
 
         FloatingAttributes.SetAllDirty();
-    }
-    protected virtual void RegistDedicateAttributePostSyncEvent()
-    {
-        DedicatedAttributes.Shengming.OnValueChanged += v => targetBar.SetNum(v.Item2 / (float)v.Item1);
+
+
+        DedicatedAttributes.Shengming.OnValueChanged += v => graphic.targetBar.SetNum(v.Item2 / (float)v.Item1);
     }
 
-    /// <summary>
-    /// 需要手动调用
-    /// </summary>
-    protected virtual void OnCreated()
+    protected virtual void RegistOnCreated()
     {
         Tool.SceneController.OnTargetPostcreated(this);
     }
-    protected virtual void OnDestroy()
+    protected virtual void RegistOnDestroy()
     {
-        Level.ClearEvent(this);
         Tool.SceneController.OnTargetPredestroy(this);
 
         OperationLock.Discard();
@@ -142,10 +125,14 @@ public abstract class Target : MonoBehaviour
         OperationLock=null;
         SkillLock=null;
     }
+    private void OnDestroy()
+    {
+        RegistOnDestroy();
+    }
 
     protected virtual HashSet<Bullet> DetectBullet()=>graphic.bulletDetector.DetectBullet();
 
-    public void Update()
+    protected virtual void FixedUpdate()
     {
         foreach (var b in DetectBullet())
         {
@@ -198,16 +185,6 @@ public abstract class Target : MonoBehaviour
         if (effectController == null) return;
         effectController.AddEffect(e);
     }
-
-    public void RegistEvent(string key, Action<Target> action)
-    {
-        Level.RegistEvent(key, this, action);
-    }
-    public void TrigEvent(string key)
-    {
-        Level.TrigEvent(key, this);
-    }
-
     
 
     public void UseSkillRpc(int index)=>targetDataSync.UseSkillRpc(index);
