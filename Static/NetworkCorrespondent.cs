@@ -24,7 +24,7 @@ public class NetworkCorrespondent : EnsBehaviour
             DeleteData(id);
             Debug.Log("id为" + id + "的玩家断开连接");
             if (Tool.SceneController.NonSkillPlayers.ContainsKey(id)) Tool.SceneController.NonSkillPlayers[id].DestroyLocal();
-            if (Tool.SceneController.Players.ContainsKey(id)) Tool.SceneController.Players[id].DestroyLocal();
+            if (Tool.SceneController.Players.ContainsKey(id)) Tool.SceneController.Players[id].targetDataSync.DestroyLocal();
         };
         //离开房间重置场景
         EnsInstance.OnExitRoom += RestartGame;

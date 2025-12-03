@@ -35,14 +35,14 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
         if(!Targets.ContainsKey(target.Camp))Targets.Add(target.Camp, new Dictionary<int, Target>());
         Targets[target.Camp].Add(target.ObjectId, target);
 
-        if (target is PlayerData p) if (!Players.ContainsKey(p.id)) Players.Add(p.id,target as PlayerData);
+        if (target is PlayerData p) if (!Players.ContainsKey(p.Owner)) Players.Add(p.Owner,target as PlayerData);
     }
     public void OnTargetPredestroy(Target target)
     {
         if (Targets[target.Camp].ContainsKey(target.ObjectId))Targets[target.Camp].Remove(target.ObjectId);
         if (Targets[target.Camp].Count==0)Targets.Remove(target.Camp);
 
-        if (target is PlayerData p) if(Players.ContainsKey(p.id))Players.Remove(p.id);
+        if (target is PlayerData p) if(Players.ContainsKey(p.Owner))Players.Remove(p.Owner);
     }
     public Target GetTarget(int id)
     {
@@ -77,7 +77,7 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     }
     public void DestroyNetPlayer()
     {
-        foreach (var i in Players.Values) i.DestroyLocal();
+        foreach (var i in Players.Values) i.targetDataSync.DestroyLocal();
     }
 
     public void DestroyAllTargetsLocal()
@@ -86,7 +86,7 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
         {
             foreach(var j in i.Values)
             {
-                j.DestroyLocal();
+                j.targetDataSync.DestroyLocal();
             }
         }
     }

@@ -77,7 +77,6 @@ public class Level : MonoBehaviour
     void OnDestroy()
     {
         StopAllCoroutines();
-        ClearEvents();
     }
 
     //在每个客户端调用
@@ -127,31 +126,5 @@ public class Level : MonoBehaviour
         killscore = 0;
         alivescore = 0;
         score = 0;
-    }
-
-
-
-    private static Dictionary<string, Dictionary<int, Action<Target>>> Events = new Dictionary<string, Dictionary<int, Action<Target>>>();
-    public static void RegistEvent(string key,Target t,Action<Target> action)
-    {
-        if (!Events.ContainsKey(key))Events.Add(key,new());
-        Events[key].Add(t.ObjectId,action);
-    }
-    public static void TrigEvent(string key,Target t)
-    {
-        if (!Events.ContainsKey(key)) return;
-        foreach(var i in Events.Values)
-        {
-            foreach (var j in i.Values) j.Invoke(t);
-        }
-    }
-    public static void ClearEvent(Target t)
-    {
-        foreach(var i in Events.Values)if(i.ContainsKey(t.ObjectId))i.Remove(t.ObjectId);
-    }
-    public static void ClearEvents()
-    {
-        foreach (var i in Events.Values) i.Clear();
-        Events.Clear();
     }
 }

@@ -14,14 +14,14 @@ public class TargetSkillController : MonoBehaviour
 
     public LockChain SkillLock;
 
-    public virtual void Init(Target data)
+    public virtual void Init(Target data, int[] skillIndex)
     {
         target=data;
         Skills.Clear();
-        var skills = VarietyManager.GetSkillPackage(data);
-        for (int i = 0; i < skills.Count; i++)
+        var skills = (data);
+        for (int i = 0; i < skillIndex.Length; i++)
         {
-            Skills.Add(skills[i].CreateSkillColumn(data));
+            Skills.Add(VarietyManager.GetSkill(skillIndex[i]).CreateSkillColumn(data));
         }
 
         TimeNeeded = 0;
@@ -33,7 +33,7 @@ public class TargetSkillController : MonoBehaviour
     private void Update()
     {
         if (!Initialized) return;
-        //此脚本如果不是本地会disable
+
         PreUpdate();
 
         foreach (var i in Skills) i.Update();
@@ -45,7 +45,7 @@ public class TargetSkillController : MonoBehaviour
         }
         else SkillLock.Locked = false;
 
-        if (SkillLock.LockedInHierechy)
+        if (target.SkillLock.LockedInHierechy)
         {
             UseSkillCommandBuffer.Clear();
             return;

@@ -1,14 +1,13 @@
 using AttributeSystem.Attributes;
 using AttributeSystem.Effect;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class TargetEffectController : MonoBehaviour
 {
     private Target target;
     private Dictionary<int,EffectBase> Effect=new Dictionary<int, EffectBase>();
-    private List<int>ToRemoveKeys= new List<int>();
+    private static List<int>ToRemoveKeys= new List<int>();
 
     protected GameTimeAttributes BaseAttributes;
     protected GameTimeAttributes FloatingAttributes;
@@ -16,11 +15,11 @@ public class TargetEffectController : MonoBehaviour
     private bool Dirty = false;
 
 
-    public void Init(Target t,GameTimeAttributes b,GameTimeAttributes f)
+    public void Init(Target t)
     {
         target = t;
-        BaseAttributes = b;
-        FloatingAttributes = f;
+        BaseAttributes = t.BaseAttributes;
+        FloatingAttributes = t.FloatingAttributes;
     }
     private void Update()
     {
@@ -84,5 +83,13 @@ public class TargetEffectController : MonoBehaviour
     public GameTimeAttributes GetFloatingAttributes()
     {
         return FloatingAttributes;
+    }
+    private void OnDestroy()
+    {
+        foreach (var i in Effect.Values)
+        {
+            i.OnExit();
+        }
+        Effect.Clear();
     }
 }

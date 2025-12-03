@@ -34,9 +34,8 @@ public class PrefabManager : MonoBehaviour
     [Header("Player")]
     public GameObject UnnetPlayer;
     public EnsBehaviourCollection NonSkillPlayerCollection;
-    public EnsBehaviourCollection NetPlayerCollection;
     [Header("Target")]
-    public EnsBehaviourCollection OreCollection;
-    public EnsBehaviourCollection LanternCollection;
-    public List<EnsBehaviourCollection>MonsterCollections=new List<EnsBehaviourCollection>();
+    public EnsBehaviourCollection TargetCollection;
+    public CustomTargetCreater.GraphicType graphicType;
+    public List<TargetGraphic> GraphicCollection= new List<TargetGraphic>();
 }
