@@ -4,27 +4,23 @@ using System.Linq;
 using UnityEngine;
 using Variety.Base;
 using Variety.Skill.Common;
-using Variety.Template;
 
 namespace Variety.Skill.Boss14
 {
     public class RepeatBoss : RepeatContent
     {
-        private Lantern lantern;
-        public RepeatBoss(Target t) : base(t)
+        public RepeatBoss() : base()
         {
             dt = 1f;
-
+        }
+        public override void Repeat(Target target)
+        {
+            Lantern lantern = null;
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[0];
-
-            if (lantern != null) lantern.ApplyEffect(new Burning(Target.SceneEffectId, lantern, (int)(lantern.Shengming * 0.02f), 999999));
-        }
-        protected override void Repeat()
-        {
-            if (!lantern) return;
+            else return;
             if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
-            else if(lantern.Shengming>=1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
+            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
     public class Skill0 : SkillCommonFor14_18
@@ -38,11 +34,11 @@ namespace Variety.Skill.Boss14
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var ec = new EffectCollection(Target, (EffectType.Slowness, 2f, 5f));
-            var enemies = Target.GetEnemyInRange().Select(t=>t.transform.position); // 获取范围内敌人
+            var enemies = Target.GetEnemyInRange();
             foreach (var i in enemies)
             {
-                WarningCircle.Warn(i, 3, 2);
-                AddEvent(2, new TimeLineData(Target,i),(d) =>
+                WarningCircle.Warn(i.transform.position, 3, 2);
+                AddEvent(2, new TimeLineData(Target,i.transform.position),(d) =>
                 {
                     var b = GetBullet(4);
                     b.Init(0.4f, ec: ec);
@@ -123,11 +119,11 @@ namespace Variety.Skill.Boss14
             var ec = new EffectCollection(Target,
                 (EffectType.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value * 0.5f, 10),
                 (EffectType.DefenseDecrease, 0.2f, 10));
-            var enemies = Target.GetEnemyInRange().Select(t=>t.transform.position);
+            var enemies = Target.GetEnemyInRange();
             foreach (var i in enemies)
             {
-                WarningCircle.Warn(i, 2f, 1);
-                AddEvent(1, new TimeLineData(Target,i),(d) =>
+                WarningCircle.Warn(i.transform.position, 2f, 1);
+                AddEvent(1, new TimeLineData(Target,i.transform.position),(d) =>
                 {
                     var b = GetBullet(16);
                     b.Init(0.2f, liftstoiclevel: 0, ec: ec);

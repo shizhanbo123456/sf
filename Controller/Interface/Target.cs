@@ -39,15 +39,6 @@ public abstract class Target : MonoBehaviour
     [HideInInspector]public TargetSkillController skillController;
 
     [HideInInspector]public TimeLineWork TimeLineWork;
-    public RepeatWork RepeatWork
-    {
-        get
-        {
-            var repeatWork=GetComponent<RepeatWork>();
-            if(repeatWork==null)repeatWork=gameObject.AddComponent<RepeatWork>();
-            return repeatWork;
-        }
-    }
 
     public bool FaceRight=> targetInfoSync.FaceRight;
     public virtual int Shengming

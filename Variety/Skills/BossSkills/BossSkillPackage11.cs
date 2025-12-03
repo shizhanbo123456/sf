@@ -9,16 +9,15 @@ namespace Variety.Skill.Boss11
 {
     public class RepeatBoss : RepeatContent
     {
-        private Lantern lantern;
-        public RepeatBoss(Target t) : base(t)
+        public RepeatBoss() : base()
         {
-            dt = 1f;
-
+        }
+        public override void Repeat(Target target)
+        {
+            Lantern lantern=null;
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 0) lantern = list[^1];
-        }
-        protected override void Repeat()
-        {
+            else return;
             if (lantern.Alive)
             {
                 foreach (var p in target.GetEnemyInRange())

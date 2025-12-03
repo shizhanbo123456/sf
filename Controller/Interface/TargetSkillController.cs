@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Variety.Base;
 
 public class TargetSkillController : MonoBehaviour
 {
@@ -10,29 +9,34 @@ public class TargetSkillController : MonoBehaviour
     private HashSet<int>UseSkillCommandBuffer=new HashSet<int>();
     private float TimeNeeded = 0;
 
-    private bool Initialized = false;
-
     public LockChain SkillLock;
 
-    public virtual void Init(Target data, int[] skillIndex)
+    private int repeatContentIndex;
+    private float nextRepeatTime = -1;
+
+    private bool Initialized = false;
+
+    public virtual void Init(Target data, int[] skillIndex,int repeatContentIndex)
     {
         target=data;
         Skills.Clear();
-        var skills = (data);
         for (int i = 0; i < skillIndex.Length; i++)
         {
             Skills.Add(VarietyManager.GetSkill(skillIndex[i]).CreateSkillColumn(data));
         }
+        SkillLock = data.SkillLock.GetChain();
 
         TimeNeeded = 0;
 
-        SkillLock = data.SkillLock.GetChain();
+        this.repeatContentIndex= repeatContentIndex;
 
         Initialized = true;
     }
     private void Update()
     {
         if (!Initialized) return;
+
+        UpdateRepeatContent();
 
         PreUpdate();
 
@@ -75,5 +79,15 @@ public class TargetSkillController : MonoBehaviour
     public void UseSkillBuffer(int index)
     {
         if (!UseSkillCommandBuffer.Contains(index)) UseSkillCommandBuffer.Add(index);
+    }
+    private void UpdateRepeatContent()
+    {
+        if (repeatContentIndex < 0) return;
+        if (Time.time > nextRepeatTime)
+        {
+            var c=VarietyManager.GetRepeatContent(repeatContentIndex);
+            c.Repeat(target);
+            nextRepeatTime = Time.time + c.dt;
+        }
     }
 }

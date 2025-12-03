@@ -4,31 +4,25 @@ using System.Linq;
 using UnityEngine;
 using Variety.Base;
 using Variety.Skill.Common;
-using Variety.Template;
 
 namespace Variety.Skill.Boss17
 {
     public class RepeatBoss : RepeatContent
     {
-        private Lantern lantern;
-        public RepeatBoss(Target t) : base(t)
+        public RepeatBoss() : base()
         {
             dt = 1f;
-
+        }
+        public override void Repeat(Target target)
+        {
+            Lantern lantern = null;
             var list = Lantern.Lanterns.Values.ToList();
             if (list.Count > 3) lantern = list[3];
-
-            if (lantern != null) lantern.ApplyEffect(new Burning(target.ObjectId, lantern, (int)(lantern.Shengming * 0.02f), 999999));
-        }
-        protected override void Repeat()
-        {
-            if (!lantern) return;
+            else return;
             if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
             else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
         }
     }
-
-    // 技能0：速度预测火球（根据敌人速度预判位置）
     public class Skill0 : SkillCommonFor14_18
     {
         public Skill0() : base()
@@ -47,7 +41,6 @@ namespace Variety.Skill.Boss17
                 var rb = enemy.GetComponent<Rigidbody2D>();
                 if (rb == null) continue;
 
-                // 预测0.8秒后的位置（火球飞行时间）
                 Vector3 predictPos = enemy.transform.position + (Vector3)(rb.velocity * 1.2f);
                 Vector3 startPos = (Target.transform.position - enemy.transform.position).normalized * 20 + enemy.transform.position;
                 pos.Add((startPos, predictPos));

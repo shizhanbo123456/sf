@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Variety.Base;
 using vs = Variety.Skill;
 
@@ -15,27 +14,8 @@ public static class VarietyManager
     {
         "均衡、中射程","破霸体、范围伤害","高爆发、Debuff"
     };
-    private static List<Func<Target, RepeatContent>> BossRepeatContents = new List<Func<Target, RepeatContent>>()
-    {
-        static t=>{return null; },
-        static t=>{return new vs.Boss2.RepeatBoss2(t); },
-        static t=>{return new vs.Boss3.RepeatBoss3(t); },
-        static t=>{return new vs.Boss4.RepeatBoss4(t); },
-        static t=>{return new vs.Boss5.RepeatBoss5(t); },
-        static t=>{return null; },
-        static t=>{return null; },
-        static t=>{return new vs.Boss8.RepeatBoss8(t); },
-        static t=>{return null; },
-        static t=>{return null; },
-        static t=>{return new vs.Boss11.RepeatBoss(t); },
-        static t=>{return null; },
-        static t=>{return new vs.Boss13.RepeatBoss(t); },
-        static t=>{return new vs.Boss14.RepeatBoss(t); },
-        static t=>{return new vs.Boss15.RepeatBoss(t); },
-        static t=>{return new vs.Boss16.RepeatBoss(t); },
-        static t=>{return new vs.Boss17.RepeatBoss(t); },
-        static t=>{return new vs.Boss18.RepeatBoss(t); },
-    };
+
+
     public static List<List<SkillBase>> PlayerSkills = new()
     {
         new List<SkillBase>()
@@ -231,19 +211,54 @@ public static class VarietyManager
             new vs.Boss18.Skill5(),
         }
     };
-    public static RepeatContent GetBossRepeatContent(Monster m)
+
+    private static List<RepeatContent> BossRepeatContents = new List<RepeatContent>()
     {
-        return BossRepeatContents[(int)m.Type].Invoke(m);
-    }
+        null,
+        new vs.Boss2.RepeatBoss(),
+        new vs.Boss3.RepeatBoss(),
+        new vs.Boss4.RepeatBoss(),
+        new vs.Boss5.RepeatBoss(),
+        null,
+        null,
+        new vs.Boss8.RepeatBoss(),
+        null,
+        null,
+        new vs.Boss11.RepeatBoss(),
+        null,
+        new vs.Boss13.RepeatBoss(),
+        new vs.Boss14.RepeatBoss(),
+        new vs.Boss15.RepeatBoss(),
+        new vs.Boss16.RepeatBoss(),
+        new vs.Boss17.RepeatBoss(),
+        new vs.Boss18.RepeatBoss(),
+    };
+
+
     private static Dictionary<int, SkillBase> FlattenSkillCollection;
     public static SkillBase GetSkill(int index)
     {
         if (FlattenSkillCollection == null)
         {
-            FlattenSkillCollection= new Dictionary<int, SkillBase>();
-            foreach(var i in PlayerSkills)foreach(var j in i)FlattenSkillCollection.Add(j.GetHashCode(), j);
-            foreach(var i in BossSkills)foreach(var j in i)FlattenSkillCollection.Add(j.GetHashCode(), j);
+            FlattenSkillCollection = new Dictionary<int, SkillBase>();
+            foreach (var i in PlayerSkills) 
+                foreach (var j in i) 
+                    FlattenSkillCollection.Add(j.GetHashCode(), j);
+            foreach (var i in BossSkills) 
+                foreach (var j in i) 
+                    FlattenSkillCollection.Add(j.GetHashCode(), j);
         }
         return FlattenSkillCollection[index];
+    }
+    private static Dictionary<int, RepeatContent> FlattenRepeatContent;
+    public static RepeatContent GetRepeatContent(int index)
+    {
+        if (FlattenRepeatContent == null)
+        {
+            FlattenRepeatContent = new Dictionary<int, RepeatContent>();
+            foreach (var i in BossRepeatContents)
+                FlattenRepeatContent.Add(i.GetHashCode(), i);
+        }
+        return FlattenRepeatContent[index];
     }
 }

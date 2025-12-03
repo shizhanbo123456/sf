@@ -1,6 +1,5 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
