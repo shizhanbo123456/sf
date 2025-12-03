@@ -1,20 +1,18 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Variety.Base;
 using Variety.Template;
 
 namespace Variety.Skill.Boss5
 {
-    public class RepeatBoss5 : RepeatContent
+    public class RepeatBoss : RepeatContent
     {
-        public RepeatBoss5(Target t) : base(t)
+        public RepeatBoss() : base()
         {
             dt = 1f;
         }
-        protected override void Repeat()
+        public override void Repeat(Target target)
         {
             int c = Ore.Ores.Values.Count;
             if (c == 6) return;

@@ -6,9 +6,9 @@ public class MonsterSkillController:TargetSkillController
     private float interval;
     private float useSkillCD;
 
-    public override void Init(Target data, int[] skillIndex)
+    public override void Init(Target data, int[] skillIndex, int repeatContentIndex)
     {
-        base.Init(data, skillIndex);
+        base.Init(data, skillIndex, repeatContentIndex);
         interval = (data as Monster).StateInterval;
     }
     private void Update()

@@ -7,13 +7,12 @@ using Variety.Template;
 
 namespace Variety.Skill.Boss2
 {
-    public class RepeatBoss2 : RepeatContent
+    public class RepeatBoss : RepeatContent
     {
-        public RepeatBoss2(Target t) : base(t)
+        public RepeatBoss() : base()
         {
-            dt = 1f;
         }
-        protected override void Repeat()
+        public override void Repeat(Target target)
         {
             int c = 0;
             foreach(var i in Lantern.Lanterns.Values)

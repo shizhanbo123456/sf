@@ -1,19 +1,17 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
 
 namespace Variety.Skill.Boss8
 {
-    public class RepeatBoss8 : RepeatContent
+    public class RepeatBoss : RepeatContent
     {
-        public RepeatBoss8(Target t) : base(t)
+        public RepeatBoss() : base()
         {
-            dt = 1f;
         }
-        protected override void Repeat()
+        public override void Repeat(Target target)
         {
             bool f = false;
             foreach(var i in Lantern.Lanterns.Values) 

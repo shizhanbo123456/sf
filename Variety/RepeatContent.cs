@@ -4,23 +4,18 @@ namespace Variety.Base
 {
     public abstract class RepeatContent
     {
-        protected Target target;
-        protected float dt;
-        private float recorder;
-        public RepeatContent(Target t)
+        public float dt=1;
+        private static int indexSource;
+        private int index;
+        public RepeatContent()
         {
-            target = t;
-            //dt = 1f;
+            dt = 1f;
+            index = indexSource++;
         }
-        public void Update()
+        public abstract void Repeat(Target target);
+        public override int GetHashCode()
         {
-            recorder += UnityEngine.Time.deltaTime;
-            if (recorder > dt)
-            {
-                recorder -= dt;
-                Repeat();
-            }
+            return index;
         }
-        protected abstract void Repeat();
     }
 }

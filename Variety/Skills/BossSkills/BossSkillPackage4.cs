@@ -1,19 +1,18 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
 
 namespace Variety.Skill.Boss4
 {
-    public class RepeatBoss4 : RepeatContent
+    public class RepeatBoss : RepeatContent
     {
-        public RepeatBoss4(Target t) : base(t)
+        public RepeatBoss() : base()
         {
             dt = 1f;
         }
-        protected override void Repeat()
+        public override void Repeat(Target target)
         {
             int c = Ore.Ores.Values.Count;
             if (c == 0) return;

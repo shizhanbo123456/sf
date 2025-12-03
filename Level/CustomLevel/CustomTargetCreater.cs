@@ -70,6 +70,7 @@ public class CustomTargetCreater
     private bool canFly=false;
     private TargetSkillControllerType skillControllerType;
     private int[] skillIndex;
+    private int repeatContentIndex;
     private TargetEffectControllerType effectControllerType;
     public CustomTargetCreater(TargetInfo info,TargetType targetType,GraphicType graphicType)
     {
@@ -83,10 +84,12 @@ public class CustomTargetCreater
         controllerType = controllertype;
         this.canFly = canFly;
     }
-    public void LoadSkillController(TargetSkillControllerType skillcontrollertype, int[] skillIndex)
+    public void LoadSkillController(TargetSkillControllerType skillcontrollertype, int[] skillIndex,int repeatContentIndex)
     {
         skillControllerType= skillcontrollertype;
-        if(skillIndex!=null&&skillIndex.Length>0)this.skillIndex = skillIndex;
+        if (skillIndex != null && skillIndex.Length > 0) Debug.LogError("Î´×°ÔØ¼¼ÄÜ");
+        this.skillIndex = skillIndex;
+        this.repeatContentIndex = repeatContentIndex;
     }
     public void LoadEffectController(TargetEffectControllerType effectcontrollertype)
     {
@@ -104,6 +107,7 @@ public class CustomTargetCreater
         sb.Append(canFly?1:0).Append('_');
         sb.Append((int)skillControllerType).Append('_');
         sb.Append(skillIndex==null||skillIndex.Length==0?"null":Format.ArrayToString(skillIndex,'+')).Append('_');
+        sb.Append(repeatContentIndex).Append('_');
         sb.Append((int)effectControllerType);
         return sb.ToString();
     }
@@ -119,6 +123,7 @@ public class CustomTargetCreater
         skillControllerType = (TargetSkillControllerType)int.Parse(s[index++]);
         string skill = s[index++];
         skillIndex = skill == "null" ? null : Format.StringToArray(skill, int.Parse);
+        repeatContentIndex=int.Parse(s[index++]);
         effectControllerType=(TargetEffectControllerType)int.Parse(s[index++]);
     }
 
@@ -166,7 +171,7 @@ public class CustomTargetCreater
 
         target.Init(info);
         if(controller)controller.Init(target, canFly);
-        if(skillcontroller)skillcontroller.Init(target, skillIndex);
+        if(skillcontroller)skillcontroller.Init(target, skillIndex,repeatContentIndex);
         if(effectController)effectController.Init(target);
         graphic.Init(obj);
     }

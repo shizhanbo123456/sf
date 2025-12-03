@@ -8,7 +8,6 @@ public class MonsterController : TargetController
     {
         Relax,RandomMove,MoveTowardPlayer
     }
-    private MonsterState presentState;
     private float stateTimeLeft;
 
     public override void Init(Target t, bool canFly)
@@ -53,8 +52,6 @@ public class MonsterController : TargetController
             stateTimeLeft = 0.2f;
             return;
         }
-        presentState = state;
-
         switch (state)
         {
             case MonsterState.Relax:
