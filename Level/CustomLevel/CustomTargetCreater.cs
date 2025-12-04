@@ -129,7 +129,7 @@ public class CustomTargetCreater
 
     public void Create()
     {
-
+        EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.TargetCollection.CollectionId, EnsBehaviour.SendTo.Everyone, ToString(), KeyLibrary.KeyFormatType.Nonsequential);
     }
     public void ApplyForTarget(GameObject obj,out TargetGraphic graphic,out Target target,out TargetController controller,
         out TargetSkillController skillcontroller,out TargetEffectController effectController)

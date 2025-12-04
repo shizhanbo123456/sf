@@ -47,11 +47,6 @@ public class HomePage : BasePage
         Name.text = t;
         InputField.gameObject.SetActive(false);
     }
-    public void SelectVocation()
-    {
-        Tool.PageManager.TurnPage(PageManager.PageType.VocationSelection);
-    }
-
 
     public void DedicateServerMatch()
     {

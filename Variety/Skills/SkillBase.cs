@@ -24,7 +24,7 @@ namespace Variety.Base
         {
             index = indexsource++;
         }
-        public virtual SkillBaseController CreateSkillColumn(Target t) => throw new Exception("该类不可创建技能栏");
+        public virtual SkillBaseController CreateSkillColumn(Target t,bool createUI) => throw new Exception("该类不可创建技能栏");
         public virtual bool CanUse(Target Target)
         {
             return true;

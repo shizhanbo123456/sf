@@ -25,11 +25,11 @@ public sealed class EnsSpawner : EnsBehaviour
 
     private void Awake()
     {
-        EnsInstance.NOMSpawner=this;
+        EnsInstance.EnsSpawner=this;
 
         for (int i = 0; i < Prefabs.Count; i++)
         {
-            Prefabs[i].NOMCollectionId = prefabid;
+            Prefabs[i].CollectionId = prefabid;
             prefabid++;
         }
     }
@@ -65,7 +65,7 @@ public sealed class EnsSpawner : EnsBehaviour
     {
         foreach(var i in Prefabs)
         {
-            if(i.NOMCollectionId == id)
+            if(i.CollectionId == id)
             {
                 return i.Count;
             }
@@ -137,7 +137,7 @@ public sealed class EnsSpawner : EnsBehaviour
         int id = int.Parse(data);
         for (int i = 0; i < Prefabs.Count; i++)
         {
-            if (Prefabs[i].NOMCollectionId == id)
+            if (Prefabs[i].CollectionId == id)
             {
                 GameObject obj = Instantiate(Prefabs[i].gameObject);
                 obj.transform.position = DefaultSpawnPosition;
@@ -157,7 +157,7 @@ public sealed class EnsSpawner : EnsBehaviour
         int id = int.Parse(s[0]);
         for (int i = 0; i < Prefabs.Count; i++)
         {
-            if (Prefabs[i].NOMCollectionId == id)
+            if (Prefabs[i].CollectionId == id)
             {
                 GameObject obj = Instantiate(Prefabs[i].gameObject);
                 obj.transform.position = DefaultSpawnPosition;
@@ -177,7 +177,7 @@ public sealed class EnsSpawner : EnsBehaviour
     /// </summary>
     public void RespawnCheckServerRpc(EnsBehaviourCollection collection, string param, KeyFormatType type = KeyFormatType.None)
     {
-        CallFuncRpc(nameof(RespawnCheckLocal), SendTo.Everyone, collection.NOMCollectionId + "%" + collection.Behaviors[0].ObjectId
+        CallFuncRpc(nameof(RespawnCheckLocal), SendTo.Everyone, collection.CollectionId + "%" + collection.Behaviors[0].ObjectId
             + '%' + param + "%" + collection.Behaviors[0].ObjectId,type);
     }
     
@@ -189,7 +189,7 @@ public sealed class EnsSpawner : EnsBehaviour
         int id = int.Parse(s[0]);
         for (int i = 0; i < Prefabs.Count; i++)
         {
-            if (Prefabs[i].NOMCollectionId == id)
+            if (Prefabs[i].CollectionId == id)
             {
                 GameObject obj = Instantiate(Prefabs[i].gameObject);
                 obj.transform.position = DefaultSpawnPosition;

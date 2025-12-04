@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 
 public class TargetSkillController : MonoBehaviour
@@ -19,10 +20,10 @@ public class TargetSkillController : MonoBehaviour
     public virtual void Init(Target data, int[] skillIndex,int repeatContentIndex)
     {
         target=data;
-        Skills.Clear();
+
         for (int i = 0; i < skillIndex.Length; i++)
         {
-            Skills.Add(VarietyManager.GetSkill(skillIndex[i]).CreateSkillColumn(data));
+            CreateSkillColumn(data, skillIndex[i]);
         }
         SkillLock = data.SkillLock.GetChain();
 
@@ -31,6 +32,23 @@ public class TargetSkillController : MonoBehaviour
         this.repeatContentIndex= repeatContentIndex;
 
         Initialized = true;
+    }
+    public virtual void CreateSkillColumn(Target data, int index)
+    {
+        Skills.Add(VarietyManager.GetSkill(index).CreateSkillColumn(data, false));
+    }
+    public virtual void DetroySkillColumnByIndex(int index)
+    {
+        if (index >= 0 && index < Skills.Count)
+        {
+            Skills[index].OnDiscard();
+            Skills.RemoveAt(index);
+        }
+    }
+    protected virtual void OnDestroy()
+    {
+        foreach (var i in Skills) i.OnDiscard();
+        Skills.Clear();
     }
     private void Update()
     {
@@ -52,12 +70,13 @@ public class TargetSkillController : MonoBehaviour
         if (target.SkillLock.LockedInHierechy)
         {
             UseSkillCommandBuffer.Clear();
-            return;
         }
-
-        foreach (var i in UseSkillCommandBuffer)
+        else
         {
-            if(UseSkill(i))break;
+            foreach (var i in UseSkillCommandBuffer)
+            {
+                if (UseSkill(i)) break;
+            }
         }
         UseSkillCommandBuffer.Clear();
     }
@@ -67,7 +86,8 @@ public class TargetSkillController : MonoBehaviour
     }
     public bool UseSkill(int x)
     {
-        if (SkillLock.LockedInHierechy) return false; 
+        if (SkillLock.LockedInHierechy) return false;
+        if (x >= Skills.Count) return false;
         var s = Skills[x];
         if (!s.CanUse()) return false;
         var skill = VarietyManager.GetSkill(s.SkillIndex);

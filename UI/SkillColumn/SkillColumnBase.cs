@@ -39,4 +39,8 @@ public abstract class SkillBaseController
     {
 
     }
+    public virtual void OnDiscard()
+    {
+
+    }
 }

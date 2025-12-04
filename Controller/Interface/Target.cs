@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Variety.Base;
-using static UnityEngine.UI.GridLayoutGroup;
-using static WorldTextController;
 
 /// <summary>
 /// ÐèÒªÌí¼ÓTargetDataSync,TargetControllerSync
@@ -64,7 +62,7 @@ public abstract class Target : MonoBehaviour
         Level = info.level;
         Owner= info.owner;
         Name = info.name;
-        transform.position = info.spawnPos;
+        transform.position = Tool.SceneController.Level.GetPos(info.spawnPos);
         InitNameAndBar();
 
         TimeLineWork = gameObject.AddComponent<TimeLineWork>();

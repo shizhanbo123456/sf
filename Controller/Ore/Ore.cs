@@ -14,7 +14,7 @@ public class Ore : Target
         if (UpdateLocally)
         {
             var att = Tool.AttributesManager.GetDynamicAttribute(this);
-            BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
+            BaseAttributes = att.GetDynamicAttributes(info.level);
             FloatingAttributes = BaseAttributes.Clone();
             RegistSyncAttributes();
         }
@@ -57,12 +57,5 @@ public class Ore : Target
             }
         }
         return r;
-    }
-    public static List<Ore> OreHealthRate(out int maxEach)
-    {
-        maxEach = Tool.AttributesManager.GetDynamicAttribute(Ores.First().Value).
-            GetDynamicAttributes(Tool.AttributesManager.GetLevel()).Shengming.Value;
-        if (Ores.Count == 0) return null;
-        return Ores.Values.ToList();
     }
 }

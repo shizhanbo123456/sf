@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class PlayerData : Target
 {
+    public static Dictionary<int, PlayerData> Players = new Dictionary<int, PlayerData>();
     public bool isLocalPlayer => FightController.localPlayerId == Owner;
     public override bool UpdateLocally => isLocalPlayer;
 
@@ -34,7 +35,7 @@ public class PlayerData : Target
 
         if (isLocalPlayer)
         {
-            bar = Tool.Instance.CreateBar();
+            bar = Tool.PageManager.PlayModePage.CreateBar();
             bar.SetScale(1f);
             bar.SetColor(new Color(1f, 0.4f, 0.4f, 1f));
 
@@ -48,6 +49,20 @@ public class PlayerData : Target
     private void UpdateBar()
     {
         bar.SetValue(FloatingAttributes.Shengming.Value, BaseAttributes.Shengming.Value);
+    }
+    protected override void RegistOnCreated()
+    {
+        base.RegistOnCreated();
+        Players.Add(ObjectId, this);
+    }
+    protected override void RegistOnDestroy()
+    {
+        base.RegistOnDestroy();
+        Players.Remove(ObjectId);
+        if (bar != null)
+        {
+            Tool.PageManager.PlayModePage.DestroyBar(bar);
+        }
     }
     protected override bool DamageByBullet(Bullet b)
     {
@@ -64,7 +79,7 @@ public class PlayerData : Target
     {
         Tool.FightController.OnDeathRpc(Camp, ((t!=null&&t is PlayerData)?t.Camp:9));
         Shengming = BaseAttributes.Shengming.Value;
-        transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
+        //transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
         Tool.UIEventCenter.TrigEvent(new ShowKilledSignalEvent());
     }
 }

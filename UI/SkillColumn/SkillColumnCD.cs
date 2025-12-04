@@ -43,12 +43,12 @@ public class SkillCDController : SkillBaseController
         storeTime -= 1f;
         base.OnUse();
     }
-    public static SkillBaseController Create(int index,Target t, float cd)
+    public static SkillBaseController Create(int index,Target t, float cd,bool createUI)
     {
         var r = new SkillCDController();
         r.target = t;
         r.SkillIndex= index;
-        if (t && t is PlayerData p)
+        if (createUI&&t && t is PlayerData p)
         {
             r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.CD) as SkillColumnCD;
             r.skill.SetSprite(Tool.SpriteManager.GetSprite(VarietyManager.GetSkill(index).sprite));
@@ -56,5 +56,9 @@ public class SkillCDController : SkillBaseController
         r.cd = cd;
         r.storeTime = 1;
         return r;
+    }
+    public override void OnDiscard()
+    {
+        if (skill != null) Tool.PageManager.PlayModePage.DestroySkillColumn(skill);
     }
 }

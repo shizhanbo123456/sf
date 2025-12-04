@@ -138,7 +138,7 @@ public class EnsClientEventRegister
                 var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
                 int id = int.Parse(s[0]);
                 //string func = s[1];
-                EnsSpawner obj = EnsInstance.NOMSpawner;
+                EnsSpawner obj = EnsInstance.EnsSpawner;
                 int idStart = int.Parse(s[s.Count - 1]);
                 string param = s[3];
                 obj.Create(param, idStart);

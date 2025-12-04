@@ -51,7 +51,7 @@ public class NonSkillPlayerData : EnsBehaviour
         Tool.SceneController.Player = gameObject;
         CameraInstance.instance.Init(transform);
 
-        transform.position = Tool.SceneController.Level.GetSpawnPlace();
+        //transform.position = Tool.SceneController.Level.GetSpawnPlace();
 
         Initialized = true;
 

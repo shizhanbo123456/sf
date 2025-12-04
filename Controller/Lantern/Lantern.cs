@@ -23,9 +23,9 @@ public class Lantern : Target
         if (UpdateLocally)
         {
             var att = Tool.AttributesManager.GetDynamicAttribute(this) as LanternAttributes;
-            BaseAttributes = att.GetDynamicAttributes(Tool.AttributesManager.GetLevel());
+            BaseAttributes = att.GetDynamicAttributes(info.level);
             FloatingAttributes = BaseAttributes.Clone();
-            RegenerationTime = att.RegenerationTime.GetValue(Tool.AttributesManager.GetLevel());
+            RegenerationTime = att.RegenerationTime.GetValue(info.level);
 
             RegistSyncAttributes();
         }

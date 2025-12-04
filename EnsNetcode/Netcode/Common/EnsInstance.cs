@@ -8,7 +8,7 @@ public class EnsInstance
 {
 #if UNITY_2017_1_OR_NEWER
     public static EnsCorrespondent Corr;
-    public static EnsSpawner NOMSpawner;
+    public static EnsSpawner EnsSpawner;
 #endif
 
     public static int LocalClientId = -1;

@@ -48,7 +48,7 @@ public class Monster : Target
     protected override void InitNameAndBar()
     {
         graphic.SetName(string.Empty);
-        Bar = Tool.Instance.CreateBossBar();
+        Bar = Tool.PageManager.PlayModePage.CreateBossBar();
         Bar.Init(Name, LayerMax, Shengming);
     }
     protected override void RegistSyncAttributes()
@@ -66,7 +66,7 @@ public class Monster : Target
         base.RegistOnDestroy();
         if (Bar != null)
         {
-            Bar.SetValue(0,BaseAttributes.Shengming.Value,LayerMax);
+            Tool.PageManager.PlayModePage.DestroyBossBar(Bar);
         }
         Monsters.Remove(ObjectId);
     }

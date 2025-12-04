@@ -59,7 +59,7 @@ public class CircularQueue<T>
             return true;
         }
     }
-    public bool Read(out T data)//返回表示是否为有效数据
+    public bool Read(out T data,bool removeAfterRead=true)//返回表示是否为有效数据
     {
         if (Empty())
         {
@@ -69,6 +69,23 @@ public class CircularQueue<T>
         else
         {
             data = x[r];
+            if (removeAfterRead)
+            {
+                x[r] = default;
+                ReadIndex += 1;
+                Count--;
+            }
+            return true;
+        }
+    }
+    public bool RemoveNext()
+    {
+        if (Empty())
+        {
+            return false;
+        }
+        else
+        {
             x[r] = default;
             ReadIndex += 1;
             Count--;
