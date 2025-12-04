@@ -9,26 +9,20 @@ public class ServerDataContainer
     {
         public int id;
         public string name;
-        public int vocation;
-        public int camp;
-        public PlayerDataContainer(int id, string name, int vocation, int camp)
+        public PlayerDataContainer(int id, string name)
         {
             this.id = id;
             this.name = name;
-            this.vocation = vocation;
-            this.camp = camp;
         }
         public PlayerDataContainer(string data)
         {
             var s = data.Split('+', System.StringSplitOptions.RemoveEmptyEntries);
             id = int.Parse(s[0]);
             name = s[1];
-            vocation = int.Parse(s[2]);
-            camp = int.Parse(s[3]);
         }
         public override string ToString()
         {
-            return $"{id}+{name}+{vocation}+{camp}";
+            return $"{id}+{name}";
         }
     }
 

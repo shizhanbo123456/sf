@@ -10,13 +10,20 @@ public static class CustomLevel
 
     public static bool Initialized = false;
 
-    public static List<string> LevelPath;
-    private static float StartTime = 0;
+    public static string[] LevelPath;
+    public static string LevelPathJoined=>Format.ArrayToString(LevelPath,'-').Trim('-');
 
-    private static LuaFunction ProcessCampDataFunction;
-    private static LuaFunction FightStartFunction;
-    private static LuaFunction UpdateFunction;
-    private static LuaFunction JudgeEndFunction;
+    private static LuaFunction FightStartFunction;//0
+    private static LuaFunction UpdateFunction;//float float
+    private static LuaFunction JudgeEndFunction;//0->bool
+    private static LuaFunction KillScoreFunction;//0->int
+    private static LuaFunction TimeScoreFunction;//0->int
+    private static LuaFunction ModeScoreFunction;//0->int
+    private static LuaFunction ReleaseDataFunction;//0
+
+
+    private static float StartTime = 0f;
+    public static float FightTime => Time.time - StartTime;
 
     public static bool CreateCustomLevel(string lua)
     {
@@ -25,10 +32,16 @@ public static class CustomLevel
         try
         {
             luaEnv.DoString(LuaText);
-            ProcessCampDataFunction = luaEnv.Global.Get<LuaFunction>("ProcessCampData");
+
+            LevelPath = luaEnv.Global.Get<string>("LevelPath").Split('-');
+
             FightStartFunction = luaEnv.Global.Get<LuaFunction>("FightStart");
             UpdateFunction = luaEnv.Global.Get<LuaFunction>("Update");
             JudgeEndFunction = luaEnv.Global.Get<LuaFunction>("JudgeEnd");
+            KillScoreFunction = luaEnv.Global.Get<LuaFunction>("KillScore");
+            TimeScoreFunction = luaEnv.Global.Get<LuaFunction>("TimeScore");
+            ModeScoreFunction = luaEnv.Global.Get<LuaFunction>("ModeScore");
+            ReleaseDataFunction = luaEnv.Global.Get<LuaFunction>("ReleaseData");
         }
         catch
         {
@@ -41,11 +54,6 @@ public static class CustomLevel
     public static string GetLuaText()
     {
         return LuaText;
-    }
-    public static bool ProcessCampData(Dictionary<int,int>campData,out string msg)
-    {
-        msg=ProcessCampDataFunction.Func<int[], string>(campData.Values.ToArray());
-        return msg == string.Empty;
     }
     public static void OnFightStart()
     {
@@ -61,12 +69,27 @@ public static class CustomLevel
     {
         return JudgeEndFunction.Func<int,bool>(0);
     }
-
+    public static void FigureScore(out int killScore,out int timeScore,out int challengeScore)
+    {
+        killScore=KillScoreFunction.Func<int, int>(0);
+        timeScore=TimeScoreFunction.Func<int, int>(0);
+        challengeScore = ModeScoreFunction.Func<int, int>(0);
+    }
+    public static void ReleaseData()
+    {
+        try
+        {
+            ReleaseDataFunction.Action(0);
+        }
+        catch
+        {
+            Debug.LogError("πÿø® Õ∑≈“Ï≥£");
+        }
+    }
     public static void Dispose()
     {
         Initialized = false;
 
-        ProcessCampDataFunction?.Dispose();
         FightStartFunction?.Dispose();
         UpdateFunction?.Dispose();
         JudgeEndFunction?.Dispose();

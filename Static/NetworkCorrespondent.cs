@@ -24,7 +24,7 @@ public class NetworkCorrespondent : EnsBehaviour
             DeleteData(id);
             Debug.Log("id为" + id + "的玩家断开连接");
             if (Tool.SceneController.NonSkillPlayers.ContainsKey(id)) Tool.SceneController.NonSkillPlayers[id].DestroyLocal();
-            if (Tool.SceneController.Players.ContainsKey(id)) Tool.SceneController.Players[id].targetDataSync.DestroyLocal();
+            Tool.SceneController.DestroyTargetByOwner(id);
         };
         //离开房间重置场景
         EnsInstance.OnExitRoom += RestartGame;
@@ -71,13 +71,11 @@ public class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyLevel();
         Tool.SceneController.DestroyPlayer();
         Tool.PageManager.TurnPage(PageManager.PageType.Prepare);
-        Tool.SceneController.CreateLevel(SceneController.LevelType.Prepare);
+        Tool.SceneController.CreateLevel(Level.LevelType.Prepare);
 
         var player = new ServerDataContainer.PlayerDataContainer(
             EnsInstance.LocalClientId,
-            PlayerInfo.Name,
-            PlayerInfo.Vocation,
-            0
+            PlayerInfo.Name
             );
         CallFuncRpc(nameof(RecvData), SendTo.RoomOwner, player.ToString(),KeyLibrary.KeyFormatType.Nonsequential);
         Tool.FightController.ModeList = Tool.FightController.ModeList;
@@ -114,9 +112,9 @@ public class NetworkCorrespondent : EnsBehaviour
         yield return 3;
         foreach (var i in Tool.SceneController.NonSkillPlayers.Values)
         {
-            EnsInstance.NOMSpawner.RespawnCheckServerRpc(i.GetComponent<NonSkillPlayerCollection>(), i.id.ToString(),KeyLibrary.KeyFormatType.Timewise);
+            EnsInstance.EnsSpawner.RespawnCheckServerRpc(i.GetComponent<NonSkillPlayerCollection>(), i.id.ToString(),KeyLibrary.KeyFormatType.Timewise);
         }
-        EnsInstance.NOMSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.NOMCollectionId, SendTo.Everyone,
+        EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, SendTo.Everyone,
             playerData.id.ToString(),KeyLibrary.KeyFormatType.Timewise);
     }
 
@@ -147,7 +145,7 @@ public class NetworkCorrespondent : EnsBehaviour
             Debug.LogError("未找到id为" + id + "的信息");
             return;
         }
-        ServerDataContainer.Set(new ServerDataContainer.PlayerDataContainer(p.id, p.name, p.vocation, camp));
+        ServerDataContainer.Set(new ServerDataContainer.PlayerDataContainer(p.id, p.name));
     }
 
 
@@ -156,19 +154,7 @@ public class NetworkCorrespondent : EnsBehaviour
     #region//开始战斗
     public void StartFight()//(id,camp)
     {
-        Dictionary<int, int> campData = new Dictionary<int, int>();
-        foreach(var i in ServerDataContainer.GetAllValues())
-        {
-            campData.Add(i.id, i.camp);
-        }
-        if (!Tool.SceneController.GetLevel(Tool.SceneController.ModeToLevel(Tool.FightController.ModeList)).ProcessCampData(campData)) return;
-        
         CallFuncRpc(nameof(ControllerStartFight), SendTo.Everyone, KeyLibrary.KeyFormatType.Timewise);
-
-        foreach(var i in ServerDataContainer.GetAllValues())
-        {
-            EnsInstance.NOMSpawner.CreateServerRpc(Tool.PrefabManager.NetPlayerCollection.NOMCollectionId, SendTo.Everyone, i.ToString(), KeyLibrary.KeyFormatType.Timewise);
-        }
     }
     private void ControllerStartFight()
     {
@@ -187,14 +173,14 @@ public class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyAllTargetsLocal();
         Tool.SceneController.DestroyLevel();
 
-        Tool.SceneController.CreateLevel(SceneController.LevelType.Prepare);
+        Tool.SceneController.CreateLevel(Level.LevelType.Prepare);
         Tool.PageManager.TurnPage(PageManager.PageType.Prepare);
     }
     private void LateBackToPrepare()
     {
         foreach (var i in ServerDataContainer.GetAllValues())
         {
-            EnsInstance.NOMSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.NOMCollectionId, SendTo.Everyone, i.id.ToString(),KeyLibrary.KeyFormatType.Nonsequential);
+            EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, SendTo.Everyone, i.id.ToString(),KeyLibrary.KeyFormatType.Nonsequential);
         }
     }
     #endregion
@@ -214,12 +200,11 @@ public class NetworkCorrespondent : EnsBehaviour
 
 
         Tool.SceneController.DestroyLevel();
-        Tool.SceneController.DestroyPlayer();
         Tool.SceneController.DestroyNonSkillPlayer();
         Tool.SceneController.DestroyAllTargetsLocal();
 
         Tool.PageManager.TurnPage(PageManager.PageType.Home);
-        Tool.SceneController.CreateLevel(SceneController.LevelType.Home);
+        Tool.SceneController.CreateLevel(Level.LevelType.Home);
         Tool.SceneController.CreateUnnetPlayer();
 
         restarting = false;

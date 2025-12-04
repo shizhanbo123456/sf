@@ -4,18 +4,21 @@ using Utils;
 
 namespace ProtocolWrapper
 {
-    public class Format
+    public static class Format
     {
         private const char DataSeparator = '*';
+
+        private static StringBuilder sb=new();
         //Wrapper
-        public static string Combine(CircularQueue<string> origin)
+        public static string Combine(CircularQueue<string> origin,int maxLength=1400)
         {
             if (origin.Empty())
             {
                 Debug.Log("传入了空的原始数据");
                 return null;
             }
-            var result = new StringBuilder();
+            var result = sb;
+            sb.Clear();
             bool isFirst = true;
             int length = 0;
             while (!origin.Empty())
@@ -23,13 +26,12 @@ namespace ProtocolWrapper
                 if (!isFirst) result.Append(DataSeparator);
                 else isFirst = false;
 
-                origin.Read(out string item);
-                result.Append(item);
-                length = item.Length;
-                if (length > 1400)
+                origin.Read(out string item,false);
+                length += item.Length;
+                if (length <= maxLength)
                 {
-                    Debug.LogError("检查到过长的数据 " + result.ToString());
-                    break;
+                    result.Append(item);
+                    origin.RemoveNext();
                 }
             }
 

@@ -22,16 +22,9 @@ public class AttributesManager : MonoBehaviour
     {
         if (data == null) return PlayerDefault;
         if(data is PlayerData)return PlayerBattle;
-        if(data is Monster m)
-        {
-            return MonsterDefault;
-        }
-        if(data is Lantern)return LanternDefault;
+        if(data is Monster m) return MonsterDefault;
+        if (data is Lantern)return LanternDefault;
         if (data is Ore) return OreDefault;
         return null;
-    }
-    public int GetLevel()
-    {
-        return ModeManifest.GetLevel(Tool.FightController.ModeList);
     }
 }

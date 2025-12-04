@@ -33,10 +33,10 @@ public class Settlement : MonoBehaviour
     public Transform PSum;
     public GameObject Camera;
 
-    public void Settle(int mode,int score1,int score2,int score3)
+    public void Settle(int score1,int score2,int score3)
     {
         gameObject.SetActive(true);
-        ModeName.text = ModeManifest.ModeName(mode);
+        ModeName.text = CustomLevel.LevelPathJoined;
         Score1.text = score1.ToString();
         Score2.text = score2.ToString();
         Score3.text = score3.ToString();

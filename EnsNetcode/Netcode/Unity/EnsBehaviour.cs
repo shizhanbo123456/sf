@@ -79,6 +79,7 @@ public abstract class EnsBehaviour : MonoBehaviour
     {
         //foreach (var i in collection.Behaviors) i.NOMOnDestroy();//物体管理器移除物体+人为分配id移除物体
         if (collection != null) Destroy(collection.gameObject);
+        else Destroy(gameObject);
     }
     /// <summary>
     /// 需要发送数据时，在此Update中使用，减少调用到传输的延迟<br></br>

@@ -1,14 +1,10 @@
 using EC;
-using SF.UI.Bar;
-using SF.UI.Skill;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
-using static PlayModePage;
 
 public class Tool:MonoBehaviour
 {
@@ -58,43 +54,6 @@ public class Tool:MonoBehaviour
             Notice.ShowMesg("Á¬½ÓÊ§°Ü");
         };
     }
-
-
-
-
-    public enum State
-    {
-        Home,Test,Play,SkillChoose,Prepare,BossSelection,PVESelection
-    }
-    public State PresentState
-    {
-        get { return (State)(int)PageManager.PresentPageType; }
-    }
-
-
-    public BarBase CreateBar()
-    {
-        return PageManager.PlayModePage.CreateBar();
-    }
-    public BossBar CreateBossBar()
-    {
-        return PageManager.PlayModePage.CreateBossBar();
-    }
-    public void DestroyAllBars()
-    {
-        foreach (var i in PageManager.PlayModePage.BarList.Bars) Destroy(i.gameObject);
-        PageManager.PlayModePage.BarList.Bars.Clear();
-    }
-    public void DestroyAllSkillColumns()
-    {
-        Transform t= PageManager.PlayModePage.SkillColumn;
-        int m = t.childCount;
-        for (int i = m - 1; i >= 0; i--)
-        {
-            Destroy(t.GetChild(i).gameObject);
-        }
-    }
-
 
 
 

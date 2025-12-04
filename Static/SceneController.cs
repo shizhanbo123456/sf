@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Level;
 
 public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿ØÖÆ
 {
@@ -14,12 +15,6 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
         CreateUnnetPlayer();
     }
 
-
-    public enum LevelType
-    {
-        Home,Prepare,Luandou,Gongfang,
-        PVE1
-    }
     public GameObject Player;
     public Level Level;
     [Space]
@@ -28,21 +23,16 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
 
 
     //¶Ï¿ªÁ¬½ÓÊ±£¬Corr»á×Ô¶¯¸ù¾ÝidÒÆ³ý·ÀÖ¹null
-    public Dictionary<int,PlayerData>Players=new Dictionary<int,PlayerData>();
     public Dictionary<int, Dictionary<int, Target>> Targets = new Dictionary<int, Dictionary<int, Target>>();
     public void OnTargetPostcreated(Target target)
     {
         if(!Targets.ContainsKey(target.Camp))Targets.Add(target.Camp, new Dictionary<int, Target>());
         Targets[target.Camp].Add(target.ObjectId, target);
-
-        if (target is PlayerData p) if (!Players.ContainsKey(p.Owner)) Players.Add(p.Owner,target as PlayerData);
     }
     public void OnTargetPredestroy(Target target)
     {
         if (Targets[target.Camp].ContainsKey(target.ObjectId))Targets[target.Camp].Remove(target.ObjectId);
         if (Targets[target.Camp].Count==0)Targets.Remove(target.Camp);
-
-        if (target is PlayerData p) if(Players.ContainsKey(p.Owner))Players.Remove(p.Owner);
     }
     public Target GetTarget(int id)
     {
@@ -57,6 +47,12 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
         if (Targets.ContainsKey(camp) && Targets[camp].ContainsKey(id)) return Targets[camp][id];
         return null;
     }
+    public void DestroyTargetByOwner(int ownerId)
+    {
+        List<Target> toDetroy = new List<Target>();
+        foreach (var c in Targets.Values) foreach (var t in c.Values) if (t.Owner == ownerId) toDetroy.Add(t);
+        foreach (var i in toDetroy) i.targetDataSync.DestroyLocal();
+    }
 
     public void CreateUnnetPlayer()
     {
@@ -64,7 +60,7 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
         if (Level == null) Player.transform.position = new Vector3();
         else
         {
-            Player.transform.position = Level.GetSpawnPlace();
+            //Player.transform.position = Level.GetSpawnPlace();
         }
     }
     public void DestroyPlayer()
@@ -74,10 +70,6 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     public void DestroyNonSkillPlayer()
     {
         foreach (var i in NonSkillPlayers.Values) i.DestroyLocal();
-    }
-    public void DestroyNetPlayer()
-    {
-        foreach (var i in Players.Values) i.targetDataSync.DestroyLocal();
     }
 
     public void DestroyAllTargetsLocal()
@@ -100,24 +92,7 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     }
     public void CreateLevel(LevelType type)
     {
-        Level = Instantiate(GetLevel(type).gameObject).GetComponent<Level>();
-    }
-    public Level GetLevel(LevelType type)
-    {
-        Level level = null;
-        switch (type)
-        {
-            case LevelType.Home: level = Tool.PrefabManager.Home; break;
-            case LevelType.Prepare: level = Tool.PrefabManager.Prepare; break;
-            case LevelType.Luandou: level = Tool.PrefabManager.Battle; break;
-            case LevelType.Gongfang: level = Tool.PrefabManager.Guard; break;
-        }
-        if (level == null)
-        {
-            level = Tool.PrefabManager.LevelPVE[(int)type - (int)LevelType.PVE1];
-        }
-        if (level == null) Debug.LogError("Î´ÕÒµ½¹Ø¿¨");
-        return level;
+        Level = Instantiate(Tool.PrefabManager.GetLevel(type).gameObject).GetComponent<Level>();
     }
     public void DestroyLevel() 
     {

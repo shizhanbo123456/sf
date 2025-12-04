@@ -24,15 +24,4 @@ public class PlayerInfoViewModel:Singleton<PlayerInfoViewModel>
         }
     }
     public Action<int> OnPlayerIdChanged;
-    public int Vocation
-    {
-        get => PlayerInfo.Vocation;
-        set
-        {
-            PlayerInfo.Vocation = value;
-            Tool.FileManager.WriteData();
-            OnVocationChanged.Invoke(Vocation);
-        }
-    }
-    public Action<int> OnVocationChanged;
 }

@@ -14,9 +14,9 @@ namespace Variety.Template
         public SkillNonCD():base()
         { 
         }
-        public override SkillBaseController CreateSkillColumn(Target t)
+        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
         {
-            return SkillNonCDController.Create(GetHashCode(),t);
+            return SkillNonCDController.Create(GetHashCode(),t,createUI);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -39,9 +39,9 @@ namespace Variety.Template
         public SkillCD():base()
         { 
         }
-        public override SkillBaseController CreateSkillColumn(Target t)
+        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
         {
-            return SkillCDController.Create(GetHashCode(),t, CD);
+            return SkillCDController.Create(GetHashCode(),t, CD,createUI);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -65,9 +65,9 @@ namespace Variety.Template
         public SkillStorable() : base()
         {
         }
-        public override SkillBaseController CreateSkillColumn(Target t)
+        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
         {
-            return SkillStorableController.Create(GetHashCode(),t,MaxstoreTime,CD);
+            return SkillStorableController.Create(GetHashCode(),t,MaxstoreTime,CD,createUI);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -89,9 +89,9 @@ namespace Variety.Template
         public SkillBoss() : base()
         {
         }
-        public override SkillBaseController CreateSkillColumn(Target t)
+        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
         {
-            return SkillCDController.Create(GetHashCode(), t, cd);
+            return SkillCDController.Create(GetHashCode(), t, cd,createUI);
         }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {

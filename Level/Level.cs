@@ -5,6 +5,11 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
+    public enum LevelType
+    {
+        Home, Prepare, Luandou, Gongfang,
+        PVE1, PVE2, PVE3, PVE4, PVE5, PVE6, PVE7
+    }
     [Header("Scaler")]
     [SerializeField]private float size=10;
     [SerializeField]private Vector2 offset = Vector2.zero;
@@ -12,35 +17,12 @@ public class Level : MonoBehaviour
     private static readonly float widthfactor = 2f;
     private static readonly float heightfactor = 1f;
     [Header("Common")]
-    public List<Transform> SpawnPlace = new List<Transform>();
     public Transform Canvas;
-    public List<Transform> Anchors = new List<Transform>();
+    [SerializeField]private Transform AnchorLB;
+    [SerializeField]private Transform AnchorRT;
     [Space]
     [Header("Background")]
     public Color BgColor = new Color(183f / 255, 243f / 255, 237f / 255, 1);
-    [Space]
-    [Header("SpawnHandles")]
-    public List<OreSpawnHandle>OreSpawnHandles = new List<OreSpawnHandle>();
-    public List<LanternSpawnHandle> LanternSpawnHandles = new List<LanternSpawnHandle>();
-    public List<MonsterSpawnHandle>MonsterSpawnHandles = new List<MonsterSpawnHandle>();
-
-    protected int mode
-    {
-        get
-        {
-            return Tool.FightController.ModeList[0]-'0';
-        }
-    }
-    protected int submode
-    {
-        get
-        {
-            return Tool.FightController.ModeList[1]-'0';
-        }
-    }
-    protected List<int> KillCount=>Tool.FightController.KillCount;
-    protected List<int> KilledCount=> Tool.FightController.KilledCount;
-    protected float TimeUsed=> Tool.FightController.FightTimeCount;
 
     private void OnDrawGizmos()
     {
@@ -74,57 +56,19 @@ public class Level : MonoBehaviour
         }
         Tool.BackgroundController.UpdateColor(BgColor);
     }
+
+    public Vector3 GetPos(Vector2 pos)
+    {
+        float x = Mathf.Clamp01(pos.x);
+        float y= Mathf.Clamp01(pos.y);
+        return new Vector3(
+            Mathf.Lerp(AnchorLB.position.x, AnchorRT.position.x, x), 
+            Mathf.Lerp(AnchorLB.position.y, AnchorRT.position.y, y));
+    }
+
+
     void OnDestroy()
     {
         StopAllCoroutines();
-    }
-
-    //在每个客户端调用
-    public virtual void OnFightStart()
-    {
-        Tool.ScoreboardController.InitScoreboard();
-        if (FightController.localPlayerId != 0) return;
-        StartCoroutine(SpawnHandles());
-    }
-    public virtual void OnEndFight()
-    {
-        Tool.ScoreboardController.CloseScoreBoard();
-        StopAllCoroutines();
-    }
-    private IEnumerator SpawnHandles()
-    {
-        yield return new WaitForSeconds(1);
-        foreach (var i in OreSpawnHandles) i.Spawn();
-        yield return new WaitForSeconds(0.5f);
-        foreach (var i in LanternSpawnHandles) i.Spawn();
-        yield return new WaitForSeconds(0.5f);
-        foreach (var i in MonsterSpawnHandles) i.Spawn();
-    }
-    
-
-
-
-    public Vector3 GetSpawnPlace()
-    {
-        return SpawnPlace[UnityEngine.Random.Range(0, SpawnPlace.Count)].position;
-    }
-    public virtual Vector3 GetSpawnPlace(Target data)
-    {
-        return SpawnPlace[UnityEngine.Random.Range(0,SpawnPlace.Count)].position;
-    }
-
-    public virtual bool ProcessCampData(Dictionary<int,int> data)
-    {
-        return true;
-    }
-    public virtual Func<bool> GetEndCondition()
-    {
-        return ()=> { return false; };
-    }
-    public virtual void CalculateScore(out int killscore,out int alivescore,out int score)
-    {
-        killscore = 0;
-        alivescore = 0;
-        score = 0;
     }
 }

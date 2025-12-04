@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class EnsBehaviourCollection : MonoBehaviour
 {
-    public int NOMCollectionId;
+    [HideInInspector]public int CollectionId;
     [Space]
     public List<EnsBehaviour> Behaviors = new List<EnsBehaviour>();
     public int Count

@@ -8,7 +8,6 @@ public class PageManager : MonoBehaviour
     public HomePage HomePage;
     public PreparePage PreparePage;
     public PlayModePage PlayModePage;
-    public VocationSelectionPage VocationSelectionPage;
     [Space]
     public Canvas Canvas;
     public Text Version;
@@ -18,11 +17,11 @@ public class PageManager : MonoBehaviour
     private BasePage PresentPage;
     public List<BasePage> Pages => new List<BasePage>()
     {
-        HomePage,PreparePage,PlayModePage,VocationSelectionPage
+        HomePage,PreparePage,PlayModePage
     };
     public enum PageType
     {
-        Home, Prepare, PlayMode, VocationSelection
+        Home, Prepare, PlayMode
     }
     public PageType PresentPageType;
     private void Awake()

@@ -37,16 +37,20 @@ public class SkillNonCDController : SkillBaseController
     {
         base.OnUse();
     }
-    public static SkillBaseController Create(int index,Target t)
+    public static SkillBaseController Create(int index,Target t,bool createUI)
     {
         var r = new SkillNonCDController();
         r.target = t;
         r.SkillIndex = index;
-        if (t && t is PlayerData p)
+        if (createUI&&t && t is PlayerData p)
         {
             r.skill = Tool.PageManager.PlayModePage.CreateSkillColumn(PlayModePage.SkillColumnType.NonCD) as SkillColumnNonCD;
             r.skill.SetSprite(Tool.SpriteManager.GetSprite(VarietyManager.GetSkill(index).sprite));
         }
         return r;
+    }
+    public override void OnDiscard()
+    {
+        if (skill != null) Tool.PageManager.PlayModePage.DestroySkillColumn(skill);
     }
 }

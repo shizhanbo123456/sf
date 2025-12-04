@@ -24,7 +24,7 @@ public class PreparePage : BasePage
     {
         Tool.FightController.OnModeListChange(s =>
         {
-            Tool.PageManager.PreparePage.Mode.text = ModeManifest.ModeListToString(s);
+            Tool.PageManager.PreparePage.Mode.text = CustomLevel.LevelPathJoined;
         });
         EnsInstance.OnAuthorityChanged += () =>
         {
@@ -116,7 +116,6 @@ public class PreparePage : BasePage
     public void ExitSettingsPanel()
     {
         SettingsPanel.SetActive(false);
-        Tool.NetworkCorrespondent.ChangeCamp(EnsInstance.LocalClientId, CampSelected.Choosed);
         if (EnsInstance.HasAuthority)
         {
             if (RoomNameInput.text.Length < 1 || RoomNameInput.text.Length > 8)

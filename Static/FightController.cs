@@ -1,9 +1,6 @@
-using AttributeSystem.Attributes;
-using ModeTree;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class FightController : EnsBehaviour
@@ -58,14 +55,6 @@ public class FightController : EnsBehaviour
 
     private Func<bool> JudgeEnd;
 
-    private Level Level
-    {
-        get
-        {
-            return Tool.SceneController.Level;
-        }
-    }
-
 
     [HideInInspector]public bool Fighting = false;
     [HideInInspector]public float FightTimeCount;
@@ -85,9 +74,9 @@ public class FightController : EnsBehaviour
         KillCount = new List<int>() { 0,0,0,0};
         KilledCount = new List<int>() { 0,0,0,0};
         Fighting = true;
-        timeCount = -5;
-        JudgeEnd = Level.GetEndCondition();
-        Level.OnFightStart();
+        timeCount = -10;
+        JudgeEnd = CustomLevel.JudgeEnd;
+        Tool.ScoreboardController.InitScoreboard();
     }
     private void EndFightRpc()
     {
@@ -97,34 +86,25 @@ public class FightController : EnsBehaviour
     private void EndFightLocal()
     {
         StopFight();
-        Level.CalculateScore(out int killscore, out int alivescore, out int score);
-        Tool.PageManager.PlayModePage.settlement.Settle(modeList.Value[0] - '0', killscore, alivescore, score);
+        int killscore = 0;
+        int timescore = 0;
+        int challengescore = 0;
+        try
+        {
+            CustomLevel.FigureScore(out killscore, out timescore, out challengescore);
+        }
+        catch
+        {
+            killscore = 0;
+            timescore = 0;
+            challengescore = 0;
+        }
+        Tool.PageManager.PlayModePage.settlement.Settle(killscore, timescore, challengescore);
     }
-    public void StopFight()//立即停止，不结算，保留关卡和角色
+    public void StopFight()//立即停止，不结算，保留关卡
     {
         Fighting = false;
-        Level.OnEndFight();
-        Tool.Instance.DestroyAllBars();
-        Tool.Instance.DestroyAllSkillColumns();
-
-        List<Ore> orelist = Ore.Ores.Values.ToList();
-        for (int index = 0; index < orelist.Count; index++)
-        {
-            Ore i = orelist[index];
-            i.targetDataSync.DestroyLocal();
-        }
-        List<Lantern> lanternlist = Lantern.Lanterns.Values.ToList();
-        for (int index = 0; index < lanternlist.Count; index++)
-        {
-            Lantern i = lanternlist[index];
-            i.targetDataSync.DestroyLocal();
-        }
-        List<Monster> monsterlist = Monster.Monsters.Values.ToList();
-        for (int index = 0; index < monsterlist.Count; index++)
-        {
-            Monster i = monsterlist[index];
-            i.targetDataSync.DestroyLocal();
-        }
+        Tool.ScoreboardController.CloseScoreBoard();
     }
 
 
@@ -160,7 +140,18 @@ public class FightController : EnsBehaviour
             return;
         }
         timeCount = 0;
-        if (JudgeEnd.Invoke()) EndFightRpc();
+
+        bool end = false;
+        try
+        {
+            end = JudgeEnd.Invoke();
+        }
+        catch
+        {
+            end = false;
+            Tool.Notice.ShowMesg("关卡结算异常");
+        }
+        if (end) EndFightRpc();
     }
     private void OnEnable()
     {

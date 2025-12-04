@@ -1,5 +1,4 @@
 using EC;
-using ModeTree;
 using SF.UI.Bar;
 using SF.UI.Skill;
 using System.Collections.Generic;
@@ -49,7 +48,7 @@ public class PlayModePage : BasePage
     public override void Enter()
     {
         foreach (var i in HostOnlyObjects) i.SetActive(FightController.localPlayerId == 0);
-        ModeName.text = ModeManifest.ModeName(Tool.FightController.ModeList[0]-'0');
+        ModeName.text = CustomLevel.LevelPathJoined;
         KilledSignalTimeLeft = 4;
         KilledSign.alpha = 0;
         SettingsOn = false;
@@ -125,6 +124,19 @@ public class PlayModePage : BasePage
         BarList.LayoutBars();
         return bar;
     }
+    public void DestroyBar(BarBase bar)
+    {
+        Destroy(bar.gameObject);
+        for (int i = 0; i < BarList.Bars.Count; i++)
+        {
+            if (BarList.Bars[i] == null)
+            {
+                BarList.Bars.RemoveAt(i);
+                break;
+            }
+        }
+        BarList.LayoutBars();
+    }
     public SkillColumnBase CreateSkillColumn(SkillColumnType type)
     {
         GameObject obj = Instantiate(Tool.PrefabManager.SkillColumns[(int)type], SkillColumn);
@@ -132,11 +144,23 @@ public class PlayModePage : BasePage
         _base.SetKey(PlayerSkillController.Keys[SkillColumn.childCount - 1]);
         return _base;
     }
+    public void DestroySkillColumn(SkillColumnBase column)
+    {
+        Destroy(column.gameObject);
+        for(int i = 0; i < SkillColumn.childCount; i++)
+        {
+            SkillColumn.GetChild(i).GetComponent<SkillColumnBase>().SetKey(PlayerSkillController.Keys[i]);
+        }
+    }
     public BossBar CreateBossBar()
     {
         GameObject obj = Instantiate(Tool.PrefabManager.BossBar, BossBarRoot);
         var bar = obj.GetComponent<BossBar>();
         return bar;
+    }
+    public void DestroyBossBar(BossBar bar)
+    {
+        Destroy(bar.gameObject);
     }
 }
 namespace EC
