@@ -5,11 +5,16 @@ using UnityEngine.UI;
 
 public class Scoreboard : MonoBehaviour
 {
-    public List<Text> Column0 = new List<Text>();
-    public List<Text> Column1 = new List<Text>();
+    [SerializeField]private List<Text> Column0 = new List<Text>();
+    [SerializeField]private List<Text> Column1 = new List<Text>();
 
-    public List<List<Text>> Data;
+    private List<List<Text>> Data;
 
+    private void OnEnable()
+    {
+        foreach (var i in Column0) i.text = "0";
+        foreach (var i in Column1) i.text = "0";
+    }
     public void SetText(int x, int y, string str)
     {
         if (Data == null) 

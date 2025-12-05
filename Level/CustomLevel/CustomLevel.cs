@@ -15,6 +15,7 @@ public static class CustomLevel
 
     private static LuaFunction FightStartFunction;//0
     private static LuaFunction UpdateFunction;//float float
+    private static LuaFunction TargetKilledFunction;//TargetInfo
     private static LuaFunction JudgeEndFunction;//0->bool
     private static LuaFunction KillScoreFunction;//0->int
     private static LuaFunction TimeScoreFunction;//0->int
@@ -36,6 +37,7 @@ public static class CustomLevel
             LevelPath = luaEnv.Global.Get<string>("LevelPath").Split('-');
 
             FightStartFunction = luaEnv.Global.Get<LuaFunction>("FightStart");
+            TargetKilledFunction = luaEnv.Global.Get<LuaFunction>("TargetKilled");
             UpdateFunction = luaEnv.Global.Get<LuaFunction>("Update");
             JudgeEndFunction = luaEnv.Global.Get<LuaFunction>("JudgeEnd");
             KillScoreFunction = luaEnv.Global.Get<LuaFunction>("KillScore");
@@ -60,6 +62,10 @@ public static class CustomLevel
         StartTime = Time.time;
         //创建关卡、角色、装载技能
         FightStartFunction.Action(0);
+    }
+    public static void TargetKilled(TargetInfo targetInfo)
+    {
+        TargetKilledFunction.Action(targetInfo);
     }
     public static void Update()
     {

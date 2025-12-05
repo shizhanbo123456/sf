@@ -82,14 +82,6 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
             }
         }
     }
-
-    public LevelType ModeToLevel(string modeList)
-    {
-        if (modeList[0] == '0') return LevelType.Luandou;
-        else if (modeList[0] == '1') return LevelType.Gongfang;
-        else if (modeList[0] == '2') return (LevelType)(int.Parse(modeList[1].ToString())+(int)LevelType.PVE1);
-        return default;
-    }
     public void CreateLevel(LevelType type)
     {
         Level = Instantiate(Tool.PrefabManager.GetLevel(type).gameObject).GetComponent<Level>();
@@ -97,5 +89,24 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     public void DestroyLevel() 
     {
         if (Level != null) Destroy(Level.gameObject);
+    }
+
+
+    private List<TargetInfo> KillerCommandBuffer = new List<TargetInfo>(10);
+    private List<TargetInfo>KilledCommandBuffer=new List<TargetInfo>(10);
+    private void Update()
+    {
+        if (KilledCommandBuffer.Count > 0)
+        {
+            foreach (var i in KilledCommandBuffer) CustomLevel.TargetKilled(i);
+            KilledCommandBuffer.Clear();
+        }
+        enabled= false;
+    }
+    public void RegistTargetKilled(Target killer,Target killed)
+    {
+        if(killer)KillerCommandBuffer.Add(killer.Info);
+        KilledCommandBuffer.Add(killed.Info);
+        enabled= true;
     }
 }

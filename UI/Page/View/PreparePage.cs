@@ -1,5 +1,4 @@
 using Ens.Request.Client;
-using ModeTree;
 using ProtocolWrapper;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,9 +21,9 @@ public class PreparePage : BasePage
 
     public override void RegistEvent()
     {
-        Tool.FightController.OnModeListChange(s =>
+        Tool.FightController.OnModeChange(s =>
         {
-            Tool.PageManager.PreparePage.Mode.text = CustomLevel.LevelPathJoined;
+            Tool.PageManager.PreparePage.Mode.text = s;
         });
         EnsInstance.OnAuthorityChanged += () =>
         {

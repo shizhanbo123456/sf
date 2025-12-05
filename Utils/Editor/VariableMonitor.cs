@@ -7,13 +7,6 @@ public class VariableMonitor : EditorWindow
     // 用于存储要监控的变量信息
     private Dictionary<string, System.Func<string>> monitoredVariables = new()
     {
-        { 
-            "模式",()=>
-            {
-                if(Tool.FightController==null)return "Uninitialized";
-                return Tool.FightController.ModeList;
-            }
-        }
     };
 
     // 窗口位置和大小记忆

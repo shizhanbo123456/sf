@@ -1,44 +1,48 @@
 using UnityEngine;
-
+public struct TargetInfo
+{
+    public int camp;
+    public int owner;
+    public int level;
+    public string name;
+    public Vector2 spawnPos;
+    public string label;
+    public TargetInfo(int camp, int owner, int level, string name, Vector2 spawnPos, string label = "")
+    {
+        this.camp = camp;
+        this.owner = owner;
+        this.level = level;
+        this.name = name;
+        this.spawnPos = spawnPos;
+        this.label = label;
+    }
+    public TargetInfo(string info)
+    {
+        string[] s = info.Split('/');
+        camp = int.Parse(s[0]);
+        owner = int.Parse(s[1]);
+        level = int.Parse(s[2]);
+        name = s[3];
+        spawnPos = new Vector2(float.Parse(s[4]), float.Parse(s[5]));
+        if (s.Length > 6) label = s[6];
+        else label = "";
+    }
+    public override string ToString()
+    {
+        var sb = Tool.stringBuilder;
+        sb.Clear();
+        sb.Append(camp).Append('/');
+        sb.Append(owner).Append('/');
+        sb.Append(level).Append('/');
+        sb.Append(name).Append('/');
+        sb.Append(spawnPos.x.ToString("F1")).Append('/');
+        sb.Append(spawnPos.y.ToString("F1"));
+        if (label != "") sb.Append('/').Append(label);
+        return sb.ToString();
+    }
+}
 public class CustomTargetCreater
 {
-    public struct TargetInfo
-    {
-        public int camp;
-        public int owner;
-        public int level;
-        public string name;
-        public Vector2 spawnPos;
-        public TargetInfo(int camp,int owner,int level,string name,Vector2 spawnPos)
-        {
-            this.camp = camp;
-            this.owner = owner;
-            this.level = level;
-            this.name = name;
-            this.spawnPos = spawnPos;
-        }
-        public TargetInfo(string info)
-        {
-            string[]s=info.Split('/');
-            camp=int.Parse(s[0]);
-            owner=int.Parse(s[1]);
-            level=int.Parse(s[2]);
-            name=s[3];
-            spawnPos = new Vector2(float.Parse(s[4]), float.Parse(s[5]));
-        }
-        public override string ToString()
-        {
-            var sb=Tool.stringBuilder;
-            sb.Clear();
-            sb.Append(camp).Append('/');
-            sb.Append(owner).Append('/');
-            sb.Append(level).Append('/');
-            sb.Append(name).Append('/');
-            sb.Append(spawnPos.x.ToString("F1")).Append('/');
-            sb.Append(spawnPos.y.ToString("F1"));
-            return sb.ToString();
-        }
-    }
     public enum TargetType
     {
         Player,Ore,Lantern,Monster

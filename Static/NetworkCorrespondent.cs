@@ -78,7 +78,7 @@ public class NetworkCorrespondent : EnsBehaviour
             PlayerInfo.Name
             );
         CallFuncRpc(nameof(RecvData), SendTo.RoomOwner, player.ToString(),KeyLibrary.KeyFormatType.Nonsequential);
-        Tool.FightController.ModeList = Tool.FightController.ModeList;
+        Tool.FightController.SelectedMode = Tool.FightController.SelectedMode;
     }
 
     //接收到新增客户端的信息
@@ -94,7 +94,7 @@ public class NetworkCorrespondent : EnsBehaviour
         }
 
         CallFuncRpc(nameof(RecvNewData), SendTo.Everyone, data, KeyLibrary.KeyFormatType.Timewise);
-        Tool.FightController.SyncMode();
+        Tool.FightController.SyncModeHeaderTo(playerData.id);
 
         StartCoroutine(RecreatePlayers(playerData));
     }
@@ -127,28 +127,28 @@ public class NetworkCorrespondent : EnsBehaviour
     #endregion
 
 
-
-
-
-    public void ChangeCamp(int id,int camp)
+    public void SetScoreboardActiveRpc(bool active)
     {
-        CallFuncRpc(nameof(RecvChangeCamp), SendTo.Everyone, id + "_" + camp,KeyLibrary.KeyFormatType.Nonsequential);
+        CallFuncRpc(nameof(SetScoreboardActiveLocal), SendTo.Everyone, active ? "1" : "0", KeyLibrary.KeyFormatType.Nonsequential);
     }
-    private void RecvChangeCamp(string data)
+    private void SetScoreboardActiveLocal(string data)
     {
-        string[]s=data.Split(new char[] { '_' });
-        int id = int.Parse(s[0]);
-        int camp = int.Parse(s[1]);
-        var b=ServerDataContainer.TryGet(id,out var p);
-        if (!b)
-        {
-            Debug.LogError("未找到id为" + id + "的信息");
-            return;
-        }
-        ServerDataContainer.Set(new ServerDataContainer.PlayerDataContainer(p.id, p.name));
+        var b = data == "1";
+        Tool.PageManager.PlayModePage.Scoreboard.gameObject.SetActive(b);
     }
-
-
+    public void SetScoreboardTextRpc(int x, int y, string data)
+    {
+        if (!Tool.PageManager.PlayModePage.Scoreboard.gameObject.activeSelf) return;
+        var sb=Tool.stringBuilder;
+        sb.Clear();
+        sb.Append(x).Append('_').Append(y).Append('_').Append(data);
+        CallFuncRpc(nameof(SetScoreboardTextLocal), SendTo.Everyone, sb.ToString(), KeyLibrary.KeyFormatType.Nonsequential);
+    }
+    private void SetScoreboardTextLocal(string data)
+    {
+        string[] s = data.Split('_');
+        Tool.PageManager.PlayModePage.Scoreboard.SetText(int.Parse(s[0]), int.Parse(s[1]), s[2]);
+    }
 
 
     #region//开始战斗
@@ -159,6 +159,7 @@ public class NetworkCorrespondent : EnsBehaviour
     private void ControllerStartFight()
     {
         Tool.FightController.StartFight();
+        Tool.PageManager.TurnPage(PageManager.PageType.PlayMode);
     }
     public void BackToPrepare()
     {
@@ -168,7 +169,7 @@ public class NetworkCorrespondent : EnsBehaviour
     }
     private void RecvBackToPrepare()
     {
-        Tool.FightController.StopFight();
+        Tool.FightController.StopFightLocal();
 
         Tool.SceneController.DestroyAllTargetsLocal();
         Tool.SceneController.DestroyLevel();
@@ -194,7 +195,7 @@ public class NetworkCorrespondent : EnsBehaviour
         restarting= true;
 
         EnsInstance.Corr.ShutDown();
-        Tool.FightController.StopFight();
+        Tool.FightController.StopFightLocal();
 
         ServerDataContainer.Reset();
 

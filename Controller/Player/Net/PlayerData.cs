@@ -13,7 +13,7 @@ public class PlayerData : Target
 
     [HideInInspector]public BarBase bar;
 
-    public override void Init(CustomTargetCreater.TargetInfo info)
+    public override void Init(TargetInfo info)
     {
         base.Init(info); 
 
@@ -69,17 +69,11 @@ public class PlayerData : Target
         if (!base.DamageByBullet(b)) return false;
 
         CameraInstance.instance.ShakeCamera();
-        if (Shengming == 0)
-        {
-            Die(b.Shooter);
-        }
         return true;
     }
-    public void Die(Target t)//À¿Õˆ ±µ˜”√
+    public override void OnKilled(Target killer)
     {
-        Tool.FightController.OnDeathRpc(Camp, ((t!=null&&t is PlayerData)?t.Camp:9));
-        Shengming = BaseAttributes.Shengming.Value;
-        //transform.position = Tool.SceneController.Level.GetSpawnPlace(this);
         Tool.UIEventCenter.TrigEvent(new ShowKilledSignalEvent());
+        base.OnKilled(killer);
     }
 }

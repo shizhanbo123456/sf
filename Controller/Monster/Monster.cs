@@ -29,7 +29,7 @@ public class Monster : Target
     [HideInInspector]public float StateInterval=5;
 
 
-    public override void Init(CustomTargetCreater.TargetInfo info)
+    public override void Init(TargetInfo info)
     {
         base.Init(info);
 

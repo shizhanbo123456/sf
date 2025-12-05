@@ -5,12 +5,16 @@ using UnityEngine.UI;
 
 public class HomePage : BasePage
 {
-    public RoomListLayout RoomList;
     private bool UseHost=false;//侦听连接的模式
     [Header("名称修改")]
     public InputField InputField;
     public Text Name;
     public Text Id;
+    [Header("房间信息")]
+    [SerializeField]private GameObject RoomList;
+    [SerializeField] private Transform Root; // 房间单元的父节点
+    private List<RoomInfoUnit> Units = new List<RoomInfoUnit>();
+    private int activeCount = 0; // 当前激活的房间单元数量
 
 
 
@@ -58,7 +62,7 @@ public class HomePage : BasePage
     public void HostMatch()
     {
         UseHost=true;
-        RoomList.gameObject.SetActive(true);
+        RoomList.SetActive(true);
         RoomListHost.Instance.OnEnter();
         RoomListDedicateServer.Instance.onRoomInfoChanged += Relayout;
 
@@ -90,7 +94,48 @@ public class HomePage : BasePage
     }
     private void Relayout(List<RoomListUnitInfo> infoList)
     {
-        RoomList.ClearRoomList();
-        foreach (var i in infoList) RoomList.AddRoomList(i.name, i.id, i.state, i.type);
+        ClearRoomList();
+        foreach (var i in infoList) AddRoomList(i.name, i.id, i.state, i.type);
+    }
+
+    public void ClearRoomList()
+    {
+        foreach (var unit in Units) unit.gameObject.SetActive(false);
+        activeCount = 0;
+    }
+    public void AddRoomList(string name, string id, string state, string type)
+    {
+        activeCount++;
+        // 若现有单元不足，动态创建新单元
+        if (Units.Count < activeCount)
+        {
+            var unit = Instantiate(Tool.PrefabManager.RoomInfoUnit, Root).GetComponent<RoomInfoUnit>();
+            Units.Add(unit);
+        }
+        else
+        {
+            Units[activeCount - 1].gameObject.SetActive(true); // 复用已有单元
+        }
+        // 赋值房间信息
+        var currentUnit = Units[activeCount - 1];
+        currentUnit.roomName.text = name;
+        currentUnit.RoomId.text = id;
+        currentUnit.RoomState.text = state;
+        currentUnit.RoomType.text = type;
+    }
+}
+
+public struct RoomListUnitInfo
+{
+    public string name;
+    public string id;
+    public string state;
+    public string type;
+    public RoomListUnitInfo(string name, string id, string state, string type)
+    {
+        this.name = name;
+        this.id = id;
+        this.state = state;
+        this.type = type;
     }
 }

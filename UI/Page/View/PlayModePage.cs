@@ -15,7 +15,7 @@ public class PlayModePage : BasePage
     public BarList BarList;
     public Transform SkillColumn;
     public Transform BossBarRoot;
-    public Transform ScoreboardRoot;
+    public Scoreboard Scoreboard;
     [SerializeField]private List<GameObject> HostOnlyObjects = new List<GameObject>();
     [Header("Effect")]
     [SerializeField]private Image HitEffect;
@@ -63,7 +63,7 @@ public class PlayModePage : BasePage
     }
     private void Update()
     {
-        int timecount = (int)Tool.FightController.FightTimeCount;
+        int timecount = (int)CustomLevel.FightTime;
         TimePassed.text = timecount / 60 + ":" + timecount % 60;
         if (KilledSignalTimeLeft < 3)
         {

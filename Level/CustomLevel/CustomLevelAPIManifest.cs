@@ -3,9 +3,9 @@ using static Level;
 
 public static class CustomLevelAPIManifest
 {
-    public static List<int> KillCount => Tool.FightController.KillCount;
-    public static List<int> KilledCount => Tool.FightController.KilledCount;
     public static float TimeUsed => CustomLevel.FightTime;
     public static void CreateLevel(LevelType type)=>Tool.SceneController.CreateLevel(type);
     public static void DestroyLevel() => Tool.SceneController.DestroyLevel();
+    public static void SetScoreboardActive(bool active)=>Tool.NetworkCorrespondent.SetScoreboardActiveRpc(active);
+    public static void SetScoreBoardText(int x, int y, string data)=>Tool.NetworkCorrespondent.SetScoreboardTextRpc(x, y, data);
 }
