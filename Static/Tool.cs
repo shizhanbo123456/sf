@@ -17,7 +17,6 @@ public class Tool:MonoBehaviour
     public static SceneController SceneController;//生成/摧毁 玩家/场景
     public static WorldTextController WorldTextController;
     public static NetworkCorrespondent NetworkCorrespondent;
-    public static ScoreboardController ScoreboardController;
     public static BackgroundController BackgroundController;
     public static FileManager FileManager;
     public static Notice Notice;

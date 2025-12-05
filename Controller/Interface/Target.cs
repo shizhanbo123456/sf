@@ -2,7 +2,6 @@ using AttributeSystem.Attributes;
 using AttributeSystem.Effect;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Variety.Base;
 
@@ -16,13 +15,11 @@ public abstract class Target : MonoBehaviour
 
     public int ObjectId=>targetDataSync.ObjectId;
 
-    /// <summary>
-    /// 除了玩家都是-1
-    /// </summary>
-    [HideInInspector]public int Camp = -1;
-    [HideInInspector] public int Level = -1;
-    [HideInInspector] public int Owner = -1;
-    [HideInInspector] public string Name;
+    public TargetInfo Info;
+    public int Camp => Info.camp;
+    public int Level => Info.level;
+    public int Owner => Info.owner;
+    public string Name => Info.name;
 
     public GameTimeAttributes BaseAttributes;
     public GameTimeAttributes FloatingAttributes;
@@ -56,12 +53,9 @@ public abstract class Target : MonoBehaviour
     /// 分配信息，设置位置，获取组件，注册OnCreate。注册属性同步需要额外调用
     /// </summary>
     /// <param name="info"></param>
-    public virtual void Init(CustomTargetCreater.TargetInfo info)
+    public virtual void Init(TargetInfo info)
     {
-        Camp = info.camp;
-        Level = info.level;
-        Owner= info.owner;
-        Name = info.name;
+        Info=info;
         transform.position = Tool.SceneController.Level.GetPos(info.spawnPos);
         InitNameAndBar();
 
@@ -126,6 +120,7 @@ public abstract class Target : MonoBehaviour
         foreach (var b in DetectBullet())
         {
             DamageByBullet(b);
+            if (Shengming == 0) break;
         }
     }
     protected virtual bool DamageByBullet(Bullet b)
@@ -136,14 +131,18 @@ public abstract class Target : MonoBehaviour
         int d = b.FigureDamage(FloatingAttributes, out bool hit, out bool strike);
         ShowDamageText(d, hit, strike);
 
-        if (d > 0)
+        if (hit)
         {
-            OnHitBack(b);
-            ApplyEffects(b);
             Shengming -= d;
             if (Shengming <= 0)
             {
                 Shengming = 0;
+                OnKilled(b.Shooter);
+            }
+            else
+            {
+                OnHitBack(b);
+                ApplyEffects(b);
             }
         }
         return true;
@@ -174,7 +173,14 @@ public abstract class Target : MonoBehaviour
         if (effectController == null) return;
         effectController.AddEffect(e);
     }
-    
+    /// <summary>
+    /// 被非对象击杀则传入null
+    /// </summary>
+    public virtual void OnKilled(Target killer)
+    {
+        Tool.SceneController.RegistTargetKilled(killer,this);
+        targetDataSync.DestroyRpc();
+    }
 
     public void UseSkillRpc(int index)=>targetDataSync.UseSkillRpc(index);
     public void SyncEffectIconRpc(List<int> values)=>targetDataSync.SyncEffectIconRpc(values);
@@ -182,8 +188,7 @@ public abstract class Target : MonoBehaviour
 
 
     private static readonly List<Target> targets = new List<Target>();
-
-    protected bool InFront(Target data)
+    public bool InFront(Target data)
     {
         return (data.transform.position.x > transform.position.x) == FaceRight;
     }
@@ -203,7 +208,7 @@ public abstract class Target : MonoBehaviour
         }
         return r;
     }
-    public virtual Target GetNearestEnemy(float range = 99999f, bool requireInFront = false)
+    public Target GetNearestEnemy(float range = 99999f, bool requireInFront = false)
     {
         float DMin = range * range; // 使用距离平方进行比较
         Target r = null;
@@ -223,7 +228,7 @@ public abstract class Target : MonoBehaviour
         }
         return r;
     }
-    public virtual Target GetNearestPartner(float range = 99999f, bool requireInFront = false)
+    public Target GetNearestPartner(float range = 99999f, bool requireInFront = false)
     {
         float DMin = range * range;
         Target r = null;
@@ -258,7 +263,7 @@ public abstract class Target : MonoBehaviour
         }
         return targets;
     }
-    public virtual List<Target> GetEnemyInRange(float range = 99999f, bool requireInFront = false)
+    public List<Target> GetEnemyInRange(float range = 99999f, bool requireInFront = false)
     {
         targets.Clear();
         float rangeSqr = range * range;
@@ -276,7 +281,7 @@ public abstract class Target : MonoBehaviour
         }
         return targets;
     }
-    public virtual List<Target> GetPartnerInRange(float range = 99999f, bool requireInFront = false)
+    public List<Target> GetPartnerInRange(float range = 99999f, bool requireInFront = false)
     {
         targets.Clear();
         float rangeSqr = range * range;
@@ -309,7 +314,7 @@ public abstract class Target : MonoBehaviour
         }
         return targets;
     }
-    public virtual List<Target> GetEnemyInRect(float halfx, float halfy, bool requireInFront = false)
+    public List<Target> GetEnemyInRect(float halfx, float halfy, bool requireInFront = false)
     {
         targets.Clear();
         foreach (var i in Tool.SceneController.Targets)
@@ -327,7 +332,7 @@ public abstract class Target : MonoBehaviour
         }
         return targets;
     }
-    public virtual List<Target> GetPartnerInRect(float halfx, float halfy, bool requireInFront = false)
+    public List<Target> GetPartnerInRect(float halfx, float halfy, bool requireInFront = false)
     {
         targets.Clear();
         foreach (var i in Tool.SceneController.Targets)

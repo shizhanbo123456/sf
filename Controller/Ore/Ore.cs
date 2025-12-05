@@ -7,7 +7,7 @@ using Variety.Base;
 public class Ore : Target
 {
     public static SortedDictionary<int,Ore>Ores=new SortedDictionary<int,Ore>();
-    public override void Init(CustomTargetCreater.TargetInfo info)
+    public override void Init(TargetInfo info)
     {
         base.Init(info);
 

@@ -16,7 +16,7 @@ public class Lantern : Target
     private float TimeOfDie;//生命为0的时间
     private float RegenerationTime;
 
-    public override void Init(CustomTargetCreater.TargetInfo info)
+    public override void Init(TargetInfo info)
     {
         base.Init(info);
 

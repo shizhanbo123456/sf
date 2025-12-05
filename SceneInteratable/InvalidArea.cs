@@ -19,14 +19,14 @@ public class InvalidArea : MonoBehaviour
         {
             if(c.TryGetComponent<PlayerData>(out var data))
             {
-                if(data.UpdateLocally)data.Die(null);
+                if(data.UpdateLocally)data.OnKilled(null);
             }
         }
         foreach (var c in Physics2D.OverlapAreaAll(zx, ys, Tool.Settings.FallingTargetLayer))
         {
             if (c.TryGetComponent<PlayerData>(out var data))
             {
-                if (data.UpdateLocally) data.Die(null);
+                if (data.UpdateLocally) data.OnKilled(null);
             }
         }
     }

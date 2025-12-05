@@ -19,45 +19,28 @@ public class FightController : EnsBehaviour
     }
 
 
-    private RegistableVariable<string> modeList=new RegistableVariable<string>("00");
-    public string ModeList
+    private Action<string> OnHeaderChanged;
+    private CustomLevelText customLevel;
+    public CustomLevelText SelectedMode
     {
-        get
-        {
-            return modeList.Value;
-        }
+        get => customLevel;
         set
         {
-            if (!int.TryParse(value,out var _))
-            {
-                throw new Exception();
-            }
-            modeList.Value = value;
-            SyncMode();
+            customLevel = value;
+            CallFuncRpc(nameof(SyncModeHeaderLocal), SendTo.ExcludeSender, customLevel.joinedPath, KeyLibrary.KeyFormatType.Nonsequential);
+            OnHeaderChanged?.Invoke(customLevel.joinedPath);
         }
     }
-    public void SyncMode()
+    public void SyncModeHeaderTo(int player)
     {
-        CallFuncRpc(nameof(SyncMode), SendTo.ExcludeSender, KeyLibrary.KeyFormatType.Nonsequential);
+        CallFuncRpc(nameof(SyncModeHeaderLocal),new List<int>() { player},customLevel.joinedPath,KeyLibrary.KeyFormatType.Nonsequential);
     }
-    private void SyncMode(string data)
-    {
-        modeList.Value = data;
-    }
-    public void OnModeListChange(Action<string> a)
-    {
-        modeList.OnValueChanged += a;
-    }
+    private void SyncModeHeaderLocal(string data)=> OnHeaderChanged?.Invoke(data);
+    public void OnModeChange(Action<string> a)=> OnHeaderChanged += a;
 
-
-    public List<int> KillCount=new List<int>();
-    public List<int> KilledCount=new List<int>();
-
-    private Func<bool> JudgeEnd;
 
 
     [HideInInspector]public bool Fighting = false;
-    [HideInInspector]public float FightTimeCount;
 
     private void Awake()
     {
@@ -69,26 +52,20 @@ public class FightController : EnsBehaviour
     {
         Tool.SceneController.DestroyLevel();
         Tool.SceneController.DestroyNonSkillPlayer();
-        Tool.PageManager.TurnPage(PageManager.PageType.PlayMode);
-        Tool.SceneController.CreateLevel(Tool.SceneController.ModeToLevel(modeList.Value));
-        KillCount = new List<int>() { 0,0,0,0};
-        KilledCount = new List<int>() { 0,0,0,0};
         Fighting = true;
-        timeCount = -10;
-        JudgeEnd = CustomLevel.JudgeEnd;
-        Tool.ScoreboardController.InitScoreboard();
+        judgeEndCdRecorder = -10;
     }
-    private void EndFightRpc()
+    private void SettleRpc()
     {
         if (!Fighting) return;
-        CallFuncRpc(nameof(EndFightLocal), SendTo.Everyone);
+        CallFuncRpc(nameof(SettleLocal), SendTo.Everyone);
     }
-    private void EndFightLocal()
+    private void SettleLocal()
     {
-        StopFight();
-        int killscore = 0;
-        int timescore = 0;
-        int challengescore = 0;
+        StopFightLocal();
+        int killscore;
+        int timescore;
+        int challengescore;
         try
         {
             CustomLevel.FigureScore(out killscore, out timescore, out challengescore);
@@ -101,64 +78,33 @@ public class FightController : EnsBehaviour
         }
         Tool.PageManager.PlayModePage.settlement.Settle(killscore, timescore, challengescore);
     }
-    public void StopFight()//立即停止，不结算，保留关卡
+    public void StopFightLocal()//立即停止，不结算，保留关卡
     {
         Fighting = false;
-        Tool.ScoreboardController.CloseScoreBoard();
     }
 
 
-    /// <summary>
-    /// 对于无击杀，意外死亡，使用无效击杀阵营(9等)
-    /// </summary>
-    public void OnDeathRpc(int killedCamp,int killerCamp)
-    {
-        CallFuncRpc(nameof(OnDeathLocal), SendTo.Everyone, killedCamp + "_" + killerCamp,KeyLibrary.KeyFormatType.Nonsequential);
-    }
-    private void OnDeathLocal(string data)
-    {
-        string[] s = data.Split('_');
-        int killedCamp = int.Parse(s[0]);
-        int killerCamp = int.Parse(s[1]);
-        if (killerCamp < KillCount.Count)
-        {
-            KillCount[killerCamp] += 1;
-            Tool.ScoreboardController.SetText(0, killerCamp, KillCount[killerCamp].ToString());
-        }
-        KilledCount[killedCamp] += 1;
-        Tool.ScoreboardController.SetText(0, killedCamp, KilledCount[killedCamp].ToString());
-    }
-
-    private float timeCount=0;
+    private float judgeEndCdRecorder=0;
     private void Update()
     {
         if (!Fighting) return;
-        FightTimeCount += Time.deltaTime;
-        if (timeCount < 1)
+        if (judgeEndCdRecorder < 1)
         {
-            timeCount += Time.deltaTime;
+            judgeEndCdRecorder += Time.deltaTime;
             return;
         }
-        timeCount = 0;
+        judgeEndCdRecorder = 0;
 
         bool end = false;
         try
         {
-            end = JudgeEnd.Invoke();
+            end = CustomLevel.JudgeEnd();
         }
         catch
         {
             end = false;
             Tool.Notice.ShowMesg("关卡结算异常");
         }
-        if (end) EndFightRpc();
-    }
-    private void OnEnable()
-    {
-        FightTimeCount = 0;
-    }
-    private void OnDisable()
-    {
-        FightTimeCount = 0;
+        if (end) SettleRpc();
     }
 }

@@ -55,12 +55,13 @@ public static class Format
     public static string ListToString<T>(IEnumerable<T> list, char c = ListSeparator)
     {
         StringBuilder sb= new StringBuilder();
+        bool isFirst = true;
         foreach(var i in list)
         {
-            sb.Append(c);
             sb.Append(i.ToString());
+            if(isFirst)isFirst= false;
+            else sb.Append(c);
         }
-        sb.Append(c);
         return sb.ToString();
     }
     public static List<T> StringToList<T>(string a,Func<string,T>converter, char c = ListSeparator)
@@ -73,12 +74,13 @@ public static class Format
     public static string ArrayToString<T>(T[] list, char c = ListSeparator)
     {
         StringBuilder sb = new StringBuilder();
+        bool isFirst = true;
         foreach (var i in list)
         {
-            sb.Append(c);
             sb.Append(i.ToString());
+            if (isFirst) isFirst = false;
+            else sb.Append(c);
         }
-        sb.Append(c);
         return sb.ToString();
     }
     public static T[] StringToArray<T>(string a, Func<string, T> converter, char c = ListSeparator)

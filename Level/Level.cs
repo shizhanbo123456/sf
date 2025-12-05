@@ -42,18 +42,8 @@ public class Level : MonoBehaviour
             MinimapCamera.GetChild(1).GetComponent<Camera>().orthographicSize = size;
         }
     }
-
-
-    void Awake()
+    private void Start()
     {
-        StartCoroutine(nameof(ColorByTime));
-    }
-    private IEnumerator ColorByTime()
-    {
-        while(!Tool.BackgroundController)
-        {
-            yield return null;
-        }
         Tool.BackgroundController.UpdateColor(BgColor);
     }
 
