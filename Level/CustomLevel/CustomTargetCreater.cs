@@ -5,15 +5,19 @@ public struct TargetInfo
     public int owner;
     public int level;
     public string name;
-    public Vector2 spawnPos;
+    public float spawnX;
+    public float spawnY;
+    public float size;
     public string label;
-    public TargetInfo(int camp, int owner, int level, string name, Vector2 spawnPos, string label = "")
+    public TargetInfo(int camp, int owner, int level, string name, float spawnX,float spawnY,float size, string label = "")
     {
         this.camp = camp;
         this.owner = owner;
         this.level = level;
         this.name = name;
-        this.spawnPos = spawnPos;
+        this.spawnX = spawnX;
+        this.spawnY = spawnY;
+        this.size = size;
         this.label = label;
     }
     public TargetInfo(string info)
@@ -23,8 +27,10 @@ public struct TargetInfo
         owner = int.Parse(s[1]);
         level = int.Parse(s[2]);
         name = s[3];
-        spawnPos = new Vector2(float.Parse(s[4]), float.Parse(s[5]));
-        if (s.Length > 6) label = s[6];
+        spawnX=float.Parse(s[4]);
+        spawnY=float.Parse(s[5]);
+        size = float.Parse(s[6]);
+        if (s.Length > 7) label = s[7];
         else label = "";
     }
     public override string ToString()
@@ -35,8 +41,9 @@ public struct TargetInfo
         sb.Append(owner).Append('/');
         sb.Append(level).Append('/');
         sb.Append(name).Append('/');
-        sb.Append(spawnPos.x.ToString("F1")).Append('/');
-        sb.Append(spawnPos.y.ToString("F1"));
+        sb.Append(spawnX.ToString("F1")).Append('/');
+        sb.Append(spawnY.ToString("F1")).Append('/');
+        sb.Append(size.ToString("F1"));
         if (label != "") sb.Append('/').Append(label);
         return sb.ToString();
     }

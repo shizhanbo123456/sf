@@ -19,10 +19,6 @@ public class Ore : Target
             RegistSyncAttributes();
         }
     }
-    protected override void InitNameAndBar()
-    {
-        graphic.SetName(string.Empty);
-    }
     protected override void RegistOnCreated()
     {
         base.RegistOnCreated();

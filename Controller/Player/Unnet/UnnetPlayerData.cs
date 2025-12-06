@@ -23,6 +23,9 @@ public class UnnetPlayerData : MonoBehaviour
         Anim.Init(gameObject);
         CameraInstance.instance.Init(transform);
 
+        Anim.SetName(TargetGraphic.NullName);
+        Anim.SetBarActive(false);
+
         Tool.SceneController.Player = gameObject;
     }
 }

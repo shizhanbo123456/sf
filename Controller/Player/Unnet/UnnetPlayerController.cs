@@ -5,14 +5,13 @@ using UnityEngine;
 public class UnnetPlayerController : MonoBehaviour
 {
     private UnnetPlayerData playerData;
-    private TargetControllerSync targetInfoSync;
-    private GroundDetector groundDetector;
+    private UnnetPlayerControllerSync targetInfoSync;
+    private Rigidbody2D rb;
+    private GroundDetector groundDetector => playerData.Anim.groundDetector;
 
-    public bool FaceRight;
     private bool isGrounded;
 
 
-    private Rigidbody2D rb;
     public float MoveSpeed
     {
         get { return playerData.Jixing; }
@@ -32,7 +31,7 @@ public class UnnetPlayerController : MonoBehaviour
 
         if (!TryGetComponent(out targetInfoSync))
         {
-            targetInfoSync = gameObject.AddComponent<TargetControllerSync>();
+            targetInfoSync = gameObject.AddComponent<UnnetPlayerControllerSync>();
         }
     }
     void Update()
@@ -42,7 +41,7 @@ public class UnnetPlayerController : MonoBehaviour
 
         if (targetInfoSync.OnPlayerPostUpdate())
         {
-            targetInfoSync.SyncMotion(transform.position, rb.velocity, isGrounded,Tool.SubInput.FallSignal());
+            targetInfoSync.SyncMotion(isGrounded,Tool.SubInput.FallSignal());
         }
     }
     private void Motion_Update()
@@ -56,14 +55,6 @@ public class UnnetPlayerController : MonoBehaviour
                 rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
                 JumpCount += 1;
             }
-        }
-        if (x==-1)
-        {
-            FaceRight = false;
-        }
-        else if (x==1)
-        {
-            FaceRight = true;
         }
     }
     private void Ground()

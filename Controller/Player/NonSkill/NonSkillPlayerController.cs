@@ -5,15 +5,12 @@ using UnityEngine;
 public class NonSkillPlayerController : MonoBehaviour
 {
     private NonSkillPlayerData playerData;
-    private TargetControllerSync targetInfoSync;
-    private GroundDetector groundDetector;
+    private NonSkillPlayerControllerSync targetInfoSync;
+    private GroundDetector groundDetector => playerData.Anim.groundDetector;
 
-    public bool FaceRight;
-    public bool isGrounded;
+    private bool isGrounded;
 
     
-
-
     private Rigidbody2D rb => GetComponent<Rigidbody2D>();
     public float MoveSpeed
     {
@@ -31,7 +28,6 @@ public class NonSkillPlayerController : MonoBehaviour
     public void Init(int id, NonSkillPlayerData data)
     {
         playerData = data; 
-        groundDetector = GetComponent<GroundDetector>();
         if (!TryGetComponent(out targetInfoSync))
         {
             Debug.LogError("未找到信息同步");

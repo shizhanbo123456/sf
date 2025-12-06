@@ -18,8 +18,6 @@ public class Level : MonoBehaviour
     private static readonly float heightfactor = 1f;
     [Header("Common")]
     public Transform Canvas;
-    [SerializeField]private Transform AnchorLB;
-    [SerializeField]private Transform AnchorRT;
     [Space]
     [Header("Background")]
     public Color BgColor = new Color(183f / 255, 243f / 255, 237f / 255, 1);
@@ -47,15 +45,17 @@ public class Level : MonoBehaviour
         Tool.BackgroundController.UpdateColor(BgColor);
     }
 
-    public Vector3 GetPos(Vector2 pos)
+    public Vector3 GetPos(float x,float y)
     {
-        float x = Mathf.Clamp01(pos.x);
-        float y= Mathf.Clamp01(pos.y);
-        return new Vector3(
-            Mathf.Lerp(AnchorLB.position.x, AnchorRT.position.x, x), 
-            Mathf.Lerp(AnchorLB.position.y, AnchorRT.position.y, y));
+        Vector2 center = (Vector2)transform.position + offset;
+        Vector2 s = new Vector2(size * widthfactor, size * heightfactor);
+        Vector3 lb = center - s;
+        s *= 2;
+        x = Mathf.Clamp01(x);
+        y= Mathf.Clamp01(y);
+        return new Vector3(x*s.x,y*s.y) + lb;
     }
-
+    
 
     void OnDestroy()
     {

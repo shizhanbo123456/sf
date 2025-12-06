@@ -10,7 +10,7 @@ public class BulletDetector : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = new Color(0.5f, 1f, 0.5f, 0.7f);
-        Gizmos.DrawSphere(transform.position + Vector3.up * offsetY, detectRadius);
+        Gizmos.DrawSphere(transform.position + Vector3.up * offsetY, detectRadius*transform.localScale.x);
     }
     public HashSet<Bullet> DetectBullet()
     {
@@ -30,8 +30,8 @@ public class BulletDetector : MonoBehaviour
             if (target.Camp!=i.Key) continue;
             foreach (var j in i.Value.Values)
             {
-                float s = j.transform.localScale.x;
-                if (CalHit(j.transform.position, j.LastFramePos, playerPos, detectRadius + j.radius * s)) Bullets.Add(j);
+                if (CalHit(j.transform.position, j.LastFramePos, playerPos, 
+                    detectRadius*transform.localScale.x + j.radius * j.transform.localScale.x)) Bullets.Add(j);
             }
         }
         return Bullets;

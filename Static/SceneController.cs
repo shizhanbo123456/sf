@@ -8,7 +8,7 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     private void Awake()
     {
         Tool.SceneController = this;
-        Invoke(nameof(LateInit), 0.3f);
+        Invoke(nameof(LateInit), 1f);
     }
     private void LateInit()
     {

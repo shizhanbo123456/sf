@@ -47,7 +47,7 @@ public class Monster : Target
     }
     protected override void InitNameAndBar()
     {
-        graphic.SetName(string.Empty);
+        base.InitNameAndBar();
         Bar = Tool.PageManager.PlayModePage.CreateBossBar();
         Bar.Init(Name, LayerMax, Shengming);
     }

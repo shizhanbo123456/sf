@@ -1,16 +1,9 @@
-using AttributeSystem.Attributes;
 using System;
 using UnityEngine;
 
-/// <summary>
-/// 手动调用OnPlayerPostUpdate，第一时间同步<br></br>
-/// 必须调用SyncMotion/SyncController来同步
-/// </summary>
-public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
+public class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontrollerInfo
 {
     public Action OnPostSyncRpc { get; set; }
-
-    [HideInInspector] public GameTimeAttributes DedicatedAttributes;
 
     public bool FaceRight { get; set; } = true;
     public bool isGrounded { get; set; } = true;
@@ -24,7 +17,6 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
     private Rigidbody2D rb;
     private Vector3 lastSyncPosition;
     private float lastSyncTime = 0f;
-
     private void Awake()
     {
         nomEnabled = false;
@@ -48,7 +40,7 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
             lastSyncPosition = transform.position;
             return true;
         }
-        else if (lastSyncTime < 0.05f+Time.time)
+        else if (lastSyncTime < 0.05f + Time.time)
         {
             lastSyncPosition = transform.position;
             return true;
@@ -61,7 +53,7 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
         }
         return false;
     }
-    public void SyncController(Vector3 pos, Vector2 velocity,float resistance,bool ignoreLevitatingPlatform,bool moveLock, bool isGrounded,bool motionIsNull)
+    public void SyncMotion(Vector3 pos, Vector2 velocity, bool isGrounded, bool ignoreLevitatingPlatform)
     {
         var sb = Tool.stringBuilder;
         sb.Clear();
@@ -69,38 +61,24 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
             Append(pos.y.ToString("F3")).Append('_').
             Append(velocity.x.ToString()).Append('_').
             Append(velocity.y.ToString()).Append('_').
-            Append(resistance.ToString("F1")).Append('_').
-            Append(ignoreLevitatingPlatform ? 1 : 0).Append('_').
-            Append(moveLock ? 0 : 1).Append('_').
-            Append(isGrounded ? '1' : '0').Append('_').
-            Append(motionIsNull ? '1' : '0');
-        CallFuncRpc(nameof(SyncControllerRpc), SendTo.ExcludeSender, sb.ToString());
+            Append(isGrounded ? '1' : '0');
+        CallFuncRpc(nameof(SyncMotionRpc), SendTo.ExcludeSender, sb.ToString());
 
-        Resistance = resistance;
         IgnoreLevitaningPlatrm = ignoreLevitatingPlatform;
-        if (!moveLock)
-        {
-            if (rb.velocity.x > 0.01f) FaceRight = true;
-            else if (rb.velocity.x < -0.01f) FaceRight = false;
-        }
-        this.isGrounded= isGrounded;
+        this.isGrounded = isGrounded;
+        if (rb.velocity.x > 0.01f) FaceRight = true;
+        else if (rb.velocity.x < -0.01f) FaceRight = false;
 
         OnPostSyncRpc?.Invoke();
     }
-    private void SyncControllerRpc(string data)
+    private void SyncMotionRpc(string data)
     {
         string[] s = data.Split('_');
         transform.position = new Vector3(float.Parse(s[0]), float.Parse(s[1]), 0);
         rb.velocity = new Vector2(float.Parse(s[2]), float.Parse(s[3]));
-        Resistance = float.Parse(s[4]);
-        IgnoreLevitaningPlatrm = int.Parse(s[5]) == 1;
-        if (int.Parse(s[6]) == 1)
-        {
-            if (rb.velocity.x > 0.01f) FaceRight = true;
-            else if (rb.velocity.x < -0.01f) FaceRight = false;
-        }
-        isGrounded = int.Parse(s[7]) == 1;
-        MotionIsNull = int.Parse(s[8]) == 1;
+        if (rb.velocity.x > 0.01f) FaceRight = true;
+        else if (rb.velocity.x < -0.01f) FaceRight = false;
+        isGrounded = int.Parse(s[4]) == 1;
 
         OnPostSyncRpc?.Invoke();
     }
