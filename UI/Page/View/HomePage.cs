@@ -23,6 +23,8 @@ public class HomePage : BasePage
         Name.text = PlayerInfo.Name;
         InputField.text = Name.text;
         Id.text = PlayerInfo.Id.ToString();
+
+        RoomList.SetActive(false);
     }
     private void OnEnable()
     {
@@ -55,7 +57,7 @@ public class HomePage : BasePage
     public void DedicateServerMatch()
     {
         UseHost = false;
-        RoomList.gameObject.SetActive(true);
+        RoomList.SetActive(true);
         RoomListDedicateServer.Instance.OnEnter();
         RoomListHost.Instance.onRoomInfoChanged += Relayout;
     }
@@ -70,7 +72,7 @@ public class HomePage : BasePage
     }
     public void ExitMatch()
     {
-        RoomList.gameObject.SetActive(false);
+        RoomList.SetActive(false);
         if (UseHost)
         {
             RoomListHost.Instance.OnExit();

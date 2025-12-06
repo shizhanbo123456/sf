@@ -6,6 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(GroundDetector))]
 public class TargetGraphic : MonoBehaviour
 {
+    public const string NullName = "null";
+
     public float SpawnOffset = 1;
     [SerializeField] private bool UseAnim = true;
     [SerializeField] private bool SetState = true;
@@ -13,7 +15,7 @@ public class TargetGraphic : MonoBehaviour
     private static readonly Vector3 L = new Vector3(-1, 1, 1);
 
     private Animator anim;
-    private TargetControllerSync targetInfoSync;
+    private ITargetcontrollerInfo Icontroller;
     private Rigidbody2D rb;
 
     public SpriteRenderer MinimapIcon;
@@ -34,17 +36,19 @@ public class TargetGraphic : MonoBehaviour
     public void Init(GameObject obj)
     {
         if (!UseAnim) return;
-        targetInfoSync= obj.GetComponent<TargetControllerSync>();
         rb = obj.GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+
+        bulletDetector = GetComponent<BulletDetector>();
+        groundDetector= GetComponent<GroundDetector>();
 
         if(obj.TryGetComponent<Target>(out var t))
         {
             MinimapIcon.color = Tool.SpriteManager.TargetToColor(t);
         }
-        if(obj.TryGetComponent(out targetInfoSync))
+        if(obj.TryGetComponent(out Icontroller))
         {
-            targetInfoSync.OnPostSyncRpc += OnSync;
+            Icontroller.OnPostSyncRpc += OnSync;
             enabled = false;
         }
         else
@@ -55,7 +59,7 @@ public class TargetGraphic : MonoBehaviour
     }
     public void SetName(string text,Color color=default)
     {
-        if (text == string.Empty)
+        if (text == NullName)
         {
             targetName.gameObject.SetActive(false);
             return;
@@ -67,15 +71,19 @@ public class TargetGraphic : MonoBehaviour
         targetName.text = text;
         targetName.color = color;
     }
+    public void SetBarActive(bool active)
+    {
+        targetBar.gameObject.SetActive(active);
+    }
     private void OnSync()
     {
         if (!Initialized) return;
 
-        if (targetInfoSync.FaceRight) transform.localScale = R;
+        if (Icontroller.FaceRight) transform.localScale = R;
         else transform.localScale = L;
 
         if (!SetState) return;
-        if (targetInfoSync.isGrounded)
+        if (Icontroller.isGrounded)
         {
             if (rb.velocity.x < 0.001f && rb.velocity.x > -0.001f)
             {

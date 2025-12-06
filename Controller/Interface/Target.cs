@@ -56,7 +56,10 @@ public abstract class Target : MonoBehaviour
     public virtual void Init(TargetInfo info)
     {
         Info=info;
-        transform.position = Tool.SceneController.Level.GetPos(info.spawnPos);
+
+        graphic.transform.localScale = info.size * Vector3.one;
+
+        transform.position = Tool.SceneController.Level.GetPos(info.spawnX,info.spawnY)+Vector3.up*graphic.SpawnOffset;
         InitNameAndBar();
 
         TimeLineWork = gameObject.AddComponent<TimeLineWork>();

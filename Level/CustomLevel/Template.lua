@@ -1,9 +1,10 @@
 --测试模式-子模式
 
-infotable =nil
+local infoTable =nil
 
 function FightStart(ignore)
-	infotable={}
+	infoTable={}
+	
 end
 
 function Update(time,deltaTime)
@@ -27,5 +28,5 @@ function ModeScore(ignore)
 end
 
 function ReleaseData(ignore)
-	infotable=nil
+	infoTable=nil
 end

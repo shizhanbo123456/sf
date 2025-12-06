@@ -30,10 +30,6 @@ public class Lantern : Target
             RegistSyncAttributes();
         }
     }
-    protected override void InitNameAndBar()
-    {
-        graphic.SetName(string.Empty);
-    }
     protected override void RegistOnCreated()
     {
         base.RegistOnCreated();
