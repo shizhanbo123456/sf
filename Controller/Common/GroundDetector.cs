@@ -1,56 +1,64 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(BoxCollider2D))]
 public class GroundDetector : MonoBehaviour
 {
-    public Vector2 Center = new Vector2(0f, -0.5f);
-    public Vector2 HalfSize = new Vector2(0.3f, 0.2f);
+    public const float LevitatingPlatformThickness = 0.2f;
+    // 检测高度的偏移量（从底边向上0.1f）
+    public const float groundCheckHeight = 0.1f;
 
+    private static readonly Color gizmoColor = new Color(0.7f, 0.7f, 1f, 0.6f);
+
+    private BoxCollider2D _collider;
+    private BoxCollider2D boxCollider
+    {
+        get
+        {
+            if(_collider == null)_collider= GetComponent<BoxCollider2D>();
+            return _collider;
+        }
+    }
+
+    private Vector2 leftBottom;
+    private Vector2 rightTop;
+    private void Start()
+    {
+        if (boxCollider == null)
+        {
+            Debug.LogError("未找到碰撞器");
+            return;
+        }
+        if (Mathf.Abs(boxCollider.offset.x) > 0.01f) Debug.LogError(gameObject.name + "的碰撞器发送了x向偏移");
+        FigurePos();
+    }
+    private void FigurePos()
+    {
+        float x = boxCollider.size.x / 2f ;
+        float y = boxCollider.offset.y - boxCollider.size.y / 2f;
+        leftBottom = new Vector2(-x * transform.localScale.x -boxCollider.edgeRadius,
+            y * transform.localScale.y - boxCollider.edgeRadius - LevitatingPlatformThickness);
+        rightTop = new Vector2(-leftBottom.x, leftBottom.y + groundCheckHeight);
+    }
     public virtual bool IsGround()
     {
-        // 获取物体的缩放（处理可能的负缩放，取绝对值）
-        Vector2 objectScale = new Vector2(
-            Mathf.Abs(transform.localScale.x),
-             Mathf.Abs(transform.localScale.y)
+        if (boxCollider == null) return false;
+        Vector2 pos = transform.position;
+        Collider2D hitCollider = Physics2D.OverlapArea(
+            leftBottom+pos, rightTop+pos,
+            Tool.Settings.Ground
         );
 
-        // 计算世界空间下的实际中心点（本地中心点 * 缩放 + 物体位置）
-        Vector2 worldCenter = (Vector2)transform.position +
-                              new Vector2(Center.x * objectScale.x, Center.y * objectScale.y);
-
-        // 计算世界空间下的实际半尺寸（本地半尺寸 * 缩放）
-        Vector2 worldHalfSize = new Vector2(
-            HalfSize.x * objectScale.x,
-            HalfSize.y * (objectScale.y)
-        );
-
-        // 计算检测区域的两个对角点
-        Vector2 minPoint = worldCenter - worldHalfSize;
-        Vector2 maxPoint = worldCenter + worldHalfSize;
-
-        // 检测地面
-        return Physics2D.OverlapArea(minPoint, maxPoint, Tool.Settings.Ground) != null;
+        return hitCollider != null;
     }
 
     private void OnDrawGizmos()
     {
-        // Gizmos也同步适配缩放，保持可视化和实际检测区域一致
-        Vector2 objectScale = new Vector2(
-            Mathf.Abs(transform.localScale.x),
-            Mathf.Abs(transform.localScale.y)
-        );
+        if (boxCollider == null) return;
+        FigurePos();
 
-        Vector3 gizmoCenter = transform.position +
-                              new Vector3(Center.x * objectScale.x, Center.y * objectScale.y, 0f);
-
-        Vector3 gizmoSize = new Vector3(
-            2 * HalfSize.x * objectScale.x,
-            2 * HalfSize.y * (objectScale.y),
-            1f
-        );
-
-        Gizmos.color = new Color(0.7f, 0.7f, 1f, 0.6f);
-        Gizmos.DrawCube(gizmoCenter, gizmoSize);
+        // 在Scene视图中绘制检测区域的Gizmos
+        Gizmos.color = gizmoColor;
+        Vector2 pos = transform.position;
+        Gizmos.DrawCube((leftBottom+rightTop)/2f+pos,rightTop-leftBottom);
     }
 }

@@ -2,13 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(BulletDetector))]
 [RequireComponent(typeof(GroundDetector))]
 public class TargetGraphic : MonoBehaviour
 {
     public const string NullName = "null";
 
-    public float SpawnOffset = 1;
+    public float SpawnOffset
+    {
+        get
+        {
+            if(boxCollider==null)boxCollider = GetComponent<BoxCollider2D>();
+            return boxCollider.edgeRadius - (boxCollider.offset.y - boxCollider.size.y / 2f) * transform.localScale.y;
+        }
+    }
     [SerializeField] private bool UseAnim = true;
     [SerializeField] private bool SetState = true;
     private static readonly Vector3 R = new Vector3(1, 1, 1);
@@ -22,16 +30,16 @@ public class TargetGraphic : MonoBehaviour
 
     [HideInInspector]public BulletDetector bulletDetector;
     [HideInInspector]public GroundDetector groundDetector;
+    private BoxCollider2D boxCollider;
     [Space]
     public TargetBar targetBar;
     public TargetName targetName;
 
     private bool Initialized = false;
-
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(transform.position - Vector3.up * SpawnOffset*transform.localScale.y, 0.1f);
+        Gizmos.DrawSphere(Vector3.down * SpawnOffset + transform.position, 0.1f);
     }
     public void Init(GameObject obj)
     {
