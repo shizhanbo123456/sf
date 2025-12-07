@@ -81,7 +81,7 @@ public class FightController : EnsBehaviour
         }
         CallFuncRpc(nameof(SendReply), SendTo.ExcludeSender, parts.Count.ToString(),KeyLibrary.KeyFormatType.DisorderConfirm);
         await Task.Delay(1000);
-        if (replySum == 0) return false;
+        if (replySum == 0) return true;
 
         int nextSyncIndex = 0;
         replyCount = 0;
@@ -140,6 +140,8 @@ public class FightController : EnsBehaviour
         Tool.SceneController.DestroyNonSkillPlayer();
         Fighting = true;
         judgeEndCdRecorder = -10;
+
+        CustomLevel.OnFightStart();
     }
     private void SettleRpc()
     {
@@ -167,6 +169,8 @@ public class FightController : EnsBehaviour
     public void StopFightLocal()//立即停止，不结算，保留关卡
     {
         Fighting = false;
+        CustomLevel.ReleaseData();
+        CustomLevel.Dispose();
     }
 
 

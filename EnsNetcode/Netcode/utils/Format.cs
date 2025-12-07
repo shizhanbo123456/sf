@@ -58,9 +58,9 @@ public static class Format
         bool isFirst = true;
         foreach(var i in list)
         {
-            sb.Append(i.ToString());
-            if(isFirst)isFirst= false;
+            if (isFirst) isFirst = false;
             else sb.Append(c);
+            sb.Append(i.ToString());
         }
         return sb.ToString();
     }
@@ -77,9 +77,9 @@ public static class Format
         bool isFirst = true;
         foreach (var i in list)
         {
-            sb.Append(i.ToString());
             if (isFirst) isFirst = false;
             else sb.Append(c);
+            sb.Append(i.ToString());
         }
         return sb.ToString();
     }

@@ -34,7 +34,9 @@ public static class CustomLevel
         {
             luaEnv.DoString(LuaText);
 
-            LevelPath = luaEnv.Global.Get<string>("LevelPath").Split('-');
+            int i = 0;
+            while (i < lua.Length && i != '\n') i++;
+            LevelPath =lua.Substring(0,i).Trim('-',' ').Split('-');
 
             FightStartFunction = luaEnv.Global.Get<LuaFunction>("FightStart");
             TargetKilledFunction = luaEnv.Global.Get<LuaFunction>("TargetKilled");
@@ -45,8 +47,9 @@ public static class CustomLevel
             ModeScoreFunction = luaEnv.Global.Get<LuaFunction>("ModeScore");
             ReleaseDataFunction = luaEnv.Global.Get<LuaFunction>("ReleaseData");
         }
-        catch
+        catch(System.Exception e)
         {
+            Debug.LogError("加载关卡逻辑时出错： " + e.ToString());
             Dispose();
             return false;
         }
@@ -96,8 +99,20 @@ public static class CustomLevel
     {
         Initialized = false;
 
-        FightStartFunction?.Dispose();
-        UpdateFunction?.Dispose();
-        JudgeEndFunction?.Dispose();
+        try
+        {
+            FightStartFunction?.Dispose();
+            TargetKilledFunction?.Dispose();
+            UpdateFunction?.Dispose();
+            JudgeEndFunction?.Dispose();
+            KillScoreFunction?.Dispose();
+            TimeScoreFunction?.Dispose();
+            ModeScoreFunction?.Dispose();
+            ReleaseDataFunction?.Dispose();
+        }
+        catch(System.InvalidOperationException e)
+        {
+            Debug.Log(e);
+        }
     }
 }

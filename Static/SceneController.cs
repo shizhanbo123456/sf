@@ -8,7 +8,7 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     private void Awake()
     {
         Tool.SceneController = this;
-        Invoke(nameof(LateInit), 1f);
+        Invoke(nameof(LateInit), 0.2f);
     }
     private void LateInit()
     {
@@ -82,9 +82,9 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
             }
         }
     }
-    public void CreateLevel(LevelType type)
+    public void CreateLevel(int index)
     {
-        Level = Instantiate(Tool.PrefabManager.GetLevel(type).gameObject).GetComponent<Level>();
+        Level = Instantiate(Tool.PrefabManager.Levels[index].gameObject).GetComponent<Level>();
     }
     public void DestroyLevel() 
     {

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class FileManager : MonoBehaviour
@@ -19,6 +20,7 @@ public class FileManager : MonoBehaviour
         {
             await CustomLevelLoader.LoadAsync();
             CustomLevelSelector.ProcessData();
+            //foreach(var i in CustomLevelSelector.LevelInfo)Debug.Log(i.logic);
         });
     }
     public void Init()

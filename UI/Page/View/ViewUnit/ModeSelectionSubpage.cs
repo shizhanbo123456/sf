@@ -8,8 +8,11 @@ public class ModeSelectionSubpage : MonoBehaviour
 {
     [SerializeField] private Text HeaderText;
     [SerializeField] private GameObject SelectionButtonsTemplate;//会disable
-    [SerializeField] private List<Text> SelectionButtonsLabels = new List<Text>();
     [SerializeField] private GameObject BackButton;
+    private List<Text> SelectionButtonsLabels = new List<Text>();
+    private List<int>nextSelectionList = new List<int>();
+
+    private int nextButtonTrigIndex;
 
     private List<int> _currentPath = new List<int>();
     private static Dictionary<int, string> IntToPart => CustomLevelSelector.IntToPart;
@@ -22,17 +25,17 @@ public class ModeSelectionSubpage : MonoBehaviour
     private void ResetToRoot()
     {
         _currentPath.Clear();
+        nextSelectionList = CustomLevelSelector.GetNextMatchedInfoIndex(_currentPath);
         UpdateUI();
     }
-    private void UpdateUI(List<int> buffer=null)
+    private void UpdateUI()
     {
-        HeaderText.text = IntToPart[_currentPath[^1]];
+        HeaderText.text = _currentPath.Count>0?IntToPart[_currentPath[^1]]:string.Empty;
 
-        if (buffer == null) buffer = CustomLevelSelector.GetNextSelectionListIndex(_currentPath);
-        ActiveButtonsFor(buffer.Count);
-        for(int i = 0; i < buffer.Count; i++)
+        ActiveButtonsFor(nextSelectionList.Count);
+        for(int i = 0; i < nextSelectionList.Count; i++)
         {
-            SelectionButtonsLabels[i].text=IntToPart[buffer[i]];
+            SelectionButtonsLabels[i].text=IntToPart[CustomLevelSelector.LevelInfo[nextSelectionList[i]].path[_currentPath.Count]];
         }
         BackButton.SetActive(_currentPath.Count > 0);
     }
@@ -41,7 +44,8 @@ public class ModeSelectionSubpage : MonoBehaviour
         while(SelectionButtonsLabels.Count < num)
         {
             var obj=Instantiate(SelectionButtonsTemplate,SelectionButtonsTemplate.transform.parent);
-            obj.GetComponent<Button>().onClick.AddListener(() => Select(SelectionButtonsTemplate.transform.childCount - 2));//排除模板的index
+            int i = nextButtonTrigIndex++;
+            obj.GetComponent<Button>().onClick.AddListener(() => Select(i));//排除模板的index
             SelectionButtonsLabels.Add(obj.GetComponent<Text>());
         }
         for(int i = 0;i < SelectionButtonsLabels.Count; i++)
@@ -51,24 +55,24 @@ public class ModeSelectionSubpage : MonoBehaviour
     }
     private void Select(int x)
     {
-        _currentPath.Add(x);
-        var next = CustomLevelSelector.GetNextSelectionListIndex(_currentPath);
+        _currentPath.Add(CustomLevelSelector.LevelInfo[nextSelectionList[x]].path[_currentPath.Count]);
+        nextSelectionList = CustomLevelSelector.GetNextMatchedInfoIndex(_currentPath);
 
-        if (next==null) OnModeConfirm();
-        else UpdateUI(next);
+        if (nextSelectionList==null) OnModeConfirm();
+        else UpdateUI();
     }
     public void Back()
     {
         if (_currentPath.Count == 0) return;
-
         _currentPath.RemoveAt(_currentPath.Count - 1);
+
+        nextSelectionList = CustomLevelSelector.GetNextMatchedInfoIndex(_currentPath);
         UpdateUI();
     }
     public void OnModeConfirm()
     {
-        ResetToRoot();
-
-        gameObject.SetActive(false);
         Tool.FightController.SelectedMode = CustomLevelSelector.GetCustomLevelText(_currentPath);
+        ResetToRoot();
+        gameObject.SetActive(false);
     }
 }

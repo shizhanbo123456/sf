@@ -1,4 +1,7 @@
 using UnityEngine;
+using XLua;
+
+[LuaCallCSharp]
 public struct TargetInfo
 {
     public int camp;

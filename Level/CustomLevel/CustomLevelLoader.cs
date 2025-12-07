@@ -13,31 +13,37 @@ public struct CustomLevelText
 }
 public static class CustomLevelSelector
 {
-    public static List<CustomLevelText> LevelInfo;
-    public static Dictionary<int, string> IntToPart;
-    public static Dictionary<string,int> PartToInt;
+    public static List<CustomLevelText> LevelInfo=new List<CustomLevelText>();
+    public static Dictionary<int, string> IntToPart=new Dictionary<int, string>();
+    public static Dictionary<string,int> PartToInt=new Dictionary<string, int>();
     private static int nextPartIndex;
 
     public static void ProcessData()
     {
-        LevelInfo=new List<CustomLevelText>();
-        foreach(var s in CustomLevelLoader.LevelInfo)
+        try
         {
-            var t=GetPath(s);
-            string[] pathParts = t.Split('-');
-            foreach (var part in pathParts)
+            foreach (var s in CustomLevelLoader.LevelInfo)
             {
-                if (!PartToInt.ContainsKey(part))
+                var t = GetPath(s);
+                string[] pathParts = t.Split('-');
+                foreach (var part in pathParts)
                 {
-                    AddPathPart(part);
+                    if (!PartToInt.ContainsKey(part))
+                    {
+                        AddPathPart(part);
+                    }
                 }
+                int[] path = new int[pathParts.Length];
+                for (int i = 0; i < pathParts.Length; i++)
+                {
+                    path[i] = PartToInt[pathParts[i]];
+                }
+                LevelInfo.Add(new CustomLevelText() { path = path, joinedPath = t, logic = s });
             }
-            int[] path = new int[pathParts.Length];
-            for(int i = 0; i < pathParts.Length; i++)
-            {
-                path[i]=PartToInt[pathParts[i]];
-            }
-            LevelInfo.Add(new CustomLevelText() { path= path,joinedPath=t,logic=s });
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
         }
     }
     private static string GetPath(string src)
@@ -62,23 +68,23 @@ public static class CustomLevelSelector
         return i;
     }
 
-    public static List<int> GetNextSelectionListIndex(List<int> selectedPath)//传入列表内容为part的id
+    public static List<int> GetNextMatchedInfoIndex(List<int> selectedPath)//传入列表内容为part的id
     {
-        List<int>matchedSelectionIndex= new List<int>();
+        List<int>matchedInfoIndex= new List<int>();
         for (int i = 0; i < LevelInfo.Count; i++)
         {
-            if (MatchSelection(LevelInfo[i].path,selectedPath))matchedSelectionIndex.Add(i);
+            if (MatchSelection(LevelInfo[i].path,selectedPath))matchedInfoIndex.Add(i);
         }
-        if (matchedSelectionIndex.Count == 1 && LevelInfo[matchedSelectionIndex[0]].path.Length == selectedPath.Count) return null;
+        if (matchedInfoIndex.Count == 1 && LevelInfo[matchedInfoIndex[0]].path.Length == selectedPath.Count) return null;
         else
         {
-            foreach(var i in matchedSelectionIndex)
+            foreach(var i in matchedInfoIndex)
             {
                 if (LevelInfo[i].path.Length == selectedPath.Count)
                     throw new Exception("部分节点以其它模式的非叶节点为叶节点");
             }
         }
-        return matchedSelectionIndex;
+        return matchedInfoIndex;
     }
     private static bool MatchSelection(int[] fullPath,List<int>selectedPath)
     {
@@ -97,7 +103,7 @@ public static class CustomLevelSelector
         foreach (var i in LevelInfo)
         {
             if (i.path.Length != list.Count) continue;
-            if(MatchSelection(i.path,list)) return i;
+            if (MatchSelection(i.path,list)) return i;
         }
         throw new Exception("未找到选择的模式");
     }
@@ -117,7 +123,6 @@ public static class CustomLevelLoader
     {
         try
         {
-            // 清空旧数据
             LevelInfo.Clear();
 
             // 根据平台选择加载方式
