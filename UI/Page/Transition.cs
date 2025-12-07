@@ -34,12 +34,12 @@ public class Transition : MonoBehaviour
             }
         }
     }
-    private static void Show()
+    public static void Show()
     {
         Label = string.Empty;
         Tool.PageManager.Transition.gameObject.SetActive(true);
     }
-    private static void Hide()
+    public static void Hide()
     {
         Tool.PageManager.Transition.gameObject.SetActive(false);
     }

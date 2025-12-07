@@ -15,6 +15,11 @@ public class FileManager : MonoBehaviour
     {
         Tool.FileManager = this;
         Init();
+        Transition.ExecuteWithLoading(async () =>
+        {
+            await CustomLevelLoader.LoadAsync();
+            CustomLevelSelector.ProcessData();
+        });
     }
     public void Init()
     {
