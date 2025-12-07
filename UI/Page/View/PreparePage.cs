@@ -14,7 +14,6 @@ public class PreparePage : BasePage
     public Text RoomId;
     [SerializeField] private Text RoomName;
     [SerializeField] private Text Mode;
-    public ButtonGroup CampSelected;
     [Space]
     [SerializeField] private GameObject SettingsPanel;
 

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Level;
 
 public class PrefabManager : MonoBehaviour
 {
@@ -26,29 +25,7 @@ public class PrefabManager : MonoBehaviour
     public GameObject BulletWarningCircle;
     public List<GameObject> BulletList = new List<GameObject>();
     [Header("Level")]
-    public Level.LevelType LevelType;
-    public Level Home;
-    public Level Prepare;
-    public Level Battle;
-    public Level Guard;
-    public List<Level> LevelPVE = new List<Level>();
-    public Level GetLevel(LevelType type)
-    {
-        Level level = null;
-        switch (type)
-        {
-            case LevelType.Home: level = Tool.PrefabManager.Home; break;
-            case LevelType.Prepare: level = Tool.PrefabManager.Prepare; break;
-            case LevelType.Luandou: level = Tool.PrefabManager.Battle; break;
-            case LevelType.Gongfang: level = Tool.PrefabManager.Guard; break;
-        }
-        if (level == null)
-        {
-            level = Tool.PrefabManager.LevelPVE[(int)type - (int)LevelType.PVE1];
-        }
-        if (level == null) Debug.LogError("Î´ÕÒµ½¹Ø¿¨");
-        return level;
-    }
+    public List<Level> Levels = new List<Level>();
     [Header("Player")]
     public GameObject UnnetPlayer;
     public EnsBehaviourCollection NonSkillPlayerCollection;

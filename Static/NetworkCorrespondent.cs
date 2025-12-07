@@ -39,12 +39,10 @@ public class NetworkCorrespondent : EnsBehaviour
         //连接后向主机发送新增玩家信息
         EnsInstance.OnJoinRoom += () =>
         {
-            Tool.PageManager.PreparePage.CampSelected.Select(0);
             SendData();
         };
         EnsInstance.OnCreateRoom +=()=>
         {
-            Tool.PageManager.PreparePage.CampSelected.Select(0);
             Dictionary<string, string> info = new Dictionary<string, string>()
             {
                 { "Name","房间名称"},
@@ -71,7 +69,7 @@ public class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyLevel();
         Tool.SceneController.DestroyPlayer();
         Tool.PageManager.TurnPage(PageManager.PageType.Prepare);
-        Tool.SceneController.CreateLevel(Level.LevelType.Prepare);
+        Tool.SceneController.CreateLevel(1);
 
         var player = new ServerDataContainer.PlayerDataContainer(
             EnsInstance.LocalClientId,
@@ -178,7 +176,7 @@ public class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyAllTargetsLocal();
         Tool.SceneController.DestroyLevel();
 
-        Tool.SceneController.CreateLevel(Level.LevelType.Prepare);
+        Tool.SceneController.CreateLevel(1);
         Tool.PageManager.TurnPage(PageManager.PageType.Prepare);
     }
     private void LateBackToPrepare()
@@ -198,6 +196,8 @@ public class NetworkCorrespondent : EnsBehaviour
         if (restarting) return;
         restarting= true;
 
+        Debug.LogWarning("重置了游戏");
+
         EnsInstance.Corr.ShutDown();
         Tool.FightController.StopFightLocal();
 
@@ -209,7 +209,7 @@ public class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyAllTargetsLocal();
 
         Tool.PageManager.TurnPage(PageManager.PageType.Home);
-        Tool.SceneController.CreateLevel(Level.LevelType.Home);
+        Tool.SceneController.CreateLevel(0);
         Tool.SceneController.CreateUnnetPlayer();
 
         restarting = false;

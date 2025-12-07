@@ -1,12 +1,13 @@
+using XLua;
 using static CustomTargetCreater;
-using static Level;
 
 //创建关卡时需要手动创建关卡地形、创建玩家、敌人等
 //退出关卡时会自动销毁地形和所有物体
+[LuaCallCSharp]
 public static class CustomLevelAPIManifest
 {
     public static float TimeUsed => CustomLevel.FightTime;
-    public static void CreateLevel(LevelType type)=>Tool.SceneController.CreateLevel(type);
+    public static void CreateLevel(int type)=>Tool.SceneController.CreateLevel(type);
     public static void DestroyLevel() => Tool.SceneController.DestroyLevel();
     public static void SetScoreboardActive(bool active)=>Tool.NetworkCorrespondent.SetScoreboardActiveRpc(active);
     public static void SetScoreBoardText(int x, int y, string data)=>Tool.NetworkCorrespondent.SetScoreboardTextRpc(x, y, data);
@@ -36,14 +37,6 @@ public static class CustomLevelAPIManifest
     }
 }
 /*
-public class Level
-{
-    public enum LevelType
-    {
-        Home, Prepare, Luandou, Gongfang,
-        PVE1, PVE2, PVE3, PVE4, PVE5, PVE6, PVE7
-    }
-}
 public class CustomTargetCreater
 {
     public enum TargetType

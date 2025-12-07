@@ -31,7 +31,7 @@ public class TargetGraphic : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(transform.position - Vector3.up * SpawnOffset, 0.1f);
+        Gizmos.DrawSphere(transform.position - Vector3.up * SpawnOffset*transform.localScale.y, 0.1f);
     }
     public void Init(GameObject obj)
     {
