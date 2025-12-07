@@ -10,8 +10,8 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
     public enum KeyFormatType
     {
         None,
-        Nonsequential,//k
-        Timewise//K
+        DisorderConfirm,//k
+        OrderWise//K
     }
     private List<ENCKey> Keys = new List<ENCKey>();
     private List<ENCKey> TimeWiseKeys = new List<ENCKey>();
@@ -36,7 +36,7 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
                         k.ToConfirmIntervalLeft.ReachAfter(EnsInstance.KeySendInterval);
 
                         string res;
-                        if (k.Type == KeyFormatType.Nonsequential) res = "[k" + k.Index + "]" + k.Key;
+                        if (k.Type == KeyFormatType.DisorderConfirm) res = "[k" + k.Index + "]" + k.Key;
                         else res = "[K" + k.Index + "]" + k.Key;
                         r.Add(res);
                     }
@@ -68,12 +68,12 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
             if (data[0]=='[') Debug.Log("格式错误");
             return '[' + data.Substring(1, data.Length - 1);
         }
-        if (type == KeyFormatType.Nonsequential)
+        if (type == KeyFormatType.DisorderConfirm)
         {
             if (data[0] == 'k') Debug.Log("格式错误");
             return 'k' + data.Substring(1, data.Length - 1);
         }
-        if (type == KeyFormatType.Timewise)
+        if (type == KeyFormatType.OrderWise)
         {
             if (data[0] == 'K') Debug.Log("格式错误");
             return 'K' + data.Substring(1, data.Length - 1);
@@ -109,8 +109,8 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
         int index = int.Parse(data.Substring(2, indexEnd - 2));//[K112233]abc
 
         t_data = data.Substring(indexEnd + 1, data.Length - indexEnd - 1);
-        if (t_data[1]=='K')t_data=Format(t_data,KeyFormatType.Timewise);
-        else t_data = Format(t_data, KeyFormatType.Nonsequential);
+        if (t_data[1]=='K')t_data=Format(t_data,KeyFormatType.OrderWise);
+        else t_data = Format(t_data, KeyFormatType.DisorderConfirm);
 
 
         //本地//////////////////////////////////////////////////////////////
@@ -153,8 +153,8 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
         while(AddBuffer.Read(out var data))
         {
             data = Format(data,KeyFormatType.None);
-            if (data[0]=='k')Keys.Add(new ENCKey(data,KeyFormatType.Nonsequential));
-            else TimeWiseKeys.Add(new ENCKey(data, KeyFormatType.Timewise));
+            if (data[0]=='k')Keys.Add(new ENCKey(data,KeyFormatType.DisorderConfirm));
+            else TimeWiseKeys.Add(new ENCKey(data, KeyFormatType.OrderWise));
         }
 
         for (int i = RecvKeys.Count - 1; i >= 0; i--)

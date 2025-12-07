@@ -35,19 +35,20 @@ public class PageManager : MonoBehaviour
             i.Init();
             i.RegistEvent();
         }
-        PresentPage = HomePage;
-        for (int j = 0; j < Pages.Count; j++) Pages[j].gameObject.SetActive(j == 0);
-        PresentPage.Enter();
+        for (int j = 0; j < Pages.Count; j++) Pages[j].gameObject.SetActive(false);
+        TurnPage(PageType.Home);
 
         Version.text = "v"+Application.version;
     }
     public void TurnPage(PageType type)
     {
-        int i = (int)type;
         PresentPageType=type;
-        PresentPage.Exit();
-        PresentPage.gameObject.SetActive(false);
-        PresentPage = Pages[i];
+        if (PresentPage != null)
+        {
+            PresentPage.Exit();
+            PresentPage.gameObject.SetActive(false);
+        }
+        PresentPage = Pages[(int)type];
         PresentPage.gameObject.SetActive(true);
         PresentPage.Enter();
     }

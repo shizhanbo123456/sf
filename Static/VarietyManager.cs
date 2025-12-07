@@ -6,16 +6,6 @@ using vs = Variety.Skill;
 
 public static class VarietyManager
 {
-    public static List<string> SkillPackageName = new List<string>()
-    {
-        "技能组1","技能组2","技能组3"
-    };
-    public static List<string> SkillPackageDes = new List<string>()
-    {
-        "均衡、中射程","破霸体、范围伤害","高爆发、Debuff"
-    };
-
-
     public static List<List<SkillBase>> PlayerSkills = new()
     {
         new List<SkillBase>()

@@ -16,8 +16,8 @@ public sealed class EnsSpawner : EnsBehaviour
     private static readonly Dictionary<KeyFormatType, string> Key2Header = new Dictionary<KeyFormatType, string>()
     {
         {KeyFormatType.None,Header.f },
-        {KeyFormatType.Nonsequential,Header.kf },
-        {KeyFormatType.Timewise,Header.Kf }
+        {KeyFormatType.DisorderConfirm,Header.kf },
+        {KeyFormatType.OrderWise,Header.Kf }
     };
 
     private static int prefabid = 1000000000;

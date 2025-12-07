@@ -77,7 +77,7 @@ public class NetworkCorrespondent : EnsBehaviour
             EnsInstance.LocalClientId,
             PlayerInfo.Name
             );
-        CallFuncRpc(nameof(RecvData), SendTo.RoomOwner, player.ToString(),KeyLibrary.KeyFormatType.Nonsequential);
+        CallFuncRpc(nameof(RecvData), SendTo.RoomOwner, player.ToString(),KeyLibrary.KeyFormatType.DisorderConfirm);
         Tool.FightController.SelectedMode = Tool.FightController.SelectedMode;
     }
 
@@ -90,10 +90,10 @@ public class NetworkCorrespondent : EnsBehaviour
         if (ServerDataContainer.GetAllValues().Count != 0)
         {
             string AllData = ServerDataContainer.ReturnAll();
-            CallFuncRpc(nameof(RecvAllData), new List<int>() { playerData.id }, AllData, KeyLibrary.KeyFormatType.Timewise);
+            CallFuncRpc(nameof(RecvAllData), new List<int>() { playerData.id }, AllData, KeyLibrary.KeyFormatType.OrderWise);
         }
 
-        CallFuncRpc(nameof(RecvNewData), SendTo.Everyone, data, KeyLibrary.KeyFormatType.Timewise);
+        CallFuncRpc(nameof(RecvNewData), SendTo.Everyone, data, KeyLibrary.KeyFormatType.OrderWise);
         Tool.FightController.SyncModeHeaderTo(playerData.id);
 
         StartCoroutine(RecreatePlayers(playerData));
@@ -112,10 +112,10 @@ public class NetworkCorrespondent : EnsBehaviour
         yield return 3;
         foreach (var i in Tool.SceneController.NonSkillPlayers.Values)
         {
-            EnsInstance.EnsSpawner.RespawnCheckServerRpc(i.GetComponent<NonSkillPlayerCollection>(), i.id.ToString(),KeyLibrary.KeyFormatType.Timewise);
+            EnsInstance.EnsSpawner.RespawnCheckServerRpc(i.GetComponent<NonSkillPlayerCollection>(), i.id.ToString(),KeyLibrary.KeyFormatType.OrderWise);
         }
         EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, SendTo.Everyone,
-            playerData.id.ToString(),KeyLibrary.KeyFormatType.Timewise);
+            playerData.id.ToString(),KeyLibrary.KeyFormatType.OrderWise);
     }
 
     
@@ -129,7 +129,7 @@ public class NetworkCorrespondent : EnsBehaviour
 
     public void SetScoreboardActiveRpc(bool active)
     {
-        CallFuncRpc(nameof(SetScoreboardActiveLocal), SendTo.Everyone, active ? "1" : "0", KeyLibrary.KeyFormatType.Nonsequential);
+        CallFuncRpc(nameof(SetScoreboardActiveLocal), SendTo.Everyone, active ? "1" : "0", KeyLibrary.KeyFormatType.DisorderConfirm);
     }
     private void SetScoreboardActiveLocal(string data)
     {
@@ -142,7 +142,7 @@ public class NetworkCorrespondent : EnsBehaviour
         var sb=Tool.stringBuilder;
         sb.Clear();
         sb.Append(x).Append('_').Append(y).Append('_').Append(data);
-        CallFuncRpc(nameof(SetScoreboardTextLocal), SendTo.Everyone, sb.ToString(), KeyLibrary.KeyFormatType.Nonsequential);
+        CallFuncRpc(nameof(SetScoreboardTextLocal), SendTo.Everyone, sb.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
     }
     private void SetScoreboardTextLocal(string data)
     {
@@ -154,7 +154,11 @@ public class NetworkCorrespondent : EnsBehaviour
     #region//¿ªÊ¼Õ½¶·
     public void StartFight()//(id,camp)
     {
-        CallFuncRpc(nameof(ControllerStartFight), SendTo.Everyone, KeyLibrary.KeyFormatType.Timewise);
+        Transition.ExecuteWithLoading(Tool.FightController.SyncLevel, (b) =>
+        {
+            if (b) CallFuncRpc(nameof(ControllerStartFight), SendTo.Everyone, KeyLibrary.KeyFormatType.OrderWise);
+            else RestartGame();
+        });
     }
     private void ControllerStartFight()
     {
@@ -181,7 +185,7 @@ public class NetworkCorrespondent : EnsBehaviour
     {
         foreach (var i in ServerDataContainer.GetAllValues())
         {
-            EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, SendTo.Everyone, i.id.ToString(),KeyLibrary.KeyFormatType.Nonsequential);
+            EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, SendTo.Everyone, i.id.ToString(),KeyLibrary.KeyFormatType.DisorderConfirm);
         }
     }
     #endregion

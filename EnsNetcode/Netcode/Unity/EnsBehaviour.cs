@@ -22,8 +22,8 @@ public abstract class EnsBehaviour : MonoBehaviour
     private static readonly Dictionary<KeyFormatType, string> Key2Header = new Dictionary<KeyFormatType, string>() 
     { 
         {KeyFormatType.None,Header.F },
-        {KeyFormatType.Nonsequential,Header.kF },
-        {KeyFormatType.Timewise,Header.KF }
+        {KeyFormatType.DisorderConfirm,Header.kF },
+        {KeyFormatType.OrderWise,Header.KF }
     };
     public enum SendTo
     {
@@ -71,7 +71,7 @@ public abstract class EnsBehaviour : MonoBehaviour
     {
         
     }
-    public void DestroyRpc(KeyFormatType keyFormatType=KeyFormatType.Nonsequential)
+    public void DestroyRpc(KeyFormatType keyFormatType=KeyFormatType.DisorderConfirm)
     {
         CallFuncRpc(nameof(DestroyLocal), SendTo.Everyone, keyFormatType);
     }
