@@ -15,19 +15,19 @@ public class PlayerData : Target
 
     public override void Init(TargetInfo info)
     {
-        base.Init(info); 
-
+        base.Init(info);
         if (isLocalPlayer)
         {
             var att = Tool.AttributesManager.GetDynamicAttribute(this) as PlayerAttributes;
             BaseAttributes = att.GetDynamicAttributes(Level).Clone();
             FloatingAttributes = BaseAttributes.Clone();
+            ApplyEffect(new HealthRegeneration(RegenerationAdderId, this, (int)(att.Huixie * BaseAttributes.Shengming.Value), 100000));
+            RegistSyncAttributes();
 
             CameraInstance.instance.Init(transform);
-            RegistSyncAttributes();
-            ApplyEffect(new HealthRegeneration(RegenerationAdderId, this, (int)(att.Huixie * BaseAttributes.Shengming.Value), 100000));
             Tool.SceneController.Player = gameObject;
         }
+        InitNameAndBar();
     }
     protected override void InitNameAndBar()
     {

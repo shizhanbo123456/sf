@@ -1,3 +1,4 @@
+using UnityEngine;
 using XLua;
 using static CustomTargetCreater;
 
@@ -13,15 +14,31 @@ public static class CustomLevelAPIManifest
     public static void SetScoreBoardText(int x, int y, string data)=>Tool.NetworkCorrespondent.SetScoreboardTextRpc(x, y, data);
 
     private static CustomTargetCreater creater;
-    public static void LoadCreater(TargetInfo info, TargetType targetType, GraphicType graphicType) 
-        => creater = new CustomTargetCreater(info, targetType, graphicType);
+    public static void LoadCreater(TargetInfo info, TargetType targetType, int graphicType)
+    {
+        Debug.Log("创建Creater");
+        creater = new CustomTargetCreater(info, targetType, graphicType);
+    }
     public static void LoadController(TargetControllerType controllertype, bool canFly)
-        => creater.LoadController(controllertype, canFly);
+    {
+        Debug.Log("装载角色控制器");
+        creater.LoadController(controllertype, canFly);
+    }
     public static void LoadSkillController(TargetSkillControllerType skillcontrollertype, int[] skillIndex, int repeatContentIndex)
-        =>creater.LoadSkillController(skillcontrollertype, skillIndex, repeatContentIndex);//repeatContentIndex<0时即视为无效
+    {
+        Debug.Log("装载技能控制器");
+        creater.LoadSkillController(skillcontrollertype, skillIndex, repeatContentIndex);//repeatContentIndex<0时即视为无效
+    }
     public static void LoadEffectController(TargetEffectControllerType effectcontrollertype)
-        =>creater.LoadEffectController(effectcontrollertype);
-    public static void Create() => creater.Create();
+    {
+        Debug.Log("装载效果控制器");
+        creater.LoadEffectController(effectcontrollertype);
+    }
+    public static void Create()
+    {
+        Debug.Log("创建角色");
+        creater.Create();
+    }
 
     public static int SkillMapper(int type,int index)//用于获取技能的index，type=0时为玩家技能组，=1为boss技能组
     {
