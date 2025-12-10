@@ -51,17 +51,12 @@ public struct TargetInfo
         return sb.ToString();
     }
 }
+[LuaCallCSharp]
 public class CustomTargetCreater
 {
     public enum TargetType
     {
         Player,Ore,Lantern,Monster
-    }
-    public enum GraphicType
-    {
-        Player,Ore,Lantern,
-        Monster1,Monster2,Monster3,Monster4,Monster5,Monster6,Monster7,Monster8,Monster9,
-        Monster10,Monster11,Monster12,Monster13,Monster14,Monster15,Monster16,Monster17,Monster18
     }
     public enum TargetControllerType
     {
@@ -78,7 +73,7 @@ public class CustomTargetCreater
 
     private TargetInfo info;
     private TargetType targetType;
-    private GraphicType graphicType;
+    private int graphicType;
 
     private TargetControllerType controllerType;
     private bool canFly=false;
@@ -86,7 +81,7 @@ public class CustomTargetCreater
     private int[] skillIndex;
     private int repeatContentIndex;
     private TargetEffectControllerType effectControllerType;
-    public CustomTargetCreater(TargetInfo info,TargetType targetType,GraphicType graphicType)
+    public CustomTargetCreater(TargetInfo info,TargetType targetType,int graphicType)
     {
         this.info = info;
 
@@ -101,7 +96,7 @@ public class CustomTargetCreater
     public void LoadSkillController(TargetSkillControllerType skillcontrollertype, int[] skillIndex,int repeatContentIndex)
     {
         skillControllerType= skillcontrollertype;
-        if (skillIndex != null && skillIndex.Length > 0) Debug.LogError("未装载技能");
+        if (skillIndex != null && skillIndex.Length == 0) Debug.LogError("未装载正确的技能");
         this.skillIndex = skillIndex;
         this.repeatContentIndex = repeatContentIndex;
     }
@@ -116,7 +111,7 @@ public class CustomTargetCreater
         sb.Clear();
         sb.Append(info).Append('_');
         sb.Append((int)targetType).Append('_');
-        sb.Append((int)graphicType).Append('_');
+        sb.Append(graphicType).Append('_');
         sb.Append((int)controllerType).Append('_');
         sb.Append(canFly?1:0).Append('_');
         sb.Append((int)skillControllerType).Append('_');
@@ -131,12 +126,12 @@ public class CustomTargetCreater
         int index = 0;
         info = new TargetInfo(s[index++]);
         targetType=(TargetType)int.Parse(s[index++]);
-        graphicType = (GraphicType)int.Parse(s[index++]);
+        graphicType = int.Parse(s[index++]);
         controllerType=(TargetControllerType)int.Parse(s[index++]);
         canFly=int.Parse(s[index++])==1;
         skillControllerType = (TargetSkillControllerType)int.Parse(s[index++]);
         string skill = s[index++];
-        skillIndex = skill == "null" ? null : Format.StringToArray(skill, int.Parse);
+        skillIndex = skill == "null" ? null : Format.StringToArray(skill, int.Parse,'+');
         repeatContentIndex=int.Parse(s[index++]);
         effectControllerType=(TargetEffectControllerType)int.Parse(s[index++]);
     }

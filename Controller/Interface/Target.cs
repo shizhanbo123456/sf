@@ -50,7 +50,8 @@ public abstract class Target : MonoBehaviour
     public LockChain SkillLock=LockChain.CreateLock();
 
     /// <summary>
-    /// 分配信息，设置位置，获取组件，注册OnCreate。注册属性同步需要额外调用
+    /// 分配信息，设置位置，获取组件，注册OnCreate。注册属性同步需要额外调用<br/>
+    /// 需要手动调用InitNameAndBar(所有客户端)和RegistSyncAttributes(拥有者)
     /// </summary>
     /// <param name="info"></param>
     public virtual void Init(TargetInfo info)
@@ -59,9 +60,8 @@ public abstract class Target : MonoBehaviour
 
         graphic.transform.localScale = info.size * Vector3.one;
 
-        transform.position = Tool.SceneController.Level.GetPos(info.spawnX,info.spawnY)+
+        transform.position = Tool.SceneController.Level.GetPos(info.spawnX, info.spawnY) +
             graphic.SpawnOffset * graphic.transform.localScale.y * Vector3.up;
-        InitNameAndBar();
 
         TimeLineWork = gameObject.AddComponent<TimeLineWork>();
         if (!TryGetComponent(out targetInfoSync)) Debug.LogError("未找到同步");
@@ -74,9 +74,6 @@ public abstract class Target : MonoBehaviour
     {
         graphic.SetName(Name, Tool.SpriteManager.TargetToColor(this));
     }
-    /// <summary>
-    /// 需要初始化Base/FloatingAttributes
-    /// </summary>
     protected virtual void RegistSyncAttributes()
     {
         void SyncShengming()

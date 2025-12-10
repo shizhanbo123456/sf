@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Level;
 
 public class SceneController : MonoBehaviour//联机状态下的生成由FightController控制
 {

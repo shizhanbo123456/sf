@@ -31,6 +31,5 @@ public class PrefabManager : MonoBehaviour
     public EnsBehaviourCollection NonSkillPlayerCollection;
     [Header("Target")]
     public EnsBehaviourCollection TargetCollection;
-    public CustomTargetCreater.GraphicType graphicType;
     public List<TargetGraphic> GraphicCollection= new List<TargetGraphic>();
 }

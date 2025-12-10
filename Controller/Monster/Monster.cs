@@ -44,6 +44,7 @@ public class Monster : Target
 
             RegistSyncAttributes();
         }
+        InitNameAndBar();
     }
     protected override void InitNameAndBar()
     {

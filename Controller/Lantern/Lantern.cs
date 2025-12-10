@@ -29,6 +29,7 @@ public class Lantern : Target
 
             RegistSyncAttributes();
         }
+        InitNameAndBar();
     }
     protected override void RegistOnCreated()
     {

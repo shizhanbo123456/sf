@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Variety.Base;
 
@@ -18,6 +17,7 @@ public class Ore : Target
             FloatingAttributes = BaseAttributes.Clone();
             RegistSyncAttributes();
         }
+        InitNameAndBar();
     }
     protected override void RegistOnCreated()
     {
