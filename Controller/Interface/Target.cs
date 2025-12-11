@@ -26,7 +26,7 @@ public abstract class Target : MonoBehaviour
     public DedicateSyncAttributes DedicatedAttributes=>targetDataSync.DedicatedAttributes;
 
     [HideInInspector]public TargetDataSync targetDataSync;
-    [HideInInspector]public TargetControllerSync targetInfoSync;
+    [HideInInspector]public TargetControllerSync targetControllerSync;
 
     [HideInInspector]public TargetGraphic graphic;
     [HideInInspector]public TargetController controller;
@@ -35,7 +35,7 @@ public abstract class Target : MonoBehaviour
 
     [HideInInspector]public TimeLineWork TimeLineWork;
 
-    public bool FaceRight=> targetInfoSync.FaceRight;
+    public bool FaceRight=> targetControllerSync.FaceRight;
     public virtual int Shengming
     {
         get { return FloatingAttributes.Shengming.Value; }
@@ -65,7 +65,7 @@ public abstract class Target : MonoBehaviour
         graphic.transform.localPosition = Vector3.zero;
 
         TimeLineWork = gameObject.AddComponent<TimeLineWork>();
-        if (!TryGetComponent(out targetInfoSync)) Debug.LogError("未找到同步");
+        if (!TryGetComponent(out targetControllerSync)) Debug.LogError("未找到同步");
         if (TryGetComponent(out targetDataSync)) targetDataSync.Init(this);
         else Debug.LogError("未找到信息同步");
 

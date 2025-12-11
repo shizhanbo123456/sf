@@ -41,7 +41,7 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
     }
     private void GetCollider()
     {
-        colliderGameObject = GetComponentInChildren<Collider>().gameObject;
+        colliderGameObject = GetComponentInChildren<Collider2D>().gameObject;
     }
 
 
@@ -50,18 +50,25 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
         if (Time.time - lastSyncTime < minSyncInterval) return false;
         if ((transform.position - lastSyncPosition).sqrMagnitude > sqrDist || rb.velocity.sqrMagnitude > sqrVelocity)
         {
-            lastSyncTime = 0;
+            lastSyncTime = Time.time;
             lastSyncPosition = transform.position;
             return true;
         }
-        else if (lastSyncTime < 0.05f+Time.time)
+        else if (Time.time < 0.05f + lastSyncTime)
         {
+            lastSyncTime = Time.time;
             lastSyncPosition = transform.position;
             return true;
         }
-        else if (lastSyncTime > 0.5f + Time.time)
+        else if (Time.time > 0.5f + lastSyncTime)
         {
-            lastSyncTime = 0.1f;
+            lastSyncTime = Time.time;
+            lastSyncPosition = transform.position;
+            return true;
+        }
+        else if (Tool.SubInput.FallSignal())
+        {
+            lastSyncTime = Time.time;
             lastSyncPosition = transform.position;
             return true;
         }
@@ -90,7 +97,6 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
             else if (rb.velocity.x < -0.01f) FaceRight = false;
         }
         this.isGrounded= isGrounded;
-        Debug.Log(FaceRight);
         OnPostSyncRpc?.Invoke();
     }
     private void SyncControllerRpc(string data)

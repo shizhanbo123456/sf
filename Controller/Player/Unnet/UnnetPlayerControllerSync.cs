@@ -33,7 +33,7 @@ public class UnnetPlayerControllerSync : MonoBehaviour,ITargetcontrollerInfo
     }
     private void GetCollider()
     {
-        colliderGameObject = GetComponentInChildren<Collider>().gameObject;
+        colliderGameObject = GetComponentInChildren<Collider2D>().gameObject;
     }
 
 

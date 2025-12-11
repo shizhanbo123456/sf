@@ -34,7 +34,7 @@ public class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontrollerInfo
     }
     private void GetCollider()
     {
-        colliderGameObject = GetComponentInChildren<Collider>().gameObject;
+        colliderGameObject = GetComponentInChildren<Collider2D>().gameObject;
     }
 
 

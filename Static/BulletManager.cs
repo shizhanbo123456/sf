@@ -30,12 +30,14 @@ public class BulletManager:MonoBehaviour
         b= Pools[index].Get().GetComponent<Bullet>();
         b.bulletType = index;
         b.transform.localScale=Vector3.one* Size[index];
+        b.transform.parent = null;
         //Debug.Log("ªÒ»°£∫" + index);
         return b;
     }
     public void ReturnBullet(Bullet bullet)
     {
         Pools[bullet.bulletType].Return(bullet.gameObject);
+        bullet.transform.parent = Pools[bullet.bulletType].transform;
         //Debug.Log("πÈªπ£∫" + bullet.bulletType);
     }
 }
