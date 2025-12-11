@@ -54,53 +54,36 @@ public struct TargetInfo
 [LuaCallCSharp]
 public class CustomTargetCreater
 {
-    public enum TargetType
-    {
-        Player,Ore,Lantern,Monster
-    }
-    public enum TargetControllerType
-    {
-        None,Player,Monster
-    }
-    public enum TargetSkillControllerType
-    {
-        None,Player,Monster
-    }
-    public enum TargetEffectControllerType
-    {
-        None,Default
-    }
-
     private TargetInfo info;
-    private TargetType targetType;
+    private int targetType;//Player,Ore,Lantern,Monster
     private int graphicType;
 
-    private TargetControllerType controllerType;
+    private int controllerType;//None,Player,Monster
     private bool canFly=false;
-    private TargetSkillControllerType skillControllerType;
+    private int skillControllerType;//None,Player,Monster
     private int[] skillIndex;
     private int repeatContentIndex;
-    private TargetEffectControllerType effectControllerType;
-    public CustomTargetCreater(TargetInfo info,TargetType targetType,int graphicType)
+    private int effectControllerType;//None,Default
+    public CustomTargetCreater(TargetInfo info,int targetType,int graphicType)
     {
         this.info = info;
 
         this.targetType = targetType;
         this.graphicType = graphicType;
     }
-    public void LoadController(TargetControllerType controllertype,bool canFly)
+    public void LoadController(int controllertype,bool canFly)
     {
         controllerType = controllertype;
         this.canFly = canFly;
     }
-    public void LoadSkillController(TargetSkillControllerType skillcontrollertype, int[] skillIndex,int repeatContentIndex)
+    public void LoadSkillController(int skillcontrollertype, int[] skillIndex,int repeatContentIndex)
     {
         skillControllerType= skillcontrollertype;
         if (skillIndex != null && skillIndex.Length == 0) Debug.LogError("未装载正确的技能");
         this.skillIndex = skillIndex;
         this.repeatContentIndex = repeatContentIndex;
     }
-    public void LoadEffectController(TargetEffectControllerType effectcontrollertype)
+    public void LoadEffectController(int effectcontrollertype)
     {
         effectControllerType= effectcontrollertype;
     }
@@ -125,15 +108,15 @@ public class CustomTargetCreater
         var s = data.Split('_');
         int index = 0;
         info = new TargetInfo(s[index++]);
-        targetType=(TargetType)int.Parse(s[index++]);
+        targetType=int.Parse(s[index++]);
         graphicType = int.Parse(s[index++]);
-        controllerType=(TargetControllerType)int.Parse(s[index++]);
+        controllerType=int.Parse(s[index++]);
         canFly=int.Parse(s[index++])==1;
-        skillControllerType = (TargetSkillControllerType)int.Parse(s[index++]);
+        skillControllerType = int.Parse(s[index++]);
         string skill = s[index++];
         skillIndex = skill == "null" ? null : Format.StringToArray(skill, int.Parse,'+');
         repeatContentIndex=int.Parse(s[index++]);
-        effectControllerType=(TargetEffectControllerType)int.Parse(s[index++]);
+        effectControllerType=int.Parse(s[index++]);
     }
 
     public void Create()
@@ -147,30 +130,30 @@ public class CustomTargetCreater
             Vector3.zero, Quaternion.identity, obj.transform).GetComponent<TargetGraphic>();
         switch (targetType)
         {
-            case TargetType.Player:target = obj.AddComponent<PlayerData>();break;
-            case TargetType.Lantern:target = obj.AddComponent<Lantern>();break;
-            case TargetType.Ore:target = obj.AddComponent<Ore>();break;
-            case TargetType.Monster:target = obj.AddComponent<Monster>();break;
+            case 0:target = obj.AddComponent<PlayerData>();break;
+            case 1:target = obj.AddComponent<Lantern>();break;
+            case 2:target = obj.AddComponent<Ore>();break;
+            case 3:target = obj.AddComponent<Monster>();break;
             default:target = null;break;
         }
         switch (controllerType)
         {
-            case TargetControllerType.None:controller = null;break;
-            case TargetControllerType.Player:controller = obj.AddComponent<PlayerController>();break;
-            case TargetControllerType.Monster:controller=obj.AddComponent<MonsterController>();break;
+            case 0:controller = null;break;
+            case 1:controller = obj.AddComponent<PlayerController>();break;
+            case 2:controller=obj.AddComponent<MonsterController>();break;
             default:controller = null;break;
         }
         switch (skillControllerType)
         {
-            case TargetSkillControllerType.None:skillcontroller = null;break;
-            case TargetSkillControllerType.Player:skillcontroller = obj.AddComponent<PlayerSkillController>();break;
-            case TargetSkillControllerType.Monster:skillcontroller = obj.AddComponent<MonsterSkillController>();break;
+            case 0:skillcontroller = null;break;
+            case 1:skillcontroller = obj.AddComponent<PlayerSkillController>();break;
+            case 2:skillcontroller = obj.AddComponent<MonsterSkillController>();break;
             default :skillcontroller = null;break;
         }
         switch (effectControllerType)
         {
-            case TargetEffectControllerType.None:effectController = null;break;
-            case TargetEffectControllerType.Default:effectController = obj.AddComponent<TargetEffectController>();break;
+            case 0:effectController = null;break;
+            case 1:effectController = obj.AddComponent<TargetEffectController>();break;
             default:effectController=null;break;
         }
         target.graphic = graphic;

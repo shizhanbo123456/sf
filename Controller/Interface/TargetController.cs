@@ -95,7 +95,7 @@ public abstract class TargetController : MonoBehaviour
         {
             controller.rb.gravityScale = 1;
             controller.ignoreLevitatingPlatform = false;
-            controller.operationLocked = true;
+            controller.OperationLock.Locked = true;
             controller.SkillLock.Locked = true;
         }
         public override void Update(TargetController c)
@@ -117,11 +117,10 @@ public abstract class TargetController : MonoBehaviour
                     c.SwitchState(c.canFly ? FlyIdle.Instance : WalkIdle.Instance);
                 }
             }
-            else c.SwitchState(InMotion.Instance);
         }
         public override void Exit(TargetController controller)
         {
-            controller.operationLocked = false;
+            controller.OperationLock.Locked = false;
             controller.SkillLock.Locked= false;
         }
     }
@@ -133,7 +132,7 @@ public abstract class TargetController : MonoBehaviour
         {
             controller.rb.gravityScale = 1;
             controller.ignoreLevitatingPlatform = false;
-            controller.operationLocked = true;
+            controller.OperationLock.Locked = true;
             controller.SkillLock.Locked = true;
         }
         public override void Update(TargetController c)
@@ -155,11 +154,10 @@ public abstract class TargetController : MonoBehaviour
                     c.SwitchState(c.canFly ? FlyIdle.Instance : WalkIdle.Instance);
                 }
             }
-            else c.SwitchState(InMotion.Instance);
         }
         public override void Exit(TargetController controller)
         {
-            controller.operationLocked = false;
+            controller.OperationLock.Locked = false;
             controller.SkillLock.Locked= false;
         }
     }
@@ -172,7 +170,7 @@ public abstract class TargetController : MonoBehaviour
             controller.rb.gravityScale = 0;
             controller.ignoreLevitatingPlatform= true;
             controller.isGrounded = false;
-            controller.operationLocked= false;
+            controller.OperationLock.Locked = true;
             controller.SkillLock.Locked = true;
         }
         public override void Update(TargetController c)
@@ -185,9 +183,14 @@ public abstract class TargetController : MonoBehaviour
             else if (c.Motion.SpawnTime > c.Motion.WorkTime)
             {
                 c.rb.velocity = c.Motion.Exit(c.rb.velocity);
+                bool active = c.Motion.ActiveAdded;
                 c.Motion = null;
-                if (c.Resistance < 0) c.SwitchState(Hit.Instance);
-                else if(c.canFly)c.SwitchState(FlyIdle.Instance);
+                if (c.Resistance < 0)
+                {
+                    if (active) c.SwitchState(Rigor.Instance);
+                    else c.SwitchState(Hit.Instance);
+                }
+                else if (c.canFly) c.SwitchState(FlyIdle.Instance);
                 else c.SwitchState(WalkIdle.Instance);
             }
             else
@@ -200,7 +203,7 @@ public abstract class TargetController : MonoBehaviour
             controller.rb.gravityScale = 1;
             controller.ignoreLevitatingPlatform =false;
             controller.isGrounded = true;
-            controller.operationLocked = true;
+            controller.OperationLock.Locked = false;
             controller.SkillLock.Locked = false;
         }
     }
@@ -224,23 +227,16 @@ public abstract class TargetController : MonoBehaviour
 
 
     private float Resistance = 0.01f;
+    private bool hitDown = false;
     private bool canFly;
 
     private bool ignoreLevitatingPlatform;
     private bool isGrounded;
-    private bool operationLocked = false;
+
+    private LockChain OperationLock;
     private LockChain SkillLock;
 
-    private MotionBase motion;
-    public MotionBase Motion
-    {
-        get { return motion; }
-        set 
-        {
-            motion = value;
-            MotionEntered = false;
-        }
-    }
+    public MotionBase Motion;
     private bool MotionEntered = true;
 
 
@@ -251,6 +247,7 @@ public abstract class TargetController : MonoBehaviour
         target = t;
         rb = GetComponent<Rigidbody2D>();
 
+        OperationLock = t.OperationLock.GetChain();
         SkillLock = t.SkillLock.GetChain();
 
         this.canFly = canFly;
@@ -263,10 +260,10 @@ public abstract class TargetController : MonoBehaviour
     {
         if (!Initialized) return;
         currentState.Update(this);
-        if (target.targetInfoSync.OnPlayerPostUpdate())
+        if (target.targetControllerSync.OnPlayerPostUpdate())
         {
-            target.targetInfoSync.SyncController(transform.position, rb.velocity, Resistance,
-                ignoreLevitatingPlatform, operationLocked, isGrounded, motion == null);
+            target.targetControllerSync.SyncController(transform.position, rb.velocity, Resistance,
+                ignoreLevitatingPlatform, OperationLock.LockedInHierechy, isGrounded, Motion == null);
         }
     }
     private float jumpcd = -1;
@@ -310,16 +307,24 @@ public abstract class TargetController : MonoBehaviour
             SetResistance(MinResisiance, true);
             return true;
         }
-        else SetResistance(-0.2f, false);
+        else
+        {
+            if (Motion == null)
+            {
+                SetResistance(-0.2f, false);
+                rb.velocity = b.hitbackForce.Invoke(b.transform.position, transform.position) * 0.5f;
+            }
+        }
         
         return false;
     }
     public void SetResistance(float value, bool strike)//僵直还是击倒
     {
         Resistance = value;
-        if (Resistance < 0)
+        if (strike) hitDown = true;
+        if (Resistance < 0&&Motion==null)
         {
-            if (strike) SwitchState(Hit.Instance);
+            if (hitDown) SwitchState(Hit.Instance);
             else SwitchState(Rigor.Instance);
         }
     }
@@ -330,6 +335,7 @@ public abstract class TargetController : MonoBehaviour
             Debug.LogError("添加了空的运动行为");
             return;
         }
+        MotionEntered = false;
         if (Motion == null)
         {
             int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
@@ -338,6 +344,7 @@ public abstract class TargetController : MonoBehaviour
         }
         else if (m.StoicLevel >= Motion.StoicLevel||m.ActiveAdded)
         {
+            rb.velocity=Motion.Exit(rb.velocity);
             Motion = m;
         }
         SwitchState(InMotion.Instance);
