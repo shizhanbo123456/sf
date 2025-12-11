@@ -62,6 +62,7 @@ public abstract class Target : MonoBehaviour
 
         transform.position = Tool.SceneController.Level.GetPos(info.spawnX, info.spawnY) +
             graphic.SpawnOffset * graphic.transform.localScale.y * Vector3.up;
+        graphic.transform.localPosition = Vector3.zero;
 
         TimeLineWork = gameObject.AddComponent<TimeLineWork>();
         if (!TryGetComponent(out targetInfoSync)) Debug.LogError("Œ¥’“µΩÕ¨≤Ω");
@@ -116,7 +117,7 @@ public abstract class Target : MonoBehaviour
 
     protected virtual HashSet<Bullet> DetectBullet()=>graphic.bulletDetector.DetectBullet();
 
-    protected virtual void FixedUpdate()
+    protected virtual void Update()
     {
         foreach (var b in DetectBullet())
         {
@@ -126,6 +127,7 @@ public abstract class Target : MonoBehaviour
     }
     protected virtual bool DamageByBullet(Bullet b)
     {
+        if (b.Camp == Camp) return false;
         if (b.CanDamage==null) return false;
         if(!b.CanDamage.Invoke(this,b))return false;
 

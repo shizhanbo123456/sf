@@ -16,7 +16,7 @@ public class BulletDetector : MonoBehaviour
     {
         if(target == null)
         {
-            if(!TryGetComponent(out target))
+            if(!TryGetComponent(out target)&&!transform.parent.TryGetComponent(out target))
             {
                 Debug.LogError(gameObject.name + "未挂载目标组件");
                 return null;

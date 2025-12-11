@@ -15,30 +15,14 @@ public static class CustomLevelAPIManifest
 
     private static CustomTargetCreater creater;
     public static void LoadCreater(TargetInfo info, TargetType targetType, int graphicType)
-    {
-        Debug.Log("创建Creater");
-        creater = new CustomTargetCreater(info, targetType, graphicType);
-    }
+        => creater = new CustomTargetCreater(info, targetType, graphicType);
     public static void LoadController(TargetControllerType controllertype, bool canFly)
-    {
-        Debug.Log("装载角色控制器");
-        creater.LoadController(controllertype, canFly);
-    }
+        => creater.LoadController(controllertype, canFly);
     public static void LoadSkillController(TargetSkillControllerType skillcontrollertype, int[] skillIndex, int repeatContentIndex)
-    {
-        Debug.Log("装载技能控制器");
-        creater.LoadSkillController(skillcontrollertype, skillIndex, repeatContentIndex);//repeatContentIndex<0时即视为无效
-    }
+        => creater.LoadSkillController(skillcontrollertype, skillIndex, repeatContentIndex);//repeatContentIndex<0时即视为无效
     public static void LoadEffectController(TargetEffectControllerType effectcontrollertype)
-    {
-        Debug.Log("装载效果控制器");
-        creater.LoadEffectController(effectcontrollertype);
-    }
-    public static void Create()
-    {
-        Debug.Log("创建角色");
-        creater.Create();
-    }
+        => creater.LoadEffectController(effectcontrollertype);
+    public static void Create()=> creater.Create();
 
     public static int SkillMapper(int type,int index)//用于获取技能的index，type=0时为玩家技能组，=1为boss技能组
     {

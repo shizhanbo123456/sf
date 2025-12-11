@@ -41,7 +41,7 @@ public class Lantern : Target
         base.RegistOnDestroy();
         Lanterns.Remove(ObjectId);
     }
-    protected override void FixedUpdate()
+    protected override void Update()
     {
         if (DedicatedAttributes.Shengming.Value.Item2 == 0)
         {
