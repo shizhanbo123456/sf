@@ -143,7 +143,7 @@ public class CustomTargetCreater
     public void ApplyForTarget(GameObject obj,out TargetGraphic graphic,out Target target,out TargetController controller,
         out TargetSkillController skillcontroller,out TargetEffectController effectController)
     {
-        graphic = Object.Instantiate(Tool.PrefabManager.GraphicCollection[(int)graphicType].gameObject, 
+        graphic = Object.Instantiate(Tool.PrefabManager.GraphicCollection[graphicType].gameObject, 
             Vector3.zero, Quaternion.identity, obj.transform).GetComponent<TargetGraphic>();
         switch (targetType)
         {

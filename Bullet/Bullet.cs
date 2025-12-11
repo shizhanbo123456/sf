@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Variety.Base;
 
 
 public class Bullet : MonoBehaviour

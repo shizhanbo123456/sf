@@ -17,6 +17,8 @@ public class UnnetPlayerControllerSync : MonoBehaviour,ITargetcontrollerInfo
     private Rigidbody2D rb;
     private Vector3 lastSyncPosition;
     private float lastSyncTime = 0f;
+    private GameObject colliderGameObject;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -25,8 +27,13 @@ public class UnnetPlayerControllerSync : MonoBehaviour,ITargetcontrollerInfo
     }
     public void OnPostSyncCommon()
     {
-        if (!MotionIsNull || IgnoreLevitaningPlatrm || !isGrounded) gameObject.layer = Tool.Settings.FallingTargetLayer;
-        else gameObject.layer = Tool.Settings.TargetLayer;
+        if (!colliderGameObject) GetCollider();
+        if (!MotionIsNull || IgnoreLevitaningPlatrm || !isGrounded) colliderGameObject.layer = Tool.Settings.FallingTargetLayer;
+        else colliderGameObject.layer = Tool.Settings.TargetLayer;
+    }
+    private void GetCollider()
+    {
+        colliderGameObject = GetComponentInChildren<Collider>().gameObject;
     }
 
 

@@ -24,6 +24,7 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
     private Rigidbody2D rb;
     private Vector3 lastSyncPosition;
     private float lastSyncTime = 0f;
+    private GameObject colliderGameObject;
 
     private void Awake()
     {
@@ -34,8 +35,13 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
     }
     public void OnPostSyncCommon()
     {
-        if (!MotionIsNull || IgnoreLevitaningPlatrm || !isGrounded) gameObject.layer = Tool.Settings.FallingTargetLayer;
-        else gameObject.layer = Tool.Settings.TargetLayer;
+        if (!colliderGameObject) GetCollider();
+        if (!MotionIsNull || IgnoreLevitaningPlatrm || !isGrounded) colliderGameObject.layer = Tool.Settings.FallingTargetLayer;
+        else colliderGameObject.layer = Tool.Settings.TargetLayer;
+    }
+    private void GetCollider()
+    {
+        colliderGameObject = GetComponentInChildren<Collider>().gameObject;
     }
 
 
@@ -84,7 +90,7 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
             else if (rb.velocity.x < -0.01f) FaceRight = false;
         }
         this.isGrounded= isGrounded;
-
+        Debug.Log(FaceRight);
         OnPostSyncRpc?.Invoke();
     }
     private void SyncControllerRpc(string data)
