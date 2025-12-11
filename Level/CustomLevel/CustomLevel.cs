@@ -64,31 +64,31 @@ public static class CustomLevel
     {
         StartTime = Time.time;
         //创建关卡、角色、装载技能
-        FightStartFunction.Action(0);
+        FightStartFunction?.Action(0);
     }
     public static void TargetKilled(TargetInfo targetInfo)
     {
-        TargetKilledFunction.Action(targetInfo);
+        TargetKilledFunction?.Action(targetInfo);
     }
     public static void Update()
     {
-        UpdateFunction.Action(Time.time - StartTime,Time.deltaTime);
+        UpdateFunction?.Action(Time.time - StartTime,Time.deltaTime);
     }
     public static bool JudgeEnd()
     {
-        return JudgeEndFunction.Func<int,bool>(0);
+        return JudgeEndFunction != null ? JudgeEndFunction.Func<int, bool>(0) : false;
     }
     public static void FigureScore(out int killScore,out int timeScore,out int challengeScore)
     {
-        killScore=KillScoreFunction.Func<int, int>(0);
-        timeScore=TimeScoreFunction.Func<int, int>(0);
-        challengeScore = ModeScoreFunction.Func<int, int>(0);
+        killScore=KillScoreFunction!=null?KillScoreFunction.Func<int, int>(0):233;
+        timeScore=TimeScoreFunction != null ? TimeScoreFunction.Func<int, int>(0) : 233;
+        challengeScore = ModeScoreFunction != null ? ModeScoreFunction.Func<int, int>(0) : 233;
     }
     public static void ReleaseData()
     {
         try
         {
-            ReleaseDataFunction.Action(0);
+            ReleaseDataFunction?.Action(0);
         }
         catch
         {

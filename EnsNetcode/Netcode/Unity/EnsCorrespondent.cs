@@ -186,7 +186,6 @@ public class EnsCorrespondent :MonoBehaviour
                 {
                     Server.ShutDown();
                     Server.Dispose();
-                    Server = null;
                 }
             }
             else if (networkMode == NetworkMode.Client)
@@ -195,7 +194,6 @@ public class EnsCorrespondent :MonoBehaviour
                 {
                     Client.ShutDown();
                     Client.Dispose();
-                    Client = null;
                 }
             }
             else if (networkMode == NetworkMode.Host)
@@ -204,13 +202,18 @@ public class EnsCorrespondent :MonoBehaviour
                 {
                     Server.ShutDown();
                     Server.Dispose();
-                    Server = null;
                 }
             }
         }
         catch (Exception e)
         {
             Debug.Log(e);
+        }
+        finally
+        {
+            Server = null;
+            Client = null;
+            Server = null;
         }
         networkMode = NetworkMode.None;
         if (EnsInstance.ClientConnectRejected)
