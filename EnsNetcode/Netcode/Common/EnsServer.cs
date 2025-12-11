@@ -7,7 +7,7 @@ public class EnsServer : Disposable
 {
     internal static EnsServer Instance;
 
-    internal Dictionary<int, EnsConnection> ClientConnections = new Dictionary<int, EnsConnection>();
+    internal Dictionary<int, EnsConnection> ClientConnections;
     private List<int>ClientIds = new List<int>();
     internal EnsRoomManager RoomManager;
     internal ListenerBase Listener;
@@ -18,6 +18,7 @@ public class EnsServer : Disposable
     {
         Instance = this;
 
+        ClientConnections = new Dictionary<int, EnsConnection>();
         Protocol.OnRecvConnection = (conn, index) => OnRecvConnection(conn, index);
 
         Listener = Protocol.GetListener(ip, port);
