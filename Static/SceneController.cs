@@ -56,11 +56,6 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     public void CreateUnnetPlayer()
     {
         Player= Instantiate(Tool.PrefabManager.UnnetPlayer);
-        if (Level == null) Player.transform.position = new Vector3();
-        else
-        {
-            //Player.transform.position = Level.GetSpawnPlace();
-        }
     }
     public void DestroyPlayer()
     {
@@ -88,24 +83,5 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     public void DestroyLevel() 
     {
         if (Level != null) Destroy(Level.gameObject);
-    }
-
-
-    private List<TargetInfo> KillerCommandBuffer = new List<TargetInfo>(10);
-    private List<TargetInfo>KilledCommandBuffer=new List<TargetInfo>(10);
-    private void Update()
-    {
-        if (KilledCommandBuffer.Count > 0)
-        {
-            foreach (var i in KilledCommandBuffer) CustomLevel.TargetKilled(i);
-            KilledCommandBuffer.Clear();
-        }
-        enabled= false;
-    }
-    public void RegistTargetKilled(Target killer,Target killed)
-    {
-        if(killer)KillerCommandBuffer.Add(killer.Info);
-        KilledCommandBuffer.Add(killed.Info);
-        enabled= true;
     }
 }

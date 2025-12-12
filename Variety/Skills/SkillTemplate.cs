@@ -1,6 +1,3 @@
-using SF.UI.Skill;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
 
@@ -14,9 +11,9 @@ namespace Variety.Template
         public SkillNonCD():base()
         { 
         }
-        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
+        public override SkillBaseController CreateSkillController(Target t,int index, bool createUI)
         {
-            return SkillNonCDController.Create(GetHashCode(),t,createUI);
+            return SkillNonCDController.Create(index,t,createUI);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -39,9 +36,9 @@ namespace Variety.Template
         public SkillCD():base()
         { 
         }
-        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
+        public override SkillBaseController CreateSkillController(Target t, int index, bool createUI)
         {
-            return SkillCDController.Create(GetHashCode(),t, CD,createUI);
+            return SkillCDController.Create(index,t, CD,createUI);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -65,9 +62,9 @@ namespace Variety.Template
         public SkillStorable() : base()
         {
         }
-        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
+        public override SkillBaseController CreateSkillController(Target t, int index, bool createUI)
         {
-            return SkillStorableController.Create(GetHashCode(),t,MaxstoreTime,CD,createUI);
+            return SkillStorableController.Create(index,t,MaxstoreTime,CD,createUI);
         }
         public sealed override bool CanUse(Target Target)
         {
@@ -89,9 +86,9 @@ namespace Variety.Template
         public SkillBoss() : base()
         {
         }
-        public override SkillBaseController CreateSkillColumn(Target t, bool createUI)
+        public override SkillBaseController CreateSkillController(Target t, int index, bool createUI)
         {
-            return SkillCDController.Create(GetHashCode(), t, cd,createUI);
+            return SkillCDController.Create(index, t, cd,createUI);
         }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {

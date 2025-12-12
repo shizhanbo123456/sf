@@ -181,7 +181,7 @@ public abstract class Target : MonoBehaviour
     /// </summary>
     public virtual void OnKilled(Target killer)
     {
-        Tool.SceneController.RegistTargetKilled(killer,this);
+        Tool.NetworkCorrespondent.TargetKilledRpc(killer, this);
         targetDataSync.DestroyRpc();
     }
 

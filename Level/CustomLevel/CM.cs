@@ -1,15 +1,13 @@
-using UnityEngine;
 using XLua;
-using static CustomTargetCreater;
 
 //创建关卡时需要手动创建关卡地形、创建玩家、敌人等
 //退出关卡时会自动销毁地形和所有物体
 [LuaCallCSharp]
-public static class CustomLevelAPIManifest
+public static class CM//CustomLevelAPIManifest
 {
     public static float TimeUsed => CustomLevel.FightTime;
-    public static void CreateLevel(int type)=>Tool.SceneController.CreateLevel(type);
-    public static void DestroyLevel() => Tool.SceneController.DestroyLevel();
+    public static void CreateLevel(int type)=>Tool.NetworkCorrespondent.CreateLevelRpc(type);
+    public static void DestroyLevel() => Tool.NetworkCorrespondent.DestroyLevelRpc();
     public static void SetScoreboardActive(bool active)=>Tool.NetworkCorrespondent.SetScoreboardActiveRpc(active);
     public static void SetScoreBoardText(int x, int y, string data)=>Tool.NetworkCorrespondent.SetScoreboardTextRpc(x, y, data);
 
@@ -23,19 +21,6 @@ public static class CustomLevelAPIManifest
     public static void LoadEffectController(int effectcontrollertype)
         => creater.LoadEffectController(effectcontrollertype);
     public static void Create()=> creater.Create();
-
-    public static int SkillMapper(int type,int index)//用于获取技能的index，type=0时为玩家技能组，=1为boss技能组
-    {
-        if (type == 0)
-        {
-            return VarietyManager.PlayerSkills[0][0].GetHashCode() + index;
-        }
-        else if (type == 1)
-        {
-            return VarietyManager.BossSkills[0][0].GetHashCode() + index;
-        }
-        return 0;
-    }
 }
 /*
 TargetType:Player,Ore,Lantern,Monster

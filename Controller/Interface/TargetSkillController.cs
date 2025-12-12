@@ -34,7 +34,7 @@ public class TargetSkillController : MonoBehaviour
     }
     public virtual void CreateSkillColumn(Target data, int index)
     {
-        Skills.Add(VarietyManager.GetSkill(index).CreateSkillColumn(data, false));
+        Skills.Add(VarietyManager.GetSkill(index).CreateSkillController(data,index, false));
     }
     public virtual void DetroySkillColumnByIndex(int index)
     {
@@ -49,7 +49,7 @@ public class TargetSkillController : MonoBehaviour
         foreach (var i in Skills) i.OnDiscard();
         Skills.Clear();
     }
-    private void Update()
+    protected virtual void Update()
     {
         if (!Initialized) return;
 

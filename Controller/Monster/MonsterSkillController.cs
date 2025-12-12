@@ -11,7 +11,7 @@ public class MonsterSkillController:TargetSkillController
         base.Init(data, skillIndex, repeatContentIndex);
         interval = (data as Monster).StateInterval;
     }
-    private void Update()
+    protected override void Update()
     {
         useSkillCD -= Time.deltaTime;
         if (useSkillCD < 0) UseSkill();

@@ -11,6 +11,7 @@ public class Monster : Target
     private const int LayerMax = 100;
     public static SortedDictionary<int, Monster> Monsters = new SortedDictionary<int, Monster>();
 
+    /*
     public enum MonsterType
     {
         焚世炎羊,
@@ -21,7 +22,7 @@ public class Monster : Target
         绯影武姬,血刃妖镰,烬灭炮手,
         狂鬃,黑角,永夜,金冠,战宗
     }
-    public MonsterType Type;//在预制体中设置
+    public MonsterType Type;*/
 
     private BossBar Bar;
 
