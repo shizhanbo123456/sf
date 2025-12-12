@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 using XLua;
 
 [LuaCallCSharp]
+[Serializable]
 public struct TargetInfo
 {
     public int camp;
@@ -93,14 +95,14 @@ public class CustomTargetCreater
         var sb = Tool.stringBuilder;
         sb.Clear();
         sb.Append(info).Append('_');
-        sb.Append((int)targetType).Append('_');
+        sb.Append(targetType).Append('_');
         sb.Append(graphicType).Append('_');
-        sb.Append((int)controllerType).Append('_');
+        sb.Append(controllerType).Append('_');
         sb.Append(canFly?1:0).Append('_');
-        sb.Append((int)skillControllerType).Append('_');
+        sb.Append(skillControllerType).Append('_');
         sb.Append(skillIndex==null||skillIndex.Length==0?"null":Format.ArrayToString(skillIndex,'+')).Append('_');
         sb.Append(repeatContentIndex).Append('_');
-        sb.Append((int)effectControllerType);
+        sb.Append(effectControllerType);
         return sb.ToString();
     }
     public CustomTargetCreater(string data)
@@ -126,7 +128,7 @@ public class CustomTargetCreater
     public void ApplyForTarget(GameObject obj,out TargetGraphic graphic,out Target target,out TargetController controller,
         out TargetSkillController skillcontroller,out TargetEffectController effectController)
     {
-        graphic = Object.Instantiate(Tool.PrefabManager.GraphicCollection[graphicType].gameObject, 
+        graphic = UnityEngine.Object.Instantiate(Tool.PrefabManager.GraphicCollection[graphicType].gameObject, 
             Vector3.zero, Quaternion.identity, obj.transform).GetComponent<TargetGraphic>();
         switch (targetType)
         {

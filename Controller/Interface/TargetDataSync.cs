@@ -50,6 +50,7 @@ public class TargetDataSync : EnsBehaviour
     public void SyncMingzhong(int value)
     {
         CallFuncRpc(nameof(Smz),SendTo.ExcludeSender,value.ToString());
+        DedicatedAttributes.Mingzhong = value;
     }
     private void Smz(string data)
     {
@@ -58,6 +59,7 @@ public class TargetDataSync : EnsBehaviour
     public void SyncBaoji(int value)
     {
         CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender, value.ToString());
+        DedicatedAttributes.Baoji = value;
     }
     private void Sbj(string data)
     {
@@ -66,6 +68,7 @@ public class TargetDataSync : EnsBehaviour
     public void SyncJiashang(int value)
     {
         CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, value.ToString());
+        DedicatedAttributes.Jiashang = value;
     }
     private void Sjs(string data)
     {

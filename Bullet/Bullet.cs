@@ -39,7 +39,7 @@ public class Bullet : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, radius * transform.lossyScale.x);
+        Gizmos.DrawWireSphere(transform.position, radius * transform.localScale.x);
     }
     private void Awake()
     {
@@ -110,7 +110,7 @@ public class Bullet : MonoBehaviour
     {
         strike = false;
         hit = true;
-        if (UnityEngine.Random.Range(0f, 1f) < RateFigure(defenser.Shanbi.Value,attacker.Mingzhong))
+        if (UnityEngine.Random.Range(0f, 1f) < RateFigure(defenser.Shanbi.Value, attacker.Mingzhong))
         {
             hit = false;
             return 0;
@@ -138,7 +138,7 @@ public class Bullet : MonoBehaviour
 
     public static Vector2 FigureHitBackForce(float power,Vector3 bullet,Vector3 target)
     {
-        return new Vector2((target.x > bullet.x) ? 0.5f : -0.5f, 1)*power+Vector2.up*3.2f;
+        return new Vector2((target.x > bullet.x) ? 0.3f : -0.3f, 0.5f)*power+Vector2.up*2f;
     }
     public static Vector2 FigureAttractForce(Vector3 bullet,Vector3 target, float power=20)
     {

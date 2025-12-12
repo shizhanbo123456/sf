@@ -147,16 +147,64 @@ public class NetworkCorrespondent : EnsBehaviour
         string[] s = data.Split('_');
         Tool.PageManager.PlayModePage.Scoreboard.SetText(int.Parse(s[0]), int.Parse(s[1]), s[2]);
     }
+    public void CreateLevelRpc(int type)
+    {
+        CallFuncRpc(nameof(CreateLevelLocal), SendTo.Everyone,type.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+    }
+    private void CreateLevelLocal(string data)
+    {
+        Tool.SceneController.CreateLevel(int.Parse(data));
+    }
+    public void DestroyLevelRpc()
+    {
+        CallFuncRpc(nameof(DestroyLevelLocal), SendTo.Everyone, KeyLibrary.KeyFormatType.DisorderConfirm);
+    }
+    private void DestroyLevelLocal()
+    {
+        Tool.SceneController.DestroyLevel();
+    }
+
+    public void TargetKilledRpc(Target killer,Target killed)
+    {
+        if (killed == null)
+        {
+            Debug.LogError("被击杀者不能为空");
+            return;
+        }
+        //info用/划分
+        if(killer == null)
+        {
+            CallFuncRpc(nameof(TargetKilledLocal), SendTo.RoomOwner, killed.Info.ToString(),KeyLibrary.KeyFormatType.DisorderConfirm);
+        }
+        else
+        {
+            var sb=Tool.stringBuilder;
+            sb.Clear();
+            sb.Append(killer.Info.ToString()).Append('_').Append(killed.Info.ToString());
+            CallFuncRpc(nameof(TargetKilledLocal), SendTo.RoomOwner, sb.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+        }
+    }
+    private void TargetKilledLocal(string data)
+    {
+        if (data.Contains('_'))
+        {
+            var s=data.Split('_');
+            CustomLevel.TargetKilled(new TargetInfo(s[0]), new TargetInfo(s[1]));
+        }
+        else
+        {
+            CustomLevel.TargetKilled(new TargetInfo(data));
+        }
+    }
 
 
     #region//开始战斗
     public void StartFight()//(id,camp)
     {
-        Transition.ExecuteWithLoading(Tool.FightController.SyncLevel, (b) =>
+        if (Tool.FightController.TryLoadLevelLua())
         {
-            if (b) CallFuncRpc(nameof(ControllerStartFight), SendTo.Everyone, KeyLibrary.KeyFormatType.OrderWise);
-            else RestartGame();
-        });
+            CallFuncRpc(nameof(ControllerStartFight), SendTo.Everyone, KeyLibrary.KeyFormatType.OrderWise);
+        }
     }
     private void ControllerStartFight()
     {

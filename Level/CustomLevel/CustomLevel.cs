@@ -1,22 +1,22 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using XLua;
 
+/// <summary>
+/// 只在房主客户端执行
+/// </summary>
 public static class CustomLevel
 {
     private static LuaEnv luaEnv=> Tool.LuaManager.luaEnv;
     private static string LuaText;
-
-    public static bool Initialized = false;
 
     public static string[] LevelPath;
     public static string LevelPathJoined=>Format.ArrayToString(LevelPath,'-').Trim('-');
 
     private static LuaFunction FightStartFunction;//0
     private static LuaFunction UpdateFunction;//float float
-    private static LuaFunction TargetKilledFunction;//TargetInfo
     private static LuaFunction JudgeEndFunction;//0->bool
+    private static LuaFunction TargetKilledFunction;//TargetInfo killer,TargetInfo killed
     private static LuaFunction KillScoreFunction;//0->int
     private static LuaFunction TimeScoreFunction;//0->int
     private static LuaFunction ModeScoreFunction;//0->int
@@ -24,7 +24,10 @@ public static class CustomLevel
 
 
     private static float StartTime = 0f;
-    public static float FightTime => Time.time - StartTime;
+    public static float FightTime => Fighting?(Time.time - StartTime):0f;
+
+    public static bool Initialized = false;
+    public static bool Fighting = false;
 
     public static bool CreateCustomLevel(string lua)
     {
@@ -39,9 +42,9 @@ public static class CustomLevel
             LevelPath =lua.Substring(0,i).Trim('-',' ').Split('-');
 
             FightStartFunction = luaEnv.Global.Get<LuaFunction>("FightStart");
-            TargetKilledFunction = luaEnv.Global.Get<LuaFunction>("TargetKilled");
             UpdateFunction = luaEnv.Global.Get<LuaFunction>("Update");
             JudgeEndFunction = luaEnv.Global.Get<LuaFunction>("JudgeEnd");
+            TargetKilledFunction = luaEnv.Global.Get<LuaFunction>("TargetKilled");
             KillScoreFunction = luaEnv.Global.Get<LuaFunction>("KillScore");
             TimeScoreFunction = luaEnv.Global.Get<LuaFunction>("TimeScore");
             ModeScoreFunction = luaEnv.Global.Get<LuaFunction>("ModeScore");
@@ -62,13 +65,18 @@ public static class CustomLevel
     }
     public static void OnFightStart()
     {
+        Fighting= true;
         StartTime = Time.time;
         //创建关卡、角色、装载技能
         FightStartFunction?.Action(0);
     }
-    public static void TargetKilled(TargetInfo targetInfo)
+    public static void TargetKilled(TargetInfo killed)
     {
-        TargetKilledFunction?.Action(targetInfo);
+        TargetKilledFunction?.Action(new TargetInfo(),killed);
+    }
+    public static void TargetKilled(TargetInfo killer,TargetInfo killed)
+    {
+        TargetKilledFunction?.Action(killer,killed);
     }
     public static void Update()
     {
@@ -86,6 +94,7 @@ public static class CustomLevel
     }
     public static void ReleaseData()
     {
+        Fighting = false;
         try
         {
             ReleaseDataFunction?.Action(0);
@@ -98,13 +107,12 @@ public static class CustomLevel
     public static void Dispose()
     {
         Initialized = false;
-
         try
         {
             FightStartFunction?.Dispose();
-            TargetKilledFunction?.Dispose();
             UpdateFunction?.Dispose();
             JudgeEndFunction?.Dispose();
+            TargetKilledFunction?.Dispose();
             KillScoreFunction?.Dispose();
             TimeScoreFunction?.Dispose();
             ModeScoreFunction?.Dispose();

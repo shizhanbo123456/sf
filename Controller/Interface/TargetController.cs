@@ -104,6 +104,7 @@ public abstract class TargetController : MonoBehaviour
             {
                 c.isGrounded = true;
                 if (c.rb.velocity.y <= 0.01f) c.JumpCount = 0;
+                c.rb.velocity=new Vector2(0,c.rb.velocity.y);
             }
             else
             {
@@ -141,6 +142,7 @@ public abstract class TargetController : MonoBehaviour
             {
                 c.isGrounded = true;
                 if (c.rb.velocity.y <= 0.01f) c.JumpCount = 0;
+                c.rb.velocity = new Vector2(0, c.rb.velocity.y);
             }
             else
             {
@@ -312,7 +314,7 @@ public abstract class TargetController : MonoBehaviour
             if (Motion == null)
             {
                 SetResistance(-0.2f, false);
-                rb.velocity = b.hitbackForce.Invoke(b.transform.position, transform.position) * 0.5f;
+                rb.velocity = b.hitbackForce.Invoke(b.transform.position, transform.position);
             }
         }
         

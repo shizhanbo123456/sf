@@ -27,11 +27,15 @@ public class BulletDetector : MonoBehaviour
         Vector3 playerPos = transform.position + Vector3.up*offsetY;
         foreach (var i in Bullet.Bullets)
         {
-            if (target.Camp!=i.Key) continue;
+            if (target.Camp==i.Key) continue;
             foreach (var j in i.Value.Values)
             {
-                if (CalHit(j.transform.position, j.LastFramePos, playerPos, 
-                    detectRadius*transform.localScale.x + j.radius * j.transform.localScale.x)) Bullets.Add(j);
+                if (CalHit(j.transform.position, j.LastFramePos, playerPos,
+                    detectRadius * Mathf.Abs(transform.localScale.x)
+                    + j.radius * Mathf.Abs(j.transform.localScale.x)))
+                {
+                    Bullets.Add(j);
+                }
             }
         }
         return Bullets;

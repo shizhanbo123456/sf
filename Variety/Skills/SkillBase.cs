@@ -18,13 +18,7 @@ namespace Variety.Base
         public string Tag;
         public float TimeNeeded=2;//释放所需的时间
 
-        private static int indexsource = 0;
-        private int index;
-        public SkillBase()
-        {
-            index = indexsource++;
-        }
-        public virtual SkillBaseController CreateSkillColumn(Target t,bool createUI) => throw new Exception("该类不可创建技能栏");
+        public virtual SkillBaseController CreateSkillController(Target t, int index, bool createUI) => throw new Exception("该类不可创建技能栏");
         public virtual bool CanUse(Target Target)
         {
             return true;
@@ -46,11 +40,6 @@ namespace Variety.Base
         protected static Bullet GetBullet(int index)
         {
             return Tool.BulletManager.GetBullet(index);
-        }
-
-        public override int GetHashCode()
-        {
-            return index;
         }
     }
 }
