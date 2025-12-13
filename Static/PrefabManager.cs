@@ -13,10 +13,7 @@ public class PrefabManager : MonoBehaviour
     public GameObject BarBase;
     public GameObject BossBar;
     [Space]
-    public GameObject Skill_NonCD;
-    public GameObject Skill_CD;
-    public GameObject Skill_Storable;
-    public List<GameObject> SkillColumns => new List<GameObject>() { Skill_NonCD, Skill_CD, Skill_Storable };
+    public GameObject SkillColumn;
     [Space]
     public GameObject SkillLayoutUnit;
     public GameObject RoomInfoUnit;

@@ -1,4 +1,3 @@
-using EC;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -21,7 +20,6 @@ public class Tool:MonoBehaviour
     public static FileManager FileManager;
     public static Notice Notice;
     public static SubInput SubInput;
-    public static UIEventCenter UIEventCenter;
     public static AttributesManager AttributesManager;
     public static BulletManager BulletManager;
     public static LuaManager LuaManager;

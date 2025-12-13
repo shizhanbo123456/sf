@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Variety.Base;
 
 public class Monster : Target
 {
@@ -24,7 +23,7 @@ public class Monster : Target
     }
     public MonsterType Type;*/
 
-    private BossBar Bar;
+    private BossBarController Bar;
 
     private int BloodPerM;
     [HideInInspector]public float StateInterval=5;
@@ -50,8 +49,9 @@ public class Monster : Target
     protected override void InitNameAndBar()
     {
         base.InitNameAndBar();
-        Bar = Tool.PageManager.PlayModePage.CreateBossBar();
-        Bar.Init(Name, LayerMax, Shengming);
+        Bar = PlayModeController.Instance.CreateBossBar();
+        Bar.SetName(Name);
+        Bar.SetValue(Shengming,Shengming,LayerMax);
     }
     protected override void RegistSyncAttributes()
     {
@@ -68,7 +68,7 @@ public class Monster : Target
         base.RegistOnDestroy();
         if (Bar != null)
         {
-            Tool.PageManager.PlayModePage.DestroyBossBar(Bar);
+            PlayModeController.Instance.DestroyBossBar(Bar);
         }
         Monsters.Remove(ObjectId);
     }

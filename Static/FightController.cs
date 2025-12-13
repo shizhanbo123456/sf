@@ -20,7 +20,8 @@ public class FightController : EnsBehaviour
     }
 
 
-    private Action<string> OnHeaderChanged;
+    public Action<string> OnModeNameChanged;
+    public Action<string> OnDescriptionChanged;
     private CustomLevelText customLevel;//只存储在房主客户端
     public CustomLevelText SelectedMode
     {
@@ -28,17 +29,22 @@ public class FightController : EnsBehaviour
         set
         {
             customLevel = value;
-            CallFuncRpc(nameof(SyncModeHeaderLocal), SendTo.ExcludeSender, customLevel.joinedPath, KeyLibrary.KeyFormatType.DisorderConfirm);
-            OnHeaderChanged?.Invoke(customLevel.joinedPath);
+            CallFuncRpc(nameof(SyncNameLocal), SendTo.ExcludeSender, customLevel.joinedPath, KeyLibrary.KeyFormatType.OrderWise);
+            CallFuncRpc(nameof(SyncDesLocal), SendTo.ExcludeSender, customLevel.description, KeyLibrary.KeyFormatType.OrderWise);
+            OnModeNameChanged?.Invoke(customLevel.joinedPath);
         }
     }
-    public void SyncModeHeaderTo(int player)
+    public void SyncNameTo(int player)
     {
-        CallFuncRpc(nameof(SyncModeHeaderLocal),new List<int>() { player},customLevel.joinedPath,KeyLibrary.KeyFormatType.DisorderConfirm);
+        CallFuncRpc(nameof(SyncNameLocal),new List<int>() { player},customLevel.joinedPath,KeyLibrary.KeyFormatType.OrderWise);
     }
-    private void SyncModeHeaderLocal(string data)=> OnHeaderChanged?.Invoke(data);
-    public void OnModeChange(Action<string> a)=> OnHeaderChanged += a;
+    private void SyncNameLocal(string data)=> OnModeNameChanged?.Invoke(data);
 
+    public void SyncDesTo(int player)
+    {
+        CallFuncRpc(nameof(SyncDesLocal), new List<int>() { player },customLevel.description,KeyLibrary.KeyFormatType.OrderWise);
+    }
+    private void SyncDesLocal(string data)=>OnDescriptionChanged?.Invoke(data);
 
 
     [HideInInspector]public bool Fighting = false;
@@ -80,7 +86,7 @@ public class FightController : EnsBehaviour
             timescore = 0;
             challengescore = 0;
         }
-        Tool.PageManager.PlayModePage.settlement.Settle(killscore, timescore, challengescore);
+        PlayModeController.Instance.Settle(killscore, timescore, challengescore);
     }
     public void StopFightLocal()//立即停止，不结算，保留关卡
     {

@@ -10,8 +10,9 @@ public static class CustomLevel
     private static LuaEnv luaEnv=> Tool.LuaManager.luaEnv;
     private static string LuaText;
 
-    public static string[] LevelPath;
-    public static string LevelPathJoined=>Format.ArrayToString(LevelPath,'-').Trim('-');
+    public static string[] ModePathParts;
+    public static string ModePath;
+    public static string ModeDescrpition;
 
     private static LuaFunction FightStartFunction;//0
     private static LuaFunction UpdateFunction;//float float
@@ -39,7 +40,9 @@ public static class CustomLevel
 
             int i = 0;
             while (i < lua.Length && i != '\n') i++;
-            LevelPath =lua.Substring(0,i).Trim('-',' ').Split('-');
+            ModePath = luaEnv.Global.Get<string>("ModeName");
+            ModePathParts = ModePath.Trim('-',' ').Split('-');
+            ModeDescrpition= luaEnv.Global.Get<string>("ModeDescription");
 
             FightStartFunction = luaEnv.Global.Get<LuaFunction>("FightStart");
             UpdateFunction = luaEnv.Global.Get<LuaFunction>("Update");

@@ -1,4 +1,3 @@
-using EC;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +13,7 @@ public class PlayerController : TargetController
     public override bool OnHitBack(Bullet b)
     {
         var bo=base.OnHitBack(b);
-        if(bo)Tool.UIEventCenter.TrigEvent(new DoFlickEvent(0.5f));
+        if (bo) PlayModeController.Instance.DoFlick(0.3f,Color.white);
         return bo;
     }
 }

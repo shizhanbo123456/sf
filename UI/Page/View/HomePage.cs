@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class HomePage : BasePage
 {
-    private bool UseHost=false;//侦听连接的模式
+    private static HomeController controller => HomeController.Instance;
     [Header("名称修改")]
     public InputField InputField;
     public Text Name;
@@ -17,95 +17,55 @@ public class HomePage : BasePage
     private int activeCount = 0; // 当前激活的房间单元数量
 
 
-
-    public override void Init()
+    public override void Repaint()
     {
-        Name.text = PlayerInfo.Name;
-        InputField.text = Name.text;
-        Id.text = PlayerInfo.Id.ToString();
+        InputField.text = controller.PlayerName;
+        Name.text = controller.PlayerName;
+        Id.text = controller.PlayerId.ToString();
 
-        RoomList.SetActive(false);
+        RoomList.SetActive(controller.RoomListActive);
+        Relayout();
     }
     private void OnEnable()
     {
-        PlayerInfoViewModel.Instance.OnPlayerNameChanged += OnPlayerNameChanged;
+        Repaint();
     }
     private void OnDisable()
     {
         ExitMatch();
-        PlayerInfoViewModel.Instance.OnPlayerNameChanged -= OnPlayerNameChanged;
-    }
-    private void OnDestroy()
-    {
-        OnDisable();
     }
     public void FinishEnter()
     {
         string t = InputField.text;
-        if (t.Length > 8) t = t.Substring(0, 8);
-        else if (t.Length < 2) return;
-        PlayerInfo.Name = t;
-        
-        Tool.FileManager.WriteData();
+        if (t.Length > 8|| t.Length < 2)
+        {
+            Tool.Notice.ShowMesg("名字长度需要在2-8个字符内");
+            Repaint();
+            return;
+        }
+        controller.SetPlayerName(t);
     }
-    private void OnPlayerNameChanged(string t)
-    {
-        Name.text = t;
-        InputField.gameObject.SetActive(false);
-    }
-
-    public void DedicateServerMatch()
-    {
-        UseHost = false;
-        RoomList.SetActive(true);
-        RoomListDedicateServer.Instance.OnEnter();
-        RoomListHost.Instance.onRoomInfoChanged += Relayout;
-    }
+    public void DedicateServerMatch() => controller.DedicateServerMatch();
     public void HostMatch()
     {
-        UseHost=true;
-        RoomList.SetActive(true);
-        RoomListHost.Instance.OnEnter();
-        RoomListDedicateServer.Instance.onRoomInfoChanged += Relayout;
+        controller.HostMatch();
 
-        Invoke(nameof(Flash), 1);
+        //Invoke(nameof(Flash), 1);
     }
-    public void ExitMatch()
-    {
-        RoomList.SetActive(false);
-        if (UseHost)
-        {
-            RoomListHost.Instance.OnExit();
-            RoomListHost.Instance.onRoomInfoChanged -= Relayout;
-        }
-        else
-        {
-            RoomListDedicateServer.Instance.OnExit();
-            RoomListDedicateServer.Instance.onRoomInfoChanged-=Relayout;
-        }
-    }
-    public void Flash()
-    {
-        if (UseHost) RoomListHost.Instance.Flash();
-        else RoomListDedicateServer.Instance.Flash();
-    }
-    public void CreateRoom()
-    {
-        if (UseHost) RoomListHost.Instance._CreateRoom();
-        else RoomListDedicateServer.Instance._CreateRoom();
-    }
-    private void Relayout(List<RoomListUnitInfo> infoList)
+    public void ExitMatch()=>controller.ExitMatch();
+    public void Flash()=>controller.Flash();
+    public void CreateRoom()=>controller.CreateRoom();
+    private void Relayout()
     {
         ClearRoomList();
-        foreach (var i in infoList) AddRoomList(i.name, i.id, i.state, i.type);
+        foreach (var i in controller.infoList) AddRoomList(i.name, i.id, i.state, i.type);
     }
-
-    public void ClearRoomList()
+    private void ClearRoomList()
     {
         foreach (var unit in Units) unit.gameObject.SetActive(false);
         activeCount = 0;
     }
-    public void AddRoomList(string name, string id, string state, string type)
+    private void AddRoomList(string name, string id, string state, string type)
     {
         activeCount++;
         // 若现有单元不足，动态创建新单元

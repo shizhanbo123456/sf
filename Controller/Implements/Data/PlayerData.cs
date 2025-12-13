@@ -1,6 +1,5 @@
 using AttributeSystem.Attributes;
 using AttributeSystem.Effect;
-using EC;
 using SF.UI.Bar;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +10,7 @@ public class PlayerData : Target
     public bool isLocalPlayer => FightController.localPlayerId == Owner;
     public override bool UpdateLocally => isLocalPlayer;
 
-    [HideInInspector]public BarBase bar;
+    public BarController bar;
 
     public override void Init(TargetInfo info)
     {
@@ -35,7 +34,7 @@ public class PlayerData : Target
 
         if (isLocalPlayer)
         {
-            bar = Tool.PageManager.PlayModePage.CreateBar();
+            bar = PlayModeController.Instance.CreateBar();
             bar.SetScale(1f);
             bar.SetColor(new Color(1f, 0.4f, 0.4f, 1f));
 
@@ -61,7 +60,7 @@ public class PlayerData : Target
         Players.Remove(ObjectId);
         if (bar != null)
         {
-            Tool.PageManager.PlayModePage.DestroyBar(bar);
+            PlayModeController.Instance.DestroyBar(bar);
         }
     }
     protected override bool DamageByBullet(Bullet b)
@@ -73,7 +72,7 @@ public class PlayerData : Target
     }
     public override void OnKilled(Target killer)
     {
-        Tool.UIEventCenter.TrigEvent(new ShowKilledSignalEvent());
+        PlayModeController.Instance.ShowKilledSignal();
         base.OnKilled(killer);
     }
 }
