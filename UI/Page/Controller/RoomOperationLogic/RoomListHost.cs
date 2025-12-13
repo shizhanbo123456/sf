@@ -7,7 +7,6 @@ public class RoomListHost:Singleton<RoomListHost>
 {
     private List<RoomListUnitInfo>roomInfoList=new List<RoomListUnitInfo>();
     public Action<List<RoomListUnitInfo>> onRoomInfoChanged;
-    public Action OnClearRoomListRequired;
     public void OnEnter()
     {
         Broadcast.StartRecv();

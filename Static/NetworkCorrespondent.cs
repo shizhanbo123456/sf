@@ -9,15 +9,6 @@ public class NetworkCorrespondent : EnsBehaviour
     {
         Tool.NetworkCorrespondent = this;
 
-        //去除在游玩阶段的连接
-        EnsInstance.OnClientEnter += (id) =>
-        {
-            if(EnsInstance.HasAuthority && 
-            Tool.PageManager.PresentPageType==PageManager.PageType.PlayMode)
-            {
-                CallFuncRpc(nameof(RestartGame), new List<int>() { id });
-            }
-        };
         //客户端断开连接时(准备或战斗)删除技能信息，物体，阵营图标
         EnsInstance.OnClientExit += (id) =>
         {
@@ -68,7 +59,8 @@ public class NetworkCorrespondent : EnsBehaviour
     {
         Tool.SceneController.DestroyLevel();
         Tool.SceneController.DestroyPlayer();
-        Tool.PageManager.TurnPage(PageManager.PageType.Prepare);
+        Tool.PageManager.PageActive(PageManager.PageType.Home, false);
+        Tool.PageManager.PageActive(PageManager.PageType.Prepare,true);
         Tool.SceneController.CreateLevel(1);
 
         var player = new ServerDataContainer.PlayerDataContainer(
@@ -92,7 +84,8 @@ public class NetworkCorrespondent : EnsBehaviour
         }
 
         CallFuncRpc(nameof(RecvNewData), SendTo.Everyone, data, KeyLibrary.KeyFormatType.OrderWise);
-        Tool.FightController.SyncModeHeaderTo(playerData.id);
+        Tool.FightController.SyncNameTo(playerData.id);
+        Tool.FightController.SyncDesTo(playerData.id);
 
         StartCoroutine(RecreatePlayers(playerData));
     }
@@ -131,12 +124,10 @@ public class NetworkCorrespondent : EnsBehaviour
     }
     private void SetScoreboardActiveLocal(string data)
     {
-        var b = data == "1";
-        Tool.PageManager.PlayModePage.Scoreboard.gameObject.SetActive(b);
+        PlayModeController.Instance.SetScoreboardActive(data == "1");
     }
     public void SetScoreboardTextRpc(int x, int y, string data)
     {
-        if (!Tool.PageManager.PlayModePage.Scoreboard.gameObject.activeSelf) return;
         var sb=Tool.stringBuilder;
         sb.Clear();
         sb.Append(x).Append('_').Append(y).Append('_').Append(data);
@@ -145,7 +136,7 @@ public class NetworkCorrespondent : EnsBehaviour
     private void SetScoreboardTextLocal(string data)
     {
         string[] s = data.Split('_');
-        Tool.PageManager.PlayModePage.Scoreboard.SetText(int.Parse(s[0]), int.Parse(s[1]), s[2]);
+        PlayModeController.Instance.SetScoreboardText(int.Parse(s[0]), int.Parse(s[1]), s[2]);
     }
     public void CreateLevelRpc(int type)
     {
@@ -209,7 +200,8 @@ public class NetworkCorrespondent : EnsBehaviour
     private void ControllerStartFight()
     {
         Tool.FightController.StartFight();
-        Tool.PageManager.TurnPage(PageManager.PageType.PlayMode);
+        Tool.PageManager.PageActive(PageManager.PageType.Prepare, false);
+        Tool.PageManager.PageActive(PageManager.PageType.PlayMode, true);
     }
     public void BackToPrepare()
     {
@@ -225,7 +217,8 @@ public class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyLevel();
 
         Tool.SceneController.CreateLevel(1);
-        Tool.PageManager.TurnPage(PageManager.PageType.Prepare);
+        Tool.PageManager.PageActive(PageManager.PageType.PlayMode,false);
+        Tool.PageManager.PageActive(PageManager.PageType.Prepare, true);
     }
     private void LateBackToPrepare()
     {
@@ -256,7 +249,9 @@ public class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyNonSkillPlayer();
         Tool.SceneController.DestroyAllTargetsLocal();
 
-        Tool.PageManager.TurnPage(PageManager.PageType.Home);
+        Tool.PageManager.PageActive(PageManager.PageType.Prepare, false);
+        Tool.PageManager.PageActive(PageManager.PageType.PlayMode, false);
+        Tool.PageManager.PageActive(PageManager.PageType.Home, true);
         Tool.SceneController.CreateLevel(0);
         Tool.SceneController.CreateUnnetPlayer();
 

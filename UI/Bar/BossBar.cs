@@ -23,11 +23,9 @@ namespace SF.UI.Bar
         [Space]
         [SerializeField] private float TransitionSpeed = 0.03f;
 
-
-        public void Init(string name, int maxlayer, int maxValue)
+        public void SetName(string name)
         {
             Name.text = name;
-            SetValue(maxValue, maxValue, maxlayer);
         }
         public void SetValue(int value,int maxValue,int maxLayer)
         {
@@ -53,6 +51,22 @@ namespace SF.UI.Bar
         {
             TransformTransition.localPosition = new Vector3(
                 Mathf.Lerp(TransformTransition.localPosition.x,TransformUpon.localPosition.x,TransitionSpeed), 0, 0);
+        }
+    }
+    public class BossBarController
+    {
+        public BossBar bar;
+        public BossBarController(BossBar bar)
+        {
+            this.bar= bar;
+        }
+        public void SetName(string name)
+        {
+            if(bar!=null) bar.SetName(name);
+        }
+        public void SetValue(int value, int maxValue, int maxLayer)
+        {
+            if(bar!=null)bar.SetValue(value, maxValue, maxLayer);
         }
     }
 }

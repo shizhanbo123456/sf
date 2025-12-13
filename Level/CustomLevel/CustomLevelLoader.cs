@@ -4,12 +4,14 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using XLua;
 
 public struct CustomLevelText
 {
     public int[] path;
     public string joinedPath;
     public string logic;
+    public string description;
 }
 public static class CustomLevelSelector
 {
@@ -22,43 +24,39 @@ public static class CustomLevelSelector
     {
         try
         {
-            foreach (var s in CustomLevelLoader.LevelInfo)
+            using (LuaEnv env = new LuaEnv())
             {
-                var t = GetPath(s);
-                string[] pathParts = t.Split('-');
-                foreach (var part in pathParts)
+                foreach (var s in CustomLevelLoader.LevelInfo)
                 {
-                    if (!PartToInt.ContainsKey(part))
+                    env.DoString(s);
+                    var t=env.Global.Get<string>("ModeName");
+                    var d = env.Global.Get<string>("ModeDescription");
+                    if (d.Length > 150)
                     {
-                        AddPathPart(part);
+                        Debug.LogWarning("描述超过字数上限：" + d);
+                        d = d.Substring(0, 150);
                     }
+                    string[] pathParts = t.Split('-');
+                    foreach (var part in pathParts)
+                    {
+                        if (!PartToInt.ContainsKey(part))
+                        {
+                            AddPathPart(part);
+                        }
+                    }
+                    int[] path = new int[pathParts.Length];
+                    for (int i = 0; i < pathParts.Length; i++)
+                    {
+                        path[i] = PartToInt[pathParts[i]];
+                    }
+                    LevelInfo.Add(new CustomLevelText() { path = path, joinedPath = t, logic = s ,description=d});
                 }
-                int[] path = new int[pathParts.Length];
-                for (int i = 0; i < pathParts.Length; i++)
-                {
-                    path[i] = PartToInt[pathParts[i]];
-                }
-                LevelInfo.Add(new CustomLevelText() { path = path, joinedPath = t, logic = s });
             }
         }
         catch (Exception e)
         {
             Debug.LogException(e);
         }
-    }
-    private static string GetPath(string src)
-    {
-        string header = null;
-        for(int i = 0; i < src.Length; i++)
-        {
-            if (i == '\n')
-            {
-                header = src.Substring(0, i);
-                break;
-            }
-        }
-        if (string.IsNullOrEmpty(header)) throw new Exception("未找到关卡模式信息");
-        return header.Trim(new char[]{ '-',' '});
     }
     private static int AddPathPart(string part)
     {

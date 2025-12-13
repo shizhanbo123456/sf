@@ -6,7 +6,6 @@ public class RoomListDedicateServer:Singleton<RoomListDedicateServer>
 {
     private List<RoomListUnitInfo> roomInfoList = new List<RoomListUnitInfo>();
     public Action<List<RoomListUnitInfo>> onRoomInfoChanged;
-    public Action OnClearRoomListRequired;
     public void OnEnter()
     {
         EnsInstance.OnServerConnect += Flash;
@@ -87,12 +86,3 @@ public class RoomListDedicateServer:Singleton<RoomListDedicateServer>
         JoinRoom.SendRequest(int.Parse(ip));
     }
 }
-/*
-public abstract class RoomOperationLogic : MonoBehaviour
-{
-    public abstract void OnEnter();
-    public abstract void OnExit();
-    public abstract void Flash();
-    public abstract void _CreateRoom();
-    public abstract void _JoinRoom(string ip);
-}*/

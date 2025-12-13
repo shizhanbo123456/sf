@@ -1,4 +1,3 @@
-using EC;
 using SF.UI.Bar;
 using SF.UI.Skill;
 using System.Collections.Generic;
@@ -7,12 +6,8 @@ using UnityEngine.UI;
 
 public class PlayModePage : BasePage
 {
-    public enum SkillColumnType
-    {
-        NonCD,CD,Storable
-    }
-
-    public BarList BarList;
+    private static PlayModeController controller=>PlayModeController.Instance;
+    public Transform BarList;
     public Transform SkillColumn;
     public Transform BossBarRoot;
     public Scoreboard Scoreboard;
@@ -22,44 +17,37 @@ public class PlayModePage : BasePage
     [SerializeField]private CanvasGroup KilledSign;
     private float KilledSignalTimeLeft;
     private float FlickTime = -1f;
+    private Color FlickColor;
     [Space]
     [Header("Settings")]
+    [SerializeField] private CanvasGroup Settings;
     [SerializeField] private Text TimePassed;
     [SerializeField] private Text ModeName;
-    [SerializeField] private Transform SettingsRoot;
-    [SerializeField] private Transform SettingsShow;
-    [SerializeField] private Transform SettingsHide;
+    [SerializeField] private Text ModeDes;
+    [SerializeField]private List<Transform> SkillInfos=new List<Transform>();
     private bool SettingsOn;
     [Space]
     public Settlement settlement;
 
-
-    public override void RegistEvent()
+    public override void Repaint()
     {
-        Tool.UIEventCenter.RegistEvent<DoFlickEvent>(e =>
+        for (int i = 0; i < SkillColumn.childCount; i++)
         {
-            Tool.PageManager.PlayModePage.DoFlick(e.time);
-        });
-        Tool.UIEventCenter.RegistEvent<ShowKilledSignalEvent>(e =>
-        {
-            Tool.PageManager.PlayModePage.ShowKilledSignal();
-        });
+            SkillColumn.GetChild(i).GetComponent<SkillColumn>().SetKey(PlayerSkillController.Keys[i]);
+        }
     }
-    public override void Enter()
+    private void Awake()
+    {
+        foreach (var i in SkillInfos) i.gameObject.SetActive(false);
+    }
+    private void OnEnable()
     {
         foreach (var i in HostOnlyObjects) i.SetActive(FightController.localPlayerId == 0);
-        ModeName.text = CustomLevel.LevelPathJoined;
+        ModeName.text = CustomLevel.ModePath;
         KilledSignalTimeLeft = 4;
         KilledSign.alpha = 0;
         SettingsOn = false;
-        SettingsRoot.position = SettingsHide.position;
-    }
-    public override void Exit()
-    {
-        for(int i = BossBarRoot.childCount - 1; i >= 0; i--)
-        {
-            Destroy(BossBarRoot.GetChild(i).gameObject);
-        }
+        Settings.alpha = 0;
     }
     private void Update()
     {
@@ -71,86 +59,67 @@ public class PlayModePage : BasePage
             if (KilledSignalTimeLeft < 1) KilledSign.alpha = KilledSignalTimeLeft;
             else if(KilledSignalTimeLeft<2)KilledSign.alpha = 1;
             else KilledSign.alpha = 3-KilledSignalTimeLeft;
+            KilledSign.gameObject.SetActive(KilledSign.alpha>0.01f);
         }
         if (FlickTime > 0)
         {
             FlickTime -= Time.deltaTime;
             if (FlickTime > 0)
             {
-                Tool.PageManager.PlayModePage.HitEffect.color = new Color(1, 1, 1, FlickTime / 2);
+                HitEffect.color = new Color(FlickColor.r, FlickColor.g, FlickColor.b, FlickTime);
             }
             else
             {
-                Tool.PageManager.PlayModePage.HitEffect.color = new Color(1, 1, 1, 0);
+                HitEffect.color = new Color(1, 1, 1, 0);
             }
         }
-        if (SettingsOn)
-        {
-            SettingsRoot.position = SettingsShow.position * 0.02f + SettingsRoot.position * 0.98f;
-        }
-        else
-        {
-            SettingsRoot.position = SettingsHide.position * 0.02f + SettingsRoot.position * 0.98f;
-        }
-    }
-    public void ShowSettings(bool show)
-    {
-        SettingsOn= show;
-    }
-    private void ShowKilledSignal()
-    {
-        KilledSignalTimeLeft = 0;
-    }
-    private void DoFlick(float time)
-    {
-        FlickTime = Mathf.Max(FlickTime, time);
-    }
-    public void BackToPrepare()
-    {
-        Tool.NetworkCorrespondent.BackToPrepare();
-    }
-    public void ExitGame()
-    {
-        EnsInstance.Corr.ShutDown();
+        Settings.alpha += Time.deltaTime * (SettingsOn ? 2 : -2);
     }
 
-
-
-    public BarBase CreateBar()
+    public Bar CreateBar()
     {
-        GameObject obj = Instantiate(Tool.PrefabManager.BarBase, BarList.transform);
-        BarBase bar = obj.GetComponent<BarBase>();
-        BarList.Bars.Add(bar);
-        BarList.LayoutBars();
+        GameObject obj = Instantiate(Tool.PrefabManager.BarBase, BarList);
+        Bar bar = obj.GetComponent<Bar>();
         return bar;
     }
-    public void DestroyBar(BarBase bar)
+    public void DestroyBar(Bar bar)
     {
+        if (bar == null) return;
         Destroy(bar.gameObject);
-        for (int i = 0; i < BarList.Bars.Count; i++)
+    }
+    public SkillColumn CreateSkillColumn(int index)
+    {
+        var s = VarietyManager.GetSkill(index);
+        GameObject obj = Instantiate(Tool.PrefabManager.SkillColumn, SkillColumn);
+        var _base = obj.GetComponent<SkillColumn>();
+        _base.SetSprite(Tool.SpriteManager.GetSprite(s.sprite));
+        for(int i = 0; i < SkillInfos.Count; i++)
         {
-            if (BarList.Bars[i] == null)
+            if (!SkillInfos[i].gameObject.activeSelf)
             {
-                BarList.Bars.RemoveAt(i);
+                SkillInfos[i].gameObject.SetActive(true);
+                SkillInfos[i].GetChild(0).GetComponent<Text>().text=s.Name;
+                SkillInfos[i].GetChild(1).GetComponent<Image>().sprite= Tool.SpriteManager.GetSprite(s.sprite);
+                SkillInfos[i].GetChild(2).GetComponent<Text>().text=s.Description;
                 break;
             }
         }
-        BarList.LayoutBars();
-    }
-    public SkillColumnBase CreateSkillColumn(SkillColumnType type)
-    {
-        GameObject obj = Instantiate(Tool.PrefabManager.SkillColumns[(int)type], SkillColumn);
-        var _base = obj.GetComponent<SkillColumnBase>();
-        _base.SetKey(PlayerSkillController.Keys[SkillColumn.childCount - 1]);
+        Repaint();
         return _base;
     }
-    public void DestroySkillColumn(SkillColumnBase column)
+    public void DestroySkillColumn(SkillColumn column)
     {
+        if (column == null) return;
         Destroy(column.gameObject);
-        for(int i = 0; i < SkillColumn.childCount; i++)
+        for (int i = SkillInfos.Count - 1; i >= 0; i--)
         {
-            SkillColumn.GetChild(i).GetComponent<SkillColumnBase>().SetKey(PlayerSkillController.Keys[i]);
+            if (SkillInfos[i].gameObject.activeSelf)
+            {
+                SkillInfos[i].gameObject.SetActive(false);
+                break;
+            }
         }
+        Repaint();
     }
     public BossBar CreateBossBar()
     {
@@ -160,21 +129,26 @@ public class PlayModePage : BasePage
     }
     public void DestroyBossBar(BossBar bar)
     {
+        if (bar == null) return;
         Destroy(bar.gameObject);
     }
-}
-namespace EC
-{
-    public class DoFlickEvent : UIEvent
+
+
+    public void ShowSettings(bool show)
     {
-        public float time;
-        public DoFlickEvent(float time)
-        {
-            this.time = time;
-        }
+        SettingsOn= show;
+        Settings.gameObject.SetActive(!SettingsOn);
     }
-    public class ShowKilledSignalEvent : UIEvent
+    public void BackToPrepare()=>controller.BackToPrepare();
+    public void ExitGame()=>controller.ExitGame();
+
+    public void ShowKilledSignal()
     {
-        
+        KilledSignalTimeLeft = 0;
+    }
+    public void DoFlick(float time, Color color)
+    {
+        FlickTime = Mathf.Max(FlickTime, time);
+        FlickColor= color;
     }
 }
