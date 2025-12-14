@@ -3,52 +3,103 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WorldTextController : MonoBehaviour
+public class WorldTextController : EnsBehaviour
 {
-    public GameObject TextPrefab;
-    private List<Transform> Texts = new List<Transform>();
+    private struct TextInfo
+    {
+        public string text;
+        public Vector2 pos;
+        public TextColor color;
+        public TextInfo(string text,Vector2 pos,TextColor color)
+        {
+            this.text = text;
+            this.pos = pos;
+            this.color = color;
+        }
+        public override string ToString()
+        {
+            var sb= Tool.stringBuilder;
+            sb.Clear();
+            sb.Append(text).Append('_').
+                Append(pos.x.ToString("F1")).Append('_').
+                Append(pos.y.ToString("F2")).Append('_').
+                Append((int)color);
+            return sb.ToString();
+        }
+        public TextInfo(string data)
+        {
+            var s = data.Split('_');
+            text= s[0];
+            pos = new Vector2(float.Parse(s[1]), float.Parse(s[2]));
+            color=(TextColor)int.Parse(s[3]);
+        }
+    }
     public enum TextColor
     {
-        Orange,Green,Blue,Red,Purple,Pink
+        Orange, Green, Blue, Red, Purple, Pink
     }
-    public TextColor Reference;
-    public List<Color> TextColors = new List<Color>();
+    private List<TextInfo>TextInfos = new List<TextInfo>(100);
+
+    [SerializeField] private GameObject TextPrefab;
+    [SerializeField] private TextColor Reference;
+    [SerializeField]private List<Color> TextColors = new List<Color>();
+    [Space]
+    [SerializeField] private float existTime = 0.5f;
+    [SerializeField] private int countPerFrame = 5;
+    private GameObjectPool pool;
+
+    private List<Transform> Texts = new List<Transform>();
+    private List<float> DestroyTimes = new List<float>();
+
+
     private void Awake()
     {
         Tool.WorldTextController = this;
+        pool = GameObjectPool.Create(TextPrefab,o=>o.SetActive(false),o=>o.SetActive(true));
     }
-    /// <summary>
-    /// 会向全部玩家显示此文本
-    /// </summary>
-    public void ShowTextLocal(string text, Vector3 pos, TextColor color)
+    public void ShowTextRpc(string text,Vector2 pos,TextColor color)
     {
-        pos += new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f));
-        var obj = Instantiate(TextPrefab,pos, Quaternion.identity, Tool.SceneController.Level.Canvas);
-        var t = obj.transform.GetChild(1).GetComponent<Text>();
-        t.text = text;
-        t.color = TextColors[(int)color];
-        obj.GetComponent<Text>().text=text;
-        obj.transform.GetChild(0).GetComponent<Text>().text=text;
-        Add(obj.transform);
-        Destroy(obj, 0.5f);
+        TextInfos.Add(new TextInfo(text, pos, color));
     }
-    private void Add(Transform t)//有null则插入，反之则删除
+    public override void ManagedUpdate()
     {
-        for(int i = 0; i < Texts.Count; i++)
+        int i = countPerFrame;
+        for(i=Mathf.Min(TextInfos.Count-1,i); i >= 0; i--)
         {
-            if (Texts[i]==null)
-            {
-                Texts[i] = t;
-                return;
-            }
+            var s = TextInfos[i].ToString();
+            CallFuncRpc(nameof(ShowTextLocal), SendTo.ExcludeSender,s,KeyLibrary.KeyFormatType.None);
+            ShowTextLocal(s);
+            TextInfos.RemoveAt(i);
         }
-        Texts.Add(t);
+    }
+    public void ShowTextLocal(string data)
+    {
+        var info=new TextInfo(data);
+        var pos = (Vector3)info.pos+new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f));
+        var obj = pool.Get(); 
+        obj.transform.position = pos;
+        obj.transform.SetParent(Tool.SceneController.Level.Canvas);
+
+        var t = obj.transform.GetChild(1).GetComponent<Text>();
+        t.text = info.text;
+        t.color = TextColors[(int)info.color];
+        obj.GetComponent<Text>().text=info.text;
+        obj.transform.GetChild(0).GetComponent<Text>().text=info.text;
+
+        Texts.Add(obj.transform);
+        DestroyTimes.Add(Time.time + existTime);
     }
     private void Update()
     {
         for(int i= Texts.Count - 1; i >= 0; i--)
         {
-            if (Texts[i]!=null)Texts[i].position+=Vector3.up*Time.deltaTime;
+            if (Time.time < DestroyTimes[i])Texts[i].position+=Vector3.up*Time.deltaTime;
+            else
+            {
+                pool.Return(Texts[i].gameObject);
+                Texts.RemoveAt(i);
+                DestroyTimes.RemoveAt(i);
+            }
         }
     }
 }

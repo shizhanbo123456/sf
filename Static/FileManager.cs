@@ -16,11 +16,11 @@ public class FileManager : MonoBehaviour
     {
         Tool.FileManager = this;
         Init();
-        Transition.ExecuteWithLoading(async () =>
+        TransitionController.Instance.ExecuteWithLoading(async () =>
         {
+            TransitionController.Instance.SetLabel("正在加载关卡逻辑");
             await CustomLevelLoader.LoadAsync();
             CustomLevelSelector.ProcessData();
-            //foreach(var i in CustomLevelSelector.LevelInfo)Debug.Log(i.logic);
         });
     }
     public void Init()

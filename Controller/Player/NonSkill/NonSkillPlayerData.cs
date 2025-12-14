@@ -39,7 +39,8 @@ public class NonSkillPlayerData : EnsBehaviour
         CameraInstance.instance.Init(transform);
 
         Anim.Init(gameObject);
-        Anim.SetBarActive(false);
+        Anim.SetBarActive(true);
+        Anim.header.SetBarActive(false);
 
         transform.position = Tool.SceneController.Level.GetPos(0.5f,0.9f);
 

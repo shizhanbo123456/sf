@@ -16,7 +16,6 @@ public class Tool:MonoBehaviour
     public static SceneController SceneController;//生成/摧毁 玩家/场景
     public static WorldTextController WorldTextController;
     public static NetworkCorrespondent NetworkCorrespondent;
-    public static BackgroundController BackgroundController;
     public static FileManager FileManager;
     public static Notice Notice;
     public static SubInput SubInput;
@@ -43,8 +42,12 @@ public class Tool:MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        if (Platform == TargetPlatform.Windows) Instantiate(WindowsUI, Vector3.zero, Quaternion.identity);
-        if(Platform==TargetPlatform.Android) Instantiate(AndroidUI, Vector3.zero, Quaternion.identity);
+        Instantiate(WindowsUI, Vector3.zero, Quaternion.identity);
+        if (Platform == TargetPlatform.Windows)
+        {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 60;
+        }
 
         EnsInstance.OnConnectionRejected += () =>
         {

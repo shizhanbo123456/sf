@@ -94,7 +94,7 @@ public abstract class Target : MonoBehaviour
         FloatingAttributes.SetAllDirty();
 
 
-        DedicatedAttributes.Shengming.OnValueChanged += v => graphic.targetBar.SetNum(v.Item2 / (float)v.Item1);
+        DedicatedAttributes.Shengming.OnValueChanged += v => graphic.header.SetBarValue(v.Item2 / (float)v.Item1);
     }
 
     protected virtual void RegistOnCreated()

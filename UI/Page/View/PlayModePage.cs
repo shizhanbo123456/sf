@@ -7,20 +7,21 @@ using UnityEngine.UI;
 public class PlayModePage : BasePage
 {
     private static PlayModeController controller=>PlayModeController.Instance;
-    public Transform BarList;
-    public Transform SkillColumn;
-    public Transform BossBarRoot;
+    [SerializeField] private Transform BarList;
+    [SerializeField] private Transform SkillColumn;
+    [SerializeField] private Transform BossBarRoot;
     public Scoreboard Scoreboard;
     [SerializeField]private List<GameObject> HostOnlyObjects = new List<GameObject>();
     [Header("Effect")]
-    [SerializeField]private Image HitEffect;
-    [SerializeField]private CanvasGroup KilledSign;
-    private float KilledSignalTimeLeft;
-    private float FlickTime = -1f;
+    [SerializeField]private Image FlickEffect;
+    private float FlickEnd = -1f;
     private Color FlickColor;
+    [SerializeField]private CanvasGroup KilledSign;
+    private float KilledSignalTimeStart;
     [Space]
     [Header("Settings")]
     [SerializeField] private CanvasGroup Settings;
+    private int lastFrameTime;
     [SerializeField] private Text TimePassed;
     [SerializeField] private Text ModeName;
     [SerializeField] private Text ModeDes;
@@ -35,45 +36,50 @@ public class PlayModePage : BasePage
         {
             SkillColumn.GetChild(i).GetComponent<SkillColumn>().SetKey(PlayerSkillController.Keys[i]);
         }
+        foreach (var i in HostOnlyObjects) i.SetActive(EnsInstance.HasAuthority);
+        ModeName.text = CustomLevel.ModePath;
+        ModeDes.text = CustomLevel.ModeDescrpition;
+        Settings.gameObject.SetActive(Settings.alpha > 0.01f);
     }
     private void Awake()
     {
         foreach (var i in SkillInfos) i.gameObject.SetActive(false);
+        Settings.gameObject.SetActive(false);
     }
     private void OnEnable()
     {
-        foreach (var i in HostOnlyObjects) i.SetActive(FightController.localPlayerId == 0);
-        ModeName.text = CustomLevel.ModePath;
-        KilledSignalTimeLeft = 4;
+        KilledSignalTimeStart = -10;
         KilledSign.alpha = 0;
         SettingsOn = false;
         Settings.alpha = 0;
+        Repaint();
     }
     private void Update()
     {
-        int timecount = (int)CustomLevel.FightTime;
-        TimePassed.text = timecount / 60 + ":" + timecount % 60;
-        if (KilledSignalTimeLeft < 3)
+        if (SettingsOn)
         {
-            KilledSignalTimeLeft += Time.deltaTime;
-            if (KilledSignalTimeLeft < 1) KilledSign.alpha = KilledSignalTimeLeft;
-            else if(KilledSignalTimeLeft<2)KilledSign.alpha = 1;
-            else KilledSign.alpha = 3-KilledSignalTimeLeft;
-            KilledSign.gameObject.SetActive(KilledSign.alpha>0.01f);
+            int timecount = (int)CustomLevel.FightTime;
+            if (lastFrameTime != timecount) TimePassed.text = timecount / 60 + ":" + timecount % 60;
         }
-        if (FlickTime > 0)
+        if (KilledSignalTimeStart < 3+Time.time)
         {
-            FlickTime -= Time.deltaTime;
-            if (FlickTime > 0)
-            {
-                HitEffect.color = new Color(FlickColor.r, FlickColor.g, FlickColor.b, FlickTime);
-            }
-            else
-            {
-                HitEffect.color = new Color(1, 1, 1, 0);
-            }
+            var s = KilledSignalTimeStart - Time.time;
+            if (s < 1) KilledSign.alpha = s;
+            else if(s<2)KilledSign.alpha = 1;
+            else KilledSign.alpha = 3-s;
+            if(KilledSign.gameObject.activeSelf!=KilledSign.alpha>0.01f)
+                KilledSign.gameObject.SetActive(KilledSign.alpha>0.01f);
         }
-        Settings.alpha += Time.deltaTime * (SettingsOn ? 2 : -2);
+        if (FlickEnd > Time.time)
+        {
+            FlickEffect.color = new Color(FlickColor.r, FlickColor.g, FlickColor.b, FlickEnd);
+        }
+        else
+        {
+            if (FlickEffect.gameObject.activeSelf) FlickEffect.gameObject.SetActive(false);
+        }
+        Settings.alpha += Time.deltaTime * (SettingsOn ? 3 : -3);
+        Settings.gameObject.SetActive(Settings.alpha>0.01f);
     }
 
     public Bar CreateBar()
@@ -137,18 +143,19 @@ public class PlayModePage : BasePage
     public void ShowSettings(bool show)
     {
         SettingsOn= show;
-        Settings.gameObject.SetActive(!SettingsOn);
+        Repaint();
     }
     public void BackToPrepare()=>controller.BackToPrepare();
     public void ExitGame()=>controller.ExitGame();
 
     public void ShowKilledSignal()
     {
-        KilledSignalTimeLeft = 0;
+        KilledSignalTimeStart = Time.deltaTime;
     }
     public void DoFlick(float time, Color color)
     {
-        FlickTime = Mathf.Max(FlickTime, time);
+        FlickEnd = Mathf.Max(FlickEnd, time);
         FlickColor= color;
+        FlickEffect.gameObject.SetActive(true);
     }
 }
