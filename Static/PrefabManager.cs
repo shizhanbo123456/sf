@@ -15,7 +15,6 @@ public class PrefabManager : MonoBehaviour
     [Space]
     public GameObject SkillColumn;
     [Space]
-    public GameObject SkillLayoutUnit;
     public GameObject RoomInfoUnit;
     [Header("Bullet")]
     public GameObject BulletWarningRect;
@@ -26,6 +25,7 @@ public class PrefabManager : MonoBehaviour
     [Header("Player")]
     public GameObject UnnetPlayer;
     public EnsBehaviourCollection NonSkillPlayerCollection;
+    public TargetHeader TargetHeader;
     [Header("Target")]
     public EnsBehaviourCollection TargetCollection;
     public List<TargetGraphic> GraphicCollection= new List<TargetGraphic>();

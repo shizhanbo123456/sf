@@ -17,6 +17,8 @@ public class TargetGraphic : MonoBehaviour
             return boxCollider.edgeRadius - (boxCollider.offset.y - boxCollider.size.y / 2f) * transform.localScale.y;
         }
     }
+    private static GameObjectPool pool;
+
     [SerializeField] private bool UseAnim = true;
     [SerializeField] private bool SetState = true;
     private static readonly Vector3 R = new Vector3(1, 1, 1);
@@ -31,8 +33,8 @@ public class TargetGraphic : MonoBehaviour
     [HideInInspector]public BulletDetector bulletDetector;
     [HideInInspector]public GroundDetector groundDetector;
     private BoxCollider2D boxCollider;
-    [Space]
-    public TargetHeader header;
+
+    [HideInInspector]public TargetHeader header;
 
     private bool Initialized = false;
     private void OnDrawGizmos()
@@ -61,12 +63,15 @@ public class TargetGraphic : MonoBehaviour
         {
             Debug.LogError(gameObject.name + "未挂载同步组件");
         }
-        MoveHeader();
+        InitHeader();
         Initialized = true;
     }
     private float headerOffset;
-    private void MoveHeader()
+    private void InitHeader()
     {
+        if (header) return;
+        if (pool == null) pool = GameObjectPool.Create(Tool.PrefabManager.TargetHeader.gameObject, o => o.SetActive(false), o => o.SetActive(true));
+        header = pool.Get().GetComponent<TargetHeader>();
         header.transform.SetParent(Tool.SceneController.Level.Canvas);
         headerOffset = SpawnOffset+1;
     }
@@ -76,6 +81,7 @@ public class TargetGraphic : MonoBehaviour
     }
     public void SetName(string text,Color color=default)
     {
+        if (!header) InitHeader();
         if (text == NullName)
         {
             header.SetNameActive(false);
@@ -125,6 +131,10 @@ public class TargetGraphic : MonoBehaviour
     }
     private void OnDestroy()
     {
-        if(header)Destroy(header.gameObject);
+        if (header)
+        {
+            pool.Return(header.gameObject);
+            header = null;
+        }
     }
 }
