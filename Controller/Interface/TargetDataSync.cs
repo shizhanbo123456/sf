@@ -76,19 +76,9 @@ public class TargetDataSync : EnsBehaviour
     }
     public void ShowDamageText(int value, bool hit, bool strike)
     {
-        if (!hit) ShowTextServerRpc("miss", TextColor.Blue);
-        else if (!strike) ShowTextServerRpc('-' + value.ToString(), TextColor.Orange);
-        else ShowTextServerRpc('-' + value.ToString(), TextColor.Red);
-    }
-    private void ShowTextServerRpc(string text, TextColor color)
-    {
-        string s = $"{text}_{(int)color}";
-        CallFuncRpc(nameof(ShowTextLocal), SendTo.Everyone, s);
-    }
-    private void ShowTextLocal(string data)
-    {
-        string[] s = data.Split('_');
-        Tool.WorldTextController.ShowTextLocal(s[0], target.graphic.targetBar.transform.position + Vector3.up * 1.5f, (TextColor)int.Parse(s[1]));
+        if (!hit) Tool.WorldTextController.ShowTextRpc("miss", transform.position, TextColor.Blue);
+        else if (!strike) Tool.WorldTextController.ShowTextRpc('-' + value.ToString(),transform.position, TextColor.Orange);
+        else Tool.WorldTextController.ShowTextRpc('-' + value.ToString(), transform.position, TextColor.Red);
     }
     public void UseSkillRpc(int index)
     {
@@ -121,11 +111,11 @@ public class TargetDataSync : EnsBehaviour
     {
         if (data == "null")
         {
-            target.graphic.targetBar.ShowEffects(new List<EffectType>());
+            target.graphic.header.ShowEffects(new List<EffectType>());
             return;
         }
         var list = Format.StringToList(data, int.Parse, '+');
-        target.graphic.targetBar.ShowEffects(list.Select(i => (EffectType)i).ToList());
+        target.graphic.header.ShowEffects(list.Select(i => (EffectType)i).ToList());
     }
     public void InterruptRpc()
     {

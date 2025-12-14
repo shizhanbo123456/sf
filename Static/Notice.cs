@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Notice : MonoBehaviour
 {
+    private GameObjectPool pool;
     private List<CanvasGroup> Units=new List<CanvasGroup>();
     private List<float> SpawnTime = new List<float>();
     [SerializeField] private GameObject Obj;
@@ -12,16 +13,22 @@ public class Notice : MonoBehaviour
     private void Awake()
     {
         Tool.Notice = this;
+        pool= GameObjectPool.Create(Obj);
     }
     private void Start()
     {
-        Canvas = Tool.PageManager.Canvas.transform;
+        Canvas = Tool.PageManager.DynamicCanvas.transform;
         ShowMesg("µ±Ç°°æ±¾ : "+Application.version);
     }
 
     public void ShowMesg(string message)
     {
-        Units.Add(Instantiate(Obj,new Vector3(0,-1000,0),Quaternion.identity ,Canvas).AddComponent<CanvasGroup>());
+        var n=pool.Get();
+        n.transform.SetParent(Canvas);
+        n.transform.position = new Vector3(0, -1000, 0);
+        var cg=n.GetComponent<CanvasGroup>();
+        if(!cg)cg=n.AddComponent<CanvasGroup>();
+        Units.Add(cg);
         Units[Units.Count-1].GetComponentInChildren<Text>().text = message;
         SpawnTime.Add(0);
     }
@@ -33,7 +40,7 @@ public class Notice : MonoBehaviour
             if (SpawnTime[i] > 2.3)
             {
                 SpawnTime.RemoveAt(i);
-                Destroy(Units[i].gameObject);
+                pool.Return(Units[i].gameObject);
                 Units.RemoveAt(i);
             }
             else

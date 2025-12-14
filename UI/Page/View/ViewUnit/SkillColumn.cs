@@ -24,8 +24,8 @@ namespace SF.UI.Skill
         }
         public void SetAvailableTime(float time)
         {
-            if (time < 0.0001f) time = 0.00001f;
-            PieShade.fillAmount = time % 1;
+            if (time < 0.0001f) PieShade.fillAmount = 1f;
+            else PieShade.fillAmount = (1-time) % 1;
             if (labelActive) StoredTime.text = ((int)time).ToString();
         }
         public void SetLabelActive(bool active)

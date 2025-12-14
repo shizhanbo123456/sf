@@ -1,6 +1,5 @@
 using SF.UI.Bar;
 using SF.UI.Skill;
-using UnityEngine.SocialPlatforms;
 
 public class PlayModeController : Singleton<PlayModeController>
 {
@@ -8,7 +7,7 @@ public class PlayModeController : Singleton<PlayModeController>
     {
         get
         {
-            if(Tool.PageManager.Pages.TryGetValue(PageManager.PageType.PlayMode, out var value))return value as PlayModePage;
+            if(Tool.PageManager.Pages.TryGetValue(PageManager.PageType.PlayMode, out var value))return value.gameObject.activeSelf?value as PlayModePage:null;
             return null;
         }
     }

@@ -32,8 +32,7 @@ public class TargetGraphic : MonoBehaviour
     [HideInInspector]public GroundDetector groundDetector;
     private BoxCollider2D boxCollider;
     [Space]
-    public TargetBar targetBar;
-    public TargetName targetName;
+    public TargetHeader header;
 
     private bool Initialized = false;
     private void OnDrawGizmos()
@@ -57,31 +56,41 @@ public class TargetGraphic : MonoBehaviour
         if(obj.TryGetComponent(out Icontroller))
         {
             Icontroller.OnPostSyncRpc += OnSync;
-            enabled = false;
         }
         else
         {
             Debug.LogError(gameObject.name + "未挂载同步组件");
         }
+        MoveHeader();
         Initialized = true;
+    }
+    private float headerOffset;
+    private void MoveHeader()
+    {
+        header.transform.SetParent(Tool.SceneController.Level.Canvas);
+        headerOffset = SpawnOffset+1;
+    }
+    private void Update()
+    {
+        if(header)header.transform.position=transform.position+Vector3.up*headerOffset;
     }
     public void SetName(string text,Color color=default)
     {
         if (text == NullName)
         {
-            targetName.gameObject.SetActive(false);
+            header.SetNameActive(false);
             return;
         }
         else
         {
-            targetName.gameObject.SetActive(true);
+            header.SetNameActive(true);
+            header.SetNameText(text);
+            header.SetNameColor(color);
         }
-        targetName.text = text;
-        targetName.color = color;
     }
     public void SetBarActive(bool active)
     {
-        targetBar.gameObject.SetActive(active);
+        header.gameObject.SetActive(active);
     }
     private void OnSync()
     {
@@ -113,5 +122,9 @@ public class TargetGraphic : MonoBehaviour
                 anim.SetInteger("state", 3);
             }
         }
+    }
+    private void OnDestroy()
+    {
+        if(header)Destroy(header.gameObject);
     }
 }

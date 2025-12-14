@@ -55,7 +55,7 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
 
     public void CreateUnnetPlayer()
     {
-        Player= Instantiate(Tool.PrefabManager.UnnetPlayer);
+        Instantiate(Tool.PrefabManager.UnnetPlayer);
     }
     public void DestroyPlayer()
     {

@@ -20,7 +20,7 @@ public class Level : MonoBehaviour
     public Transform Canvas;
     [Space]
     [Header("Background")]
-    public Color BgColor = new Color(183f / 255, 243f / 255, 237f / 255, 1);
+    [SerializeField] private SpriteRenderer BgSprite;
 
     private void OnDrawGizmos()
     {
@@ -39,10 +39,12 @@ public class Level : MonoBehaviour
             MinimapCamera.GetChild(0).GetComponent<Camera>().orthographicSize = size;
             MinimapCamera.GetChild(1).GetComponent<Camera>().orthographicSize = size;
         }
-    }
-    private void Start()
-    {
-        Tool.BackgroundController.UpdateColor(BgColor);
+        if (BgSprite != null)
+        {
+            BgSprite.transform.position = offset;
+            float s = size / 9.5f * 1.4f;
+            BgSprite.transform.localScale=new Vector3(s, s, 1);
+        }
     }
 
     public Vector3 GetPos(float x,float y)

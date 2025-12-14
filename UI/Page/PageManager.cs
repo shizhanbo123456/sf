@@ -9,17 +9,24 @@ public class PageManager : MonoBehaviour
     public GameObject HomePage;
     public GameObject PreparePage;
     public GameObject PlayModePage;
+    public GameObject TransitionPage;
 
     private Dictionary<PageType, GameObject> PageMap;
+    private Dictionary<PageType, bool> IfDynamic = new()
+    {
+        {PageType.Home,false },
+        {PageType.Prepare,false },
+        {PageType.PlayMode,true },
+        {PageType.Transition,false },
+    };
     [Space]
-    public Canvas Canvas;
+    public Canvas DynamicCanvas;
+    public Canvas StaticCanvas;
     public Text Version;
-    public Image BgEffect;
-    public Transition Transition;
 
     public enum PageType
     {
-        Home, Prepare, PlayMode
+        Home, Prepare, PlayMode,Transition,
     }
     private void Awake()
     {
@@ -31,6 +38,7 @@ public class PageManager : MonoBehaviour
             {PageType.Home,HomePage },
             {PageType.Prepare,PreparePage },
             {PageType.PlayMode,PlayModePage },
+            {PageType.Transition,TransitionPage },
         };
         foreach(var i in PageMap.Values)i.SetActive(false);
     }
@@ -39,6 +47,7 @@ public class PageManager : MonoBehaviour
         var t1 = HomeController.Instance;
         var t2 = PrepareController.Instance;
         var t3 = PlayModeController.Instance;
+        var t4 = TransitionController.Instance;
 
         PageActive(PageType.Home, true);
     }
@@ -47,8 +56,7 @@ public class PageManager : MonoBehaviour
     {
         if (!Pages.ContainsKey(type))
         {
-            var p=Instantiate(PageMap[type], Canvas.transform);
-            Pages.Add(type,p.GetComponent<BasePage>());
+            CreatePage(type);
         }
         Pages[type].gameObject.SetActive(active);
     }
@@ -56,9 +64,13 @@ public class PageManager : MonoBehaviour
     {
         if (!Pages.ContainsKey(type))
         {
-            var p = Instantiate(PageMap[type], Canvas.transform);
-            Pages.Add(type, p.GetComponent<BasePage>());
+            CreatePage(type);
         }
         Pages[type].Repaint();
+    }
+    private void CreatePage(PageType type)
+    {
+        var p = Instantiate(PageMap[type], IfDynamic[type]?DynamicCanvas.transform:StaticCanvas.transform);
+        Pages.Add(type, p.GetComponent<BasePage>());
     }
 }

@@ -35,7 +35,7 @@ public class GroundDetector : MonoBehaviour
     {
         float x = boxCollider.size.x / 2f ;
         float y = boxCollider.offset.y - boxCollider.size.y / 2f;
-        leftBottom = new Vector2(-x * transform.localScale.x -boxCollider.edgeRadius,
+        leftBottom = new Vector2(-x * transform.localScale.x -boxCollider.edgeRadius+0.01f,
             y * transform.localScale.y - boxCollider.edgeRadius - LevitatingPlatformThickness);
         rightTop = new Vector2(-leftBottom.x, leftBottom.y + groundCheckHeight);
     }
