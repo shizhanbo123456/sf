@@ -7,7 +7,11 @@ public class PlayModeController : Singleton<PlayModeController>
     {
         get
         {
-            if(Tool.PageManager.Pages.TryGetValue(PageManager.PageType.PlayMode, out var value))return value.gameObject.activeSelf?value as PlayModePage:null;
+            if (Tool.PageManager.Pages.TryGetValue(PageManager.PageType.PlayMode, out var value))
+            {
+                if (value == null) return null;
+                return value.gameObject.activeSelf ? value as PlayModePage : null;
+            }
             return null;
         }
     }
@@ -38,7 +42,11 @@ public class PlayModeController : Singleton<PlayModeController>
     {
         if(bar == null) return;
         var p = page;
-        if (p != null && bar.bar != null) p.DestroyBar(bar.bar);
+        if (bar != null && bar.bar != null)
+        {
+            if(p!=null)p.DestroyBar(bar.bar);
+            else UnityEngine.Object.Destroy(bar.bar);
+        }
     }
     public SkillColumnController CreateSkillColumn(int index)
     {
@@ -50,7 +58,11 @@ public class PlayModeController : Singleton<PlayModeController>
     {
         if (column == null) return;
         var p = page;
-        if (p!=null&&column.column!=null)p.DestroySkillColumn(column.column);
+        if (column!=null&&column.column != null)
+        {
+            if(p!=null)p.DestroySkillColumn(column.column);
+            else UnityEngine.Object.Destroy(column.column);
+        }
     }
     public BossBarController CreateBossBar()
     {
@@ -62,7 +74,11 @@ public class PlayModeController : Singleton<PlayModeController>
     {
         if (bar == null) return;
         var p = page;
-        if (p != null && bar.bar != null)p.DestroyBossBar(bar.bar);
+        if (bar!=null&&bar.bar != null)
+        {
+            if (p != null) p.DestroyBossBar(bar.bar);
+            else UnityEngine.Object.Destroy(bar.bar.gameObject);
+        }
     }
 
     public void ShowKilledSignal()

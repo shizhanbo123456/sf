@@ -59,13 +59,9 @@ public class Bullet : MonoBehaviour
         if (ReleaseBulletSystemReference == null) Debug.LogError("δ�ڹ켣ϵͳע��");
         Shooter = BulletSystemCommon.CurrentShooter;
 
-        SpriteManager.ColorType ct = liftStoicLevel switch
-        {
-            0 => SpriteManager.ColorType.Bullet1,
-            1 => SpriteManager.ColorType.Bullet2,
-            2 => SpriteManager.ColorType.Bullet3,
-            _ => SpriteManager.ColorType.Bullet2,
-        };
+        SpriteManager.ColorType ct = liftStoicLevel == 2 ||!Effects.IsEmpty()?
+            SpriteManager.ColorType.BulletSpecial:
+            SpriteManager.ColorType.BulletCommon;
         particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter,ct));
         particleController.Play();
 
@@ -143,6 +139,6 @@ public class Bullet : MonoBehaviour
     public static Vector2 FigureAttractForce(Vector3 bullet,Vector3 target, float power=20)
     {
         float maxPower = (bullet - target).magnitude;
-        return (bullet - target).normalized * Mathf.Min(maxPower*3,power)+Vector3.up*0.1962f;
+        return (bullet - target).normalized * Mathf.Min(maxPower*3,power)*2+Vector3.up*0.1962f;
     }
 }

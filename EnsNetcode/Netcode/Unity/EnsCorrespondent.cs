@@ -13,7 +13,7 @@ public class EnsCorrespondent :MonoBehaviour
     public int Port = 65432;
     public enum NetworkMode
     {
-        None, Server, Client, Host
+        None, Client, Host
     }
     [Tooltip("Which character the current game is at")]
     public NetworkMode networkMode;
@@ -80,7 +80,7 @@ public class EnsCorrespondent :MonoBehaviour
     }
     protected void UpdateServerAndClient()//Clear send buffer and handle recv buffer
     {
-        if (networkMode == NetworkMode.Host || networkMode == NetworkMode.Server)
+        if (networkMode == NetworkMode.Host)
         {
             Server.Update();
         }
@@ -125,22 +125,6 @@ public class EnsCorrespondent :MonoBehaviour
         Server.ClientConnections.Add(host.ClientId,host);
         EnsInstance.OnServerConnect.Invoke();
     }
-    public void StartServer()
-    {
-        if (networkMode != NetworkMode.None)
-        {
-            Debug.LogWarning("[N]已启动，关闭后才可调用");
-            return;
-        }
-        if (!IPAddress.TryParse(IP, out _) || Port < 0 || Port > 65535)
-        {
-            Debug.Log("[N]输入的IP或端口有误");
-            return;
-        }
-
-        networkMode = NetworkMode.Server;
-        Server = new EnsServer(IPAddress.Any,Port);
-    }
     public void StartClient()
     {
         if (networkMode != NetworkMode.None)
@@ -180,15 +164,7 @@ public class EnsCorrespondent :MonoBehaviour
     {
         try
         {
-            if (networkMode == NetworkMode.Server)
-            {
-                if (Server != null)
-                {
-                    Server.ShutDown();
-                    Server.Dispose();
-                }
-            }
-            else if (networkMode == NetworkMode.Client)
+            if (networkMode == NetworkMode.Client)
             {
                 if (Client != null)
                 {

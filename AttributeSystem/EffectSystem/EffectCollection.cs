@@ -27,6 +27,10 @@ namespace AttributeSystem.Effect
             }
             return Effects;
         }
+        public bool IsEmpty()
+        {
+            return effects==null || effects.Length == 0;
+        }
         private EffectBase GetEffectBase(EffectType effect,float value,float time,Target receiver)
         {
             switch (effect)
