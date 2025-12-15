@@ -75,10 +75,6 @@ public class TargetGraphic : MonoBehaviour
         header.transform.SetParent(Tool.SceneController.Level.Canvas);
         headerOffset = SpawnOffset+1;
     }
-    private void Update()
-    {
-        if(header)header.transform.position=transform.position+Vector3.up*headerOffset;
-    }
     public void SetName(string text,Color color=default)
     {
         if (!header) InitHeader();
@@ -98,10 +94,14 @@ public class TargetGraphic : MonoBehaviour
     {
         header.gameObject.SetActive(active);
     }
+    private void FixedUpdate()
+    {
+        if (header) header.transform.position = transform.position + Vector3.up * headerOffset;
+    }
     private void OnSync()
     {
         if (!Initialized) return;
-
+        
         if (Icontroller.FaceRight) transform.localScale = R;
         else transform.localScale = L;
 

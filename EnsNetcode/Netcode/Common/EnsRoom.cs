@@ -7,7 +7,7 @@ public class EnsRoom:Disposable
         get
         {
             if(EnsRoomManager.Instance == null)return null;
-            if(EnsRoomManager.Instance.rooms.TryGetValue(1000,out var room))return room;
+            if(EnsRoomManager.Instance.rooms.TryGetValue(EnsRoomManager.roomIdStart,out var room))return room;
             return null;
         }
     }

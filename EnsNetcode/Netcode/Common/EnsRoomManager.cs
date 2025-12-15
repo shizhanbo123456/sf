@@ -3,15 +3,16 @@ using Utils;
 
 public class EnsRoomManager:Disposable
 {
+    public const int roomIdStart = 10000;
     public static EnsRoomManager Instance;
     public SortedDictionary<int,EnsRoom> rooms = new SortedDictionary<int, EnsRoom>();
     private int RoomId;
 
     public static bool PrintRoomData=false;
 
-    internal EnsRoomManager(bool forceOneRoom=false)
+    internal EnsRoomManager()
     {
-        RoomId = forceOneRoom ? 1000 : 10000;
+        RoomId = 10000;
         Instance = this;
     }
 

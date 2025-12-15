@@ -158,10 +158,11 @@ public abstract class Target : MonoBehaviour
     protected virtual void ApplyEffects(Bullet b)
     {
         if (effectController == null) return;
-        var effs = b.GetEffects().GetEffectBases(this);
-        if (effs != null)
+        var effs = b.GetEffects();
+        if (!effs.IsEmpty())
         {
-            foreach (var i in effs)
+            var effcollection=effs.GetEffectBases(this);
+            foreach (var i in effcollection)
             {
                 effectController.AddEffect(i);
             }
