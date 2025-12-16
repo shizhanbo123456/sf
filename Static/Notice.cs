@@ -24,6 +24,7 @@ public class Notice : MonoBehaviour
     public void ShowMesg(string message)
     {
         var n=pool.Get();
+        n.transform.localScale = Vector3.one * (Screen.height / 1080f);
         n.transform.SetParent(Canvas);
         n.transform.position = new Vector3(0, -1000, 0);
         var cg=n.GetComponent<CanvasGroup>();

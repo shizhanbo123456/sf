@@ -23,6 +23,10 @@ namespace Variety.Base
         {
             return true;
         }
+        public virtual bool Detect(Target target)
+        {
+            return true;
+        }
         public abstract void UseSkill(Target Target, Vector3 pos, bool faceright);
         protected void AddEvent(float delay,TimeLineData data,Action<TimeLineData>action)
         {

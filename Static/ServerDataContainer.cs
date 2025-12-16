@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 public class ServerDataContainer
@@ -27,6 +28,11 @@ public class ServerDataContainer
     }
 
     private static SortedDictionary<int, PlayerDataContainer> PlayerData = new SortedDictionary<int, PlayerDataContainer>();
+
+    public static int[] GetAllKeys()
+    {
+        return PlayerData.Keys.ToArray();
+    }
 
     public static void Set(PlayerDataContainer playerData)
     {

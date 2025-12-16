@@ -3,9 +3,10 @@ using XLua;
 //创建关卡时需要手动创建关卡地形、创建玩家、敌人等
 //退出关卡时会自动销毁地形和所有物体
 [LuaCallCSharp]
-public static class CM//CustomLevelAPIManifest
+public static class LccManifest//CustomLevelAPIManifest
 {
     public static float TimeUsed => CustomLevel.FightTime;
+    public static int[] ClientIds => ServerDataContainer.GetAllKeys();
     public static void CreateLevel(int type)=>Tool.NetworkCorrespondent.CreateLevelRpc(type);
     public static void DestroyLevel() => Tool.NetworkCorrespondent.DestroyLevelRpc();
     public static void SetScoreboardActive(bool active)=>Tool.NetworkCorrespondent.SetScoreboardActiveRpc(active);
@@ -23,19 +24,19 @@ public static class CM//CustomLevelAPIManifest
     public static void Create()=> creater.Create();
 }
 /*
-TargetType:Player,Ore,Lantern,Monster
+enum TargetType:Player,Ore,Lantern,Monster
 
-GraphicType:Player,Ore,Lantern,
+enum GraphicType:Player,Ore,Lantern,
     Monster1,Monster2,Monster3,Monster4,Monster5,Monster6,Monster7,Monster8,Monster9,
     Monster10,Monster11,Monster12,Monster13,Monster14,Monster15,Monster16,Monster17,Monster18
 
-TargetControllerType: None,Player,Monster
+enum TargetControllerType: None,Player,Monster
 
-TargetSkillControllerType:None,Player,Monster
+enum TargetSkillControllerType:None,Player,Monster
 
-TargetEffectControllerType:None,Default
+enum TargetEffectControllerType:None,Default
 
-public struct TargetInfo
+public struct TargetInfo//建议通过size<0.01f来判断TargetInfo是否为null
 {
     public TargetInfo(int camp, int owner, int level, string name, float spawnX,float spawnY,float size, string label = "")
     {

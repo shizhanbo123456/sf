@@ -38,7 +38,7 @@ public class NetworkCorrespondent : EnsBehaviour
             {
                 { "Name","房间名称"},
                 { "State","匹配中"},
-                { "IP",EnsInstance.PresentRoomId==1000?Tool.GetIP():EnsInstance.PresentRoomId.ToString()},
+                { "IP",EnsInstance.PresentRoomId==EnsRoomManager.roomIdStart?Tool.GetIP():EnsInstance.PresentRoomId.ToString()},
             };
             SetInfo.SendRequest(info);
             SendData();

@@ -158,7 +158,6 @@ namespace ProtocolWrapper
         {
             var keyValue = global::Format.SplitWithBoundaries(mesg,global::Format.DictionaryPair);
             if (keyValue.Count != 2) return;
-
             string header = keyValue[0];
             string content = keyValue[1];
 

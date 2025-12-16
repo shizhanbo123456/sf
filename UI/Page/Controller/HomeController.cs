@@ -24,7 +24,7 @@ public class HomeController:Singleton<HomeController>
         UseHost = false;
         RoomListActive = true;
         RoomListDedicateServer.Instance.OnEnter();
-        RoomListHost.Instance.onRoomInfoChanged += RecordAndRepaint;
+        RoomListDedicateServer.Instance.onRoomInfoChanged += RecordAndRepaint;
         Repaint();
     }
     public void HostMatch()
@@ -32,7 +32,7 @@ public class HomeController:Singleton<HomeController>
         UseHost = true;
         RoomListActive = true;
         RoomListHost.Instance.OnEnter();
-        RoomListDedicateServer.Instance.onRoomInfoChanged += RecordAndRepaint;
+        RoomListHost.Instance.onRoomInfoChanged += RecordAndRepaint;
         Repaint();
     }
     public void ExitMatch()

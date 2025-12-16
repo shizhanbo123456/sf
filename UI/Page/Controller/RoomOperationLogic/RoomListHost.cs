@@ -53,6 +53,6 @@ public class RoomListHost:Singleton<RoomListHost>
     public void JoinRoomOnConnect()
     {
         EnsInstance.OnServerConnect -= JoinRoomOnConnect;
-        JoinRoom.SendRequest(1000);
+        JoinRoom.SendRequest(EnsRoomManager.roomIdStart);
     }
 }

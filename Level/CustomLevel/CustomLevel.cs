@@ -55,7 +55,7 @@ public static class CustomLevel
         }
         catch(System.Exception e)
         {
-            Debug.LogError("加载关卡逻辑时出错： " + e.ToString());
+            Debug.LogError("[CustomLevel]加载关卡逻辑时出错： " + e.ToString());
             Dispose();
             return false;
         }
@@ -71,29 +71,76 @@ public static class CustomLevel
         Fighting= true;
         StartTime = Time.time;
         //创建关卡、角色、装载技能
-        FightStartFunction?.Action(0);
+        try
+        {
+            FightStartFunction?.Action(0);
+        }
+        catch(System.Exception e)
+        {
+            Debug.Log("[CustomLevel]：" + e.ToString());
+        }
     }
     public static void TargetKilled(TargetInfo killed)
     {
-        TargetKilledFunction?.Action(new TargetInfo(),killed);
+        try 
+        { 
+            TargetKilledFunction?.Action(new TargetInfo(),killed);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("[CustomLevel]：" + e.ToString());
+        }
     }
-    public static void TargetKilled(TargetInfo killer,TargetInfo killed)
+    public static void TargetKilled(TargetInfo killer, TargetInfo killed)
     {
-        TargetKilledFunction?.Action(killer,killed);
+        try
+        {
+            TargetKilledFunction?.Action(killer, killed);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("[CustomLevel]：" + e.ToString());
+        }
     }
     public static void Update()
     {
-        UpdateFunction?.Action(Time.time - StartTime,Time.deltaTime);
+        try
+        {
+            UpdateFunction?.Action(Time.time - StartTime, Time.deltaTime);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("[CustomLevel]：" + e.ToString());
+        }
     }
     public static bool JudgeEnd()
     {
-        return JudgeEndFunction != null ? JudgeEndFunction.Func<int, bool>(0) : false;
+        if(JudgeEndFunction == null)return false;   
+        try
+        {
+            return JudgeEndFunction.Func<int, bool>(0);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("[CustomLevel]：" + e.ToString());
+            return false;
+        }
     }
     public static void FigureScore(out int killScore,out int timeScore,out int challengeScore)
     {
-        killScore=KillScoreFunction!=null?KillScoreFunction.Func<int, int>(0):233;
-        timeScore=TimeScoreFunction != null ? TimeScoreFunction.Func<int, int>(0) : 233;
-        challengeScore = ModeScoreFunction != null ? ModeScoreFunction.Func<int, int>(0) : 233;
+        try
+        {
+            killScore = KillScoreFunction != null ? KillScoreFunction.Func<int, int>(0) : 233;
+            timeScore = TimeScoreFunction != null ? TimeScoreFunction.Func<int, int>(0) : 233;
+            challengeScore = ModeScoreFunction != null ? ModeScoreFunction.Func<int, int>(0) : 233;
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("[CustomLevel]：" + e.ToString());
+            killScore = 111;
+            timeScore = 222;
+            challengeScore = 333;
+        }
     }
     public static void ReleaseData()
     {
@@ -104,7 +151,7 @@ public static class CustomLevel
         }
         catch
         {
-            Debug.LogError("关卡释放异常");
+            Debug.LogError("[CustomLevel]关卡释放异常");
         }
     }
     public static void Dispose()

@@ -15,6 +15,10 @@ namespace Variety.Skill.PackageA
             Tag = "ƽa";
             TimeNeeded = 0.25f;
         }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(4f, 1.5f, true).Count>0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             for (int i = -20; i <= 20; i+=20)
@@ -37,6 +41,10 @@ namespace Variety.Skill.PackageA
             Tag = "ƽa";
             TimeNeeded = 0.6f;
             CD = 4f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(7f, 1.5f, true).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -76,6 +84,10 @@ namespace Variety.Skill.PackageA
             MaxstoreTime = 3;
             CD = 10f;
         }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(3f, 10f, false).Count > 0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             Target.ApplyMotion(new MotionDir(Vector3.down*20,0.5f,true,1));
@@ -101,6 +113,10 @@ namespace Variety.Skill.PackageA
             TimeNeeded = 1.2f;
             MaxstoreTime = 2;
             CD = 20f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(7f, 1.5f, true).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

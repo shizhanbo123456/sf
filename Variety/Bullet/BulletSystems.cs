@@ -53,6 +53,8 @@ public static class BulletStaticSystem
                 i.DestroyBullet();
             }
             ToRemove.Clear();
+            if (Collection.Count == 0)
+                BulletManager.SystemUpdateLoop -= Update;
         }
     }
 }
@@ -490,19 +492,19 @@ public static class BulletOrbitSystem
         public float lifetime;
         public float radOffset;
         public float radSpeed;
-        public float radius;
+        public float orbitRadius;
         public Vector3 offset;
         public int ownerCamp;
         public int ownerId;
         public bool faceRight;
 
-        public OrbitInfo(float destroyTime, float radoffset, float radspeed, float radius,Vector3 offset, float lifetime)
+        public OrbitInfo(float destroyTime, float radoffset, float radspeed, float orbitRadius,Vector3 offset, float lifetime)
         {
             this.destroyTime = destroyTime;
             this.lifetime = lifetime;
             radOffset = radoffset;
             radSpeed = radspeed;
-            this.radius = radius;
+            this.orbitRadius = orbitRadius;
             this.offset = offset;
             ownerCamp = BulletSystemCommon.CurrentShooter.Camp;
             ownerId = BulletSystemCommon.CurrentShooter.ObjectId;
@@ -513,23 +515,23 @@ public static class BulletOrbitSystem
     private static readonly Dictionary<Bullet, OrbitInfo> Collection = new Dictionary<Bullet, OrbitInfo>();
     private static readonly List<Bullet> ToRemove = new List<Bullet>();
     private static Target t;
-    public static void RegistObject(Bullet obj, float scale, float lifetime, float radius,
+    public static void RegistObject(Bullet obj, float radius, float lifetime, float orbitRadius,
         float degreePerSec, float angleOffset)
     {
-        RegistObject(obj, scale, lifetime, radius, degreePerSec, angleOffset, Vector3.zero);
+        RegistObject(obj, radius, lifetime, orbitRadius, degreePerSec, angleOffset, Vector3.zero);
     }
-    public static void RegistObject(Bullet obj, float scale, float lifetime, float radius, 
+    public static void RegistObject(Bullet obj, float radius, float lifetime, float orbitRadius, 
         float degreePerSec,float angleOffset,Vector3 offset)
     {
         if (Collection.Count == 0)
             BulletManager.SystemUpdateLoop += Update;
-        obj.transform.localScale *= scale; 
-        Vector3 localPos = BulletSystemCommon.AngleToVector(angleOffset)*radius + offset;
+        obj.transform.localScale *= radius; 
+        Vector3 localPos = BulletSystemCommon.AngleToVector(angleOffset)*orbitRadius + offset;
         Vector3 worldPos = BulletSystemCommon.CurrentShooter.transform.position +
             (BulletSystemCommon.CurrentShooter.FaceRight? localPos : new Vector3(-localPos.x, localPos.y));
         obj.transform.position = worldPos;
         Collection.Add(obj, new OrbitInfo(Time.time + lifetime, angleOffset * Mathf.Deg2Rad,
-            degreePerSec * Mathf.Deg2Rad, radius, offset,lifetime));
+            degreePerSec * Mathf.Deg2Rad, orbitRadius, offset,lifetime));
         obj.ReleaseBulletSystemReference = ReleaseReference;
     }
     private static void ReleaseReference(Bullet b)
@@ -558,7 +560,7 @@ public static class BulletOrbitSystem
                 }
                 float spawnTime = Time.time - (i.Value.destroyTime - i.Value.lifetime);
                 Vector3 localPos = BulletSystemCommon.RadToVector(i.Value.radOffset + spawnTime * i.Value.radSpeed)
-                    * i.Value.radius + i.Value.offset;
+                    * i.Value.orbitRadius + i.Value.offset;
                 Vector3 worldPos = t.transform.position +
                                   (i.Value.faceRight ? localPos : new Vector3(-localPos.x,localPos.y));
                 i.Key.transform.position = worldPos;
@@ -585,32 +587,32 @@ public static class BulletOrbitWorldSystem
         public float spawntime;
         public float radOffset;
         public float radSpeed;
-        public float radius;
+        public float orbitRadius;
         public Vector3 pos;
 
-        public OrbitInfo(float destroyTime, float radoffset, float radspeed, float radius,Vector3 pos)
+        public OrbitInfo(float destroyTime, float radoffset, float radspeed, float orbitRadius,Vector3 pos)
         {
             this.destroyTime = destroyTime;
             spawntime = Time.time;
             radOffset = radoffset;
             radSpeed = radspeed;
-            this.radius = radius;
+            this.orbitRadius = orbitRadius;
             this.pos = pos;
         }
     }
 
     private static readonly Dictionary<Bullet, OrbitInfo> Collection = new Dictionary<Bullet, OrbitInfo>();
     private static readonly List<Bullet> ToRemove = new List<Bullet>();
-    public static void RegistObject(Bullet obj, float scale, float lifetime, float radius,
+    public static void RegistObject(Bullet obj, float radius, float lifetime, float orbitRadius,
         float degreePerSec,float angleOffset, Vector3 pos)
     {
         if (Collection.Count == 0)
             BulletManager.SystemUpdateLoop += Update;
-        obj.transform.localScale *= scale;
-        Vector3 localPos = BulletSystemCommon.AngleToVector(angleOffset)* radius;
+        obj.transform.localScale *= radius;
+        Vector3 localPos = BulletSystemCommon.AngleToVector(angleOffset)* orbitRadius;
         obj.transform.position = pos + localPos;
         Collection.Add(obj, new OrbitInfo(Time.time + lifetime, angleOffset * Mathf.Deg2Rad,
-            degreePerSec * Mathf.Deg2Rad, radius, pos));
+            degreePerSec * Mathf.Deg2Rad, orbitRadius, pos));
         obj.ReleaseBulletSystemReference = ReleaseReference;
     }
     private static void ReleaseReference(Bullet b)
@@ -631,7 +633,7 @@ public static class BulletOrbitWorldSystem
             if (Time.time > i.Value.destroyTime) ToRemove.Add(i.Key);
             else
             {
-                Vector3 localPos = BulletSystemCommon.RadToVector(i.Value.radOffset + (Time.time-i.Value.spawntime) * i.Value.radSpeed)* i.Value.radius;
+                Vector3 localPos = BulletSystemCommon.RadToVector(i.Value.radOffset + (Time.time-i.Value.spawntime) * i.Value.radSpeed)* i.Value.orbitRadius;
                 i.Key.transform.position = i.Value.pos + localPos;
                 i.Key.UpdateDetectors();
             }

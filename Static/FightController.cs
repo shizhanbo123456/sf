@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class FightController : EnsBehaviour
@@ -39,7 +38,6 @@ public class FightController : EnsBehaviour
         CallFuncRpc(nameof(SyncNameLocal),new List<int>() { player},customLevel.joinedPath,KeyLibrary.KeyFormatType.OrderWise);
     }
     private void SyncNameLocal(string data)=> OnModeNameChanged?.Invoke(data);
-
     public void SyncDesTo(int player)
     {
         CallFuncRpc(nameof(SyncDesLocal), new List<int>() { player },customLevel.description,KeyLibrary.KeyFormatType.OrderWise);
@@ -73,19 +71,7 @@ public class FightController : EnsBehaviour
     private void SettleLocal()
     {
         StopFightLocal();
-        int killscore;
-        int timescore;
-        int challengescore;
-        try
-        {
-            CustomLevel.FigureScore(out killscore, out timescore, out challengescore);
-        }
-        catch
-        {
-            killscore = 0;
-            timescore = 0;
-            challengescore = 0;
-        }
+        CustomLevel.FigureScore(out int killscore, out int timescore, out int challengescore);
         PlayModeController.Instance.Settle(killscore, timescore, challengescore);
     }
     public void StopFightLocal()//立即停止，不结算，保留关卡
