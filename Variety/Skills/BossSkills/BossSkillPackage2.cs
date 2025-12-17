@@ -146,48 +146,24 @@ namespace Variety.Skill.Boss2
         public Skill4() : base()
         {
             sprite = new Vector2Int(4, 0);
-            Name = "灯笼射线";
-            Tag = "区域、联动";
-            Description = "当灯笼周围有敌人时触发，3次循环生成从自身指向灯笼的直线预警区域，每次预警后沿该方向发射子弹，联动灯笼精准打击敌人";
-            TimeNeeded = 0.5f;
-            cd = 3f;
-        }
-        public override bool Detect(Target Target)
-        {
-            var b = false;
-            foreach (var l in Lantern.Lanterns.Values)
-            {
-                if (l.GetEnemyInRange(5, false).Count > 0)
-                {
-                    b = true;
-                    break;
-                }
-            }
-            return b;
+            Name = "密集追踪火雨";
+            Tag = "范围、压制、精准";
+            Description = "2.5秒内分12波向范围内所有敌人发射追踪火球，每波精准锁定敌人方向，形成密集火力压制";
+            TimeNeeded = 2.5f;
+            cd = 7f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyMotion(new MotionStatic(2f, true, 1));
-            for (int a = -1; a < 2; a++)
+            for (int i = 0; i < 12; i++)
             {
-                AddEvent(a * 0.4f, new TimeLineData(Target,a),(d) =>
+                AddEvent(i * 0.2f, (d) =>
                 {
-                    var List=Lantern.Lanterns.Values.ToList();
-                    for (int i = 0; i < List.Count; i++)
+                    foreach (var enemy in Target.GetEnemyInRange())
                     {
-                        var rad = (Dt2Degree(List[i].transform.position - d.Target.transform.position) + d.index * 5) * Mathf.Deg2Rad;
-                        WarningRect.Warn(d.Target.transform.position, d.Target.transform.position + new Vector3(Mathf.Cos(rad), Mathf.Sin(rad)) * 60, 0.7f, 1.2f);
-                    }
-                });
-                AddEvent(a * 0.4f + 1.2f, new TimeLineData(Target,a),(d) =>
-                {
-                    var List = Lantern.Lanterns.Values.ToList();
-                    for (int i = 0; i < List.Count; i++)
-                    {
-                        var angle = Dt2Degree(List[i].transform.position - d.Target.transform.position);
-                        var b = GetBullet(7);
-                        b.Init(1.2f);
-                        BulletAngleSystem.RegistObject(b,0.7f,3,20,angle+d.index*5);
+                        float angle = Dt2Degree(enemy.transform.position - Target.transform.position);
+                        var b = GetBullet(12);
+                        b.Init(0.6f, liftstoiclevel: 0);
+                        BulletAngleNonFacingSystem.RegistObject(b, 0.8f, 2, 15, angle);
                         BulletDamageOnceSystem.Regist(b);
                         b.Shoot();
                     }

@@ -1,5 +1,6 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
@@ -36,33 +37,28 @@ namespace Variety.Skill.Boss9
         public Skill1() : base()
         {
             sprite = new Vector2Int(1, 0);
-            Name = "矿石引爆";
-            Tag = "区域、特效";
-            Description = "在所有矿石位置生成预警圈，0.8秒后引爆矿石，发射高额伤害子弹并附带吸血效果，同时释放沉默持续伤害弹幕";
+            Name = "瘟疫爆破";
+            Tag = "区域";
+            Description = "短暂预警后释放高额伤害子弹并附带吸血效果，同时释放沉默持续伤害弹幕";
             TimeNeeded = 0.5f;
             cd = 40f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            foreach (var i in Ore.Ores.Values)
+            var p = Target.transform.position;
+            WarningCircle.Warn(p, 3, 0.8f);
+            AddEvent(0.8f, new TimeLineData(Target,p),(d) =>
             {
-                WarningCircle.Warn(i.transform.position, 3, 0.8f);
-            }
-            AddEvent(0.8f, (d) =>
-            {
-                foreach (var i in Ore.Ores.Values)
-                {
-                    var b = GetBullet(11);
-                    b.Init(3,liftstoiclevel:2, ec: new EffectCollection(d.Target, (EffectType.LifeSteal, 0.5f, 10)));
-                    BulletStaticSystem.RegistObject(b,3f,0.5f,i.transform.position);
-                    BulletDamageOnceSystem.Regist(b);
-                    b.Shoot();
-                    b = GetBullet(6);
-                    b.Init(0.2f,liftstoiclevel:0, ec: new EffectCollection(d.Target, (EffectType.Silence, 0, 1)));
-                    BulletStaticSystem.RegistObject(b, 3f, 0.5f, i.transform.position);
-                    BulletDamageTimeSystem.Regist(b,0.5f);
-                    b.Shoot();
-                }
+                var b = GetBullet(11);
+                b.Init(3, liftstoiclevel: 2, ec: new EffectCollection(d.Target, (EffectType.LifeSteal, 0.5f, 10)));
+                BulletStaticSystem.RegistObject(b, 3f, 0.5f, d.pos);
+                BulletDamageOnceSystem.Regist(b);
+                b.Shoot();
+                b = GetBullet(6);
+                b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(d.Target, (EffectType.Silence, 0, 1)));
+                BulletStaticSystem.RegistObject(b, 3f, 0.5f, d.pos);
+                BulletDamageTimeSystem.Regist(b, 0.5f);
+                b.Shoot();
             });
         }
     }
@@ -181,7 +177,7 @@ namespace Variety.Skill.Boss9
             sprite = new Vector2Int(5, 0);
             Name = "终焉裁决";
             Tag = "全屏、爆发、控制";
-            Description = "生成30范围超大预警圈，5秒蓄力后触发：附近灯笼会为范围内敌人附加95点护甲强化和40点伤害提升，自身发射巨型爆炸弹幕，同时冻结所有敌人2秒";
+            Description = "生成30范围超大预警圈，5秒蓄力后触发，自身发射巨型爆炸弹幕，同时冻结所有敌人2秒";
             TimeNeeded = 0.5f;
             cd = 45f;
         }
@@ -190,15 +186,6 @@ namespace Variety.Skill.Boss9
             WarningCircle.Warn(Target.transform.position, 30, 5f);
             AddEvent(5f, (d)=>
             {
-                foreach (var i in Lantern.Lanterns.Values)
-                {
-                    var a = i.GetEnemyInRange(6, false);
-                    foreach (var j in a)
-                    {
-                        j.ApplyEffect(new ArmorFortity(i.ObjectId, j, 95, 10));
-                        j.ApplyEffect(new DamageBoost(i.ObjectId, j, 40, 10));
-                    }
-                }
                 var c = d.Target.GetEnemyInRange();
                 foreach (var i in c) i.ApplyEffect(new Freeze(d.Target.ObjectId, i, 2));
                 var b = GetBullet(3);

@@ -1,5 +1,6 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
@@ -66,27 +67,24 @@ namespace Variety.Skill.Boss4
         public Skill2() : base()
         {
             sprite = new Vector2Int(2, 0);
-            Name = "矿石爆破";
+            Name = "瘟疫爆破";
             Tag = "区域、破甲";
-            Description = "引爆所有矿石位置，发射高额伤害子弹并附加55点破甲效果（持续10秒），同时释放大范围减速持续伤害弹幕，限制敌人走位";
+            Description = "引爆自身位置，发射高额伤害子弹并附加55点破甲效果（持续10秒），同时释放大范围减速持续伤害弹幕，限制敌人走位";
             TimeNeeded = 0.5f;
             cd = 30f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            foreach(var i in Ore.Ores.Values)
-            {
-                var b = GetBullet(11);
-                b.Init(3f, liftstoiclevel: 2, ec: new EffectCollection(Target, (EffectType.ArmorShatter, 55f, 10f)));
-                BulletStaticSystem.RegistObject(b,3f,0.5f,i.transform.position);
-                BulletDamageOnceSystem.Regist(b);
-                b.Shoot();
-                b = GetBullet(6);
-                b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(Target, (EffectType.Slowness, 2f, 1f)));
-                BulletStaticSystem.RegistObject(b, 0,20f, i.transform.position);
-                BulletDamageTimeSystem.Regist(b,0.5f);
-                b.Shoot();
-            }
+            var b = GetBullet(11);
+            b.Init(3f, liftstoiclevel: 2, ec: new EffectCollection(Target, (EffectType.ArmorShatter, 55f, 10f)));
+            BulletStaticSystem.RegistObject(b, 3f, 0.5f, Target.transform.position);
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
+            b = GetBullet(6);
+            b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(Target, (EffectType.Slowness, 2f, 1f)));
+            BulletStaticSystem.RegistObject(b, 0, 20f,Target.transform.position);
+            BulletDamageTimeSystem.Regist(b, 0.5f);
+            b.Shoot();
         }
     }
     public class Skill3 : SkillBoss

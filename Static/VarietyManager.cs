@@ -121,41 +121,6 @@ public static class VarietyManager
         {1123, new vs.Boss13.Skill3() },
         {1124, new vs.Boss13.Skill4() },
         {1125, new vs.Boss13.Skill5() },
-
-        {1130, new vs.Boss14.Skill0() },
-        {1131, new vs.Boss14.Skill1() },
-        {1132, new vs.Boss14.Skill2() },
-        {1133, new vs.Boss14.Skill3() },
-        {1134, new vs.Boss14.Skill4() },
-        {1135, new vs.Boss14.Skill5() },
-
-        {1140, new vs.Boss15.Skill0() },
-        {1141, new vs.Boss15.Skill1() },
-        {1142, new vs.Boss15.Skill2() },
-        {1143, new vs.Boss15.Skill3() },
-        {1144, new vs.Boss15.Skill4() },
-        {1145, new vs.Boss15.Skill5() },
-
-        {1150, new vs.Boss16.Skill0() },
-        {1151, new vs.Boss16.Skill1() },
-        {1152, new vs.Boss16.Skill2() },
-        {1153, new vs.Boss16.Skill3() },
-        {1154, new vs.Boss16.Skill4() },
-        {1155, new vs.Boss16.Skill5() },
-
-        {1160, new vs.Boss17.Skill0() },
-        {1161, new vs.Boss17.Skill1() },
-        {1162, new vs.Boss17.Skill2() },
-        {1163, new vs.Boss17.Skill3() },
-        {1164, new vs.Boss17.Skill4() },
-        {1165, new vs.Boss17.Skill5() },
-
-        {1170, new vs.Boss18.Skill0() },
-        {1171, new vs.Boss18.Skill1() },
-        {1172, new vs.Boss18.Skill2() },
-        {1173, new vs.Boss18.Skill3() },
-        {1174, new vs.Boss18.Skill4() },
-        {1175, new vs.Boss18.Skill5() },
     };
     public static SkillBase GetSkill(int index)
     {

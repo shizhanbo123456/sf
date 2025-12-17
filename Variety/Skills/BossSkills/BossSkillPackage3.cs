@@ -131,46 +131,25 @@ namespace Variety.Skill.Boss3
         public Skill4() : base()
         {
             sprite = new Vector2Int(4, 0);
-            Name = "灯笼爆破";
-            Tag = "区域、联动";
-            Description = "当灯笼周围有敌人时触发，3次循环生成灯笼位置预警圈，每次预警后在所有灯笼位置触发爆炸，联动场景元素打击敌人";
-            TimeNeeded = 0.5f;
-            cd = 3f;
-        }
-        public override bool Detect(Target Target)
-        {
-            var b = false;
-            foreach (var l in Lantern.Lanterns.Values)
-            {
-                if (l.GetEnemyInRange(5, false).Count > 0)
-                {
-                    b = true;
-                    break;
-                }
-            }
-            return b;
+            Name = "变速追踪导弹";
+            Tag = "多体、压制、跟随";
+            Description = "2.8秒内分7波向范围内所有敌人发射追踪导弹，导弹速度随敌人移动状态动态调整，持续追击目标造成伤害";
+            TimeNeeded = 2.8f;
+            cd = 15f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyMotion(new MotionStatic(2f, true, 1));
-            var List = Lantern.Lanterns.Values.ToList();
-            for (int a = 0; a < 3; a++)
+            var enemies = Target.GetEnemyInRange();
+            if (enemies.Count == 0) enemies.Add(Target);
+            for (int i = 0; i < 7; i++)
             {
-                AddEvent(a * 0.4f, (d) =>
+                AddEvent(i * 0.4f, (d) =>
                 {
-                    for (int i = 0; i < List.Count; i++)
+                    foreach (var enemy in enemies)
                     {
-                        var List = Lantern.Lanterns.Values.ToList();
-                        WarningCircle.Warn(List[i].transform.position, 3, 1);
-                    }
-                });
-                AddEvent(a * 0.4f + 1.2f, (d) =>
-                {
-                    for (int i = 0; i < List.Count; i++)
-                    {
-                        var b = GetBullet(4);
-                        b.Init(1.2f);
-                        BulletStaticSystem.RegistObject(b, 3f, 0.5f, List[i].transform.position);
+                        var b = GetBullet(7);
+                        b.Init(0.8f);
+                        BulletProectileAimSystem.RegistObject(b, 0.4f, 2f, d.Target.transform.position, Vector3.up * 20, enemy.transform.position, 1.2f);
                         BulletDamageOnceSystem.Regist(b);
                         b.Shoot();
                     }
