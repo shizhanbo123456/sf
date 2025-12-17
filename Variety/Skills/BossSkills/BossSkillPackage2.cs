@@ -27,7 +27,10 @@ namespace Variety.Skill.Boss2
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "八角精准打击";
+            Tag = "单体、包夹";
+            Description = "从自身周围8个均匀分布的方向依次发射子弹，所有子弹均锁定最近敌人精准飞行，形成全方位包夹打击";
             TimeNeeded = 0.5f;
             cd = 8f;
         }
@@ -53,7 +56,10 @@ namespace Variety.Skill.Boss2
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "突进散射斩";
+            Tag = "范围、突进";
+            Description = "向最近敌人方向高速突进1.5秒，期间发射一枚跟随自身的高额伤害子弹，突进结束后向目标方向发射31枚密集散射子弹，实现突进衔接爆发";
             TimeNeeded = 0.5f;
             cd = 1f;
         }
@@ -79,14 +85,16 @@ namespace Variety.Skill.Boss2
                     b.Shoot();
                 }
             });
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
         }
     }
     public class Skill2 : SkillBoss
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "烈焰领域";
+            Tag = "范围、持续伤害";
+            Description = "发射一枚从无到有逐渐扩大的巨型弹幕，命中敌人后附加燃烧效果，每秒造成自身攻击力50%的伤害，持续10秒";
             TimeNeeded = 0.5f;
             cd = 20f;
         }
@@ -104,7 +112,10 @@ namespace Variety.Skill.Boss2
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "双环爆破";
+            Tag = "全屏、封锁";
+            Description = "自身短暂静止，在周围生成内外两层共12个预警圈，1秒后所有预警圈同时触发爆炸，全面封锁周围区域";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -150,7 +161,10 @@ namespace Variety.Skill.Boss2
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "灯笼射线";
+            Tag = "区域、联动";
+            Description = "当灯笼周围有敌人时触发，3次循环生成从自身指向灯笼的直线预警区域，每次预警后沿该方向发射子弹，联动灯笼精准打击敌人";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -201,7 +215,10 @@ namespace Variety.Skill.Boss2
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "震荡领域";
+            Tag = "全屏、控制";
+            Description = "生成12范围超大预警圈，自身静止3秒蓄力，随后分批次发射逐渐扩大的震荡弹幕，命中敌人附加3秒眩晕效果，掌控战场节奏";
             TimeNeeded = 0.5f;
             cd = 20f;
         }

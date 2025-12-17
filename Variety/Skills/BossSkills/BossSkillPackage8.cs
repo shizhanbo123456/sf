@@ -35,7 +35,10 @@ namespace Variety.Skill.Boss8
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "突进追击";
+            Tag = "单体、突进";
+            Description = "锁定最近敌人方向，自身向目标方向突进，同时发射一枚跟随自身的子弹，对路径上敌人造成伤害";
             TimeNeeded = 2f;
             cd = 3f;
         }
@@ -55,7 +58,10 @@ namespace Variety.Skill.Boss8
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "引力双生";
+            Tag = "范围、控制";
+            Description = "先发射一枚具有引力效果的持续伤害子弹，1秒后再发射一枚向下倾斜90度的引力子弹，双重吸附并持续打击近距离敌人";
             TimeNeeded = 2f;
             cd = 3f;
         }
@@ -85,7 +91,10 @@ namespace Variety.Skill.Boss8
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "精准锁敌";
+            Tag = "单体、精准";
+            Description = "锁定最近敌人位置，发射一枚高速子弹直扑目标，精准打击单个敌人";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -103,7 +112,10 @@ namespace Variety.Skill.Boss8
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "圣佑环爆";
+            Tag = "全屏、增益、控制";
+            Description = "3秒蓄力期间生成逐渐扩大后缩小的巨型弹幕，蓄力结束后为范围内队友附加50点伤害提升（持续30秒），同时发射4枚沿轨道旋转的麻痹弹幕，最后触发二次巨型爆炸弹幕";
             TimeNeeded = 3f;
             cd = 60f;
         }
@@ -139,7 +151,10 @@ namespace Variety.Skill.Boss8
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "黏滞干扰";
+            Tag = "范围、debuff";
+            Description = "锁定最近敌人方向，向目标及左右±20度范围发射9枚散射子弹，命中敌人后附加黏滞效果（持续3秒）和20点精准度降低（持续5秒）";
             TimeNeeded = 3f;
             cd = 20f;
         }
@@ -161,7 +176,10 @@ namespace Variety.Skill.Boss8
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "天坠流星";
+            Tag = "范围、爆发";
+            Description = "5秒内连续发射15枚抛物线子弹，呈弧形轨迹从天而降，覆盖8范围敌人区域，造成高额群体伤害";
             TimeNeeded = 5f;
             cd = 35f;
         }

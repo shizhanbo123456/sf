@@ -62,7 +62,10 @@ namespace Variety.Skill.Common
 
         public Skill5For14_18() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "裂墟湮灭";
+            Tag = "多体、压制";
+            Description = "在最近敌人位置造成多轮巨大爆炸";
             TimeNeeded = 2f;
             cd = 3f;
         }
@@ -72,8 +75,8 @@ namespace Variety.Skill.Common
         }
         protected override void OnUse(Target Target,Vector3 pos,bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var p = Target.GetNearestEnemy().transform.position;
+            var t = Target.GetNearestEnemy();
+            var p = t?t.transform.position:Target.transform.position;
             foreach (var i in Pos1)
             {
                 WarningCircle.Warn(i + p, 3, 2);

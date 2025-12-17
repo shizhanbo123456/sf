@@ -24,7 +24,10 @@ namespace Variety.Skill.Boss5
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "扇形连射";
+            Tag = "范围、精准";
+            Description = "锁定最近敌人方向，先发射1枚主子弹，随后向左右±5度至±20度范围分批次发射9枚散射子弹，形成扇形弹幕覆盖目标区域";
             TimeNeeded = 0.5f;
             cd = 8f;
         }
@@ -55,7 +58,10 @@ namespace Variety.Skill.Boss5
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "五向抛物线";
+            Tag = "范围、压制";
+            Description = "同时发射5枚抛物线子弹，呈30度至150度均匀分布，沿重力轨迹飞行，覆盖前方大范围区域";
             TimeNeeded = 0.5f;
             cd = 10f;
         }
@@ -76,7 +82,10 @@ namespace Variety.Skill.Boss5
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "升空散射";
+            Tag = "范围、爆发";
+            Description = "自身向上跃起1秒，落地后锁定最近敌人方向，向目标及左右±10度范围发射21枚密集散射子弹，形成火力压制";
             TimeNeeded = 1f;
             cd = 10f;
         }
@@ -102,7 +111,10 @@ namespace Variety.Skill.Boss5
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "环形轨道炮";
+            Tag = "单体、控制";
+            Description = "为范围内每个敌人生成预警圈，1秒后在每个敌人位置生成4枚沿轨道旋转的子弹，持续环绕打击目标";
             TimeNeeded = 1.2f;
             cd = 20f;
         }
@@ -130,7 +142,10 @@ namespace Variety.Skill.Boss5
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "瞬移冲击";
+            Tag = "单体、突进";
+            Description = "锁定80范围内最近敌人，生成预警圈，0.6秒后瞬移至目标附近，随后在目标位置触发范围爆炸，造成高额伤害";
             TimeNeeded = 1.5f;
             cd = 3f;
         }
@@ -163,7 +178,10 @@ namespace Variety.Skill.Boss5
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "暴雨弹幕";
+            Tag = "全屏、压制";
+            Description = "5秒内连续发射100枚子弹，子弹角度随发射顺序递增，形成高密度、大范围的弹幕雨，全面封锁敌人走位";
             TimeNeeded = 5;
             cd = 3f;
         }

@@ -25,7 +25,10 @@ namespace Variety.Skill.Boss4
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "正弦散射";
+            Tag = "范围、压制";
+            Description = "锁定最近敌人方向，2秒内连续发射20枚子弹，子弹角度随正弦规律偏移±45度，形成波浪形弹幕覆盖目标区域";
             TimeNeeded = 0.5f;
             cd = 8f;
         }
@@ -50,7 +53,10 @@ namespace Variety.Skill.Boss4
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "挑空突袭";
+            Tag = "单体、连招";
+            Description = "先将最近敌人向上击飞，0.7秒后向敌人方向高速突进，同时发射一枚跟随自身的高额伤害子弹，衔接后续打击";
             TimeNeeded = 0.5f;
             cd = 10f;
         }
@@ -74,7 +80,10 @@ namespace Variety.Skill.Boss4
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "矿石爆破";
+            Tag = "区域、破甲";
+            Description = "引爆所有矿石位置，发射高额伤害子弹并附加55点破甲效果（持续10秒），同时释放大范围减速持续伤害弹幕，限制敌人走位";
             TimeNeeded = 0.5f;
             cd = 30f;
         }
@@ -99,7 +108,10 @@ namespace Variety.Skill.Boss4
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "直线贯穿";
+            Tag = "远程、封锁";
+            Description = "锁定最近敌人方向生成超长直线预警区域，1秒后发射一枚贯穿全场的巨型子弹，封锁直线路径上的敌人";
             TimeNeeded = 0.5f;
             cd = 10f;
         }
@@ -121,7 +133,10 @@ namespace Variety.Skill.Boss4
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "三角夹击";
+            Tag = "单体、控制";
+            Description = "在最近敌人位置生成预警圈，1秒后从三个斜向方向发射3枚子弹，交叉撞击目标区域，形成夹击封锁";
             TimeNeeded = 0.5f;
             cd = 14f;
         }
@@ -129,7 +144,6 @@ namespace Variety.Skill.Boss4
         {
             var t = Target.GetNearestEnemy().transform.position;
             WarningCircle.Warn(t,2,0.5f);
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             AddEvent(1f, (d) =>
             {
                 for(int i = 0; i < 3; i++)
@@ -148,7 +162,10 @@ namespace Variety.Skill.Boss4
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "引力领域";
+            Tag = "范围、控制";
+            Description = "在自身位置生成大范围引力持续伤害弹幕，吸附8范围内的敌人，限制其移动并持续造成伤害";
             TimeNeeded = 0.5f;
             cd = 30f;
         }

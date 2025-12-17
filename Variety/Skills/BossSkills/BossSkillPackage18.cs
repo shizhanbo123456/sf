@@ -27,7 +27,10 @@ namespace Variety.Skill.Boss18
     {
         public Skill0() : base()
         {
-            Description = "在敌人周围生成多层扩散能量环";
+            sprite = new Vector2Int(4, 0);
+            Name = "能量扩散";
+            Tag = "范围";
+            Description = "在最近敌人位置生成多层扩散能量环";
             TimeNeeded = 2.5f;
             cd = 8f;
         }
@@ -55,7 +58,10 @@ namespace Variety.Skill.Boss18
     {
         public Skill1() : base()
         {
-            Description = "向多个敌人发射带烟火特效的追踪弹幕";
+            sprite = new Vector2Int(4, 0);
+            Name = "焰火追击";
+            Tag = "多体、压制";
+            Description = "向场上所有敌人发射多枚火弹";
             TimeNeeded = 2f;
             cd = 6f;
         }
@@ -88,7 +94,10 @@ namespace Variety.Skill.Boss18
     {
         public Skill2() : base()
         {
-            Description = "生成禁锢场，使范围内敌人无法移动并持续受伤";
+            sprite = new Vector2Int(4, 0);
+            Name = "禁锢压制";
+            Tag = "压制、范围";
+            Description = "在最近的敌人处生成牵引力场";
             TimeNeeded = 3f;
             cd = 15f;
         }
@@ -114,7 +123,10 @@ namespace Variety.Skill.Boss18
     {
         public Skill3() : base()
         {
-            Description = "在敌人路径生成连环爆炸陷阱";
+            sprite = new Vector2Int(4, 0);
+            Name = "预瞄爆破";
+            Tag = "多体";
+            Description = "预判所有敌人的位置并造成爆破";
             TimeNeeded = 2.5f;
             cd = 12f;
         }
@@ -144,7 +156,10 @@ namespace Variety.Skill.Boss18
     {
         public Skill4() : base()
         {
-            Description = "标记敌人并在延迟后引发爆发伤害";
+            sprite = new Vector2Int(4, 0);
+            Name = "炎狱灼烧弹";
+            Tag = "多体";
+            Description = "向所有敌人发射附加灼烧效果的子弹";
             TimeNeeded = 3f;
             cd = 10f;
         }

@@ -11,7 +11,10 @@ namespace Variety.Skill.Boss12
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "精准追击";
+            Tag = "单体、突进";
+            Description = "发射一枚跟随目标的子弹，同时自身向前小幅突进，快速打击近距离敌人";
             TimeNeeded = 0.3f;
             cd = 3f;
         }
@@ -34,7 +37,10 @@ namespace Variety.Skill.Boss12
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "散射突袭";
+            Tag = "范围、连击";
+            Description = "先向左右两侧发射散射子弹，短暂延迟后发射一枚强力追踪弹，同时自身向前突进";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -70,13 +76,15 @@ namespace Variety.Skill.Boss12
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "蓄力爆破";
+            Tag = "范围、减速";
+            Description = "在自身周围生成预警圈，随后连续发射3枚逐渐扩大的爆炸子弹，同时自身获得加速效果";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 3f, 1f);
             for (int i = 0; i < 3; i++)
             {
@@ -96,7 +104,10 @@ namespace Variety.Skill.Boss12
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "引力冲击";
+            Tag = "远程、控制";
+            Description = "发射一枚具有引力效果的持续伤害子弹，短暂静止后发射强力追踪弹并向前突进";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -106,7 +117,6 @@ namespace Variety.Skill.Boss12
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(5);
             b.Init(0.1f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletStaticScaleChangeSystem.RegistObject(b,4,0,1f);
@@ -129,7 +139,10 @@ namespace Variety.Skill.Boss12
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "旋绕弹幕";
+            Tag = "范围、机动";
+            Description = "自身向前突进的同时，连续发射4枚沿轨道旋转的弹幕，交替顺时针和逆时针旋转";
             TimeNeeded = 1f;
             cd = 3f;
         }
@@ -155,13 +168,15 @@ namespace Variety.Skill.Boss12
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "星陨狂潮";
+            Tag = "全屏、爆发";
+            Description = "腾空跃起后锁定最近敌人位置，生成预警区域，随后360度全方位发射抛物线弹幕覆盖战场";
             TimeNeeded = 5f;
             cd = 32f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionDir(Vector2.up * 40, 0.25f, true, 1));
             var t = Target.GetNearestEnemy();
             var p = t != null ? t.transform.position : Target.transform.position;

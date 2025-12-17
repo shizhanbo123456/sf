@@ -27,7 +27,10 @@ namespace Variety.Skill.Boss17
     {
         public Skill0() : base()
         {
-            Description = "根据敌人移动速度预测位置发射火球";
+            sprite = new Vector2Int(0, 0);
+            Name = "预判火球术";
+            Tag = "单体、预判、精准";
+            Description = "根据敌人移动速度预测未来位置，生成直线预警区域，0.8秒后发射火球沿预测路径飞行，精准打击移动中的敌人";
             TimeNeeded = 2.2f;
             cd = 7f;
         }
@@ -62,7 +65,10 @@ namespace Variety.Skill.Boss17
     {
         public Skill1() : base()
         {
-            Description = "在敌人路径生成地雷，移动越快伤害越高";
+            sprite = new Vector2Int(1, 0);
+            Name = "极速地雷阵";
+            Tag = "范围、预判、高额伤害";
+            Description = "预测敌人移动路径，在其前方生成地雷预警圈，1秒后地雷激活，敌人移动速度越快，触发后受到的伤害越高";
             TimeNeeded = 2.5f;
             cd = 10f;
         }
@@ -99,7 +105,10 @@ namespace Variety.Skill.Boss17
     {
         public Skill2() : base()
         {
-            Description = "生成禁锢环，减缓敌人速度并造成持续伤害";
+            sprite = new Vector2Int(2, 0);
+            Name = "禁锢减速环";
+            Tag = "单体、控制、持续伤害";
+            Description = "锁定最近敌人位置生成预警圈，1秒后触发禁锢环，持续5秒造成高频伤害，同时附加3点减速效果（持续5秒），限制敌人移动";
             TimeNeeded = 3f;
             cd = 12f;
         }
@@ -122,7 +131,10 @@ namespace Variety.Skill.Boss17
     {
         public Skill3() : base()
         {
-            Description = "沿敌人移动方向两侧发射弹幕";
+            sprite = new Vector2Int(3, 0);
+            Name = "侧移封锁弹幕";
+            Tag = "范围、封锁、预判";
+            Description = "锁定敌人移动方向，5秒后分5波在敌人两侧发射弹幕，形成横向封锁线，阻断敌人前进路径";
             TimeNeeded = 2f;
             cd = 8f;
         }
@@ -166,7 +178,10 @@ namespace Variety.Skill.Boss17
     {
         public Skill4() : base()
         {
-            Description = "发射跟随敌人速度变化的追踪导弹";
+            sprite = new Vector2Int(4, 0);
+            Name = "变速追踪导弹";
+            Tag = "多体、压制、跟随";
+            Description = "2.8秒内分7波向范围内所有敌人发射追踪导弹，导弹速度随敌人移动状态动态调整，持续追击目标造成伤害";
             TimeNeeded = 2.8f;
             cd = 15f;
         }

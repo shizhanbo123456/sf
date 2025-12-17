@@ -38,8 +38,8 @@ namespace Variety.Skill.Boss11
         {
             sprite = new Vector2Int(0, 0);
             Name = "坠击爆破";
-            Tag = "坠击";
-            Description = "锁定最近敌人位置，先从目标上方发射子弹俯冲，在目标位置触发爆炸";
+            Tag = "单体、爆发";
+            Description = "锁定最近敌人位置，先在目标上方生成纵向预警区域，1秒后发射子弹俯冲至目标位置，随后触发范围爆炸造成二次伤害";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -70,10 +70,10 @@ namespace Variety.Skill.Boss11
     {
         public Skill1() : base()
         {
-            sprite = new Vector2Int(0, 0);
+            sprite = new Vector2Int(1, 0);
             Name = "霰弹雪球";
-            Tag = "霰弹";
-            Description = "蓄力后，连续发射30枚子弹，呈多角度抛物线轨迹锁定最近敌人";
+            Tag = "范围、压制";
+            Description = "4秒蓄力期间持续发射30枚子弹，子弹沿多角度抛物线轨迹锁定最近敌人，形成密集弹幕覆盖目标区域";
             TimeNeeded = 4f;
             cd = 30f;
         }
@@ -101,10 +101,10 @@ namespace Variety.Skill.Boss11
     {
         public Skill2() : base()
         {
-            sprite = new Vector2Int(0, 0);
+            sprite = new Vector2Int(2, 0);
             Name = "横向雾袭";
-            Tag = "雾袭";
-            Description = "警告1秒后发射雾型子弹横扫最近的敌人";
+            Tag = "范围、封锁";
+            Description = "在最近敌人位置生成横向大范围预警区域，警告1秒后发射雾型子弹从左至右横扫，封锁横向移动路径";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -127,10 +127,10 @@ namespace Variety.Skill.Boss11
     {
         public Skill3() : base()
         {
-            sprite = new Vector2Int(0, 0);
+            sprite = new Vector2Int(3, 0);
             Name = "交叉雾网";
-            Tag = "交叉";
-            Description = "在最近敌人位置生成交叉警告区域，1秒后发射两枚交叉雾型子弹";
+            Tag = "范围、控制";
+            Description = "在最近敌人位置生成两组交叉的预警区域，1秒后发射两枚雾型子弹沿交叉轨迹穿行，形成网状封锁区域";
             TimeNeeded = 0.5f;
             cd = 7f;
         }
@@ -159,10 +159,10 @@ namespace Variety.Skill.Boss11
     {
         public Skill4() : base()
         {
-            sprite = new Vector2Int(0, 0);
+            sprite = new Vector2Int(4, 0);
             Name = "环形火雨";
-            Tag = "火雨";
-            Description = "在最近敌人周围生成环形分布的警告区域，2.5秒后发射20枚火球子弹，沿环形轨迹交叉撞击目标区域，每枚造成3.6倍高额伤害";
+            Tag = "全屏、高额伤害";
+            Description = "在最近敌人周围生成环形分布的18个预警区域，2.5秒后发射20枚火球子弹，沿环形交叉轨迹撞击目标区域，每枚造成3.6倍高额伤害";
             TimeNeeded = 0.5f;
             cd = 28f;
         }

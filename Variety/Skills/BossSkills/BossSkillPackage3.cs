@@ -27,7 +27,10 @@ namespace Variety.Skill.Boss3
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "八角锁敌";
+            Tag = "单体、精准";
+            Description = "从自身周围8个对角位置依次发射子弹，所有子弹均锁定最近敌人位置精准打击，形成全方位包夹";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -53,7 +56,10 @@ namespace Variety.Skill.Boss3
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "后撤散射";
+            Tag = "范围、拉扯";
+            Description = "向远离最近敌人的方向后撤，同时发射一枚跟随自身的高额伤害子弹，后撤结束后向敌人方向发射31枚密集散射子弹，实现拉扯反击";
             TimeNeeded = 0.5f;
             cd = 1f;
         }
@@ -85,7 +91,10 @@ namespace Variety.Skill.Boss3
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "引力坍缩";
+            Tag = "范围、控制";
+            Description = "发射一枚从巨型逐渐收缩的引力持续伤害子弹，强力吸附周围敌人并持续造成伤害，限制敌人移动";
             TimeNeeded = 0.5f;
             cd = 20f;
         }
@@ -102,7 +111,10 @@ namespace Variety.Skill.Boss3
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "纵列突袭";
+            Tag = "全屏、封锁";
+            Description = "自身短暂静止，生成6列纵向预警区域，1秒后每列依次发射垂直贯穿子弹，全面封锁纵向走位空间";
             TimeNeeded = 0.5f;
             cd = 8f;
         }
@@ -134,7 +146,10 @@ namespace Variety.Skill.Boss3
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "灯笼爆破";
+            Tag = "区域、联动";
+            Description = "当灯笼周围有敌人时触发，3次循环生成灯笼位置预警圈，每次预警后在所有灯笼位置触发爆炸，联动场景元素打击敌人";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -183,7 +198,10 @@ namespace Variety.Skill.Boss3
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "冰封领域";
+            Tag = "全屏、控制";
+            Description = "生成12范围超大预警圈，自身静止3秒蓄力，随后分批次发射逐渐扩大的冰冻弹幕，命中敌人附加3秒冻结效果，全面控制战场";
             TimeNeeded = 0.5f;
             cd = 20f;
         }

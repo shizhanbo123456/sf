@@ -10,7 +10,10 @@ namespace Variety.Skill.Boss7
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "天坠重击";
+            Tag = "范围、爆发";
+            Description = "自身先向上跃起，短暂停滞后续猛然下坠，落地时触发范围爆炸，对4范围内敌人造成高额伤害";
             TimeNeeded = 0.5f;
             cd = 8f;
         }
@@ -41,7 +44,10 @@ namespace Variety.Skill.Boss7
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "冲刺散射";
+            Tag = "范围、突进";
+            Description = "向面朝方向冲刺的同时，发射5枚呈±10度、±5度、0度分布的散射子弹，覆盖10范围内敌人";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -67,7 +73,10 @@ namespace Variety.Skill.Boss7
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "三点爆破";
+            Tag = "范围、封锁";
+            Description = "自身向上小幅升空，同时在自身及左右5单位位置生成预警圈，0.5秒后三个位置同时触发爆炸，封锁横向移动路径";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -95,7 +104,10 @@ namespace Variety.Skill.Boss7
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "引力升空";
+            Tag = "近距离、控制";
+            Description = "发射一枚跟随自身的引力持续伤害子弹，同时自身缓慢升空，2秒后额外发射一枚向斜下方飞行的持续伤害子弹，双重吸附近距离敌人";
             TimeNeeded = 0.5f;
             cd = 25f;
         }
@@ -125,7 +137,10 @@ namespace Variety.Skill.Boss7
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "引力坍缩";
+            Tag = "范围、控制";
+            Description = "自身短暂静止，发射一枚逐渐缩小的巨型引力子弹，持续吸附周围敌人并造成持续伤害，2秒后发射一枚垂直向下的持续伤害子弹收尾";
             TimeNeeded = 0.5f;
             cd = 30f;
         }
@@ -152,7 +167,10 @@ namespace Variety.Skill.Boss7
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "圣耀增幅";
+            Tag = "全屏、增益、破甲";
+            Description = "5秒蓄力期间生成巨型收缩弹幕，蓄力结束后触发大范围爆炸，命中敌人附加20点破甲效果（持续30秒），同时为所有队友附加30点伤害提升和20点幸运值（均持续30秒）";
             TimeNeeded = 0.5f;
             cd = 60f;
         }

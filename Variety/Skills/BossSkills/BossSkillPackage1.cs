@@ -10,7 +10,10 @@ namespace Variety.Skill.Boss1
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "环形弹幕阵";
+            Tag = "全屏、压制";
+            Description = "向360度方向均匀发射24枚子弹，每枚间隔15度，形成无死角环形弹幕，全面封锁敌人走位";
             cd = 3f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
@@ -29,7 +32,10 @@ namespace Variety.Skill.Boss1
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "精准散射";
+            Tag = "单体、范围";
+            Description = "锁定最近敌人方向，向目标及左右±10度、±20度范围发射5枚子弹，精准覆盖目标周围区域";
             cd = 8f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
@@ -49,7 +55,10 @@ namespace Variety.Skill.Boss1
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "冲锋突袭";
+            Tag = "突进、爆发";
+            Description = "当敌人进入20×3矩形区域时触发，向面朝方向高速冲锋，同时发射一枚跟随自身的高额伤害子弹，突击路径上敌人";
             cd = 10f;
         }
         public override bool Detect(Target target)
@@ -77,7 +86,10 @@ namespace Variety.Skill.Boss1
         };
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "天坠流星爆";
+            Tag = "全屏、爆发";
+            Description = "自身向上跃起后向最近敌人方向横向位移，随后猛然下坠，落地时触发范围爆炸，同时向4个斜向发射抛物线子弹，形成双重打击";
             TimeNeeded = 0.5f;
             cd = 25f;
         }
@@ -117,7 +129,10 @@ namespace Variety.Skill.Boss1
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "双侧封锁";
+            Tag = "范围、封锁";
+            Description = "当5范围内无敌人时触发，从自身左右两侧分批次发射20枚子弹，子弹等待1.2秒后横向穿行，封锁两侧移动路径";
             TimeNeeded = 0.5f;
             cd = 5f;
         }
@@ -150,7 +165,10 @@ namespace Variety.Skill.Boss1
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "沉默连环爆";
+            Tag = "全屏、控制";
+            Description = "当敌人进入30×5矩形区域时触发，先使所有敌人沉默3秒，随后分两波在横向多个位置生成预警圈并触发爆炸，连环封锁战场";
             TimeNeeded = 0.5f;
             cd = 15f;
         }

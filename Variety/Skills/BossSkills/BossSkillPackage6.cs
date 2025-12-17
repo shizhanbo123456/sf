@@ -10,7 +10,10 @@ namespace Variety.Skill.Boss6
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "冲锋散射";
+            Tag = "范围、突进";
+            Description = "向面朝方向持续冲锋3秒，期间发射5枚呈±10度、±5度、0度分布的持续伤害子弹，覆盖前方大范围区域";
             TimeNeeded = 3f;
             cd = 8f;
         }
@@ -32,7 +35,10 @@ namespace Variety.Skill.Boss6
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(1, 0);
+            Name = "锁敌突袭";
+            Tag = "单体、精准";
+            Description = "锁定20范围内最近敌人，生成直线预警区域，1秒后向目标方向突进并发射一枚跟随自身的高额伤害子弹，精准打击目标";
             TimeNeeded = 2;
             cd = 15f;
         }
@@ -60,7 +66,10 @@ namespace Variety.Skill.Boss6
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(2, 0);
+            Name = "往复突袭";
+            Tag = "范围、持续压制";
+            Description = "先向前突进，随后在1秒、2秒、3秒时交替反向和正向突进，同时发射一枚跟随自身的持续伤害子弹，反复拉扯并打击路径上敌人";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -94,7 +103,10 @@ namespace Variety.Skill.Boss6
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(3, 0);
+            Name = "引力冲锋";
+            Tag = "范围、控制";
+            Description = "向前突进2秒，期间发射一枚跟随自身的引力持续伤害子弹吸附敌人，突进结束后额外发射一枚斜向上方的引力子弹，双重控制敌人";
             TimeNeeded = 0.5f;
             cd = 10f;
         }
@@ -124,7 +136,10 @@ namespace Variety.Skill.Boss6
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(4, 0);
+            Name = "横向弹幕墙";
+            Tag = "全屏、封锁";
+            Description = "生成横向超大范围预警区域，2秒后连续发射20枚横向穿行的雾型子弹，子弹高度随机分布，全面封锁横向移动空间";
             TimeNeeded = 0.5f;
             cd = 30f;
         }
@@ -151,7 +166,10 @@ namespace Variety.Skill.Boss6
     {
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(5, 0);
+            Name = "引力破甲斩";
+            Tag = "范围、破甲";
+            Description = "短暂静止1.5秒，期间在侧方生成引力持续伤害子弹吸附敌人，随后向面朝方向突进并发射一枚高额伤害子弹，命中敌人附加30点破甲效果（持续10秒）";
             TimeNeeded = 0.5f;
             cd = 50f;
         }

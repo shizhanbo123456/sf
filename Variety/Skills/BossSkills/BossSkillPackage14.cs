@@ -27,7 +27,10 @@ namespace Variety.Skill.Boss14
     {
         public Skill0() : base()
         {
-            Description = "在靠近的敌人周围生成持续伤害雾气";
+            sprite = new Vector2Int(0, 0);
+            Name = "迷雾缠身";
+            Tag = "范围、减速、持续伤害";
+            Description = "在范围内每个敌人周围生成预警圈，2秒后触发持续伤害雾气，附带2点减速效果（持续5秒），持续灼烧敌人";
             TimeNeeded = 2f;
             cd = 10f;
         }
@@ -53,7 +56,10 @@ namespace Variety.Skill.Boss14
     {
         public Skill1():base()
         {
-            Description = "向靠近的敌人发射追踪火球";
+            sprite = new Vector2Int(1, 0);
+            Name = "追踪火球术";
+            Tag = "单体、精准、连击";
+            Description = "锁定最近敌人位置，分3波发射追踪火球，每波间隔0.6秒，火球精准飞向目标，形成连续打击";
             TimeNeeded = 2.5f;
             cd = 7f;
         }
@@ -79,7 +85,10 @@ namespace Variety.Skill.Boss14
     {
         public Skill2() : base()
         {
-            Description = "在密集敌人区域引发能量爆发";
+            sprite = new Vector2Int(2, 0);
+            Name = "能量爆发波";
+            Tag = "范围、爆发、封锁";
+            Description = "锁定最近敌人位置生成4范围预警圈，2秒后从中心向8个方向发射贯穿子弹，形成环形爆发，封锁周围区域";
             TimeNeeded = 3f;
             cd = 12f;
         }
@@ -107,7 +116,10 @@ namespace Variety.Skill.Boss14
     {
         public Skill3() : base()
         {
-            Description = "标记靠近的敌人，使其受到持续伤害并降低防御";
+            sprite = new Vector2Int(3, 0);
+            Name = "灼烧破甲标记";
+            Tag = "单体、debuff、持续伤害";
+            Description = "为范围内每个敌人生成预警圈，1秒后施加标记，使敌人持续燃烧（每秒造成自身50%攻击力伤害，持续10秒）并降低20%防御（持续10秒）";
             TimeNeeded = 2f;
             cd = 15f;
         }
@@ -136,7 +148,10 @@ namespace Variety.Skill.Boss14
     {
         public Skill4() : base()
         {
-            Description = "在敌人路径上生成延迟陷阱，触发后造成范围伤害";
+            sprite = new Vector2Int(4, 0);
+            Name = "路径预判陷阱";
+            Tag = "控制、突袭、预判";
+            Description = "预测敌人移动路径，在其前方5单位生成陷阱预警圈，1秒后陷阱触发爆炸，精准打击移动中的敌人";
             TimeNeeded = 2.5f;
             cd = 9f;
         }

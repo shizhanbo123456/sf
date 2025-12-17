@@ -27,7 +27,10 @@ namespace Variety.Skill.Boss16
     {
         public Skill0() : base()
         {
-            Description = "向靠近的敌人发射扩散能量球";
+            sprite = new Vector2Int(0, 0);
+            Name = "扩散能量波";
+            Tag = "范围、封锁";
+            Description = "锁定最近敌人位置，生成4组交叉预警区域，0.5秒后发射4枚贯穿能量球，沿交叉轨迹穿行，封锁目标周围空间";
             TimeNeeded = 2f;
             cd = 6f;
         }
@@ -53,7 +56,10 @@ namespace Variety.Skill.Boss16
     {
         public Skill1() : base()
         {
-            Description = "在敌人路径生成烟雾陷阱，触发后造成持续伤害";
+            sprite = new Vector2Int(1, 0);
+            Name = "烟雾追踪陷阱";
+            Tag = "控制、持续伤害、预判";
+            Description = "预测范围内敌人移动路径，在其前方生成烟雾陷阱预警圈，1秒后陷阱激活，持续4秒造成高频伤害，限制敌人走位";
             TimeNeeded = 2.5f;
             cd = 8f;
         }
@@ -80,7 +86,10 @@ namespace Variety.Skill.Boss16
     {
         public Skill2() : base()
         {
-            Description = "向单个敌人发射精准火球";
+            sprite = new Vector2Int(2, 0);
+            Name = "精准火球术";
+            Tag = "单体、爆发、精准";
+            Description = "锁定最近敌人位置生成小型预警圈，0.8秒后发射一枚高速精准火球，对单个目标造成高额单次伤害";
             TimeNeeded = 1.8f;
             cd = 5f;
         }
@@ -105,7 +114,10 @@ namespace Variety.Skill.Boss16
     {
         public Skill3() : base()
         {
-            Description = "在敌人周围生成诅咒环，附加燃烧与易伤";
+            sprite = new Vector2Int(3, 0);
+            Name = "诅咒灼烧环";
+            Tag = "范围、debuff、持续伤害";
+            Description = "为范围内每个敌人生成8范围预警圈，1.5秒后触发诅咒环，弹幕从无到有逐渐扩大，附带高额燃烧伤害（基于自身攻击力，持续8秒）";
             TimeNeeded = 3f;
             cd = 12f;
         }
@@ -138,7 +150,10 @@ namespace Variety.Skill.Boss16
     {
         public Skill4() : base()
         {
-            Description = "向多个敌人发射密集弹幕";
+            sprite = new Vector2Int(4, 0);
+            Name = "密集锁敌弹幕";
+            Tag = "多体、压制、连击";
+            Description = "为范围内所有敌人生成预警圈，0.8秒后分5波快速发射密集弹幕，每波精准锁定单个敌人，对多个目标形成持续压制";
             TimeNeeded = 2.2f;
             cd = 7f;
         }
