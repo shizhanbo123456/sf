@@ -1,6 +1,5 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
@@ -17,9 +16,8 @@ namespace Variety.Skill.Boss9
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            var d = Dt2Degree(t.transform.position - Target.transform.position);
+            var d = t?Dt2Degree(t.transform.position - Target.transform.position):(Target.FaceRight?0:180);
             for(int offset = -15; offset <= 15; offset += 15)
             {
                 var b = GetBullet(7);
@@ -40,7 +38,6 @@ namespace Variety.Skill.Boss9
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             foreach (var i in Ore.Ores.Values)
             {
                 WarningCircle.Warn(i.transform.position, 3, 0.8f);
@@ -73,9 +70,8 @@ namespace Variety.Skill.Boss9
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            var p = t.transform.position;
+            var p = t?t.transform.position:Target.transform.position+Target.Front;
             WarningCircle.Warn(p, 3, 1);
             AddEvent(1f, new TimeLineData(Target,p),(d) =>
             {
@@ -102,7 +98,6 @@ namespace Variety.Skill.Boss9
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var p = Target.transform.position;
             for(int i = -7; i <= 7; i += 2)
             {
@@ -147,13 +142,12 @@ namespace Variety.Skill.Boss9
             TimeNeeded = 0.5f;
             cd = 20f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(6,false).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 6, 1f);
             AddEvent(1f, (d) =>
             {
@@ -175,8 +169,6 @@ namespace Variety.Skill.Boss9
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            
             WarningCircle.Warn(Target.transform.position, 30, 5f);
             AddEvent(5f, (d)=>
             {

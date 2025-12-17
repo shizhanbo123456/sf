@@ -60,17 +60,14 @@ namespace Variety.Skill.Boss14
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy(); // 获取最近敌人
-            if (nearestEnemy == null) return;
 
-            // 分3波发射火球，每波3颗
             for (int wave = 0; wave < 3; wave++)
             {
-                AddEvent(wave * 0.6f, (d) => // 每0.6秒一波
+                AddEvent(wave * 0.6f,new TimeLineData(Target,nearestEnemy!=null?nearestEnemy.transform.position:Target.transform.position-Vector3.up), (d) =>
                 {
-                    if (nearestEnemy == null) return; 
                     var b = GetBullet(12);
                     b.Init(2.2f);
-                    BulletAimSystem.RegistObject(b,0.7f,4f,Target.transform.position,6f,nearestEnemy.transform.position);
+                    BulletAimSystem.RegistObject(b,0.7f,4f,d.Target.transform.position,6f,d.pos);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 });
@@ -89,7 +86,7 @@ namespace Variety.Skill.Boss14
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemy = Target.GetNearestEnemy();
-            Vector3 centerPos = enemy.transform.position;
+            Vector3 centerPos = enemy!=null?enemy.transform.position:Target.transform.position;
 
             WarningCircle.Warn(centerPos, 4f, 2f);
 
@@ -120,6 +117,7 @@ namespace Variety.Skill.Boss14
                 (EffectType.Burning, Target.effectController.GetFloatingAttributes().Gongji.Value * 0.5f, 10),
                 (EffectType.DefenseDecrease, 0.2f, 10));
             var enemies = Target.GetEnemyInRange();
+            if (enemies.Count == 0) enemies.Add(Target);
             foreach (var i in enemies)
             {
                 WarningCircle.Warn(i.transform.position, 2f, 1);
@@ -145,6 +143,7 @@ namespace Variety.Skill.Boss14
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
+            if(enemies.Count == 0)enemies.Add(Target);
             foreach (var enemy in enemies)
             {
                 if (enemy == null) continue;
@@ -163,7 +162,7 @@ namespace Variety.Skill.Boss14
             }
         }
     }
-    public class Skill5 : Variety.Skill.Common.Skill5For14_18
+    public class Skill5 : Skill5For14_18
     {
         public Skill5():base()
         {

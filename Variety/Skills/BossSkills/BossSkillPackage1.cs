@@ -15,7 +15,6 @@ namespace Variety.Skill.Boss1
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for(int i = 0; i < 24; i++)
             {
                 var b = GetBullet(15);
@@ -35,7 +34,6 @@ namespace Variety.Skill.Boss1
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var angle=Dt2Degree(Target.GetNearestEnemy(1000, false).transform.position-Target.transform.position);
             for(int i = -2; i < 3; i++)
             {
@@ -54,24 +52,18 @@ namespace Variety.Skill.Boss1
             Description = "";
             cd = 10f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target target)
         {
-            return Target.GetEnemyInRange(10,true).Count>0;
+            return target.GetEnemyInRect(20, 3, true).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var t=Target.GetNearestEnemy(20, true);
-            if (t != null)
-            {
-                var x = t.transform.position.x - Target.transform.position.x;
-                Target.ApplyMotion(new MotionDir(new Vector2(x*15,0),1,true,2));
-                var b = GetBullet(14);
-                b.Init(3.2f);
-                BulletFollowSystem.RegistObject(b,2f,2f,Target);
-                BulletDamageOnceSystem.Regist(b);
-                b.Shoot();
-            }
+            Target.ApplyMotion(new MotionDir(Target.Front * 20, 1, true, 2));
+            var b = GetBullet(14);
+            b.Init(3.2f);
+            BulletFollowSystem.RegistObject(b, 2f, 2f, Target);
+            BulletDamageOnceSystem.Regist(b);
+            b.Shoot();
         }
     }
     public class Skill3 : SkillBoss
@@ -95,8 +87,8 @@ namespace Variety.Skill.Boss1
             AddEvent(1, (d) =>
             {
                 var t=d.Target.GetNearestEnemy();
-                float x=t.transform.position.x-d.Target.transform.position.x;
-                Target.ApplyMotion(new MotionDir(new Vector2(x*2,0), 0.5f, true, 1));
+                float x=t!=null?(t.transform.position.x-d.Target.transform.position.x):0;
+                d.Target.ApplyMotion(new MotionDir(new Vector2(x*2,0), 0.5f, true, 1));
             });
             AddEvent(1.5f, (d) =>
             {
@@ -119,7 +111,6 @@ namespace Variety.Skill.Boss1
                     b.Shoot();
                 }
             });
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
         }
     }
     public class Skill4 : SkillBoss
@@ -130,7 +121,7 @@ namespace Variety.Skill.Boss1
             TimeNeeded = 0.5f;
             cd = 5f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(5,false).Count==0;
         }
@@ -153,7 +144,6 @@ namespace Variety.Skill.Boss1
                     b.Shoot();
                 });
             }
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
         }
     }
     public class Skill5 : SkillBoss
@@ -163,6 +153,10 @@ namespace Variety.Skill.Boss1
             Description = "";
             TimeNeeded = 0.5f;
             cd = 15f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(30, 5).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

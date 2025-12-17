@@ -30,9 +30,8 @@ namespace Variety.Skill.Boss5
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            var angle = Dt2Degree(t.transform.position - Target.transform.position);
+            var angle = t?Dt2Degree(t.transform.position - Target.transform.position):(Target.FaceRight?0:180);
 
             var b = GetBullet(7);
             b.Init(0.3f,liftstoiclevel: 0);
@@ -62,7 +61,6 @@ namespace Variety.Skill.Boss5
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for (int i = 0; i < 5; i++)
             {
                 float rad = (30 + i * 30)*Mathf.Deg2Rad;
@@ -84,7 +82,6 @@ namespace Variety.Skill.Boss5
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionDir(Vector2.up * 20, 1f, true, 2));
             AddEvent(1f, (d) =>
             {
@@ -111,7 +108,6 @@ namespace Variety.Skill.Boss5
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var list = Target.GetEnemyInRange();
             foreach (var i in list) WarningCircle.Warn(i.transform.position, 2, 1);
             AddEvent(1f, (d) =>
@@ -138,13 +134,12 @@ namespace Variety.Skill.Boss5
             TimeNeeded = 1.5f;
             cd = 3f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(8,true).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy(80, true);
             if (t == null) return;
             WarningCircle.Warn(t.transform, 2.5f, 0.6f);
@@ -174,7 +169,6 @@ namespace Variety.Skill.Boss5
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for(int i = 0; i < 100; i++)
             {
                 AddEvent(i * 0.05f, new TimeLineData(Target,i),(d) =>

@@ -23,9 +23,9 @@ namespace Variety.Base
         {
             return true;
         }
-        public virtual bool Detect(Target target)
+        public virtual bool Detect(Target Target)
         {
-            return true;
+            return Target.HasEnemy();
         }
         public abstract void UseSkill(Target Target, Vector3 pos, bool faceright);
         protected void AddEvent(float delay,TimeLineData data,Action<TimeLineData>action)
@@ -37,9 +37,8 @@ namespace Variety.Base
             BulletSystemCommon.CurrentShooter.TimeLineWork.AddEvent(delay,new TimeLineData(BulletSystemCommon.CurrentShooter), action);
         }
         /// <summary>
-        /// 0-2:不可变色，3:魔法核,4:能量球,5:能量球(吸收),6:能量球(放射)<br></br>
-        /// 7:距离,8:光点,9:魔法阵,10:雪球,11:爆炸,12:火球<br></br>
-        /// 13-15:雾,16:烟火
+        /// 0-2:爆炸不可变色，3:魔法核,4:能量球,5:能量球(吸收),6:能量球(放射)<br></br>
+        /// 7:距离,8:光点,9:魔法阵,10:雪球,11:爆炸,12:火球，13-15:雾,16:烟火<br></br>
         /// </summary>
         protected static Bullet GetBullet(int index)
         {

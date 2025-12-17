@@ -87,6 +87,7 @@ public class Lantern : Target
     }
     public static float GetAverageHealth()
     {
+        if (Lanterns.Count == 0) return 0;
         int healthSum = 0;
         int each = 0;
         foreach(var i in Lanterns.Values)

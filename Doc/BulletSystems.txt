@@ -1,0 +1,100 @@
+BulletStaticSystem
+RegistObject(Bullet obj, float radius, float lifeTime, Vector3 pos)
+obj：子弹实例
+radius：缩放系数（乘以初始缩放）
+lifeTime：生命周期（秒）
+pos：初始位置
+BulletStaticScaleChangeSystem
+RegistObject(Bullet obj, float startradius, float endradius, float lifeTime)
+obj：子弹实例
+startradius：初始缩放系数
+endradius：结束时缩放系数
+lifeTime：缩放变化时长（秒）
+RegistObject(Bullet obj, float startradius, float endradius, float lifeTime, Vector3 pos)
+新增 pos：初始位置
+BulletFollowSystem
+RegistObject(Bullet obj, float radius, float lifeTime, Target followTarget)
+obj：子弹实例
+radius：缩放系数
+lifeTime：跟随持续时间（秒）
+followTarget：跟随目标
+BulletAngleSystem
+RegistObject(Bullet obj, float radius, float lifeTime, float speed, float angle)
+obj：子弹实例
+radius：缩放系数
+lifeTime：飞行时间（秒）
+speed：移动速度
+angle：飞行角度（度，基于发射者朝向）
+BulletAngleNonFacingSystem
+RegistObject(Bullet obj, float radius, float lifetime, float speed, float angle)
+obj：子弹实例
+radius：缩放系数
+lifetime：飞行时间（秒）
+speed：移动速度
+angle：飞行角度（度，世界角度）
+BulletDirSystem
+RegistObject(Bullet obj, float radius, float lifetime, float speed, Vector2 dir)
+obj：子弹实例
+radius：缩放系数
+lifetime：飞行时间（秒）
+speed：移动速度
+dir：飞行方向向量（基于发射者朝向）
+BulletAimSystem
+RegistObject(Bullet obj, float radius, float lifetime, Vector3 worldStartPos, float speed, Vector3 aimAt)
+obj：子弹实例
+radius：缩放系数
+lifetime：飞行时间（秒）
+worldStartPos：初始位置（世界坐标）
+speed：移动速度
+aimAt：目标位置（世界坐标）
+BulletOrbitSystem
+RegistObject(Bullet obj, float radius, float lifetime, float orbitRadius, float degreePerSec, float angleOffset)
+obj：子弹实例
+radius：缩放系数
+lifetime：轨道运动时长（秒）
+orbitRadius：轨道半径
+degreePerSec：每秒旋转角度（度）
+angleOffset：初始角度偏移（度）
+RegistObject(Bullet obj, float radius, float lifetime, float orbitRadius, float degreePerSec, float angleOffset, Vector3 offset)
+新增 offset：轨道中心偏移量
+BulletOrbitWorldSystem
+RegistObject(Bullet obj, float radius, float lifetime, float orbitRadius, float degreePerSec, float angleOffset, Vector3 pos)
+obj：子弹实例
+radius：缩放系数
+lifetime：轨道运动时长（秒）
+orbitRadius：轨道半径
+degreePerSec：每秒旋转角度（度）
+angleOffset：初始角度偏移（度）
+pos：轨道中心世界坐标
+BulletDirAwaitSystem
+RegistObject(Bullet obj, float radius, float lifetime, float waitfor, Vector3 worldStartPos, float speed, Vector3 dir)
+obj：子弹实例
+radius：缩放系数
+lifetime：总生命周期（秒）
+waitfor：等待时间（秒，期间不移动）
+worldStartPos：初始位置（世界坐标）
+speed：移动速度（等待后）
+dir：移动方向向量（世界坐标）
+BulletFromToSystem
+RegistObject(Bullet obj, float radius, float lifetime, Vector3 worldStartPos, Vector3 worldEndPos)
+obj：子弹实例
+radius：缩放系数
+lifetime：从起点到终点时长（秒）
+worldStartPos：起点位置（世界坐标）
+worldEndPos：终点位置（世界坐标）
+BulletProectileAimSystem
+RegistObject(Bullet obj, float radius, float lifetime, Vector3 startPos, Vector3 startVelocity, Vector3 endPos, float hitTime)
+obj：子弹实例
+radius：缩放系数
+lifetime：总生命周期（秒）
+startPos：初始位置（世界坐标）
+startVelocity：初始速度向量
+endPos：目标位置（世界坐标）
+hitTime：到达目标时间（秒）
+BulletProectileSystem
+RegistObject(Bullet obj, float radius, float lifetime, Vector3 startPos, Vector3 startVelocity)
+obj：子弹实例
+radius：缩放系数
+lifetime：飞行时间（秒）
+startPos：初始位置（世界坐标）
+startVelocity：初始速度向量（受重力影响）

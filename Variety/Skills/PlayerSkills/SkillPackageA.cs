@@ -40,7 +40,7 @@ namespace Variety.Skill.PackageA
             Description = "连续向前二段突刺并造成伤害，期间有高额闪避";
             Tag = "平a";
             TimeNeeded = 0.6f;
-            CD = 4f;
+            cd = 4f;
         }
         public override bool Detect(Target target)
         {
@@ -82,11 +82,11 @@ namespace Variety.Skill.PackageA
             Tag = "平a";
             TimeNeeded = 0.5f;
             MaxstoreTime = 3;
-            CD = 10f;
+            cd = 10f;
         }
         public override bool Detect(Target target)
         {
-            return target.GetEnemyInRect(3f, 10f, false).Count > 0;
+            return target.YFilter(target.GetEnemyInRect(3f, 10f),Target.YLimit.Lower).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -112,11 +112,11 @@ namespace Variety.Skill.PackageA
             Tag = "平a";
             TimeNeeded = 1.2f;
             MaxstoreTime = 2;
-            CD = 20f;
+            cd = 20f;
         }
         public override bool Detect(Target target)
         {
-            return target.GetEnemyInRect(7f, 1.5f, true).Count > 0;
+            return target.YFilter(target.GetEnemyInRect(7f, 1.5f, true),Target.YLimit.Highter).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -140,6 +140,10 @@ namespace Variety.Skill.PackageA
             Description = "后撤，并向前释放多发子弹，耗魔140";
             Tag = "平a";
             TimeNeeded = 1f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(18f,1f, true).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -172,7 +176,7 @@ namespace Variety.Skill.PackageA
             Description = "立即向上飞起，5s内大幅提升跳跃高度";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            CD = 20f;
+            cd = 20f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

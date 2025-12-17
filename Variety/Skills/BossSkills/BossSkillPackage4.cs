@@ -1,5 +1,6 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
@@ -30,9 +31,8 @@ namespace Variety.Skill.Boss4
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            var angle = Dt2Degree(t.transform.position - Target.transform.position);
+            var angle = t?Dt2Degree(t.transform.position - Target.transform.position):(Target.FaceRight?0:180);
             for(int i = 0; i < 20; i++)
             {
                 AddEvent(0.1f * i, new TimeLineData(Target,i),(d) =>
@@ -58,22 +58,20 @@ namespace Variety.Skill.Boss4
         {
             var t=Target.GetNearestEnemy();
             t.ApplyMotion(new MotionDir(Vector2.up * 10, 0.7f, false, 1));
-            AddEvent(0.7f, (d) =>
+            var v = t.transform.position - Target.transform.position;
+            AddEvent(0.7f, new TimeLineData(Target,v),(d) =>
             {
-                d.Target.ApplyMotion(new MotionDir((t.transform.position- d.Target.transform.position).normalized*30,1,true,1)); 
+                d.Target.ApplyMotion(new MotionDir(d.pos.normalized*30,1,true,1)); 
                 var b = GetBullet(12);
                 b.Init(2.5f,liftstoiclevel:2);
                 BulletFollowSystem.RegistObject(b,3f,1f,Target);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
             });
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
         }
     }
     public class Skill2 : SkillBoss
     {
-        private EffectCollection ec1;
-        private EffectCollection ec2;
         public Skill2() : base()
         {
             Description = "";
@@ -82,7 +80,6 @@ namespace Variety.Skill.Boss4
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             foreach(var i in Ore.Ores.Values)
             {
                 var b = GetBullet(11);
@@ -108,9 +105,8 @@ namespace Variety.Skill.Boss4
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            var t=Target.GetNearestEnemy().transform.position;
+            var t = Target.GetNearestEnemy().transform.position;
             WarningRect.Warn(Target.transform.position, (t - Target.transform.position).normalized * 60 + Target.transform.position, 3, 1f);
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             AddEvent(1f, (d) =>
             {
                 var b = GetBullet(12);
@@ -156,7 +152,7 @@ namespace Variety.Skill.Boss4
             TimeNeeded = 0.5f;
             cd = 30f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(8,false).Count>0;
         }
@@ -167,7 +163,6 @@ namespace Variety.Skill.Boss4
             BulletStaticSystem.RegistObject(b,8,4,Target.transform.position);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
         }
     }
 }

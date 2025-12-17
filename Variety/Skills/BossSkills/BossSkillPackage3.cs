@@ -33,12 +33,12 @@ namespace Variety.Skill.Boss3
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for (int i = 0; i < 8; i++)
             {
                 AddEvent(i* 0.3f,new TimeLineData(Target,i), (d) =>
                 {
                     var t = d.Target.GetNearestEnemy();
+                    if (!t) t = d.Target;
                     Vector3 startpos = d.Target.transform.position + new Vector3(Mathf.Cos(d.index * 0.785f), Mathf.Sin(d.index * 0.785f) + 1) * 4;
                     var b = GetBullet(7);
                     b.Init(0.7f);
@@ -60,15 +60,16 @@ namespace Variety.Skill.Boss3
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t = Target.GetNearestEnemy();
-            Target.ApplyMotion(new MotionDir((t.transform.position - Target.transform.position).normalized * -10, 1f, true, 1));
+            var dv = t.transform.position - Target.transform.position;
+            Target.ApplyMotion(new MotionDir(dv.normalized * -10, 1f, true, 1));
             var b = GetBullet(4);
             b.Init(2.5f);
             BulletFollowSystem.RegistObject(b,4f,1.5f,Target);
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
-            AddEvent(1.2f, (d) =>
+            AddEvent(1.2f,new TimeLineData(Target,dv), (d) =>
             {
-                var angle = Dt2Degree(t.transform.position - Target.transform.position);
+                var angle = Dt2Degree(dv);
                 for(int offset=-15;offset<=15;offset++)
                 {
                     var b = GetBullet(7);
@@ -78,7 +79,6 @@ namespace Variety.Skill.Boss3
                     b.Shoot();
                 }
             });
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
         }
     }
     public class Skill2 : SkillBoss
@@ -91,7 +91,6 @@ namespace Variety.Skill.Boss3
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(4);
             b.Init(0.1f,hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletStaticScaleChangeSystem.RegistObject(b,20,0,3f);
@@ -107,13 +106,12 @@ namespace Variety.Skill.Boss3
             TimeNeeded = 0.5f;
             cd = 8f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(12, false).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionStatic(2.2f, true, 1));
             for (int i = 0; i < 6; i++)
             {
@@ -140,7 +138,7 @@ namespace Variety.Skill.Boss3
             TimeNeeded = 0.5f;
             cd = 3f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             var b = false;
             foreach (var l in Lantern.Lanterns.Values)
@@ -155,7 +153,6 @@ namespace Variety.Skill.Boss3
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionStatic(2f, true, 1));
             var List = Lantern.Lanterns.Values.ToList();
             for (int a = 0; a < 3; a++)
@@ -192,7 +189,6 @@ namespace Variety.Skill.Boss3
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 12, 0.6f);
             Target.ApplyMotion(new MotionStatic(3f, true, 1));
             for (int i = 0; i < 6; i++)

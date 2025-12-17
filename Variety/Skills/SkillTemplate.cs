@@ -15,10 +15,6 @@ namespace Variety.Template
         {
             return SkillNonCDController.Create(index,t,createUI);
         }
-        public sealed override bool CanUse(Target Target)
-        {
-            return true;
-        }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
             BulletSystemCommon.CurrentShooter = Target;
@@ -32,17 +28,13 @@ namespace Variety.Template
     }
     public class SkillCD : SkillBase
     {
-        protected float CD;
+        protected float cd;
         public SkillCD():base()
         { 
         }
         public override SkillBaseController CreateSkillController(Target t, int index, bool createUI)
         {
-            return SkillCDController.Create(index,t, CD,createUI);
-        }
-        public sealed override bool CanUse(Target Target)
-        {
-            return true;
+            return SkillCDController.Create(index,t, cd,createUI);
         }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {
@@ -58,17 +50,13 @@ namespace Variety.Template
     public class SkillStorable : SkillBase
     {
         protected int MaxstoreTime;
-        protected float CD;
+        protected float cd;
         public SkillStorable() : base()
         {
         }
         public override SkillBaseController CreateSkillController(Target t, int index, bool createUI)
         {
-            return SkillStorableController.Create(index,t,MaxstoreTime,CD,createUI);
-        }
-        public sealed override bool CanUse(Target Target)
-        {
-            return true;
+            return SkillStorableController.Create(index,t,MaxstoreTime,cd,createUI);
         }
         public sealed override void UseSkill(Target Target, Vector3 pos, bool faceright)
         {

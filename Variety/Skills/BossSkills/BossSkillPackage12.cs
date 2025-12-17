@@ -15,13 +15,12 @@ namespace Variety.Skill.Boss12
             TimeNeeded = 0.3f;
             cd = 3f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(4, true).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = Target.FaceRight ? 1 : -1;
             var b = GetBullet(7);
             b.Init(1.8f);
@@ -39,7 +38,7 @@ namespace Variety.Skill.Boss12
             TimeNeeded = 0.5f;
             cd = 3f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(4, true).Count > 0;
         }
@@ -101,7 +100,7 @@ namespace Variety.Skill.Boss12
             TimeNeeded = 0.5f;
             cd = 3f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(8, true).Count > 0;
         }
@@ -165,8 +164,7 @@ namespace Variety.Skill.Boss12
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionDir(Vector2.up * 40, 0.25f, true, 1));
             var t = Target.GetNearestEnemy();
-            if (!t) return;
-            Vector3 p=t.transform.position;
+            var p = t != null ? t.transform.position : Target.transform.position;
             AddEvent(0.25f,new TimeLineData(Target,p), (d) =>
             {
                 d.Target.ApplyMotion(new MotionStatic(5f, true, 1));

@@ -16,7 +16,6 @@ namespace Variety.Skill.Boss7
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             WarningCircle.Warn(Target.transform.position, 4, 1);
             Target.ApplyMotion(new MotionDir(new Vector2(0, 20), 0.5f, true, 1));
             AddEvent(0.5f, (d) =>
@@ -46,13 +45,12 @@ namespace Variety.Skill.Boss7
             TimeNeeded = 0.5f;
             cd = 3f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(10, true).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = new Vector3(Target.FaceRight ? 1 : -1, 0, 0);
             Target.ApplyMotion(new MotionDir(front * 10, 0.5f, true, 1));
             for(int offset=-10;offset<=10;offset+=5)
@@ -75,7 +73,6 @@ namespace Variety.Skill.Boss7
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var p = Target.transform.position;
             Target.ApplyMotion(new MotionVelocityChange(Vector2.up*10,true,1));
             WarningCircle.Warn(p, 2, 0.5f);
@@ -102,13 +99,12 @@ namespace Variety.Skill.Boss7
             TimeNeeded = 0.5f;
             cd = 25f;
         }
-        public override bool CanUse(Target Target)
+        public override bool Detect(Target Target)
         {
             return Target.GetEnemyInRange(3, false).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(5);
             b.Init(0.1f, hitback:(b,t)=>Bullet.FigureAttractForce(b,t));
             BulletFollowSystem.RegistObject(b,3,2,Target);
@@ -135,7 +131,6 @@ namespace Variety.Skill.Boss7
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionStatic(2, true, 1));
             var b = GetBullet(5);
             b.Init(0.1f,  hitback: (b, t) => Bullet.FigureAttractForce(b, t));
@@ -163,7 +158,6 @@ namespace Variety.Skill.Boss7
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             Target.ApplyMotion(new MotionStatic(5, true, 1));
             var b = GetBullet(5);
             b.Init(0f);

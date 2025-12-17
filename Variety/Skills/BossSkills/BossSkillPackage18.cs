@@ -34,8 +34,7 @@ namespace Variety.Skill.Boss18
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
-            if (nearestEnemy == null) return;
-            Vector3 enemyPos = nearestEnemy.transform.position;
+            Vector3 enemyPos = nearestEnemy?nearestEnemy.transform.position:Target.transform.position;
             WarningCircle.Warn(enemyPos, 3f, 0.8f);
             // 生成3层能量环，逐层扩散
             for (int i = 0; i < 3; i++)
@@ -96,11 +95,11 @@ namespace Variety.Skill.Boss18
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var e = Target.GetNearestEnemy();
-            if (!e) return;
-            WarningCircle.Warn(e.transform.position, 12f, 1.5f);
-            e.ApplyEffect(new Slowness(Target.ObjectId, e, 3, 3f));
+            var p=e?e.transform.position:Target.transform.position;
+            WarningCircle.Warn(p, 12f, 1.5f);
+            if(e!=null)e.ApplyEffect(new Slowness(Target.ObjectId, e, 3, 3f));
             // 1.5秒后生成禁锢场
-            AddEvent(1.5f, new TimeLineData(Target,e.transform.position),(d) =>
+            AddEvent(1.5f, new TimeLineData(Target,p),(d) =>
             {
                 var b = GetBullet(3);
                 b.Init(0.1f, hitback: (b, t) => Bullet.FigureAttractForce(b,t));
@@ -122,6 +121,7 @@ namespace Variety.Skill.Boss18
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
+            if (enemies.Count == 0) enemies.Add(Target);
             foreach (var i in enemies)
             {
                 WarningCircle.Warn(i.transform, 2, 1f);
@@ -165,7 +165,7 @@ namespace Variety.Skill.Boss18
             }
         }
     }
-    public class Skill5 : Common.Skill5For14_18
+    public class Skill5 : Skill5For14_18
     {
         public Skill5() : base()
         {

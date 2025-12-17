@@ -1,0 +1,50 @@
+以下所有均为Target类的public
+
+InFront(Target data)
+参数：data（目标对象）
+功能：判断目标是否在自身正面（基于 X 轴位置和 FaceRight 属性）
+GetNearestEnemy(float range = 99999f, bool requireInFront = false)
+参数：range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取自身范围内最近的敌方目标，可限定仅正面
+GetNearestPartner(float range = 99999f, bool requireInFront = false)
+参数：range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取自身范围内最近的友方目标（排除自身），可限定仅正面
+GetEnemyInRange(float range = 99999f, bool requireInFront = false)
+参数：range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取自身范围内所有敌方目标，可限定仅正面
+GetPartnerInRange(float range = 99999f, bool requireInFront = false)
+参数：range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取自身范围内所有友方目标（排除自身），可限定仅正面
+GetEnemyInRect(float halfx, float halfy, bool requireInFront = false)
+参数：halfx（矩形 X 半轴长度）、halfy（矩形 Y 半轴长度）、requireInFront（是否要求在正面，默认 false）
+功能：获取自身矩形范围内所有敌方目标，可限定仅正面
+GetPartnerInRect(float halfx, float halfy, bool requireInFront = false)
+参数：halfx（矩形 X 半轴长度）、halfy（矩形 Y 半轴长度）、requireInFront（是否要求在正面，默认 false）
+功能：获取自身矩形范围内所有友方目标（排除自身），可限定仅正面
+GetNearestEnemy(Vector3 pos, float range = 99999f, bool requireInFront = false)
+参数：pos（搜索中心位置）、range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取指定位置范围内最近的敌方目标，可限定仅正面
+GetNearestPartner(Vector3 pos, float range = 99999f, bool requireInFront = false)
+参数：pos（搜索中心位置）、range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取指定位置范围内最近的友方目标（排除自身），可限定仅正面
+GetEnemyInRange(Vector3 pos, float range = 99999f, bool requireInFront = false)
+参数：pos（搜索中心位置）、range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取指定位置范围内所有敌方目标，可限定仅正面
+GetPartnerInRange(Vector3 pos, float range = 99999f, bool requireInFront = false)
+参数：pos（搜索中心位置）、range（搜索范围，默认极大值）、requireInFront（是否要求在正面，默认 false）
+功能：获取指定位置范围内所有友方目标（排除自身），可限定仅正面
+GetEnemyInRect(Vector3 pos, float halfx, float halfy, bool requireInFront = false)
+参数：pos（矩形中心位置）、halfx（矩形 X 半轴长度）、halfy（矩形 Y 半轴长度）、requireInFront（是否要求在正面，默认 false）
+功能：获取指定矩形范围内所有敌方目标，可限定仅正面
+GetPartnerInRect(Vector3 pos, float halfx, float halfy, bool requireInFront = false)
+参数：pos（矩形中心位置）、halfx（矩形 X 半轴长度）、halfy（矩形 Y 半轴长度）、requireInFront（是否要求在正面，默认 false）
+功能：获取指定矩形范围内所有友方目标（排除自身），可限定仅正面
+枚举
+XLimit：Front（正面）、Back（背面）
+YLimit：Highter（更高）、Lower（更低）
+XFilter(List<Target> targets, XLimit x)
+参数：targets（待筛选目标列表）、x（X 轴筛选类型）
+功能：按 X 轴位置筛选目标（保留正面 / 背面）
+YFilter(List<Target> targets, YLimit y)
+参数：targets（待筛选目标列表）、y（Y 轴筛选类型）
+功能：按 Y 轴位置筛选目标（保留更高 / 更低）

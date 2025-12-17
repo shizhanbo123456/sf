@@ -16,6 +16,10 @@ namespace Variety.Skill.PackageC
             Tag = "平a";
             TimeNeeded = 0.3f;
         }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(10f, 1.5f).Count>0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             Target.ApplyMotion(new MotionStatic(0.2f, true, 1));
@@ -40,7 +44,7 @@ namespace Variety.Skill.PackageC
             Tag = "平a";
             TimeNeeded = 0.5f;
             MaxstoreTime = 2;
-            CD = 10f;
+            cd = 10f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -58,7 +62,11 @@ namespace Variety.Skill.PackageC
             Description = "向前发射三颗子弹，耗魔100";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            CD = 2f;
+            cd = 2f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(20f, 2f).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -82,7 +90,11 @@ namespace Variety.Skill.PackageC
             Description = "召唤一圈子弹围绕自身，耗魔75";
             Tag = "平a";
             TimeNeeded = 0.2f;
-            CD = 20f;
+            cd = 20f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRange(7f).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -150,6 +162,10 @@ namespace Variety.Skill.PackageC
             Tag = "平a";
             TimeNeeded = 0.6f;
         }
+        public override bool Detect(Target target)
+        {
+            return target.YFilter(target.GetEnemyInRect(target.transform.position + target.Front * 6, 3, 10), Target.YLimit.Highter).Count>0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var front = Target.FaceRight ? Vector3.right:Vector3.left;
@@ -176,7 +192,11 @@ namespace Variety.Skill.PackageC
             Description = "向周围10m内的敌人施加诅咒";
             Tag = "平a";
             TimeNeeded = 2f;
-            CD = 25f;
+            cd = 25f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRange(10).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

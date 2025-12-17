@@ -34,7 +34,7 @@ namespace Variety.Skill.Boss15
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemy = Target.GetNearestEnemy();
-            Vector3 enemyPos = enemy.transform.position;
+            Vector3 enemyPos = enemy!=null?enemy.transform.position:Target.transform.position;
 
             for (int i = 0; i < 6; i++)
             {
@@ -57,13 +57,10 @@ namespace Variety.Skill.Boss15
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
-            if (nearestEnemy == null) return;
-
-            Vector3 enemyPos = nearestEnemy.transform.position;
+            Vector3 enemyPos = nearestEnemy?nearestEnemy.transform.position:Target.transform.position;
 
             WarningCircle.Warn(enemyPos, 5f, 1f);
 
-            // 1Ãëºó±¬Õ¨
             AddEvent(1f, (d) =>
             {
                 var b = GetBullet(11);
@@ -85,6 +82,7 @@ namespace Variety.Skill.Boss15
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
+            if (enemies.Count == 0) enemies.Add(Target);
             foreach (var enemy in enemies)
             {
                 if (enemy == null) continue;
@@ -139,7 +137,6 @@ namespace Variety.Skill.Boss15
                 {
                     foreach (var enemy in Target.GetEnemyInRange())
                     {
-                        if (enemy == null) continue;
                         float angle = Dt2Degree(enemy.transform.position - Target.transform.position);
                         var b = GetBullet(12);
                         b.Init(0.6f,liftstoiclevel:0);
@@ -151,7 +148,7 @@ namespace Variety.Skill.Boss15
             }
         }
     }
-    public class Skill5 : Common.Skill5For14_18
+    public class Skill5 : Skill5For14_18
     {
         public Skill5() : base()
         {

@@ -36,16 +36,17 @@ namespace Variety.Skill.Boss11
     {
         public Skill0() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "坠击爆破";
+            Tag = "坠击";
+            Description = "锁定最近敌人位置，先从目标上方发射子弹俯冲，在目标位置触发爆炸";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            if (t == null) return;
-            var p = t.transform.position;
+            var p = t!=null?t.transform.position:Target.transform.position;
             WarningRect.Warn(p, p + Vector3.up * 5, 1.3f, 1f);
             AddEvent(1, new TimeLineData(Target,p),(d) =>
             {
@@ -69,13 +70,15 @@ namespace Variety.Skill.Boss11
     {
         public Skill1() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "霰弹雪球";
+            Tag = "霰弹";
+            Description = "蓄力后，连续发射30枚子弹，呈多角度抛物线轨迹锁定最近敌人";
             TimeNeeded = 4f;
             cd = 30f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             for (int i = 0; i < 30; i++)
             {
                 int j = i;
@@ -84,8 +87,7 @@ namespace Variety.Skill.Boss11
                     float a = (j * 129) % 90 + 45;
                     Vector3 v = new Vector3(Mathf.Cos(a), Mathf.Sin(a));
                     var t = Target.GetNearestEnemy();
-                    if (t == null) return;
-                    var p = t.transform.position;
+                    var p = t != null ? t.transform.position : Target.transform.position;
                     var b = GetBullet(10);
                     b.Init(0.6f,liftstoiclevel:0);
                     BulletProectileAimSystem.RegistObject(b,0.6f,1.5f,d.Target.transform.position, v * 30, p,1f);
@@ -99,16 +101,17 @@ namespace Variety.Skill.Boss11
     {
         public Skill2() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "横向雾袭";
+            Tag = "雾袭";
+            Description = "警告1秒后发射雾型子弹横扫最近的敌人";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            if (t == null) return;
-            var p = t.transform.position;
+            var p = t != null ? t.transform.position : Target.transform.position;
             WarningRect.Warn(p + Vector3.left * 5, p + Vector3.right * 5, 2, 1f);
             AddEvent(1f, new TimeLineData(Target,p),(d) =>
             {
@@ -124,14 +127,17 @@ namespace Variety.Skill.Boss11
     {
         public Skill3() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "交叉雾网";
+            Tag = "交叉";
+            Description = "在最近敌人位置生成交叉警告区域，1秒后发射两枚交叉雾型子弹";
             TimeNeeded = 0.5f;
             cd = 7f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var p = Target.GetNearestEnemy().transform.position;
+            var t = Target.GetNearestEnemy();
+            var p = t != null ? t.transform.position : Target.transform.position;
             WarningRect.Warn(p + Angle2Vector(45)*5, p + Angle2Vector(225)*5, 2, 1f);
             WarningRect.Warn(p + Angle2Vector(-45)*5, p + Angle2Vector(135)*5, 2, 1f);
             AddEvent(1,new TimeLineData(Target,p), (d) =>
@@ -153,16 +159,17 @@ namespace Variety.Skill.Boss11
     {
         public Skill4() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "环形火雨";
+            Tag = "火雨";
+            Description = "在最近敌人周围生成环形分布的警告区域，2.5秒后发射20枚火球子弹，沿环形轨迹交叉撞击目标区域，每枚造成3.6倍高额伤害";
             TimeNeeded = 0.5f;
             cd = 28f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var t = Target.GetNearestEnemy();
-            if (t == null) return;
-            var p = t.transform.position;
+            var p = t != null ? t.transform.position : Target.transform.position;
             for (int i = 0; i < 18; i++)
             {
                 WarningRect.Warn(p + Angle2Vector(i * 18 + 45)*10, p + Angle2Vector(i * 18 + 225)*10, 0.2f, 2.5f - 0.1f * i);
@@ -227,14 +234,17 @@ namespace Variety.Skill.Boss11
         };
         public Skill5() : base()
         {
-            Description = "";
+            sprite = new Vector2Int(0, 0);
+            Name = "乱序弹幕";
+            Tag = "乱序";
+            Description = "4秒蓄力后，在最近敌人周围生成40个随机轨迹的警告区域，3秒后发射20枚距离型子弹沿预设轨迹突袭，每枚造成2.5倍伤害";
             TimeNeeded = 4f;
             cd = 25f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
-            var p = Target.GetNearestEnemy().transform.position;
+            var t = Target.GetNearestEnemy();
+            var p = t != null ? t.transform.position : Target.transform.position;
             for (int i = 0; i < 40; i++)
             {
                 WarningRect.Warn(p + Pos[i].Item1*0.5f, p + Pos[i].Item2*0.5f, 0.2f, 3);

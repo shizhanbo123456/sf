@@ -37,9 +37,7 @@ namespace Variety.Skill.Boss17
             List<(Vector3, Vector3)> pos = new List<(Vector3, Vector3)>();
             foreach (var enemy in enemies)
             {
-                if (enemy == null) continue;
-                var rb = enemy.GetComponent<Rigidbody2D>();
-                if (rb == null) continue;
+                if (!enemy.TryGetComponent<Rigidbody2D>(out var rb)) continue;
 
                 Vector3 predictPos = enemy.transform.position + (Vector3)(rb.velocity * 1.2f);
                 Vector3 startPos = (Target.transform.position - enemy.transform.position).normalized * 20 + enemy.transform.position;
@@ -74,9 +72,7 @@ namespace Variety.Skill.Boss17
             List<Vector3>pos=new List<Vector3>();
             foreach (var enemy in enemies)
             {
-                if (enemy == null) continue;
-                var rb = enemy.GetComponent<Rigidbody2D>();
-                if (rb == null) continue;
+                if (!enemy.TryGetComponent<Rigidbody2D>(out var rb)) continue;
 
                 // 根据速度计算地雷生成位置
                 Vector2 velocity = rb.velocity;
@@ -110,9 +106,7 @@ namespace Variety.Skill.Boss17
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
-            if (nearestEnemy == null) return;
-
-            Vector3 enemyPos = nearestEnemy.transform.position;
+            Vector3 enemyPos = nearestEnemy?nearestEnemy.transform.position:Target.transform.position;
             WarningCircle.Warn(enemyPos, 3, 1);
             AddEvent(1,new TimeLineData(Target,enemyPos), (d) =>
             {
@@ -135,11 +129,11 @@ namespace Variety.Skill.Boss17
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
+            if(enemies.Count==0)enemies.Add(Target);
             foreach (var i in enemies) WarningCircle.Warn(i.transform, 2f, 5f);
             foreach (var enemy in enemies)
             {
-                var rb = enemy.GetComponent<Rigidbody2D>();
-                if (rb == null) continue;
+                if (!enemy.TryGetComponent<Rigidbody2D>(out var rb)) continue;
 
                 // 每侧发射5颗子弹
                 for (int i = 0; i < 5; i++)
@@ -179,7 +173,7 @@ namespace Variety.Skill.Boss17
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
-
+            if (enemies.Count == 0) enemies.Add(Target);
             for (int i = 0; i < 7;i++)
             {
                 AddEvent(i * 0.4f, (d) =>
@@ -196,7 +190,7 @@ namespace Variety.Skill.Boss17
             }
         }
     }
-    public class Skill5 : Common.Skill5For14_18
+    public class Skill5 : Skill5For14_18
     {
         public Skill5() : base()
         {

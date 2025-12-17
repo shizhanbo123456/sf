@@ -36,6 +36,7 @@ public abstract class Target : MonoBehaviour
     [HideInInspector]public TimeLineWork TimeLineWork;
 
     public bool FaceRight=> targetControllerSync.FaceRight;
+    public Vector3 Front => FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
     public virtual int Shengming
     {
         get { return FloatingAttributes.Shengming.Value; }
@@ -196,6 +197,15 @@ public abstract class Target : MonoBehaviour
     {
         return (data.transform.position.x > transform.position.x) == FaceRight;
     }
+    public bool HasEnemy()
+    {
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key == Camp) continue;
+            if (i.Value.Count > 0) return true;
+        }
+        return false;
+    }
     public Target GetNearestEnemy(float range = 99999f, bool requireInFront = false)
     {
         float DMin = range * range; // 使用距离平方进行比较
@@ -304,6 +314,121 @@ public abstract class Target : MonoBehaviour
                 if (requireInFront && !InFront(j)) continue;
                 if (Mathf.Abs(j.transform.position.x - transform.position.x) <= halfx &&
                     Mathf.Abs(j.transform.position.y - transform.position.y) <= halfy)
+                {
+                    targets.Add(j);
+                }
+            }
+        }
+        return targets;
+    }
+    public Target GetNearestEnemy(Vector3 pos,float range = 99999f, bool requireInFront = false)
+    {
+        float DMin = range * range; // 使用距离平方进行比较
+        Target r = null;
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key == Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (requireInFront && !InFront(j)) continue;
+                var mSqr = (pos - j.transform.position).sqrMagnitude;
+                if (mSqr < DMin)
+                {
+                    r = j;
+                    DMin = mSqr;
+                }
+            }
+        }
+        return r;
+    }
+    public Target GetNearestPartner(Vector3 pos, float range = 99999f, bool requireInFront = false)
+    {
+        float DMin = range * range;
+        Target r = null;
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key != Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (j.ObjectId == ObjectId) continue;
+                if (requireInFront && !InFront(j)) continue;
+                var mSqr = (pos - j.transform.position).sqrMagnitude;
+                if (mSqr < DMin)
+                {
+                    r = j;
+                    DMin = mSqr;
+                }
+            }
+        }
+        return r;
+    }
+    public List<Target> GetEnemyInRange(Vector3 pos, float range = 99999f, bool requireInFront = false)
+    {
+        targets.Clear();
+        float rangeSqr = range * range;
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key == Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (requireInFront && !InFront(j)) continue;
+                if ((pos - j.transform.position).sqrMagnitude <= rangeSqr)
+                {
+                    targets.Add(j);
+                }
+            }
+        }
+        return targets;
+    }
+    public List<Target> GetPartnerInRange(Vector3 pos, float range = 99999f, bool requireInFront = false)
+    {
+        targets.Clear();
+        float rangeSqr = range * range;
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key != Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (j.ObjectId == ObjectId) continue;
+                if (requireInFront && !InFront(j)) continue;
+                if ((pos - j.transform.position).sqrMagnitude <= rangeSqr)
+                {
+                    targets.Add(j);
+                }
+            }
+        }
+        return targets;
+    }
+    public List<Target> GetEnemyInRect(Vector3 pos, float halfx, float halfy, bool requireInFront = false)
+    {
+        targets.Clear();
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key == Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (requireInFront && !InFront(j)) continue;
+                if (Mathf.Abs(j.transform.position.x - pos.x) <= halfx &&
+                    Mathf.Abs(j.transform.position.y - pos.y) <= halfy)
+                {
+                    targets.Add(j);
+                }
+            }
+        }
+        return targets;
+    }
+    public List<Target> GetPartnerInRect(Vector3 pos, float halfx, float halfy, bool requireInFront = false)
+    {
+        targets.Clear();
+        foreach (var i in Tool.SceneController.Targets)
+        {
+            if (i.Key != Camp) continue;
+            foreach (var j in i.Value.Values)
+            {
+                if (j.ObjectId == ObjectId) continue;
+                if (requireInFront && !InFront(j)) continue;
+                if (Mathf.Abs(j.transform.position.x - pos.x) <= halfx &&
+                    Mathf.Abs(j.transform.position.y - pos.y) <= halfy)
                 {
                     targets.Add(j);
                 }

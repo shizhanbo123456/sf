@@ -34,9 +34,7 @@ namespace Variety.Skill.Boss16
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var nearestEnemy = Target.GetNearestEnemy();
-            if (nearestEnemy == null) return;
-
-            Vector3 enemyPos = nearestEnemy.transform.position;
+            Vector3 enemyPos = nearestEnemy?nearestEnemy.transform.position:Target.transform.position+Vector3.down;
             for (int i = 0; i < 4; i++) WarningRect.Warn(enemyPos + Angle2Vector(i * 30 + 45) * 10, enemyPos - Angle2Vector(i * 30 + 45) * 10,2.5f,0.5f);
             AddEvent(0.5f,new TimeLineData(Target,enemyPos), (d) =>
             {
@@ -64,8 +62,6 @@ namespace Variety.Skill.Boss16
             var enemies = Target.GetEnemyInRange();
             foreach (var enemy in enemies)
             {
-                if (enemy == null) continue;
-                // 预测移动路径，在前方3单位生成陷阱
                 Vector3 trapPos = enemy.transform.position + (Vector3)enemy.GetComponent<Rigidbody2D>().velocity * 1.5f;
 
                 WarningCircle.Warn(trapPos, 4, 1f);
@@ -84,16 +80,14 @@ namespace Variety.Skill.Boss16
     {
         public Skill2() : base()
         {
-            Description = "向单个敌人发射精准火球，附带击退";
+            Description = "向单个敌人发射精准火球";
             TimeNeeded = 1.8f;
             cd = 5f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var targetEnemy = Target.GetNearestEnemy();
-            if (targetEnemy == null) return;
-
-            Vector3 enemyPos = targetEnemy.transform.position;
+            Vector3 enemyPos = targetEnemy?targetEnemy.transform.position:Target.transform.position+Target.Front;
             WarningCircle.Warn(enemyPos, 1f, 0.8f);
 
             // 0.8秒后发射火球
@@ -118,10 +112,10 @@ namespace Variety.Skill.Boss16
         protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             var enemies = Target.GetEnemyInRange();
+            if (enemies.Count == 0) enemies.Add(Target);
             List<Vector3>pos= new List<Vector3>();
             foreach (var enemy in enemies)
             {
-                if (enemy == null) continue;
                 Vector3 enemyPos = enemy.transform.position;
                 WarningCircle.Warn(enemyPos, 8f, 1.5f);
                 pos.Add(enemyPos);
@@ -168,7 +162,7 @@ namespace Variety.Skill.Boss16
             }
         }
     }
-    public class Skill5 : Common.Skill5For14_18
+    public class Skill5 : Skill5For14_18
     {
         public Skill5() : base()
         {

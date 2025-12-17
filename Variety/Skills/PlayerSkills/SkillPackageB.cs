@@ -12,16 +12,19 @@ namespace Variety.Skill.PackageB
         {
             sprite = new Vector2Int(2, 0);
             Name = "肘击";
-            Description = "前方小范围造成高额伤害,并获得幸运效果3s，耗魔10";
+            Description = "前方小范围造成高额伤害";
             Tag = "平a";
             TimeNeeded = 0.5f;
         }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRange((target.FaceRight ? new Vector3(2, 0) : new Vector3(-2, 0)) + target.transform.position,1f).Count>0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new Luck(Target.ObjectId, Target, 20, 3));
             var b = GetBullet(11);
             b.Init(2.2f);
-            BulletStaticSystem.RegistObject(b,0.8f,0.3f, Target.transform.position + (Target.FaceRight ? new Vector3(2, 0) : new Vector3(-2, 0)));
+            BulletStaticSystem.RegistObject(b,1.2f,0.3f, Target.transform.position + (Target.FaceRight ? new Vector3(2, 0) : new Vector3(-2, 0)));
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
         }
@@ -35,7 +38,11 @@ namespace Variety.Skill.PackageB
             Description = "震飞周围敌人，可击破霸体单位，期间有超级霸体且防御大幅提升，耗魔10";
             Tag = "平a";
             TimeNeeded = 0.5f;
-            CD = 20f;
+            cd = 20f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRange(2).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -57,7 +64,11 @@ namespace Variety.Skill.PackageB
             Description = "向前下方发射三发子弹，魔20";
             Tag = "平a";
             TimeNeeded = 0.2f;
-            CD = 1f;
+            cd = 1f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRange(target.transform.position + (target.FaceRight ? new Vector3(4, -4) : new Vector3(-4, -4)), 3).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -81,7 +92,11 @@ namespace Variety.Skill.PackageB
             Description = "释放力场持续伤害范围内敌人，耗魔180";
             Tag = "平a";
             TimeNeeded = 0.1f;
-            CD = 20f;
+            cd = 20f;
+        }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRange(5).Count > 0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -109,6 +124,10 @@ namespace Variety.Skill.PackageB
             Tag = "平a";
             TimeNeeded = 1f;
         }
+        public override bool Detect(Target target)
+        {
+            return target.GetEnemyInRect(5, 5).Count > 0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             Target.ApplyMotion(new MotionStatic(0.5f, true, 1));
@@ -135,7 +154,7 @@ namespace Variety.Skill.PackageB
             Tag = "平a";
             TimeNeeded = 0.5f;
             MaxstoreTime = 4;
-            CD = 10f;
+            cd = 10f;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

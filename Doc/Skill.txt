@@ -1,0 +1,65 @@
+技能基础类为SkillBase
+每个技能类需要在构造函数赋值SkillBase的以下字段：
+public Vector2Int sprite;//根据两个int获取技能图标，默认填写(0,0)即可
+public string Name;
+public string Description;
+public string Tag;//控制在5个字以内，2-3个为佳
+public float TimeNeeded=2;//释放所需的时间，这段时间内不可再释放技能
+
+继承了SkillBase的技能模板有：
+SkillNonCD无CD的技能
+SkillCD有冷却的技能，需要在构造函数赋值float cd
+SkillStorable有CD可存储的技能，需要在构造函数赋值int MaxstoreTime和float cd
+SkillBoss和SkillCD相同，额外提供了两个方法用于定位敌人：
+protected static float Dt2Degree(Vector3 dt)//位置差转变为角度
+{
+    return Mathf.Atan(dt.y / dt.x)*Mathf.Rad2Deg+(dt.x<0?180:0);
+}
+protected static Vector3 Angle2Vector(float angle)//角度转变为向量
+{
+    angle *= Mathf.Deg2Rad;
+    return new Vector3(Mathf.Cos(angle), Mathf.Sin(angle));
+}
+
+
+发射子弹需要以下步骤：
+1、获取子弹物体：var b = GetBullet(7);//7只是一种子弹类型，
+子弹类型有0-2:爆炸不可变色，3:魔法核,4:能量球,5:能量球(吸收),6:能量球(放射),7:距离,8:光点,9:魔法阵,10:雪球,11:爆炸,12:火球，13-15:雾,16:烟火<br></br>
+2、初始化子弹信息：b.Init(0.8f);
+子弹初始化函数为：Init(float rate=1,int liftstoiclevel=1,EffectCollection ec=default, Func<Vector3, Vector3, Vector2>hitback=null)，参数依次为伤害倍率，破霸体等级(0/1/2)，造成伤害时携带的buff，造成伤害时的击退(击退默认提供了两种方法：FigureHitBackForce常规击退，FigureAttractForce牵引)
+3、在子弹控制器注册：BulletFromToSystem.RegistObject(b,0.4f,0.3f, d.pos + Vector3.up * 5, d.pos);
+4、在伤害冷却控制器注册：BulletDamageOnceSystem.Regist(b);
+5、发射：b.Shoot();
+
+
+延时事件注册方法为：调用AddEvent。回调函数传入携带信息的TimeLineData避免闭包捕获:
+AddEvent(float delay,TimeLineData data,Action<TimeLineData>action)
+AddEvent(float delay, Action<TimeLineData> action)//调用此方法时传入的TimeLineData中，Target为发射者，其它参数无效
+TimeLineData的方法有：
+public TimeLineData(Target t)
+{
+    Target = t;
+    index = 0;
+    pos= new Vector3(0, 0, 0);
+}
+public TimeLineData(Target t,int i)
+{
+    Target = t;
+    index = i;
+    pos = new Vector3(0, 0, 0);
+}
+public TimeLineData(Target t,Vector3 p)
+{
+    Target = t;
+    index = 0;
+    pos = p;
+}
+public TimeLineData(Target t,int i,Vector3 p)
+{
+    Target = t;
+    index = i;
+    pos = p;
+}
+public Target Target;
+public int index;
+public Vector3 pos;

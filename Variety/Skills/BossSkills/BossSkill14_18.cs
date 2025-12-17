@@ -13,7 +13,7 @@ namespace Variety.Skill.Common
         {
         }
 
-        public override sealed bool CanUse(Target Target)
+        public override sealed bool Detect(Target Target)
         {
             return Target.GetNearestEnemy(Mathf.Lerp(25, 5, Lantern.GetAverageHealth()));
         }
@@ -66,7 +66,7 @@ namespace Variety.Skill.Common
             TimeNeeded = 2f;
             cd = 3f;
         }
-        public override sealed bool CanUse(Target Target)
+        public override sealed bool Detect(Target Target)
         {
             return Target.GetNearestEnemy(15) && Lantern.GetAverageHealth()<0.2f;
         }
