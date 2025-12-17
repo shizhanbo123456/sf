@@ -64,7 +64,6 @@ public class CustomTargetCreater
     private bool canFly=false;
     private int skillControllerType;//None,Player,Monster
     private int[] skillIndex;
-    private int repeatContentIndex;
     private int effectControllerType;//None,Default
     public CustomTargetCreater(TargetInfo info,int targetType,int graphicType)
     {
@@ -83,7 +82,6 @@ public class CustomTargetCreater
         skillControllerType= skillcontrollertype;
         if (skillIndex != null && skillIndex.Length == 0) Debug.LogError("未装载正确的技能");
         this.skillIndex = skillIndex;
-        this.repeatContentIndex = repeatContentIndex;
     }
     public void LoadEffectController(int effectcontrollertype)
     {
@@ -101,7 +99,6 @@ public class CustomTargetCreater
         sb.Append(canFly?1:0).Append('_');
         sb.Append(skillControllerType).Append('_');
         sb.Append(skillIndex==null||skillIndex.Length==0?"null":Format.ArrayToString(skillIndex,'+')).Append('_');
-        sb.Append(repeatContentIndex).Append('_');
         sb.Append(effectControllerType);
         return sb.ToString();
     }
@@ -117,7 +114,6 @@ public class CustomTargetCreater
         skillControllerType = int.Parse(s[index++]);
         string skill = s[index++];
         skillIndex = skill == "null" ? null : Format.StringToArray(skill, int.Parse,'+');
-        repeatContentIndex=int.Parse(s[index++]);
         effectControllerType=int.Parse(s[index++]);
     }
 
@@ -125,9 +121,14 @@ public class CustomTargetCreater
     {
         EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.TargetCollection.CollectionId, EnsBehaviour.SendTo.Everyone, ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
     }
-    public void ApplyForTarget(GameObject obj,out TargetGraphic graphic,out Target target,out TargetController controller,
-        out TargetSkillController skillcontroller,out TargetEffectController effectController)
+    public void ApplyForTarget(GameObject obj)
     {
+        TargetGraphic graphic;
+        Target target;
+        TargetController controller;
+        TargetSkillController skillcontroller;
+        TargetEffectController effectController;
+
         graphic = UnityEngine.Object.Instantiate(Tool.PrefabManager.GraphicCollection[graphicType].gameObject, 
             Vector3.zero, Quaternion.identity, obj.transform).GetComponent<TargetGraphic>();
         switch (targetType)
@@ -165,7 +166,7 @@ public class CustomTargetCreater
 
         target.Init(info);
         if(controller)controller.Init(target, canFly);
-        if(skillcontroller)skillcontroller.Init(target, skillIndex,repeatContentIndex);
+        if(skillcontroller)skillcontroller.Init(target, skillIndex);
         if(effectController)effectController.Init(target);
         graphic.Init(obj);
     }

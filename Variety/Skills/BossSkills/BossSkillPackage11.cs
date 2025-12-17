@@ -7,31 +7,6 @@ using Variety.Template;
 
 namespace Variety.Skill.Boss11
 {
-    public class RepeatBoss : RepeatContent
-    {
-        public RepeatBoss() : base()
-        {
-        }
-        public override void Repeat(Target target)
-        {
-            Lantern lantern=null;
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 0) lantern = list[^1];
-            else return;
-            if (lantern.Alive)
-            {
-                foreach (var p in target.GetEnemyInRange())
-                {
-                    p.ApplyEffect(new ArmorFortity(target.ObjectId, p, 20, 1));
-                }
-                target.ApplyEffect(new Luck(target.ObjectId, target, 10, 1));
-            }
-            else
-            {
-                target.ApplyEffect(new AttackDecrease(target.ObjectId, target, 0.5f, 1));
-            }
-        }
-    }
     public class Skill0 : SkillBoss
     {
         public Skill0() : base()

@@ -11,12 +11,9 @@ public class TargetSkillController : MonoBehaviour
 
     public LockChain SkillLock;
 
-    private int repeatContentIndex;
-    private float nextRepeatTime = -1;
-
     private bool Initialized = false;
 
-    public virtual void Init(Target data, int[] skillIndex,int repeatContentIndex)
+    public virtual void Init(Target data, int[] skillIndex)
     {
         target=data;
 
@@ -27,8 +24,6 @@ public class TargetSkillController : MonoBehaviour
         SkillLock = data.SkillLock.GetChain();
 
         TimeNeeded = 0;
-
-        this.repeatContentIndex= repeatContentIndex;
 
         Initialized = true;
     }
@@ -52,9 +47,6 @@ public class TargetSkillController : MonoBehaviour
     protected virtual void Update()
     {
         if (!Initialized) return;
-
-        UpdateRepeatContent();
-
         PreUpdate();
 
         foreach (var i in Skills) i.Update();
@@ -98,15 +90,5 @@ public class TargetSkillController : MonoBehaviour
     public void UseSkillBuffer(int index)
     {
         if (!UseSkillCommandBuffer.Contains(index)) UseSkillCommandBuffer.Add(index);
-    }
-    private void UpdateRepeatContent()
-    {
-        if (repeatContentIndex < 0) return;
-        if (Time.time > nextRepeatTime)
-        {
-            var c=VarietyManager.GetRepeatContent(repeatContentIndex);
-            c.Repeat(target);
-            nextRepeatTime = Time.time + c.dt;
-        }
     }
 }

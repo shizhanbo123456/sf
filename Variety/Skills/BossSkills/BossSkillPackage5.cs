@@ -6,20 +6,6 @@ using Variety.Template;
 
 namespace Variety.Skill.Boss5
 {
-    public class RepeatBoss : RepeatContent
-    {
-        public RepeatBoss() : base()
-        {
-            dt = 1f;
-        }
-        public override void Repeat(Target target)
-        {
-            int c = Ore.Ores.Values.Count;
-            if (c == 6) return;
-            target.ApplyEffect(new Speed(target.ObjectId, target, (6-c) * 0.7f, 1));
-            target.ApplyEffect(new DefenseBoost(target.ObjectId, target, (6-c) * 1.2f, 1));
-        }
-    }
     public class Skill0 : SkillBoss
     {
         public Skill0() : base()

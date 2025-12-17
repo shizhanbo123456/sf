@@ -7,22 +7,6 @@ using Variety.Skill.Common;
 
 namespace Variety.Skill.Boss18
 {
-    public class RepeatBoss : RepeatContent
-    {
-        public RepeatBoss() : base()
-        {
-            dt = 1f;
-        }
-        public override void Repeat(Target target)
-        {
-            Lantern lantern=null;
-            var list = Lantern.Lanterns.Values.ToList();
-            if (list.Count > 4) lantern = list[4];
-            else return;
-            if (lantern.Shengming > 3) target.ApplyEffect(new ArmorFortity(target.ObjectId, target, 90, 1));
-            else if (lantern.Shengming == 1) target.GetEnemyInRange().ForEach(t => t.ApplyEffect(new ArmorShatter(target.ObjectId, t, 30, 1)));
-        }
-    }
     public class Skill0 : SkillCommonFor14_18
     {
         public Skill0() : base()

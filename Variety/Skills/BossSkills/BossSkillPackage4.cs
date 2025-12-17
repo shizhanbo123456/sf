@@ -1,26 +1,11 @@
 using AttributeSystem.Effect;
 using System.Collections.Generic;
-using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
 
 namespace Variety.Skill.Boss4
 {
-    public class RepeatBoss : RepeatContent
-    {
-        public RepeatBoss() : base()
-        {
-            dt = 1f;
-        }
-        public override void Repeat(Target target)
-        {
-            int c = Ore.Ores.Values.Count;
-            if (c == 0) return;
-            target.ApplyEffect(new Speed(target.ObjectId, target, c * 0.7f,1));
-            target.ApplyEffect(new DefenseBoost(target.ObjectId, target, c * 1.2f, 1));
-        }
-    }
     public class Skill0 : SkillBoss
     {
         public Skill0() : base()

@@ -7,22 +7,6 @@ using Variety.Template;
 
 namespace Variety.Skill.Boss2
 {
-    public class RepeatBoss : RepeatContent
-    {
-        public RepeatBoss() : base()
-        {
-        }
-        public override void Repeat(Target target)
-        {
-            int c = 0;
-            foreach(var i in Lantern.Lanterns.Values)
-            {
-                if (i.Alive) c++;
-            }
-            target.ApplyEffect(new AgileBoost(target.ObjectId, target, c * 10, 1));
-            target.ApplyEffect(new AttackBoost(target.ObjectId, target, c * 0.1f, 1));
-        }
-    }
     public class Skill0 : SkillBoss
     {
         public Skill0() : base()

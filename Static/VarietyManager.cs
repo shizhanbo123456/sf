@@ -157,31 +157,11 @@ public static class VarietyManager
         {1174, new vs.Boss18.Skill4() },
         {1175, new vs.Boss18.Skill5() },
     };
-
-    private static Dictionary<int,RepeatContent> BossRepeatContents = new()
-    {
-        { 1002,new vs.Boss2.RepeatBoss()},
-        { 1003,new vs.Boss3.RepeatBoss()},
-        { 1004,new vs.Boss4.RepeatBoss()},
-        { 1005,new vs.Boss5.RepeatBoss()},
-        { 1008,new vs.Boss8.RepeatBoss()},
-        { 1011,new vs.Boss11.RepeatBoss()},
-        { 1013,new vs.Boss13.RepeatBoss()},
-        { 1014,new vs.Boss14.RepeatBoss()},
-        { 1015,new vs.Boss15.RepeatBoss()},
-        { 1016,new vs.Boss16.RepeatBoss()},
-        { 1017,new vs.Boss17.RepeatBoss()},
-        { 1018,new vs.Boss18.RepeatBoss()},
-    };
     public static SkillBase GetSkill(int index)
     {
         if (index >= 0 && index < 1000) return PlayerSkills[index];
         else if(index>=1000&&index<1999)return BossSkills[index];
         UnityEngine.Debug.LogError("Î´ÕÒµ½¼¼ÄÜ£º" + index);
         return null;
-    }
-    public static RepeatContent GetRepeatContent(int index)
-    {
-        return BossRepeatContents[index];
     }
 }

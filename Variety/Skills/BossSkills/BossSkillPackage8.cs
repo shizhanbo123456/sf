@@ -6,31 +6,6 @@ using Variety.Template;
 
 namespace Variety.Skill.Boss8
 {
-    public class RepeatBoss : RepeatContent
-    {
-        public RepeatBoss() : base()
-        {
-        }
-        public override void Repeat(Target target)
-        {
-            bool f = false;
-            foreach(var i in Lantern.Lanterns.Values) 
-                if (!i.Alive)
-                {
-                    f=true; 
-                    break;
-                }
-            if (f)
-            {
-                foreach(var i in target.GetEnemyInRange())
-                {
-                    i.ApplyEffect(new Speed(target.ObjectId, i, 6, 1));
-                    i.ApplyEffect(new JumpBoost(target.ObjectId, i, 10, 1));
-                    i.ApplyEffect(new Stoic(target.ObjectId, i, 1, 1));
-                }
-            }
-        }
-    }
     public class Skill0 : SkillBoss
     {
         public Skill0() : base()
