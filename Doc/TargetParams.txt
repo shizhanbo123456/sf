@@ -6,7 +6,7 @@ MInterval
 技能控制器-Monster
 使用技能的cd(留空则为默认5.0)
 
-LanternReg
+LReg
 角色信息-Lantern
 复活时间(留空则为默认30.0)
 

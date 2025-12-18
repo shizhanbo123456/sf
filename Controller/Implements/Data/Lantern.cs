@@ -23,7 +23,7 @@ public class Lantern : Target
             var att = Tool.AttributesManager.GetDynamicAttribute(this);
             BaseAttributes = att.GetDynamicAttributes(info.level);
             FloatingAttributes = BaseAttributes.Clone();
-            if (param.ContainsKey("LanternReg")) RegenerationTime = float.Parse(param["LanternReg"]);
+            if (param.ContainsKey("LReg")) RegenerationTime = float.Parse(param["LReg"]);
             else RegenerationTime = 30;
 
             RegistSyncAttributes();
