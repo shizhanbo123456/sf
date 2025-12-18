@@ -111,13 +111,4 @@ public class TargetDataSync : EnsBehaviour
         var list = Format.StringToList(data, int.Parse, '+');
         target.graphic.header.ShowEffects(list.Select(i => (EffectType)i).ToList());
     }
-    public void InterruptRpc()
-    {
-        CallFuncRpc(nameof(InterruptLocal), SendTo.ExcludeSender);
-        InterruptLocal();
-    }
-    public void InterruptLocal()
-    {
-        target.TimeLineWork.Interrupted();
-    }
 }

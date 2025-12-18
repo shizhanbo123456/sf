@@ -23,22 +23,22 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
 
     //¶Ï¿ªÁ¬½ÓÊ±£¬Corr»á×Ô¶¯¸ù¾İidÒÆ³ı·ÀÖ¹null
     public Dictionary<int, Dictionary<int, Target>> Targets = new Dictionary<int, Dictionary<int, Target>>();
+    public Dictionary<int,Target>FlattenTargets= new Dictionary<int,Target>();
     public void OnTargetPostcreated(Target target)
     {
         if(!Targets.ContainsKey(target.Camp))Targets.Add(target.Camp, new Dictionary<int, Target>());
         Targets[target.Camp].Add(target.ObjectId, target);
+        FlattenTargets.Add(target.ObjectId, target);
     }
     public void OnTargetPredestroy(Target target)
     {
         if (Targets[target.Camp].ContainsKey(target.ObjectId))Targets[target.Camp].Remove(target.ObjectId);
         if (Targets[target.Camp].Count==0)Targets.Remove(target.Camp);
+        FlattenTargets.Remove(target.ObjectId);
     }
     public Target GetTarget(int id)
     {
-        foreach(var i in Targets.Values)
-        {
-            if (i.ContainsKey(id)) return i[id];
-        }
+        if(FlattenTargets.ContainsKey(id)) return FlattenTargets[id];
         return null;
     }
     public Target GetTarget(int camp,int id)

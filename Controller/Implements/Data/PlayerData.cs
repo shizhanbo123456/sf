@@ -21,7 +21,7 @@ public class PlayerData : Target
             FloatingAttributes = BaseAttributes.Clone();
             float reg=0.01f;
             if (param.ContainsKey("PReg")) reg = float.Parse(param["PReg"]);
-            ApplyEffect(new HealthRegeneration(RegenerationAdderId, this, (int)(reg * BaseAttributes.Shengming.Value), 100000));
+            ApplyEffect(new _HealthRegeneration(RegenerationAdderId, this, (int)(reg * BaseAttributes.Shengming.Value), 100000));
             RegistSyncAttributes();
 
             CameraInstance.instance.Init(transform);

@@ -1,3 +1,4 @@
+using AttributeSystem.DataOrientedEffects;
 using System;
 using System.Collections.Generic;
 
@@ -7,7 +8,6 @@ namespace AttributeSystem.Effect
     {
         private int adder;
         private (EffectType, float, float)[] effects;
-        private static List<EffectBase>Effects = new List<EffectBase>();
         /// <summary>
         /// effectType,Value,Time
         /// </summary>
@@ -16,55 +16,51 @@ namespace AttributeSystem.Effect
             this.adder = adder.ObjectId;
             this.effects = effects;
         }
-        public List<EffectBase> GetEffectBases(Target receiver)
+        public void ApplyEffects(Target receiver)
         {
-            if (effects == null) return null;
-            if(effects.Length == 0) return null;
-            Effects.Clear();
-            foreach (var effect in effects)
+            if (effects == null) return;
+            if(effects.Length == 0) return;
+            foreach(var i in effects)
             {
-                Effects.Add(GetEffectBase(effect.Item1,effect.Item2,effect.Item3,receiver));
+                AddEffect(i.Item1,i.Item2,i.Item3,receiver);
             }
-            return Effects;
         }
         public bool IsEmpty()
         {
             return effects==null || effects.Length == 0;
         }
-        private EffectBase GetEffectBase(EffectType effect,float value,float time,Target receiver)
+        private void AddEffect(EffectType effect,float value,float time,Target receiver)
         {
+            int receiverid = receiver.ObjectId;
             switch (effect)
             {
-                case EffectType.HealthRegeneration:return new HealthRegeneration(adder,receiver,(int)value,time);
-                case EffectType.MagicRegeneration: return new MagicRegeneration(adder, receiver, (int)value, time);
-                case EffectType.Burning: return new Burning(adder, receiver, (int)value, time);
-                case EffectType.Speed:return new Speed(adder,receiver,value,time);
-                case EffectType.Slowness:return new Slowness(adder,receiver,value,time);
-                case EffectType.JumpBoost:return new JumpBoost(adder,receiver,value,time);
-                case EffectType.AgileBoost:return new AgileBoost(adder,receiver,value,time);
-                case EffectType.AccuracyBoost:return new AccuracyBoost(adder,receiver,value,time);
-                case EffectType.AttackBoost:return new AttackBoost(adder,receiver,value,time);
-                case EffectType.DefenseBoost:return new DefenseBoost(adder,receiver,value,time);
-                case EffectType.AgileDecrease:return new AgileDecrease(adder,receiver,value,time);
-                case EffectType.AccuracyDecrease:return new AccuracyDecrease(adder,receiver,value,time);
-                case EffectType.AttackDecrease:return new AttackDecrease(adder,receiver,value,time);
-                case EffectType.DefenseDecrease:return new DefenseDecrease(adder,receiver,value,time);
-                case EffectType.ArmorFortity:return new ArmorFortity(adder,receiver,(int)value,time);
-                case EffectType.ArmorShatter: return new ArmorShatter(adder, receiver, (int)value, time);
-                case EffectType.DamageBoost: return new DamageBoost(adder, receiver, (int)value, time);
-                case EffectType.DamageDecrease: return new DamageDecrease(adder, receiver, (int)value, time);
-                case EffectType.LifeSteal: return new LifeSteal(adder, receiver, value, time);
-                case EffectType.Luck: return new Luck(adder, receiver, value, time);
-                case EffectType.BadLuck: return new BadLuck(adder, receiver, value, time);
-                case EffectType.Freeze: return new Freeze(adder, receiver, time);
-                case EffectType.Stun: return new Stun(adder, receiver, time);
-                case EffectType.Sticky: return new Sticky(adder, receiver, time);
-                case EffectType.Silence: return new Silence(adder, receiver, time);
-                case EffectType.Paralysis: return new Paralysis(adder, receiver, time);
-                case EffectType.Stoic: return new Stoic(adder, receiver,(int)value, time);
+                case EffectType.HealthRegeneration:HealthRegeneration.AddEffect(adder,receiverid,(int)value,time);break;
+                case EffectType.Burning: Burning.AddEffect(adder, receiverid, (int)value, time); break;
+                case EffectType.Speed:Speed.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.Slowness:Slowness.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.JumpBoost:JumpBoost.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AgileBoost:AgileBoost.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AccuracyBoost:AccuracyBoost.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AttackBoost:AttackBoost.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.DefenseBoost:DefenseBoost.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AgileDecrease:AgileDecrease.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AccuracyDecrease:AccuracyDecrease.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AttackDecrease:AttackDecrease.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.DefenseDecrease:DefenseDecrease.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.ArmorFortity:ArmorFortity.AddEffect(adder,receiverid,(int)value,time); break;
+                case EffectType.ArmorShatter:ArmorShatter.AddEffect(adder, receiverid, (int)value, time); break;
+                case EffectType.DamageBoost:DamageBoost.AddEffect(adder, receiverid, (int)value, time); break;
+                case EffectType.DamageDecrease:DamageDecrease.AddEffect(adder, receiverid, (int)value, time); break;
+                case EffectType.LifeSteal:LifeSteal.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.Luck:Luck.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.BadLuck:BadLuck.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.Freeze:Freeze.AddEffect(adder, receiverid, time); break;
+                case EffectType.Stun:Stun.AddEffect(adder, receiverid, time); break;
+                case EffectType.Sticky:Sticky.AddEffect(adder, receiverid, time); break;
+                case EffectType.Silence:Silence.AddEffect(adder, receiverid, time); break;
+                case EffectType.Paralysis:Paralysis.AddEffect(adder, receiverid,value, time); break;
+                default:UnityEngine.Debug.LogError("有效果类型未注册");break;
             }
-            UnityEngine.Debug.LogError("有效果类型未注册");
-            return null;
         }
     }
 }

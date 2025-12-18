@@ -6,90 +6,42 @@ using UnityEngine;
 public class TargetEffectController : MonoBehaviour
 {
     private Target target;
-    private Dictionary<int,EffectBase> Effect=new Dictionary<int, EffectBase>();
-    private static List<int>ToRemoveKeys= new List<int>();
-
-    protected GameTimeAttributes BaseAttributes;
-    protected GameTimeAttributes FloatingAttributes;
-
-    private bool Dirty = false;
-
+    private HashSet<(EffectType, int)> Effects = new();
 
     public void Init(Target t, Dictionary<string, string> param)
     {
         target = t;
-        BaseAttributes = t.BaseAttributes;
-        FloatingAttributes = t.FloatingAttributes;
+        enabled = false;
     }
     private void Update()
     {
-        foreach (var i in Effect.Keys)
-        {
-            if (Effect[i].end.Reached) ToRemoveKeys.Add(i);
-            else Effect[i].Update();
-        }
-        if (ToRemoveKeys.Count > 0)
-        {
-            foreach (var i in ToRemoveKeys)
-            {
-                Effect[i].OnExit();
-                Effect.Remove(i);
-            }
-            ToRemoveKeys.Clear();
-            Dirty = true;
-        }
-        if (Dirty)
-        {
-            SyncEffects();
-            Dirty = false;
-        }
+        SyncEffects();
+        enabled = false;
     }
-    public void AddEffect(EffectBase effect)
+    public void AddEffect(EffectCollection effect)
     {
-        int hash = effect.GetCustomHash();
-        if (Effect.ContainsKey(hash))
-        {
-            Effect[hash].OnExit();
-            Effect[hash]=effect;
-            Effect[hash].OnEntry();
-        }
-        else
-        {
-            Effect.Add(hash, effect);
-            Effect[hash].OnEntry();
-        }
-        Dirty = true;
+        effect.ApplyEffects(target);
+        enabled = true;
+    }
+    public void EffectEnd(int adder, EffectType type)
+    {
+        Effects.Remove((type, adder));
+        enabled = true;
     }
     private void SyncEffects()
     {
-        if (Effect.Count == 0)
+        if (Effects.Count == 0)
         {
             target.SyncEffectIconRpc(null);
         }
         else
         {
             List<int> values = new List<int>();
-            foreach (var i in Effect.Values)
+            foreach (var i in Effects)
             {
-                values.Add((int)i.GetEffectType());
+                values.Add((int)i.Item1);
             }
             target.SyncEffectIconRpc(values);
         }
-    }
-    public GameTimeAttributes GetBaseAttributes()
-    {
-        return BaseAttributes;
-    }
-    public GameTimeAttributes GetFloatingAttributes()
-    {
-        return FloatingAttributes;
-    }
-    private void OnDestroy()
-    {
-        foreach (var i in Effect.Values)
-        {
-            i.OnExit();
-        }
-        Effect.Clear();
     }
 }

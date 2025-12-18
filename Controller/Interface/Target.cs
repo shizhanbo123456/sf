@@ -2,6 +2,7 @@ using AttributeSystem.Attributes;
 using AttributeSystem.Effect;
 using System;
 using System.Collections.Generic;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using Variety.Base;
 using static WorldTextController;
@@ -14,7 +15,7 @@ public abstract class Target : MonoBehaviour
     public const int RegenerationAdderId = -10000;
     public const int SceneEffectId = -10001;
 
-    public int ObjectId=>targetDataSync.ObjectId;
+    public int ObjectId=>targetDataSync.ObjectId%10000;
 
     public TargetInfo Info;
     public int Camp => Info.camp;
@@ -168,20 +169,16 @@ public abstract class Target : MonoBehaviour
         var effs = b.GetEffects();
         if (!effs.IsEmpty())
         {
-            var effcollection=effs.GetEffectBases(this);
-            foreach (var i in effcollection)
-            {
-                effectController.AddEffect(i);
-            }
+            effectController.AddEffect(effs);
         }
     }
     public virtual void ApplyMotion(MotionBase m)
     {
         if(controller!=null)controller.ApplyMotion(m);
     }
-    public virtual void ApplyEffect(EffectBase e)
+    public virtual void ApplyEffect(EffectCollection collection)
     {
-        if (effectController != null) effectController.AddEffect(e);
+        if (effectController != null) effectController.AddEffect(collection);
     }
     /// <summary>
     /// 被非对象击杀则传入null
@@ -194,7 +191,7 @@ public abstract class Target : MonoBehaviour
 
     public void UseSkillRpc(int index)=>targetDataSync.UseSkillRpc(index);
     public void SyncEffectIconRpc(List<int> values)=>targetDataSync.SyncEffectIconRpc(values);
-    public void InterruptRpc()=>targetDataSync.InterruptRpc();
+    public void Interrupt() => TimeLineWork.Interrupted();
 
 
     private static readonly List<Target> targets = new List<Target>();
