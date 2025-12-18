@@ -6,21 +6,22 @@ using UnityEngine;
 
 public class PlayerData : Target
 {
-    public static Dictionary<int, PlayerData> Players = new Dictionary<int, PlayerData>();
     public bool isLocalPlayer => FightController.localPlayerId == Owner;
     public override bool UpdateLocally => isLocalPlayer;
 
     public BarController bar;
 
-    public override void Init(TargetInfo info)
+    public override void Init(TargetInfo info, Dictionary<string, string> param)
     {
-        base.Init(info);
+        base.Init(info, param);
         if (isLocalPlayer)
         {
-            var att = Tool.AttributesManager.GetDynamicAttribute(this) as PlayerAttributes;
+            var att = Tool.AttributesManager.GetDynamicAttribute(this);
             BaseAttributes = att.GetDynamicAttributes(Level).Clone();
             FloatingAttributes = BaseAttributes.Clone();
-            ApplyEffect(new HealthRegeneration(RegenerationAdderId, this, (int)(att.Huixie * BaseAttributes.Shengming.Value), 100000));
+            float reg=0.01f;
+            if (param.ContainsKey("PReg")) reg = float.Parse(param["PReg"]);
+            ApplyEffect(new HealthRegeneration(RegenerationAdderId, this, (int)(reg * BaseAttributes.Shengming.Value), 100000));
             RegistSyncAttributes();
 
             CameraInstance.instance.Init(transform);
@@ -52,12 +53,10 @@ public class PlayerData : Target
     protected override void RegistOnCreated()
     {
         base.RegistOnCreated();
-        Players.Add(ObjectId, this);
     }
     protected override void RegistOnDestroy()
     {
         base.RegistOnDestroy();
-        Players.Remove(ObjectId);
         if (bar != null)
         {
             PlayModeController.Instance.DestroyBar(bar);

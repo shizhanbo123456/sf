@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using XLua;
 
 //创建关卡时需要手动创建关卡地形、创建玩家、敌人等
@@ -7,6 +8,7 @@ public static class LccManifest//CustomLevelAPIManifest
 {
     public static float TimeUsed => CustomLevel.FightTime;
     public static int[] ClientIds => ServerDataContainer.GetAllKeys();
+    public static string NullName=>TargetGraphic.NullName;//名字设为此值时自动隐藏
     public static void CreateLevel(int type)=>Tool.NetworkCorrespondent.CreateLevelRpc(type);
     public static void DestroyLevel() => Tool.NetworkCorrespondent.DestroyLevelRpc();
     public static void SetScoreboardActive(bool active)=>Tool.NetworkCorrespondent.SetScoreboardActiveRpc(active);
@@ -15,12 +17,14 @@ public static class LccManifest//CustomLevelAPIManifest
     private static CustomTargetCreater creater;
     public static void LoadCreater(TargetInfo info, int targetType, int graphicType)
         => creater = new CustomTargetCreater(info, targetType, graphicType);
-    public static void LoadController(int controllertype, bool canFly)
-        => creater.LoadController(controllertype, canFly);
-    public static void LoadSkillController(int skillcontrollertype, int[] skillIndex, int repeatContentIndex)
-        => creater.LoadSkillController(skillcontrollertype, skillIndex, repeatContentIndex);//repeatContentIndex<0时即视为无效
+    public static void LoadController(int controllertype)
+        => creater.LoadController(controllertype);
+    public static void LoadSkillController(int skillcontrollertype)
+        => creater.LoadSkillController(skillcontrollertype);
     public static void LoadEffectController(int effectcontrollertype)
         => creater.LoadEffectController(effectcontrollertype);
+    public static void LoadParams(Dictionary<string, string> Params)
+        => creater.LoadParams(Params);
     public static void Create()=> creater.Create();
 }
 /*

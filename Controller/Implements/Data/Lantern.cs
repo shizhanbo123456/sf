@@ -6,8 +6,6 @@ using Variety.Base;
 
 public class Lantern : Target
 {
-    public static SortedDictionary<int, Lantern> Lanterns = new SortedDictionary<int, Lantern>();
-
     public SpriteRenderer Render;
     public Sprite On;
     public Sprite Off;
@@ -16,30 +14,21 @@ public class Lantern : Target
     private float TimeOfDie;//生命为0的时间
     private float RegenerationTime;
 
-    public override void Init(TargetInfo info)
+    public override void Init(TargetInfo info, Dictionary<string, string> param)
     {
-        base.Init(info);
+        base.Init(info, param);
 
         if (UpdateLocally)
         {
-            var att = Tool.AttributesManager.GetDynamicAttribute(this) as LanternAttributes;
+            var att = Tool.AttributesManager.GetDynamicAttribute(this);
             BaseAttributes = att.GetDynamicAttributes(info.level);
             FloatingAttributes = BaseAttributes.Clone();
-            RegenerationTime = att.RegenerationTime.GetValue(info.level);
+            if (param.ContainsKey("LanternReg")) RegenerationTime = float.Parse(param["LanternReg"]);
+            else RegenerationTime = 30;
 
             RegistSyncAttributes();
         }
         InitNameAndBar();
-    }
-    protected override void RegistOnCreated()
-    {
-        base.RegistOnCreated();
-        Lanterns.Add(ObjectId, this);
-    }
-    protected override void RegistOnDestroy()
-    {
-        base.RegistOnDestroy();
-        Lanterns.Remove(ObjectId);
     }
     protected override void Update()
     {
@@ -68,33 +57,5 @@ public class Lantern : Target
     {
         if(TimeOfDie<0.0001f)return base.DetectBullet();
         return Empty;
-    }
-    public static Lantern GetNearestLantern(Vector3 pos, float range = 99999f)
-    {
-        if (Lanterns.Count == 0) return null;
-        float DMin = range * range;
-        Lantern r = null;
-        foreach (var i in Lanterns.Values)
-        {
-            var mSqr = (pos - i.transform.position).sqrMagnitude;
-            if (mSqr < DMin)
-            {
-                r = i;
-                DMin = mSqr;
-            }
-        }
-        return r;
-    }
-    public static float GetAverageHealth()
-    {
-        if (Lanterns.Count == 0) return 0;
-        int healthSum = 0;
-        int each = 0;
-        foreach(var i in Lanterns.Values)
-        {
-            if (each == 0) each = i.BaseAttributes.Shengming.Value;
-            healthSum += i.FloatingAttributes.Shengming.Value;
-        }
-        return healthSum/(Lanterns.Count*(float)each);
     }
 }

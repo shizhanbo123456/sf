@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MonsterSkillController:TargetSkillController
@@ -6,10 +7,11 @@ public class MonsterSkillController:TargetSkillController
     private float interval;
     private float useSkillCD;
 
-    public override void Init(Target data, int[] skillIndex)
+    public override void Init(Target data, Dictionary<string, string> param)
     {
-        base.Init(data, skillIndex);
-        interval = (data as Monster).StateInterval;
+        base.Init(data, param);
+        if (param.ContainsKey("MInterval")) interval = float.Parse(param["MInterval"]);
+        else interval = 5f;
     }
     protected override void Update()
     {
@@ -20,14 +22,17 @@ public class MonsterSkillController:TargetSkillController
     {
         if (Skills.Count == 0) return;
         if (skillIndex >= Skills.Count) skillIndex = 0;
-        var b = UseSkill(skillIndex);
-        if (!b)
+        if (GetSkill(skillIndex).Detect(target))
         {
-            useSkillCD = 0.3f;
-        }
-        else
-        {
-            useSkillCD = interval;
+            var b = UseSkill(skillIndex);
+            if (!b)
+            {
+                useSkillCD = 0.2f;
+            }
+            else
+            {
+                useSkillCD = interval;
+            }
         }
         skillIndex++;
     }

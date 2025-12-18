@@ -74,12 +74,6 @@ public class TargetDataSync : EnsBehaviour
     {
         DedicatedAttributes.Jiashang = int.Parse(data);
     }
-    public void ShowDamageText(int value, bool hit, bool strike)
-    {
-        if (!hit) Tool.WorldTextController.ShowTextRpc("miss", transform.position, TextColor.Blue);
-        else if (!strike) Tool.WorldTextController.ShowTextRpc('-' + value.ToString(),transform.position, TextColor.Orange);
-        else Tool.WorldTextController.ShowTextRpc('-' + value.ToString(), transform.position, TextColor.Red);
-    }
     public void UseSkillRpc(int index)
     {
         var sb = Tool.stringBuilder;

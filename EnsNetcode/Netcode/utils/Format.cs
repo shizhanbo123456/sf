@@ -18,6 +18,7 @@ public static class Format
         if (keyconverter == null) keyconverter = t => t.ToString();
         if(valueconverter == null) valueconverter = t => t.ToString();
 
+        sb.Append(BoundaryStart);
         if (addboundary)
         {
             bool add = false;
@@ -38,12 +39,18 @@ public static class Format
                 sb.Append(i.Key.ToString() + pair + i.Value.ToString());
             }
         }
+        sb.Append(BoundaryEnd);
         return sb.ToString();
     }
     public static Dictionary<Tkey, Tvalue> StringToDictionary<Tkey, Tvalue>(string data, Func<string, Tkey> keyconverter, Func<string, Tvalue> valueconverter, char pair = DictionaryPair, char separator = DictionarySeparator, bool removeboudary = true)
     {
         Dictionary<Tkey, Tvalue> r = new Dictionary<Tkey, Tvalue>();
-        var s = SplitWithBoundaries(data,separator:separator,removeBoundary:false);
+        if (data[0] == BoundaryStart && data[data.Length - 1] == BoundaryEnd)
+        {
+            data=data.Substring(1,data.Length-2);
+        }
+        else throw new Exception("字典数据不符合规范："+data);
+        var s = SplitWithBoundaries(data, separator: separator, removeBoundary: false);
         foreach (var i in s)
         {
             var list = SplitWithBoundaries(i, pair,removeBoundary:removeboudary);

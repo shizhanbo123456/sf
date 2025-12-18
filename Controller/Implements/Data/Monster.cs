@@ -8,7 +8,6 @@ using UnityEngine;
 public class Monster : Target
 {
     private const int LayerMax = 100;
-    public static SortedDictionary<int, Monster> Monsters = new SortedDictionary<int, Monster>();
 
     /*
     public enum MonsterType
@@ -26,17 +25,15 @@ public class Monster : Target
     private BossBarController Bar;
 
     private int BloodPerM;
-    [HideInInspector]public float StateInterval=5;
 
 
-    public override void Init(TargetInfo info)
+    public override void Init(TargetInfo info, Dictionary<string, string> param)
     {
-        base.Init(info);
+        base.Init(info, param);
 
         if (UpdateLocally)
         {
-            var att = Tool.AttributesManager.GetDynamicAttribute(this) as MonsterAttributes;
-            StateInterval = att.StateInterval.GetValue(info.level);
+            var att = Tool.AttributesManager.GetDynamicAttribute(this);
             BaseAttributes = att.GetDynamicAttributes(info.level);
             BloodPerM = BaseAttributes.Shengming.Value / LayerMax;
             BaseAttributes.Shengming.Value = LayerMax * BloodPerM;
@@ -61,7 +58,6 @@ public class Monster : Target
     protected override void RegistOnCreated()
     {
         base.RegistOnCreated();
-        Monsters.Add(ObjectId, this);
     }
     protected override void RegistOnDestroy()
     {
@@ -70,7 +66,6 @@ public class Monster : Target
         {
             PlayModeController.Instance.DestroyBossBar(Bar);
         }
-        Monsters.Remove(ObjectId);
     }
     protected override bool DamageByBullet(Bullet b)
     {

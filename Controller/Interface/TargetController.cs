@@ -244,7 +244,7 @@ public abstract class TargetController : MonoBehaviour
 
     private bool Initialized = false;
 
-    public virtual void Init(Target t,bool canFly)
+    public virtual void Init(Target t, Dictionary<string, string> param)
     {
         target = t;
         rb = GetComponent<Rigidbody2D>();
@@ -252,7 +252,7 @@ public abstract class TargetController : MonoBehaviour
         OperationLock = t.OperationLock.GetChain();
         SkillLock = t.SkillLock.GetChain();
 
-        this.canFly = canFly;
+        if (param.ContainsKey("canFly")) canFly = param["canFly"] == "1";
         if (canFly) SwitchState(FlyIdle.Instance);
         else SwitchState(WalkIdle.Instance);
 

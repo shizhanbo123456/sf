@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Variety.Base;
 
 public class TargetSkillController : MonoBehaviour
 {
@@ -13,13 +14,17 @@ public class TargetSkillController : MonoBehaviour
 
     private bool Initialized = false;
 
-    public virtual void Init(Target data, int[] skillIndex)
+    public virtual void Init(Target data, Dictionary<string, string> param)
     {
         target=data;
 
-        for (int i = 0; i < skillIndex.Length; i++)
+        if (param.ContainsKey("skillIndex"))
         {
-            CreateSkillColumn(data, skillIndex[i]);
+            var skillIndex = Format.StringToList(param["skillIndex"], int.Parse);
+            for (int i = 0; i < skillIndex.Count; i++)
+            {
+                CreateSkillColumn(data, skillIndex[i]);
+            }
         }
         SkillLock = data.SkillLock.GetChain();
 
@@ -87,6 +92,7 @@ public class TargetSkillController : MonoBehaviour
         target.UseSkillRpc(s.SkillIndex);
         return true;
     }
+    public SkillBase GetSkill(int x) => (x<Skills.Count&&x>=0)?VarietyManager.GetSkill(Skills[x].SkillIndex):null;
     public void UseSkillBuffer(int index)
     {
         if (!UseSkillCommandBuffer.Contains(index)) UseSkillCommandBuffer.Add(index);

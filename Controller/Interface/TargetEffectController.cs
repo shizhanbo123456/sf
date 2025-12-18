@@ -15,7 +15,7 @@ public class TargetEffectController : MonoBehaviour
     private bool Dirty = false;
 
 
-    public void Init(Target t)
+    public void Init(Target t, Dictionary<string, string> param)
     {
         target = t;
         BaseAttributes = t.BaseAttributes;

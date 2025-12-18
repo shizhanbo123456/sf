@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using XLua;
 
@@ -61,10 +62,9 @@ public class CustomTargetCreater
     private int graphicType;
 
     private int controllerType;//None,Player,Monster
-    private bool canFly=false;
     private int skillControllerType;//None,Player,Monster
-    private int[] skillIndex;
     private int effectControllerType;//None,Default
+    private Dictionary<string, string> Params;
     public CustomTargetCreater(TargetInfo info,int targetType,int graphicType)
     {
         this.info = info;
@@ -72,22 +72,22 @@ public class CustomTargetCreater
         this.targetType = targetType;
         this.graphicType = graphicType;
     }
-    public void LoadController(int controllertype,bool canFly)
+    public void LoadController(int controllertype)
     {
         controllerType = controllertype;
-        this.canFly = canFly;
     }
-    public void LoadSkillController(int skillcontrollertype, int[] skillIndex,int repeatContentIndex)
+    public void LoadSkillController(int skillcontrollertype)
     {
         skillControllerType= skillcontrollertype;
-        if (skillIndex != null && skillIndex.Length == 0) Debug.LogError("未装载正确的技能");
-        this.skillIndex = skillIndex;
     }
     public void LoadEffectController(int effectcontrollertype)
     {
         effectControllerType= effectcontrollertype;
     }
-
+    public void LoadParams(Dictionary<string, string> Params)
+    {
+        this.Params = Params;
+    }
     public override string ToString()
     {
         var sb = Tool.stringBuilder;
@@ -96,10 +96,9 @@ public class CustomTargetCreater
         sb.Append(targetType).Append('_');
         sb.Append(graphicType).Append('_');
         sb.Append(controllerType).Append('_');
-        sb.Append(canFly?1:0).Append('_');
         sb.Append(skillControllerType).Append('_');
-        sb.Append(skillIndex==null||skillIndex.Length==0?"null":Format.ArrayToString(skillIndex,'+')).Append('_');
         sb.Append(effectControllerType);
+        if(Params!=null)sb.Append('_').Append(Format.DictionaryToString(Params));
         return sb.ToString();
     }
     public CustomTargetCreater(string data)
@@ -110,11 +109,9 @@ public class CustomTargetCreater
         targetType=int.Parse(s[index++]);
         graphicType = int.Parse(s[index++]);
         controllerType=int.Parse(s[index++]);
-        canFly=int.Parse(s[index++])==1;
         skillControllerType = int.Parse(s[index++]);
-        string skill = s[index++];
-        skillIndex = skill == "null" ? null : Format.StringToArray(skill, int.Parse,'+');
         effectControllerType=int.Parse(s[index++]);
+        if (s.Length > index) Params = Format.StringToDictionary(s[index++], t => t, t => t);
     }
 
     public void Create()
@@ -164,10 +161,10 @@ public class CustomTargetCreater
         target.effectController= effectController;
         target.skillController = skillcontroller;
 
-        target.Init(info);
-        if(controller)controller.Init(target, canFly);
-        if(skillcontroller)skillcontroller.Init(target, skillIndex);
-        if(effectController)effectController.Init(target);
+        target.Init(info,Params);
+        if(controller)controller.Init(target, Params);
+        if(skillcontroller)skillcontroller.Init(target, Params);
+        if(effectController)effectController.Init(target,Params);
         graphic.Init(obj);
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
+using static WorldTextController;
 
 /// <summary>
 /// 需要添加TargetDataSync,TargetControllerSync
@@ -55,7 +56,7 @@ public abstract class Target : MonoBehaviour
     /// 需要手动调用InitNameAndBar(所有客户端)和RegistSyncAttributes(拥有者)
     /// </summary>
     /// <param name="info"></param>
-    public virtual void Init(TargetInfo info)
+    public virtual void Init(TargetInfo info,Dictionary<string,string>param)
     {
         Info=info;
 
@@ -151,7 +152,12 @@ public abstract class Target : MonoBehaviour
         }
         return true;
     }
-    protected void ShowDamageText(int value,bool hit,bool strike)=>targetDataSync.ShowDamageText(value, hit, strike);
+    protected void ShowDamageText(int value,bool hit,bool strike)
+    {
+        if (!hit) Tool.WorldTextController.ShowTextRpc("miss", transform.position, TextColor.Blue);
+        else if (!strike) Tool.WorldTextController.ShowTextRpc('-' + value.ToString(), transform.position, TextColor.Orange);
+        else Tool.WorldTextController.ShowTextRpc('-' + value.ToString(), transform.position, TextColor.Red);
+    }
     protected virtual void OnHitBack(Bullet b)
     {
         if(controller!=null)controller.OnHitBack(b);
@@ -175,8 +181,7 @@ public abstract class Target : MonoBehaviour
     }
     public virtual void ApplyEffect(EffectBase e)
     {
-        if (effectController == null) return;
-        effectController.AddEffect(e);
+        if (effectController != null) effectController.AddEffect(e);
     }
     /// <summary>
     /// 被非对象击杀则传入null

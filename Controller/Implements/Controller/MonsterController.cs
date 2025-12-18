@@ -10,9 +10,9 @@ public class MonsterController : TargetController
     }
     private float stateTimeLeft;
 
-    public override void Init(Target t, bool canFly)
+    public override void Init(Target t, Dictionary<string, string> param)
     {
-        base.Init(t, canFly);
+        base.Init(t, param);
         SwitchState(MonsterState.Relax);
     }
     protected override void Update()
