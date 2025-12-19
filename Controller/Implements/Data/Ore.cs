@@ -1,3 +1,4 @@
+using AttributeSystem.Attributes;
 using System.Collections;
 using System.Collections.Generic;
 using Variety.Base;
@@ -10,8 +11,7 @@ public class Ore : Target
 
         if (UpdateLocally)
         {
-            var att = Tool.AttributesManager.GetDynamicAttribute(this);
-            BaseAttributes = att.GetDynamicAttributes(info.level);
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level);
             FloatingAttributes = BaseAttributes.Clone();
             RegistSyncAttributes();
         }

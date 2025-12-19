@@ -20,6 +20,7 @@ public class TargetEffectController : MonoBehaviour
     }
     public void AddEffect(EffectCollection effect)
     {
+        if (target == null) target = GetComponent<Target>();
         effect.ApplyEffects(target);
         enabled = true;
     }

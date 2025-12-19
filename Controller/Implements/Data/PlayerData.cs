@@ -16,8 +16,7 @@ public class PlayerData : Target
         base.Init(info, param);
         if (isLocalPlayer)
         {
-            var att = Tool.AttributesManager.GetDynamicAttribute(this);
-            BaseAttributes = att.GetDynamicAttributes(Level).Clone();
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(Level);
             FloatingAttributes = BaseAttributes.Clone();
             float reg=0.01f;
             if (param.ContainsKey("PReg")) reg = float.Parse(param["PReg"]);

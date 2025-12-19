@@ -14,10 +14,12 @@ public class UnnetPlayerData : MonoBehaviour
 
     public void Awake()//由Spawner在生成时传入信息
     {
-        var att=Tool.AttributesManager.GetDynamicAttribute(null);
-        Jixing = att.Jixing;
-        Tengkong = att.Tengkong;
-        Liantiao = att.Liantiao;
+        var att=TargetAttributes.GetGameTimeAttributes(1);
+        Jixing = att.Jixing.Value;
+        Tengkong = att.Tengkong.Value;
+        Liantiao = att.Liantiao.Value;
+        att.Release();
+        att = null;
 
         PlayerController.Init(this);
         Anim.Init(gameObject);

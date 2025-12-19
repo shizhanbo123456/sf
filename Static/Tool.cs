@@ -19,7 +19,6 @@ public class Tool:MonoBehaviour
     public static FileManager FileManager;
     public static Notice Notice;
     public static SubInput SubInput;
-    public static AttributesManager AttributesManager;
     public static BulletManager BulletManager;
     public static LuaManager LuaManager;
     [Space]

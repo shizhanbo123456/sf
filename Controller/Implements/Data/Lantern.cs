@@ -19,8 +19,7 @@ public class Lantern : Target
 
         if (UpdateLocally)
         {
-            var att = Tool.AttributesManager.GetDynamicAttribute(this);
-            BaseAttributes = att.GetDynamicAttributes(info.level);
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level);
             FloatingAttributes = BaseAttributes.Clone();
             if (param.ContainsKey("LReg")) RegenerationTime = float.Parse(param["LReg"]);
             else RegenerationTime = 30;

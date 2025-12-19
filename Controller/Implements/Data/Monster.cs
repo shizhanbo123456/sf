@@ -33,8 +33,7 @@ public class Monster : Target
 
         if (UpdateLocally)
         {
-            var att = Tool.AttributesManager.GetDynamicAttribute(this);
-            BaseAttributes = att.GetDynamicAttributes(info.level);
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level);
             BloodPerM = BaseAttributes.Shengming.Value / LayerMax;
             BaseAttributes.Shengming.Value = LayerMax * BloodPerM;
             FloatingAttributes = BaseAttributes.Clone();

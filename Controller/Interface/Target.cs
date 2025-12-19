@@ -112,6 +112,11 @@ public abstract class Target : MonoBehaviour
         SkillLock.Discard();
         OperationLock=null;
         SkillLock=null;
+
+        BaseAttributes.Release();
+        BaseAttributes=null; ;
+        FloatingAttributes.Release();
+        FloatingAttributes=null;
     }
     private void OnDestroy()
     {

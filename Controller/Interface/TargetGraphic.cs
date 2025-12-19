@@ -94,10 +94,6 @@ public class TargetGraphic : MonoBehaviour
     {
         header.gameObject.SetActive(active);
     }
-    private void FixedUpdate()
-    {
-        if (header) header.transform.position = transform.position + Vector3.up * headerOffset;
-    }
     private void OnSync()
     {
         if (!Initialized) return;
@@ -128,6 +124,10 @@ public class TargetGraphic : MonoBehaviour
                 anim.SetInteger("state", 3);
             }
         }
+    }
+    private void Update()
+    {
+        if (header) header.transform.position = transform.position + Vector3.up * headerOffset;
     }
     private void OnDestroy()
     {

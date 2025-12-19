@@ -2,41 +2,9 @@ using UnityEngine;
 
 namespace AttributeSystem.Attributes
 {
-    [CreateAssetMenu(menuName = "Attributes/TargetAttributes")]
-    public class TargetAttributes : ScriptableObject
+    public class TargetAttributes
     {
-        public float Shengming=1;
-        public float Gongji=1;
-        public float Fangyu=1;
-        public float Mingzhong=1;
-        public float Shanbi=1;
-        public float Baoji=1;
-        public float Renxing=1;
-        [Space]
-        public int Kangjitui;
-        public float Jixing=5;
-        public float Tengkong=5;
-        public int Liantiao=2;
-
-        public GameTimeAttributes GetDynamicAttributes(int level)
-        {
-            var d = GetGameTimeAttributesTemplate(level);
-
-            d.Shengming.Value = (int)(d.Shengming.Value*Shengming);
-            d.Gongji.Value = (int)(d.Gongji.Value*Gongji);
-            d.Fangyu.Value = (int)(d.Fangyu.Value* Fangyu);
-            d.Mingzhong.Value = (int)(d.Mingzhong.Value* Mingzhong);
-            d.Shanbi.Value = (int)(d.Shanbi.Value* Shanbi);
-            d.Baoji.Value = (int)(d.Baoji.Value* Baoji);
-            d.Renxing.Value = (int)(d.Renxing.Value* Renxing);
-
-            d.Kangjitui.Value = Kangjitui;
-            d.Jixing.Value = Jixing;
-            d.Tengkong.Value = Tengkong;
-            d.Liantiao.Value = Liantiao;
-            return d;
-        }
-        public static GameTimeAttributes GetGameTimeAttributesTemplate(int level)
+        public static GameTimeAttributes GetGameTimeAttributes(int level, float healthScale = 1f)
         {
             float factor = GetFactor(level);
             var d=new GameTimeAttributes();
@@ -47,6 +15,10 @@ namespace AttributeSystem.Attributes
             d.Shanbi.Value = (int)(factor * 0.01f);
             d.Baoji.Value = (int)(factor * 0.01f);
             d.Renxing.Value = (int)(factor * 0.01f);
+            d.Kangjitui.Value = 0;
+            d.Jixing.Value = 5f;
+            d.Tengkong.Value = 5f;
+            d.Liantiao.Value = 2;
             return d;
         }
         public static float GetFactor(int level)

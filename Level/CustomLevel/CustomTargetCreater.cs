@@ -57,6 +57,7 @@ public struct TargetInfo
 [LuaCallCSharp]
 public class CustomTargetCreater
 {
+    private static Dictionary<string, string> EmptyParam = new();
     private TargetInfo info;
     private int targetType;//Player,Ore,Lantern,Monster
     private int graphicType;
@@ -64,7 +65,7 @@ public class CustomTargetCreater
     private int controllerType;//None,Player,Monster
     private int skillControllerType;//None,Player,Monster
     private int effectControllerType;//None,Default
-    private Dictionary<string, string> Params;
+    private Dictionary<string, string> Params=EmptyParam;
     public CustomTargetCreater(TargetInfo info,int targetType,int graphicType)
     {
         this.info = info;

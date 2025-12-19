@@ -21,7 +21,7 @@ namespace AttributeSystem.Attributes
         public RegistableVariable<float> Tengkong = RegistableVariable<float>.Get();
         public RegistableVariable<int> Liantiao = RegistableVariable<int>.Get();
 
-
+        private bool released = false;
 
         public GameTimeAttributes Clone()
         {
@@ -56,6 +56,24 @@ namespace AttributeSystem.Attributes
             Jixing.OnValueChanged?.Invoke(Jixing.Value);
             Tengkong.OnValueChanged?.Invoke(Tengkong.Value);
             Liantiao.OnValueChanged?.Invoke(Liantiao.Value);
+        }
+        public void Release()
+        {
+            if (released) return;
+            RegistableVariable<int>.Release(Shengming);
+            RegistableVariable<int>.Release(Gongji);
+            RegistableVariable<int>.Release(Fangyu);
+            RegistableVariable<int>.Release(Mingzhong);
+            RegistableVariable<int>.Release(Shanbi);
+            RegistableVariable<int>.Release(Baoji);
+            RegistableVariable<int>.Release(Renxing);
+            RegistableVariable<int>.Release(Jiashang);
+            RegistableVariable<int>.Release(Jianshang);
+            RegistableVariable<int>.Release(Kangjitui);
+            RegistableVariable<float>.Release(Jixing);
+            RegistableVariable<float>.Release(Tengkong);
+            RegistableVariable<int>.Release(Liantiao);
+            released = true;
         }
     }
 }

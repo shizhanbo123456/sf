@@ -24,10 +24,12 @@ public class NonSkillPlayerData : EnsBehaviour
         var Name = p.name;
         Anim.SetName($"P{id}-{Name}", Color.white);
 
-        var att=Tool.AttributesManager.GetDynamicAttribute(null);
-        Jixing = att.Jixing;
-        Tengkong= att.Tengkong;
-        Liantiao= att.Liantiao;
+        var att=TargetAttributes.GetGameTimeAttributes(1);
+        Jixing = att.Jixing.Value;
+        Tengkong= att.Tengkong.Value;
+        Liantiao= att.Liantiao.Value;
+        att.Release();
+        att = null;
 
         if (isLocalPlayer)
         {
