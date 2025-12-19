@@ -57,9 +57,9 @@ public class PrepareController : Singleton<PrepareController>
     {
         SettingsPanelActive = false;
         ModeSelectionPanelActive = false;
+        Tool.Notice.ShowMesg("房间可以搜索到");
         if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.Host)
         {
-            Tool.Notice.ShowMesg("房间可以搜索到");
             EnsInstance.Corr.SetServerListening(true);
             Broadcast.StartBroadcast();
         }

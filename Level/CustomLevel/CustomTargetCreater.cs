@@ -42,7 +42,6 @@ public struct TargetInfo
     public override string ToString()
     {
         var sb = Tool.stringBuilder;
-        sb.Clear();
         sb.Append(camp).Append('/');
         sb.Append(owner).Append('/');
         sb.Append(level).Append('/');
@@ -92,7 +91,6 @@ public class CustomTargetCreater
     public override string ToString()
     {
         var sb = Tool.stringBuilder;
-        sb.Clear();
         sb.Append(info).Append('_');
         sb.Append(targetType).Append('_');
         sb.Append(graphicType).Append('_');
@@ -121,11 +119,12 @@ public class CustomTargetCreater
     }
     public void ApplyForTarget(GameObject obj)
     {
+        bool isLocalPlayer = info.owner == EnsInstance.LocalClientId;
         TargetGraphic graphic;
         Target target;
-        TargetController controller;
-        TargetSkillController skillcontroller;
-        TargetEffectController effectController;
+        TargetController controller=null;
+        TargetSkillController skillcontroller=null;
+        TargetEffectController effectController= null;
 
         graphic = UnityEngine.Object.Instantiate(Tool.PrefabManager.GraphicCollection[graphicType].gameObject, 
             Vector3.zero, Quaternion.identity, obj.transform).GetComponent<TargetGraphic>();
@@ -137,35 +136,42 @@ public class CustomTargetCreater
             case 3:target = obj.AddComponent<Monster>();break;
             default:target = null;break;
         }
-        switch (controllerType)
-        {
-            case 0:controller = null;break;
-            case 1:controller = obj.AddComponent<PlayerController>();break;
-            case 2:controller=obj.AddComponent<MonsterController>();break;
-            default:controller = null;break;
-        }
-        switch (skillControllerType)
-        {
-            case 0:skillcontroller = null;break;
-            case 1:skillcontroller = obj.AddComponent<PlayerSkillController>();break;
-            case 2:skillcontroller = obj.AddComponent<MonsterSkillController>();break;
-            default :skillcontroller = null;break;
-        }
-        switch (effectControllerType)
-        {
-            case 0:effectController = null;break;
-            case 1:effectController = obj.AddComponent<TargetEffectController>();break;
-            default:effectController=null;break;
-        }
         target.graphic = graphic;
-        target.controller= controller;
-        target.effectController= effectController;
-        target.skillController = skillcontroller;
+
+        if (isLocalPlayer)
+        {
+            switch (controllerType)
+            {
+                case 0: controller = null; break;
+                case 1: controller = obj.AddComponent<PlayerController>(); break;
+                case 2: controller = obj.AddComponent<MonsterController>(); break;
+                default: controller = null; break;
+            }
+            switch (skillControllerType)
+            {
+                case 0: skillcontroller = null; break;
+                case 1: skillcontroller = obj.AddComponent<PlayerSkillController>(); break;
+                case 2: skillcontroller = obj.AddComponent<MonsterSkillController>(); break;
+                default: skillcontroller = null; break;
+            }
+            switch (effectControllerType)
+            {
+                case 0: effectController = null; break;
+                case 1: effectController = obj.AddComponent<TargetEffectController>(); break;
+                default: effectController = null; break;
+            }
+            target.controller = controller;
+            target.effectController = effectController;
+            target.skillController = skillcontroller;
+        }
 
         target.Init(info,Params);
-        if(controller)controller.Init(target, Params);
-        if(skillcontroller)skillcontroller.Init(target, Params);
-        if(effectController)effectController.Init(target,Params);
+        if (isLocalPlayer)
+        {
+            if (controller) controller.Init(target, Params);
+            if (skillcontroller) skillcontroller.Init(target, Params);
+            if (effectController) effectController.Init(target, Params);
+        }
         graphic.Init(obj);
     }
 }

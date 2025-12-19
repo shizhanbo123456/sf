@@ -77,7 +77,6 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
     public void SyncController(Vector3 pos, Vector2 velocity,float resistance,bool ignoreLevitatingPlatform,bool moveLock, bool isGrounded,bool motionIsNull)
     {
         var sb = Tool.stringBuilder;
-        sb.Clear();
         sb.Append(pos.x.ToString("F3")).Append('_').
             Append(pos.y.ToString("F3")).Append('_').
             Append(velocity.x.ToString()).Append('_').

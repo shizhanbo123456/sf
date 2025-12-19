@@ -129,7 +129,6 @@ public class NetworkCorrespondent : EnsBehaviour
     public void SetScoreboardTextRpc(int x, int y, string data)
     {
         var sb=Tool.stringBuilder;
-        sb.Clear();
         sb.Append(x).Append('_').Append(y).Append('_').Append(data);
         CallFuncRpc(nameof(SetScoreboardTextLocal), SendTo.Everyone, sb.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
     }
@@ -170,7 +169,6 @@ public class NetworkCorrespondent : EnsBehaviour
         else
         {
             var sb=Tool.stringBuilder;
-            sb.Clear();
             sb.Append(killer.Info.ToString()).Append('_').Append(killed.Info.ToString());
             CallFuncRpc(nameof(TargetKilledLocal), SendTo.RoomOwner, sb.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
         }

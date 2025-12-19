@@ -12,13 +12,13 @@ public static class Format
 
     public static string DictionaryToString<Tkey,Tvalue>(Dictionary<Tkey,Tvalue>dict,
         char pair=DictionaryPair,char separator=DictionarySeparator,bool addboundary=true,
-        Func<Tkey,string> keyconverter=null,Func<Tvalue,string>valueconverter=null)
+        Func<Tkey,string> keyconverter=null,Func<Tvalue,string>valueconverter=null,bool wrapAll=true)
     {
         StringBuilder sb = new StringBuilder();
         if (keyconverter == null) keyconverter = t => t.ToString();
         if(valueconverter == null) valueconverter = t => t.ToString();
 
-        sb.Append(BoundaryStart);
+        if(wrapAll)sb.Append(BoundaryStart);
         if (addboundary)
         {
             bool add = false;
@@ -39,13 +39,13 @@ public static class Format
                 sb.Append(i.Key.ToString() + pair + i.Value.ToString());
             }
         }
-        sb.Append(BoundaryEnd);
+        if (wrapAll)sb.Append(BoundaryEnd);
         return sb.ToString();
     }
-    public static Dictionary<Tkey, Tvalue> StringToDictionary<Tkey, Tvalue>(string data, Func<string, Tkey> keyconverter, Func<string, Tvalue> valueconverter, char pair = DictionaryPair, char separator = DictionarySeparator, bool removeboudary = true)
+    public static Dictionary<Tkey, Tvalue> StringToDictionary<Tkey, Tvalue>(string data, Func<string, Tkey> keyconverter, Func<string, Tvalue> valueconverter, char pair = DictionaryPair, char separator = DictionarySeparator, bool removeboudary = true,bool wrapAll=true)
     {
         Dictionary<Tkey, Tvalue> r = new Dictionary<Tkey, Tvalue>();
-        if (data[0] == BoundaryStart && data[data.Length - 1] == BoundaryEnd)
+        if (wrapAll&&data[0] == BoundaryStart && data[data.Length - 1] == BoundaryEnd)
         {
             data=data.Substring(1,data.Length-2);
         }

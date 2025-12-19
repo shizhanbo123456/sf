@@ -35,10 +35,10 @@ public class NonSkillPlayerData : EnsBehaviour
         {
             PlayerController=gameObject.AddComponent<NonSkillPlayerController>();
             PlayerController.Init(id, this);
+            Tool.SceneController.Player = gameObject;
+            CameraInstance.instance.Init(transform);
         }
 
-        Tool.SceneController.Player = gameObject;
-        CameraInstance.instance.Init(transform);
 
         Anim.Init(gameObject);
         Anim.SetBarActive(true);

@@ -57,7 +57,8 @@ namespace ProtocolWrapper
             reachTime.ReachAfter(broadcastInterval);
             if (BroadcastContent.Count == 0) return;
 
-            var s=global::Format.DictionarySeparator+global::Format.DictionaryToString(BroadcastContent)+global::Format.DictionarySeparator;
+            if (BroadcastContent.Count == 0) Debug.LogError("¹ã²¥ÄÚÈÝÎª¿Õ");
+            var s=global::Format.DictionarySeparator+global::Format.DictionaryToString(BroadcastContent,wrapAll:false)+global::Format.DictionarySeparator;
 
             try
             {

@@ -63,7 +63,6 @@ public class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontrollerInfo
     public void SyncMotion(Vector3 pos, Vector2 velocity, bool isGrounded, bool ignoreLevitatingPlatform)
     {
         var sb = Tool.stringBuilder;
-        sb.Clear();
         sb.Append(pos.x.ToString("F3")).Append('_').
             Append(pos.y.ToString("F3")).Append('_').
             Append(velocity.x.ToString()).Append('_').

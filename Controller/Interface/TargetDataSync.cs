@@ -2,7 +2,6 @@ using AttributeSystem.Effect;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static WorldTextController;
 
 public class TargetDataSync : EnsBehaviour
 {
@@ -12,7 +11,7 @@ public class TargetDataSync : EnsBehaviour
     {
         this.target = target;
         nomEnabled = target.UpdateLocally;
-        DedicatedAttributes = new DedicateSyncAttributes();
+        DedicatedAttributes = new DedicateSyncAttributes(target.Level);
     }
     public override void ManagedUpdate()
     {
@@ -20,8 +19,9 @@ public class TargetDataSync : EnsBehaviour
         else if (HealthDirty)
         {
             HealthDirty = false;
-            CallFuncRpc(nameof(OnSyncHealthLocal), SendTo.ExcludeSender, 
-                DedicatedAttributes.Shengming.Value.Item1 + '_' + DedicatedAttributes.Shengming.Value.Item2);
+            var sb = Tool.stringBuilder;
+            sb.Append(DedicatedAttributes.Shengming.Value.Item1).Append('_').Append(DedicatedAttributes.Shengming.Value.Item2);
+            CallFuncRpc(nameof(OnSyncHealthLocal), SendTo.ExcludeSender, sb.ToString(),KeyLibrary.KeyFormatType.DisorderConfirm);
             HealthDirtyClearCD = 0.15f;
         }
     }
@@ -40,7 +40,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncGongji(int value)
     {
-        CallFuncRpc(nameof(Sgj),SendTo.ExcludeSender,value.ToString());
+        CallFuncRpc(nameof(Sgj),SendTo.ExcludeSender,value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
         DedicatedAttributes.Gongji = value;
     }
     private void Sgj(string data)
@@ -49,7 +49,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncMingzhong(int value)
     {
-        CallFuncRpc(nameof(Smz),SendTo.ExcludeSender,value.ToString());
+        CallFuncRpc(nameof(Smz),SendTo.ExcludeSender,value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
         DedicatedAttributes.Mingzhong = value;
     }
     private void Smz(string data)
@@ -58,7 +58,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncBaoji(int value)
     {
-        CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender, value.ToString());
+        CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender, value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
         DedicatedAttributes.Baoji = value;
     }
     private void Sbj(string data)
@@ -67,7 +67,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncJiashang(int value)
     {
-        CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, value.ToString());
+        CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
         DedicatedAttributes.Jiashang = value;
     }
     private void Sjs(string data)
@@ -77,7 +77,6 @@ public class TargetDataSync : EnsBehaviour
     public void UseSkillRpc(int index)
     {
         var sb = Tool.stringBuilder;
-        sb.Clear();
         sb.Append(index).Append('_').
             Append(transform.position.x.ToString("F1")).Append('_').
             Append(transform.position.y.ToString("F2")).Append('_').

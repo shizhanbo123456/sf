@@ -60,6 +60,7 @@ public abstract class Target : MonoBehaviour
     public virtual void Init(TargetInfo info,Dictionary<string,string>param)
     {
         Info=info;
+        enabled = EnsInstance.LocalClientId == info.owner;
 
         graphic.transform.localScale = info.size * Vector3.one;
 
@@ -108,14 +109,14 @@ public abstract class Target : MonoBehaviour
     {
         Tool.SceneController.OnTargetPredestroy(this);
 
-        OperationLock.Discard();
-        SkillLock.Discard();
+        OperationLock?.Discard();
+        SkillLock?.Discard();
         OperationLock=null;
         SkillLock=null;
 
-        BaseAttributes.Release();
+        BaseAttributes?.Release();
         BaseAttributes=null; ;
-        FloatingAttributes.Release();
+        FloatingAttributes?.Release();
         FloatingAttributes=null;
     }
     private void OnDestroy()

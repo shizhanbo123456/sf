@@ -19,7 +19,6 @@ public class WorldTextController : EnsBehaviour
         public override string ToString()
         {
             var sb= Tool.stringBuilder;
-            sb.Clear();
             sb.Append(text).Append('_').
                 Append(pos.x.ToString("F1")).Append('_').
                 Append(pos.y.ToString("F2")).Append('_').

@@ -32,8 +32,11 @@ public class Tool:MonoBehaviour
     }
     public TargetPlatform Platform;
 
-
-    public static StringBuilder stringBuilder=new StringBuilder();
+    private static StringBuilder stringbuilder=new StringBuilder();
+    public static StringBuilder stringBuilder
+    {
+        get { return stringbuilder.Clear(); }
+    }
 
 
 
