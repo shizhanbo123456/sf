@@ -19,7 +19,6 @@ public class TargetGraphic : MonoBehaviour
     }
     private static GameObjectPool pool;
 
-    [SerializeField] private bool UseAnim = true;
     [SerializeField] private bool SetState = true;
     private static readonly Vector3 R = new Vector3(1, 1, 1);
     private static readonly Vector3 L = new Vector3(-1, 1, 1);
@@ -44,7 +43,6 @@ public class TargetGraphic : MonoBehaviour
     }
     public void Init(GameObject obj)
     {
-        if (!UseAnim) return;
         rb = obj.GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 

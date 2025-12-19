@@ -3,12 +3,20 @@ using UnityEngine;
 
 public class BulletDetector : MonoBehaviour
 {
-    [SerializeField] private float offsetY=0.5f;
-    [SerializeField] private float detectRadius=1f;
     private Target target;
     private static HashSet<Bullet> Bullets = new HashSet<Bullet>();
+
+    private static BoxCollider2D _collider;
+    private float offsetY=>_collider.offset.y;
+    private float detectRadius=> _collider.edgeRadius + Mathf.Max(_collider.size.x, _collider.size.y)/2f+0.1f;
+
     private void OnDrawGizmos()
     {
+        if (_collider == null)
+        {
+            _collider = GetComponent<BoxCollider2D>();
+            if (_collider == null) return;
+        }
         Gizmos.color = new Color(0.5f, 1f, 0.5f, 0.7f);
         Gizmos.DrawSphere(transform.position + Vector3.up * offsetY, detectRadius*transform.localScale.x);
     }
@@ -21,6 +29,11 @@ public class BulletDetector : MonoBehaviour
                 Debug.LogError(gameObject.name + "未挂载目标组件");
                 return null;
             }
+        }
+        if (_collider == null)
+        {
+            _collider = GetComponent<BoxCollider2D>();
+            if (_collider == null) return null;
         }
         Bullets.Clear();
         
