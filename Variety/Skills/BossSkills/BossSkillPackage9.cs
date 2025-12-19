@@ -50,12 +50,12 @@ namespace Variety.Skill.Boss9
             AddEvent(0.8f, new TimeLineData(Target,p),(d) =>
             {
                 var b = GetBullet(11);
-                b.Init(3, liftstoiclevel: 2, ec: new EffectCollection(d.Target, (EffectType.LifeSteal, 0.5f, 10)));
+                b.Init(3, liftstoiclevel: 2, ec: new EffectCollection(d.Target.ObjectId, (EffectType.LifeSteal, 0.5f, 10)));
                 BulletStaticSystem.RegistObject(b, 3f, 0.5f, d.pos);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
                 b = GetBullet(6);
-                b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(d.Target, (EffectType.Silence, 0, 1)));
+                b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(d.Target.ObjectId, (EffectType.Silence, 0, 1)));
                 BulletStaticSystem.RegistObject(b, 3f, 0.5f, d.pos);
                 BulletDamageTimeSystem.Regist(b, 0.5f);
                 b.Shoot();
@@ -163,7 +163,7 @@ namespace Variety.Skill.Boss9
             AddEvent(1f, (d) =>
             {
                 var b = GetBullet(6);
-                b.Init(2.5f,liftstoiclevel:0,ec: new EffectCollection(d.Target, (EffectType.AttackDecrease, 0.2f, 10), (EffectType.BadLuck, 10, 10)));
+                b.Init(2.5f,liftstoiclevel:0,ec: new EffectCollection(d.Target.ObjectId, (EffectType.AttackDecrease, 0.2f, 10), (EffectType.BadLuck, 10, 10)));
                 BulletStaticScaleChangeSystem.RegistObject(b,0f,6f,1f);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
@@ -187,7 +187,10 @@ namespace Variety.Skill.Boss9
             AddEvent(5f, (d)=>
             {
                 var c = d.Target.GetEnemyInRange();
-                foreach (var i in c) i.ApplyEffect(new Freeze(d.Target.ObjectId, i, 2));
+                foreach (var i in c)
+                {
+                    i.ApplyEffect(new EffectCollection(d.Target.ObjectId,(EffectType.Freeze, 0f, 2f)));
+                }
                 var b = GetBullet(3);
                 b.Init(32f);
                 BulletStaticScaleChangeSystem.RegistObject(b,0f,30f,1f);

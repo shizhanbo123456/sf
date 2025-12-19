@@ -184,15 +184,14 @@ namespace Variety.Skill.Boss7
             AddEvent(5, (d) =>
             {
                 var b = GetBullet(5);
-                b.Init(2,liftstoiclevel:0, ec: new EffectCollection(d.Target, (EffectType.ArmorShatter, 20, 30)));
+                b.Init(2,liftstoiclevel:0, ec: new EffectCollection(d.Target.ObjectId, (EffectType.ArmorShatter, 20, 30)));
                 BulletStaticScaleChangeSystem.RegistObject(b,0f,20f,1f);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
                 var t=Target.GetPartnerInRange(999999, false);
                 foreach(var i in t)
                 {
-                    i.ApplyEffect(new DamageBoost(d.Target.ObjectId, i, 30, 30));
-                    i.ApplyEffect(new Luck(d.Target.ObjectId, i, 20, 30));
+                    i.ApplyEffect(new EffectCollection(d.Target.ObjectId, (EffectType.Luck, 20f, 30f),(EffectType.DamageBoost, 30f, 30f)));
                 }
             });
         }

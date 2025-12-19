@@ -180,10 +180,7 @@ namespace Variety.Skill.Boss1
         {
             foreach(var i in Target.GetEnemyInRange())
             {
-                if (i.effectController != null)
-                {
-                    i.effectController.AddEffect(new Silence(Target.ObjectId, i, 3));
-                }
+                i.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.Silence, 0, 3)));
             }
             for(int i = -5; i < 5; i+=2)
             {

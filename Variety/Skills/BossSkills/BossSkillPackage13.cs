@@ -136,7 +136,7 @@ namespace Variety.Skill.Boss13
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.ApplyEffect(new AttackBoost(Target.ObjectId, Target, 0.3f, 20));
+            Target.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.AttackBoost, 0.3f, 20f)));
             for (float i = 0; i < 4.9f; i += 0.5f)
             {
                 AddEvent(i, (d) =>

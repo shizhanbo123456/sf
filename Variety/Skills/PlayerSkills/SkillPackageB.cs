@@ -46,7 +46,7 @@ namespace Variety.Skill.PackageB
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new DefenseBoost(Target.ObjectId, Target, 8f, 0.5f));
+            Target.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.DefenseBoost, 8f, 0.5f)));
             Target.ApplyMotion(new MotionStatic(0.5f, true, 2));
             var b = GetBullet(6);
             b.Init(0.2f,liftstoiclevel:2);
@@ -158,7 +158,7 @@ namespace Variety.Skill.PackageB
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new AgileBoost(Target.ObjectId, Target, 40, 0.5f));
+            Target.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.AgileBoost, 40f, 0.5f)));
             Target.ApplyMotion(new MotionDir(Target.FaceRight ? new Vector2(15, 0) : new Vector2(-15, 0), 0.5f, true, 1));
         }
     }

@@ -11,9 +11,9 @@ namespace AttributeSystem.Effect
         /// <summary>
         /// effectType,Value,Time
         /// </summary>
-        public EffectCollection(Target adder,params (EffectType, float,float)[] effects)
+        public EffectCollection(int adder,params (EffectType, float,float)[] effects)
         {
-            this.adder = adder.ObjectId;
+            this.adder = adder;
             this.effects = effects;
         }
         public void ApplyEffects(Target receiver)

@@ -50,7 +50,7 @@ namespace Variety.Skill.PackageC
         {
             var front = Target.FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
             Target.ApplyMotion(new MotionDir(front * -20, 0.25f, true, 1));
-            Target.effectController.AddEffect(new ArmorFortity(Target.ObjectId, Target, 50, 0.5f));
+            Target.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.ArmorFortity, 50f, 0.5f)));
         }
     }
     public class Skill2 : SkillCD
@@ -207,7 +207,7 @@ namespace Variety.Skill.PackageC
             b.Shoot();
             foreach (var i in Target.GetEnemyInRange(10, false))
             {
-                i.ApplyEffect(new BadLuck(Target.ObjectId, i, 20, 10f));
+                i.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.BadLuck, 20f, 10f)));
             }
         }
     }

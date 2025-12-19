@@ -161,7 +161,7 @@ namespace AttributeSystem.DataOrientedEffects
                 foreach (var i in GlobalEffectManager.ToRemove)
                 {
                     var t = i.GetReceiver();
-                    if (t && t.effectController) t.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
+                    if (t && t.effectController) t.effectController.EffectEnd(i.adder, EffectType.Burning);
                     Effects.Remove(i);
                 }
                 GlobalEffectManager.ToRemove.Clear();
@@ -264,7 +264,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(key.adder, EffectType.Speed);
                         receiver.FloatingAttributes.Jixing.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
@@ -348,7 +348,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(key.adder, EffectType.Slowness);
                         receiver.FloatingAttributes.Jixing.Value += Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
@@ -431,7 +431,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(key.adder, EffectType.JumpBoost);
                         receiver.FloatingAttributes.Tengkong.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
@@ -516,8 +516,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Shanbi.Value += Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.AgileBoost);
+                        receiver.FloatingAttributes.Shanbi.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -601,7 +601,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(key.adder, EffectType.AccuracyBoost);
                         receiver.FloatingAttributes.Mingzhong.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
@@ -686,8 +686,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Gongji.Value += Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.AttackBoost);
+                        receiver.FloatingAttributes.Gongji.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -771,8 +771,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Fangyu.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.DefenseBoost);
+                        receiver.FloatingAttributes.Fangyu.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -857,8 +857,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Shanbi.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.AgileDecrease);
+                        receiver.FloatingAttributes.Shanbi.Value += Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -942,8 +942,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Mingzhong.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.AccuracyDecrease);
+                        receiver.FloatingAttributes.Mingzhong.Value += Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -1027,8 +1027,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Gongji.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.AttackDecrease);
+                        receiver.FloatingAttributes.Gongji.Value += Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -1112,8 +1112,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Fangyu.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.DefenseDecrease);
+                        receiver.FloatingAttributes.Fangyu.Value += Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -1169,7 +1169,7 @@ namespace AttributeSystem.DataOrientedEffects
         private float endTime;
 
         private static Dictionary<EffectId, ArmorFortity> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public static void AddEffect(int adder, int receiver, int value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
             EnableEvents();
@@ -1177,7 +1177,6 @@ namespace AttributeSystem.DataOrientedEffects
             if (target != null)
             {
                 var baseAttr = target.FloatingAttributes;
-                var value = (int)(baseAttr.Jianshang.Value * rate);
                 baseAttr.Jianshang.Value += value;
 
                 Effects.Add(new EffectId(adder, receiver), new ArmorFortity
@@ -1197,8 +1196,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Jianshang.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.ArmorFortity);
+                        receiver.FloatingAttributes.Jianshang.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -1254,7 +1253,7 @@ namespace AttributeSystem.DataOrientedEffects
         private float endTime;
 
         private static Dictionary<EffectId, ArmorShatter> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public static void AddEffect(int adder, int receiver, int value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
             EnableEvents();
@@ -1262,8 +1261,6 @@ namespace AttributeSystem.DataOrientedEffects
             if (target != null)
             {
                 var baseAttr = target.FloatingAttributes;
-                var value = (int)(baseAttr.Jianshang.Value * rate);
-                var initial = baseAttr.Jianshang.Value;
                 baseAttr.Jianshang.Value -= value;
 
                 Effects.Add(new EffectId(adder, receiver), new ArmorShatter
@@ -1283,8 +1280,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Jianshang.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.ArmorShatter);
+                        receiver.FloatingAttributes.Jianshang.Value += Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -1305,11 +1302,6 @@ namespace AttributeSystem.DataOrientedEffects
             {
                 if (key.adder == id || key.receiver == id)
                 {
-                    var receiver = key.GetReceiver();
-                    if (receiver != null)
-                    {
-                        receiver.FloatingAttributes.Jianshang.Value = Effects[key].value;
-                    }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
             }
@@ -1345,7 +1337,7 @@ namespace AttributeSystem.DataOrientedEffects
         private float endTime;
 
         private static Dictionary<EffectId, DamageBoost> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public static void AddEffect(int adder, int receiver,int value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
             EnableEvents();
@@ -1353,7 +1345,6 @@ namespace AttributeSystem.DataOrientedEffects
             if (target != null)
             {
                 var attr = target.FloatingAttributes;
-                var value = (int)(attr.Jiashang.Value * rate);
                 attr.Jiashang.Value += value;
 
                 Effects.Add(new EffectId(adder, receiver), new DamageBoost
@@ -1373,8 +1364,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Jiashang.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.DamageBoost);
+                        receiver.FloatingAttributes.Jiashang.Value -= Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -1430,7 +1421,7 @@ namespace AttributeSystem.DataOrientedEffects
         private float endTime;
 
         private static Dictionary<EffectId, DamageDecrease> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public static void AddEffect(int adder, int receiver, int value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
             EnableEvents();
@@ -1438,7 +1429,6 @@ namespace AttributeSystem.DataOrientedEffects
             if (target != null)
             {
                 var baseAttr = target.FloatingAttributes;
-                var value = (int)(baseAttr.Jiashang.Value * rate);
                 baseAttr.Jiashang.Value -= value;
 
                 Effects.Add(new EffectId(adder, receiver), new DamageDecrease
@@ -1458,8 +1448,8 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
-                        receiver.FloatingAttributes.Jiashang.Value = Effects[key].value;
+                        receiver.effectController.EffectEnd(key.adder, EffectType.DamageDecrease);
+                        receiver.FloatingAttributes.Jiashang.Value += Effects[key].value;
                     }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -1548,7 +1538,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = i.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(i.adder, EffectType.LifeSteal);
                         receiver.Shengming += Effects[i].value;
                         Effects.Remove(i);
                     }
@@ -1633,7 +1623,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(key.adder, EffectType.Luck);
                         var att = receiver.FloatingAttributes;
                         att.Mingzhong.Value -= Effects[key].value1;
                         att.Shanbi.Value -= Effects[key].value2;
@@ -1730,7 +1720,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = key.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(key.adder, EffectType.BadLuck);
                         var att = receiver.FloatingAttributes;
                         att.Mingzhong.Value += Effects[key].value1;
                         att.Shanbi.Value += Effects[key].value2;
@@ -1833,7 +1823,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = i.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(i.adder, EffectType.Freeze);
                     }
                     Effects.Remove(i);
                 }
@@ -1925,7 +1915,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = i.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(i.adder, EffectType.Stun);
                     }
                     Effects.Remove(i);
                 }
@@ -2012,7 +2002,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = i.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(i.adder, EffectType.Sticky);
                     }
                     Effects.Remove(i);
                 }
@@ -2098,7 +2088,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = i.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(i.adder, EffectType.Silence);
                     }
                     Effects.Remove(i);
                 }
@@ -2185,7 +2175,7 @@ namespace AttributeSystem.DataOrientedEffects
                     var receiver = i.GetReceiver();
                     if (receiver && receiver.effectController)
                     {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
+                        receiver.effectController.EffectEnd(i.adder, EffectType.Paralysis);
                     }
                     Effects.Remove(i);
                 }
@@ -2200,7 +2190,9 @@ namespace AttributeSystem.DataOrientedEffects
                     {
                         var p = Effects[key];
                         Effects[key] = new Paralysis() { interval=p.interval, endTime = p.endTime, nextUpdateTime = Time.time + 1 };
-                        key.GetReceiver().Interrupt();
+                        var t = key.GetReceiver();
+                        t.Interrupt();
+                        t.ApplyMotion(new MotionStatic(0.3f, false, 0));
                     }
                 }
             }

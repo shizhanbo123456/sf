@@ -176,7 +176,7 @@ namespace Variety.Skill.Boss3
                 AddEvent(i * 0.2f + 0.6f, (d) =>
                 {
                     var b = GetBullet(4);
-                    b.Init(0.2f,liftstoiclevel:2,ec: new EffectCollection(Target, (EffectType.Freeze, 0, 3f)));
+                    b.Init(0.2f,liftstoiclevel:2,ec: new EffectCollection(Target.ObjectId, (EffectType.Freeze, 0, 3f)));
                     BulletStaticScaleChangeSystem.RegistObject(b, 0f,12f,1f);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();

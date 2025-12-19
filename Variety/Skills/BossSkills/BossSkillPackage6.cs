@@ -193,7 +193,7 @@ namespace Variety.Skill.Boss6
             {
                 d.Target.ApplyMotion(new MotionDir(10f * d.index * Vector3.right, 2, true, 1));
                 var b = GetBullet(5);
-                b.Init(5f,liftstoiclevel:2,ec: new EffectCollection(d.Target, (EffectType.ArmorShatter, 30, 10)));
+                b.Init(5f,liftstoiclevel:2,ec: new EffectCollection(d.Target.ObjectId, (EffectType.ArmorShatter, 30, 10)));
                 BulletFollowSystem.RegistObject(b,4f,2f,Target);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();

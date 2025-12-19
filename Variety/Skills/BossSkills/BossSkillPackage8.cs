@@ -104,12 +104,12 @@ namespace Variety.Skill.Boss8
             {
                 foreach(var i in Target.GetPartnerInRange())
                 {
-                    i.ApplyEffect(new DamageBoost(Target.ObjectId, i, 50, 30));
+                    i.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.DamageBoost, 50f, 30f)));
                 }
                 for (int startangle = 0; startangle <= 270; startangle += 90)
                 {
                     var b_ = GetBullet(4);
-                    b_.Init(1.2f,ec: new EffectCollection(d.Target, (EffectType.Paralysis, 0, 3)));
+                    b_.Init(1.2f,ec: new EffectCollection(d.Target.ObjectId, (EffectType.Paralysis, 0, 3)));
                     BulletOrbitSystem.RegistObject(b_,0.5f,10f,4f,90f,startangle);
                     BulletDamageOnceSystem.Regist(b_);
                     b_.Shoot();
@@ -140,7 +140,7 @@ namespace Variety.Skill.Boss8
             for(int i = -20; i <= 20; i += 5)
             {
                 var b = GetBullet(7);
-                b.Init(1.4f, liftstoiclevel: 0,ec: new EffectCollection(Target, (EffectType.Sticky, 0, 3), (EffectType.AccuracyDecrease, 20, 5)));
+                b.Init(1.4f, liftstoiclevel: 0,ec: new EffectCollection(Target.ObjectId, (EffectType.Sticky, 0, 3), (EffectType.AccuracyDecrease, 20, 5)));
                 BulletAngleNonFacingSystem.RegistObject(b,0.6f,5f,8f,angle+i);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();

@@ -86,7 +86,7 @@ namespace Variety.Skill.Boss2
         {
             //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var b = GetBullet(4);
-            b.Init(0.2f,liftstoiclevel:0,ec: new EffectCollection(Target, (EffectType.Burning, Target.DedicatedAttributes.Gongji * 0.5f, 10f)));
+            b.Init(0.2f,liftstoiclevel:0,ec: new EffectCollection(Target.ObjectId, (EffectType.Burning, Target.DedicatedAttributes.Gongji * 0.5f, 10f)));
             BulletStaticScaleChangeSystem.RegistObject(b,0f,15f,1f);
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
@@ -191,7 +191,7 @@ namespace Variety.Skill.Boss2
                 AddEvent(i * 0.2f + 0.6f,(d) =>
                 {
                     var b = GetBullet(4);
-                    b.Init(0.2f,liftstoiclevel:2,ec: new EffectCollection(d.Target, (EffectType.Stun, 0, 3f)));
+                    b.Init(0.2f,liftstoiclevel:2,ec: new EffectCollection(d.Target.ObjectId, (EffectType.Stun, 0, 3f)));
                     BulletStaticScaleChangeSystem.RegistObject(b,0f,12f,1f);
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();

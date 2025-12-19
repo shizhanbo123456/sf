@@ -97,7 +97,7 @@ namespace Variety.Skill.Boss12
                     b.Shoot();
                 });
             }
-            Target.ApplyEffect(new Speed(Target.ObjectId, Target, 3f, 12f));
+            Target.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.Speed, 3f, 12f)));
         }
     }
     public class Skill3 : SkillBoss

@@ -64,7 +64,7 @@ namespace Variety.Skill.Boss10
                 BulletStaticSystem.RegistObject(b,3f,0.6f,d.Target.transform.position);
                 BulletDamageOnceSystem.Regist(b);
                 b.Shoot();
-                Target.ApplyEffect(new AttackBoost(d.Target.ObjectId, Target, 0.3f, 10f));
+                Target.ApplyEffect(new EffectCollection(d.Target.ObjectId, (EffectType.AttackBoost, 0.3f, 10f)));
             });
         }
     }

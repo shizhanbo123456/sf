@@ -75,12 +75,12 @@ namespace Variety.Skill.Boss4
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var b = GetBullet(11);
-            b.Init(3f, liftstoiclevel: 2, ec: new EffectCollection(Target, (EffectType.ArmorShatter, 55f, 10f)));
+            b.Init(3f, liftstoiclevel: 2, ec: new EffectCollection(Target.ObjectId, (EffectType.ArmorShatter, 55f, 10f)));
             BulletStaticSystem.RegistObject(b, 3f, 0.5f, Target.transform.position);
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
             b = GetBullet(6);
-            b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(Target, (EffectType.Slowness, 2f, 1f)));
+            b.Init(0.2f, liftstoiclevel: 0, ec: new EffectCollection(Target.ObjectId, (EffectType.Slowness, 2f, 1f)));
             BulletStaticSystem.RegistObject(b, 0, 20f,Target.transform.position);
             BulletDamageTimeSystem.Regist(b, 0.5f);
             b.Shoot();

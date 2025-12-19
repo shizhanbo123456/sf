@@ -48,7 +48,7 @@ namespace Variety.Skill.PackageA
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            Target.effectController.AddEffect(new AgileBoost(Target.ObjectId, Target, 100, 0.5f));
+            Target.ApplyEffect(new EffectCollection(Target.ObjectId, (EffectType.AgileBoost, 10f, 0.5f)));
             float vx = Target.FaceRight ? 15 : -15;
             AddEvent(0.02f, (d) => { 
                 d.Target.ApplyMotion(
@@ -181,7 +181,7 @@ namespace Variety.Skill.PackageA
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             Target.ApplyMotion(new MotionDir(new Vector2(0, 15), 0.2f, true, 1));
-            Target.effectController.AddEffect(new JumpBoost(Target.ObjectId, Target, 8, 5));
+            Target.ApplyEffect(new EffectCollection(Target.ObjectId,(EffectType.JumpBoost,8f,5f)));
         }
     }
 }
