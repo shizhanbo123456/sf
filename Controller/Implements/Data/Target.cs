@@ -70,7 +70,7 @@ public abstract class Target : MonoBehaviour
 
         TimeLineWork = gameObject.AddComponent<TimeLineWork>();
         if (!TryGetComponent(out targetControllerSync)) Debug.LogError("未找到同步");
-        if (TryGetComponent(out targetDataSync)) targetDataSync.Init(this);
+        if (TryGetComponent(out targetDataSync)) targetDataSync.Init(this,param);
         else Debug.LogError("未找到信息同步");
 
         RegistOnCreated();
@@ -94,9 +94,6 @@ public abstract class Target : MonoBehaviour
         FloatingAttributes.Mingzhong.OnValueChanged += v => targetDataSync.SyncMingzhong(v);
         FloatingAttributes.Baoji.OnValueChanged += v => targetDataSync.SyncBaoji(v);
         FloatingAttributes.Jiashang.OnValueChanged += v => targetDataSync.SyncJiashang(v);
-
-        FloatingAttributes.SetAllDirty();
-
 
         DedicatedAttributes.Shengming.OnValueChanged += v => graphic.header.SetBarValue(v.Item2 / (float)v.Item1);
     }

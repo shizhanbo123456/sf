@@ -19,7 +19,8 @@ public class Lantern : Target
 
         if (UpdateLocally)
         {
-            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level);
+            float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level,healthRate);
             FloatingAttributes = BaseAttributes.Clone();
             if (param.ContainsKey("LReg")) RegenerationTime = float.Parse(param["LReg"]);
             else RegenerationTime = 30;

@@ -9,7 +9,7 @@ public class DedicateSyncAttributes
     public int Baoji;
     public int Jiashang;
 
-    public DedicateSyncAttributes(int level, int healthScale = 1)
+    public DedicateSyncAttributes(int level, float healthScale = 1)
     {
         var att=TargetAttributes.GetGameTimeAttributes(level,healthScale);
         Shengming.Value = (att.Shengming.Value, att.Shengming.Value);

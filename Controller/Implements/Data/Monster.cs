@@ -33,7 +33,8 @@ public class Monster : Target
 
         if (UpdateLocally)
         {
-            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level);
+            float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level,healthRate);
             BloodPerM = BaseAttributes.Shengming.Value / LayerMax;
             BaseAttributes.Shengming.Value = LayerMax * BloodPerM;
             FloatingAttributes = BaseAttributes.Clone();

@@ -11,7 +11,8 @@ public class Ore : Target
 
         if (UpdateLocally)
         {
-            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level);
+            float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level, healthRate);
             FloatingAttributes = BaseAttributes.Clone();
             RegistSyncAttributes();
         }

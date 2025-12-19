@@ -7,11 +7,12 @@ public class TargetDataSync : EnsBehaviour
 {
     private Target target;
     public DedicateSyncAttributes DedicatedAttributes;
-    public void Init(Target target)
+    public void Init(Target target,Dictionary<string,string>param)
     {
         this.target = target;
         nomEnabled = target.UpdateLocally;
-        DedicatedAttributes = new DedicateSyncAttributes(target.Level);
+        float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+        DedicatedAttributes = new DedicateSyncAttributes(target.Level,healthRate);
     }
     public override void ManagedUpdate()
     {

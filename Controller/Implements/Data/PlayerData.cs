@@ -16,7 +16,8 @@ public class PlayerData : Target
         base.Init(info, param);
         if (isLocalPlayer)
         {
-            BaseAttributes = TargetAttributes.GetGameTimeAttributes(Level);
+            float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+            BaseAttributes = TargetAttributes.GetGameTimeAttributes(Level,healthRate);
             FloatingAttributes = BaseAttributes.Clone();
             float reg=0.01f;
             if (param.ContainsKey("PReg")) reg = float.Parse(param["PReg"]);
@@ -48,10 +49,6 @@ public class PlayerData : Target
     private void UpdateBar()
     {
         bar.SetValue(FloatingAttributes.Shengming.Value, BaseAttributes.Shengming.Value);
-    }
-    protected override void RegistOnCreated()
-    {
-        base.RegistOnCreated();
     }
     protected override void RegistOnDestroy()
     {
