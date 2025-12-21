@@ -207,7 +207,8 @@ public abstract class TargetController : MonoBehaviour
             controller.isGrounded = true;
             controller.OperationLock.Locked = false;
             controller.SkillLock.Locked = false;
-            controller.rb.velocity = new Vector2();
+            var v = controller.rb.velocity.y;
+            controller.rb.velocity = new Vector2(0,v);
         }
     }
     private void SwitchState(StateBase nextState)

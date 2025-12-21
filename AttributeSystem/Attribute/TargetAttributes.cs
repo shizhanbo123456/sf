@@ -8,7 +8,7 @@ namespace AttributeSystem.Attributes
         {
             float factor = GetFactor(level);
             var d=new GameTimeAttributes();
-            d.Shengming.Value = (int)(factor * 0.1f);
+            d.Shengming.Value = (int)(factor * 0.1f*healthScale);
             d.Gongji.Value = (int)(factor * 0.01f);
             d.Fangyu.Value = (int)(factor * 0.01f);
             d.Mingzhong.Value = (int)(factor * 0.01f);
