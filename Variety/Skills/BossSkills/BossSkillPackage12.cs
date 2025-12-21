@@ -83,6 +83,10 @@ namespace Variety.Skill.Boss12
             TimeNeeded = 0.5f;
             cd = 3f;
         }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(5);
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             WarningCircle.Warn(Target.transform.position, 3f, 1f);
@@ -140,15 +144,18 @@ namespace Variety.Skill.Boss12
         public Skill4() : base()
         {
             sprite = new Vector2Int(4, 0);
-            Name = "旋绕弹幕";
+            Name = "机动突进";
             Tag = "范围、机动";
-            Description = "自身向前突进的同时，连续发射4枚沿轨道旋转的弹幕，交替顺时针和逆时针旋转";
+            Description = "自身向前突进，连续发射4枚沿轨道方向的弹幕";
             TimeNeeded = 1f;
             cd = 3f;
         }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetEnemyInRect(20, 3, true).Count>0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
-            //GetBullet(7).Init(new BulletAngle(Target, 1, 5, 0, 0.3f), new BulletDataSlight(Target, new Damage_Once(), 0.5f)).Shoot();
             var front = Target.FaceRight ? 1 : -1;
             Target.ApplyMotion(new MotionDir(new Vector2(front * 20, 0), 1, true, 1));
             for (int i = 0; i < 4; i++)
@@ -171,7 +178,7 @@ namespace Variety.Skill.Boss12
             sprite = new Vector2Int(5, 0);
             Name = "星陨狂潮";
             Tag = "全屏、爆发";
-            Description = "腾空跃起后锁定最近敌人位置，生成预警区域，随后360度全方位发射抛物线弹幕覆盖战场";
+            Description = "腾空跃起后锁定最近敌人位置，生成预警区域，随后全方位发射抛物线弹幕覆盖战场";
             TimeNeeded = 5f;
             cd = 32f;
         }

@@ -1,6 +1,4 @@
 using AttributeSystem.Effect;
-using System.Collections.Generic;
-using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using Variety.Base;
 using Variety.Template;
@@ -43,6 +41,10 @@ namespace Variety.Skill.Boss9
             TimeNeeded = 0.5f;
             cd = 40f;
         }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetEnemyInRange(3).Count>0;
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var p = Target.transform.position;
@@ -72,6 +74,10 @@ namespace Variety.Skill.Boss9
             Description = "锁定最近敌人位置生成预警圈，1秒后向目标发射12枚抛物线子弹，呈360度环形分布，全面覆盖目标区域";
             TimeNeeded = 2f;
             cd = 12f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -103,6 +109,10 @@ namespace Variety.Skill.Boss9
             Description = "先生成7列纵向预警区域，1秒后发射纵向贯穿子弹；2秒后生成8列纵向预警，3秒后再次发射子弹，双重封锁纵向走位";
             TimeNeeded =4f;
             cd = 25f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(30);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -155,7 +165,7 @@ namespace Variety.Skill.Boss9
         }
         public override bool Detect(Target Target)
         {
-            return Target.GetEnemyInRange(6,false).Count>0;
+            return Target.GetEnemyInRange(6).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -180,6 +190,10 @@ namespace Variety.Skill.Boss9
             Description = "生成30范围超大预警圈，5秒蓄力后触发，自身发射巨型爆炸弹幕，同时冻结所有敌人2秒";
             TimeNeeded = 0.5f;
             cd = 45f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(30);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

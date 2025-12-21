@@ -18,6 +18,10 @@ namespace Variety.Skill.Boss2
             TimeNeeded = 0.5f;
             cd = 8f;
         }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             for(int i = 0; i < 8; i++)
@@ -46,6 +50,10 @@ namespace Variety.Skill.Boss2
             Description = "向最近敌人方向高速突进1.5秒，期间发射一枚跟随自身的高额伤害子弹，突进结束后向目标方向发射31枚密集散射子弹，实现突进衔接爆发";
             TimeNeeded = 0.5f;
             cd = 1f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -81,6 +89,10 @@ namespace Variety.Skill.Boss2
             Description = "发射一枚从无到有逐渐扩大的巨型弹幕，命中敌人后附加燃烧效果，每秒造成自身攻击力50%的伤害，持续10秒";
             TimeNeeded = 0.5f;
             cd = 20f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -152,6 +164,10 @@ namespace Variety.Skill.Boss2
             TimeNeeded = 2.5f;
             cd = 7f;
         }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             for (int i = 0; i < 12; i++)
@@ -181,6 +197,10 @@ namespace Variety.Skill.Boss2
             Description = "生成12范围超大预警圈，自身静止3秒蓄力，随后分批次发射逐渐扩大的震荡弹幕，命中敌人附加3秒眩晕效果，掌控战场节奏";
             TimeNeeded = 0.5f;
             cd = 20f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

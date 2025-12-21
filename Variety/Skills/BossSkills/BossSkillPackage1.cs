@@ -16,6 +16,10 @@ namespace Variety.Skill.Boss1
             Description = "向360度方向均匀发射24枚子弹，每枚间隔15度，形成无死角环形弹幕，全面封锁敌人走位";
             cd = 3f;
         }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             for(int i = 0; i < 24; i++)
@@ -37,6 +41,10 @@ namespace Variety.Skill.Boss1
             Tag = "单体、范围";
             Description = "锁定最近敌人方向，向目标及左右±10度、±20度范围发射5枚子弹，精准覆盖目标周围区域";
             cd = 8f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -92,6 +100,10 @@ namespace Variety.Skill.Boss1
             Description = "自身向上跃起后向最近敌人方向横向位移，随后猛然下坠，落地时触发范围爆炸，同时向4个斜向发射抛物线子弹，形成双重打击";
             TimeNeeded = 0.5f;
             cd = 25f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

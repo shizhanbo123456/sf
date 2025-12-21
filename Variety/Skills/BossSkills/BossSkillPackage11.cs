@@ -52,6 +52,10 @@ namespace Variety.Skill.Boss11
             TimeNeeded = 4f;
             cd = 30f;
         }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(25);
+        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             for (int i = 0; i < 30; i++)
@@ -79,7 +83,7 @@ namespace Variety.Skill.Boss11
             sprite = new Vector2Int(2, 0);
             Name = "横向雾袭";
             Tag = "范围、封锁";
-            Description = "在最近敌人位置生成横向大范围预警区域，警告1秒后发射雾型子弹从左至右横扫，封锁横向移动路径";
+            Description = "在最近敌人位置生成横向预警区域，警告1秒后发射雾型子弹从左至右横扫，封锁横向移动路径";
             TimeNeeded = 0.5f;
             cd = 3f;
         }
@@ -135,11 +139,15 @@ namespace Variety.Skill.Boss11
         public Skill4() : base()
         {
             sprite = new Vector2Int(4, 0);
-            Name = "环形火雨";
+            Name = "环形刀光";
             Tag = "全屏、高额伤害";
-            Description = "在最近敌人周围生成环形分布的18个预警区域，2.5秒后发射20枚火球子弹，沿环形交叉轨迹撞击目标区域，每枚造成3.6倍高额伤害";
+            Description = "在最近敌人周围生成环形分布的18个预警区域，2.5秒后发射20枚子弹，沿环形交叉轨迹撞击目标区域，每枚造成3.6倍高额伤害";
             TimeNeeded = 0.5f;
             cd = 28f;
+        }
+        public override bool Detect(Target Target)
+        {
+            return Target.GetNearestEnemy(20);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -212,7 +220,7 @@ namespace Variety.Skill.Boss11
             sprite = new Vector2Int(0, 0);
             Name = "乱序弹幕";
             Tag = "乱序";
-            Description = "4秒蓄力后，在最近敌人周围生成40个随机轨迹的警告区域，3秒后发射20枚距离型子弹沿预设轨迹突袭，每枚造成2.5倍伤害";
+            Description = "在最近敌人周围生成40个随机轨迹的警告区域，3秒后发射20枚子弹沿预设轨迹突袭，每枚造成2.5倍伤害";
             TimeNeeded = 4f;
             cd = 25f;
         }
