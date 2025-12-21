@@ -1786,7 +1786,7 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime)
+                if (Time.time > Effects[key].endTime || !Effects[key].moveLock.InUse || !Effects[key].skillLock.InUse)
                 {
                     Effects[key].moveLock.Locked = false;
                     Effects[key].skillLock.Locked = false;
@@ -1878,7 +1878,7 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime)
+                if (Time.time > Effects[key].endTime || !Effects[key].moveLock.InUse || !Effects[key].skillLock.InUse)
                 {
                     Effects[key].moveLock.Locked = false;
                     Effects[key].skillLock.Locked = false;
@@ -1966,7 +1966,7 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime)
+                if (Time.time > Effects[key].endTime || !Effects[key].moveLock.InUse)
                 {
                     Effects[key].moveLock.Locked = false;
                     Effects[key].moveLock.Discard();
@@ -2053,7 +2053,7 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime)
+                if (Time.time > Effects[key].endTime || !Effects[key].chain.InUse)
                 {
                     Effects[key].chain.Locked=false;
                     Effects[key].chain.Discard();
