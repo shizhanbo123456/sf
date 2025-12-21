@@ -24,8 +24,14 @@ public class TargetEffectController : MonoBehaviour
         effect.ApplyEffects(target);
         enabled = true;
     }
+    public void EffectStart(int adder,EffectType type)
+    {
+        if (Effects.Contains((type, adder))) return;
+        Effects.Add((type,adder));
+    }
     public void EffectEnd(int adder, EffectType type)
     {
+        if(!Effects.Contains((type, adder))) return;
         Effects.Remove((type, adder));
         enabled = true;
     }
@@ -37,12 +43,7 @@ public class TargetEffectController : MonoBehaviour
         }
         else
         {
-            List<int> values = new List<int>();
-            foreach (var i in Effects)
-            {
-                values.Add((int)i.Item1);
-            }
-            target.SyncEffectIconRpc(values);
+            target.SyncEffectIconRpc(Effects);
         }
     }
 }

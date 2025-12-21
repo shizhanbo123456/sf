@@ -92,14 +92,14 @@ public class TargetDataSync : EnsBehaviour
         bool faceright = s[3][0] == '1';
         VarietyManager.GetSkill(index).UseSkill(target, pos, faceright);
     }
-    public void SyncEffectIconRpc(List<int> values)
+    public void SyncEffectIconRpc(HashSet<(EffectType, int)> values)
     {
         if (values == null || values.Count == 0)
         {
             CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, "null");
             return;
         }
-        CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, Format.ListToString(values, '+'));
+        CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, Format.ListToString(values, t=>((int)t.Item1).ToString(),'+'));
     }
     private void SyncEffectIconLocal(string data)
     {
@@ -108,6 +108,7 @@ public class TargetDataSync : EnsBehaviour
             target.graphic.header.ShowEffects(new List<EffectType>());
             return;
         }
+        Debug.Log(data);
         var list = Format.StringToList(data, int.Parse, '+');
         target.graphic.header.ShowEffects(list.Select(i => (EffectType)i).ToList());
     }

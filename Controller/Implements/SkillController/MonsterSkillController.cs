@@ -22,9 +22,9 @@ public class MonsterSkillController:TargetSkillController
     {
         if (Skills.Count == 0) return;
         if (skillIndex >= Skills.Count) skillIndex = 0;
-        if (GetSkill(skillIndex).Detect(target))
+        if (GetSkillByOwnedIndex(skillIndex).Detect(target))
         {
-            var b = UseSkill(skillIndex);
+            var b = UseSkillByOwnedIndex(skillIndex);
             if (!b)
             {
                 useSkillCD = 0.2f;

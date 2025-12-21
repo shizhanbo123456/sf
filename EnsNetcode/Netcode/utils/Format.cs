@@ -59,15 +59,16 @@ public static class Format
         return r;
     }
 
-    public static string ListToString<T>(IEnumerable<T> list, char c = ListSeparator)
+    public static string ListToString<T>(IEnumerable<T> list, Func<T, string> converter = null, char c = ListSeparator)
     {
+        if (converter == null) converter = T => T.ToString();
         StringBuilder sb= new StringBuilder();
         bool isFirst = true;
         foreach(var i in list)
         {
             if (isFirst) isFirst = false;
             else sb.Append(c);
-            sb.Append(i.ToString());
+            sb.Append(converter(i));
         }
         return sb.ToString();
     }

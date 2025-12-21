@@ -22,6 +22,7 @@ namespace AttributeSystem.Effect
             if(effects.Length == 0) return;
             foreach(var i in effects)
             {
+                receiver.effectController.EffectStart(adder, i.Item1);
                 AddEffect(i.Item1,i.Item2,i.Item3,receiver);
             }
         }

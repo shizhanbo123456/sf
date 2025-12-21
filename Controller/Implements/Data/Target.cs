@@ -193,7 +193,7 @@ public abstract class Target : MonoBehaviour
     }
 
     public void UseSkillRpc(int index)=>targetDataSync.UseSkillRpc(index);
-    public void SyncEffectIconRpc(List<int> values)=>targetDataSync.SyncEffectIconRpc(values);
+    public void SyncEffectIconRpc(HashSet<(EffectType, int)> values)=>targetDataSync.SyncEffectIconRpc(values);
     public void Interrupt() => TimeLineWork.Interrupted();
 
 

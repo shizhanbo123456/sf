@@ -71,7 +71,7 @@ public class TargetSkillController : MonoBehaviour
         {
             foreach (var i in UseSkillCommandBuffer)
             {
-                if (UseSkill(i)) break;
+                if (UseSkillByOwnedIndex(i)) break;
             }
         }
         UseSkillCommandBuffer.Clear();
@@ -80,7 +80,7 @@ public class TargetSkillController : MonoBehaviour
     {
 
     }
-    public bool UseSkill(int x)
+    public bool UseSkillByOwnedIndex(int x)
     {
         if (SkillLock.LockedInHierechy) return false;
         if (x >= Skills.Count) return false;
@@ -92,7 +92,7 @@ public class TargetSkillController : MonoBehaviour
         target.UseSkillRpc(s.SkillIndex);
         return true;
     }
-    public SkillBase GetSkill(int x) => (x<Skills.Count&&x>=0)?VarietyManager.GetSkill(Skills[x].SkillIndex):null;
+    public SkillBase GetSkillByOwnedIndex(int x) => (x<Skills.Count&&x>=0)?VarietyManager.GetSkill(Skills[x].SkillIndex):null;
     public void UseSkillBuffer(int index)
     {
         if (!UseSkillCommandBuffer.Contains(index)) UseSkillCommandBuffer.Add(index);
