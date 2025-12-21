@@ -17,10 +17,6 @@ namespace Variety.Skill.Boss4
             TimeNeeded = 0.5f;
             cd = 8f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t = Target.GetNearestEnemy();
@@ -49,10 +45,6 @@ namespace Variety.Skill.Boss4
             TimeNeeded = 0.5f;
             cd = 10f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t=Target.GetNearestEnemy();
@@ -80,10 +72,6 @@ namespace Variety.Skill.Boss4
             TimeNeeded = 0.5f;
             cd = 30f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var b = GetBullet(11);
@@ -109,10 +97,6 @@ namespace Variety.Skill.Boss4
             TimeNeeded = 0.5f;
             cd = 10f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t = Target.GetNearestEnemy().transform.position;
@@ -137,10 +121,6 @@ namespace Variety.Skill.Boss4
             Description = "在最近敌人位置生成预警圈，1秒后从三个斜向方向发射3枚子弹，交叉撞击目标区域，形成夹击封锁";
             TimeNeeded = 0.5f;
             cd = 14f;
-        }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

@@ -17,10 +17,6 @@ namespace Variety.Skill.Boss5
             TimeNeeded = 0.5f;
             cd = 8f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t = Target.GetNearestEnemy();
@@ -55,10 +51,6 @@ namespace Variety.Skill.Boss5
             TimeNeeded = 0.5f;
             cd = 10f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             for (int i = 0; i < 5; i++)
@@ -82,10 +74,6 @@ namespace Variety.Skill.Boss5
             Description = "自身向上跃起1秒，落地后锁定最近敌人方向，向目标及左右±10度范围发射密集散射子弹";
             TimeNeeded = 1f;
             cd = 10f;
-        }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -115,10 +103,6 @@ namespace Variety.Skill.Boss5
             Description = "为范围内每个敌人生成预警圈，1秒后在每个敌人位置生成4枚沿轨道旋转的子弹，持续环绕打击目标";
             TimeNeeded = 1.2f;
             cd = 20f;
-        }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

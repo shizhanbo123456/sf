@@ -18,10 +18,6 @@ namespace Variety.Skill.Boss13
             TimeNeeded = 0.5f;
             cd = 12f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var angle = Dt2Degree(Target.GetNearestEnemy().transform.position - Target.transform.position);
@@ -54,10 +50,6 @@ namespace Variety.Skill.Boss13
             TimeNeeded = 2f;
             cd = 3f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 _, bool faceright)
         {
             var t = Target.GetNearestEnemy();
@@ -87,10 +79,6 @@ namespace Variety.Skill.Boss13
             TimeNeeded = 2f;
             cd = 3f;
         }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
-        }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
             var t = Target.GetNearestEnemy();
@@ -113,10 +101,6 @@ namespace Variety.Skill.Boss13
             Description = "在目标区域生成9道纵向切割线，从上方贯穿至下方，覆盖大范围区域，封锁敌人移动";
             TimeNeeded = 1.5f;
             cd = 15f;
-        }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -149,10 +133,6 @@ namespace Variety.Skill.Boss13
             Description = "自身获得中幅攻击力提升，先发射环绕轨道弹保护自身，后续切换为高速追踪弹进行收割";
             TimeNeeded = 10f;
             cd = 30f;
-        }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {
@@ -193,10 +173,6 @@ namespace Variety.Skill.Boss13
             Description = "1秒内发射30枚抛物线弹幕，呈环形覆盖目标区域，形成压制性火力";
             TimeNeeded = 3f;
             cd = 40f;
-        }
-        public override bool Detect(Target Target)
-        {
-            return Target.GetNearestEnemy(20f);
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

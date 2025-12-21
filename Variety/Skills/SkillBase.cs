@@ -25,7 +25,7 @@ namespace Variety.Base
         }
         public virtual bool Detect(Target Target)
         {
-            return Target.HasEnemy();
+            return Target.GetNearestEnemy(20f);
         }
         public abstract void UseSkill(Target Target, Vector3 pos, bool faceright);
         protected void AddEvent(float delay,TimeLineData data,Action<TimeLineData>action)
