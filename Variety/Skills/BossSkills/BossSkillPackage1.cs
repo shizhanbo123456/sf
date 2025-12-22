@@ -138,7 +138,7 @@ namespace Variety.Skill.Boss1
         }
         public override bool Detect(Target Target)
         {
-            return Target.GetEnemyInRange(5,false).Count==0;
+            return Target.GetEnemyInRange(15).Count>0;
         }
         protected override void OnUse(Target Target, Vector3 pos, bool faceright)
         {

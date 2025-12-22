@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using XLua;
 
@@ -7,6 +8,7 @@ using XLua;
 [Serializable]
 public struct TargetInfo
 {
+    private static readonly StringBuilder stringBuilder=new StringBuilder();
     public int camp;
     public int owner;
     public int level;
@@ -15,7 +17,7 @@ public struct TargetInfo
     public float spawnY;
     public float size;
     public string label;
-    public TargetInfo(int camp, int owner, int level, string name, float spawnX,float spawnY,float size, string label = "")
+    public TargetInfo(int camp, int owner, int level, string name, float spawnX,float spawnY,float size, string label)
     {
         this.camp = camp;
         this.owner = owner;
@@ -36,20 +38,20 @@ public struct TargetInfo
         spawnX=float.Parse(s[4]);
         spawnY=float.Parse(s[5]);
         size = float.Parse(s[6]);
-        if (s.Length > 7) label = s[7];
-        else label = "";
+        label = s[7];
     }
     public override string ToString()
     {
-        var sb = Tool.stringBuilder;
+        var sb = stringBuilder;
+        sb.Clear();
         sb.Append(camp).Append('/');
         sb.Append(owner).Append('/');
         sb.Append(level).Append('/');
         sb.Append(name).Append('/');
         sb.Append(spawnX.ToString("F1")).Append('/');
         sb.Append(spawnY.ToString("F1")).Append('/');
-        sb.Append(size.ToString("F1"));
-        if (label != "") sb.Append('/').Append(label);
+        sb.Append(size.ToString("F1")).Append('/');
+        sb.Append(label);
         return sb.ToString();
     }
 }
@@ -91,7 +93,7 @@ public class CustomTargetCreater
     public override string ToString()
     {
         var sb = Tool.stringBuilder;
-        sb.Append(info).Append('_');
+        sb.Append(info.ToString()).Append('_');
         sb.Append(targetType).Append('_');
         sb.Append(graphicType).Append('_');
         sb.Append(controllerType).Append('_');

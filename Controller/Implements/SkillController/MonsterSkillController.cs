@@ -29,16 +29,11 @@ public class MonsterSkillController:TargetSkillController
             if (!b)
             {
                 useSkillCD = 0.2f;
-                Debug.Log("333");
             }
             else
             {
                 useSkillCD = interval;
             }
-        }
-        else
-        {
-            Debug.Log("222");
         }
         skillIndex++;
     }

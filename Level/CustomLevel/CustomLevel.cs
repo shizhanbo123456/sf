@@ -73,7 +73,7 @@ public static class CustomLevel
         //创建关卡、角色、装载技能
         try
         {
-            FightStartFunction?.Action(0);
+            FightStartFunction.Action(0);
         }
         catch(System.Exception e)
         {
@@ -84,7 +84,7 @@ public static class CustomLevel
     {
         try 
         { 
-            TargetKilledFunction?.Action(new TargetInfo(),killed);
+            TargetKilledFunction.Action(new TargetInfo(),killed);
         }
         catch (System.Exception e)
         {
@@ -95,7 +95,7 @@ public static class CustomLevel
     {
         try
         {
-            TargetKilledFunction?.Action(killer, killed);
+            TargetKilledFunction.Action(killer, killed);
         }
         catch (System.Exception e)
         {
@@ -106,7 +106,7 @@ public static class CustomLevel
     {
         try
         {
-            UpdateFunction?.Action(Time.time - StartTime, Time.deltaTime);
+            UpdateFunction.Action(Time.time - StartTime, Time.deltaTime);
         }
         catch (System.Exception e)
         {
@@ -115,7 +115,6 @@ public static class CustomLevel
     }
     public static bool JudgeEnd()
     {
-        if(JudgeEndFunction == null)return false;   
         try
         {
             return JudgeEndFunction.Func<int, bool>(0);
@@ -130,9 +129,9 @@ public static class CustomLevel
     {
         try
         {
-            killScore = KillScoreFunction != null ? KillScoreFunction.Func<int, int>(0) : 233;
-            timeScore = TimeScoreFunction != null ? TimeScoreFunction.Func<int, int>(0) : 233;
-            challengeScore = ModeScoreFunction != null ? ModeScoreFunction.Func<int, int>(0) : 233;
+            killScore = KillScoreFunction.Func<int, int>(0);
+            timeScore = TimeScoreFunction.Func<int, int>(0);
+            challengeScore = ModeScoreFunction.Func<int, int>(0);
         }
         catch (System.Exception e)
         {
@@ -147,7 +146,7 @@ public static class CustomLevel
         Fighting = false;
         try
         {
-            ReleaseDataFunction?.Action(0);
+            ReleaseDataFunction.Action(0);
         }
         catch
         {
