@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -37,8 +38,11 @@ public class Tool:MonoBehaviour
     {
         get { return stringbuilder.Clear(); }
     }
-
-
+    public static Action OnApplicationQuitEvent;
+    private void OnApplicationQuit()
+    {
+        OnApplicationQuitEvent?.Invoke();
+    }
 
 
     private void Awake()

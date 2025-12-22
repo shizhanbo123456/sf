@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using XLua;
 
@@ -7,7 +6,7 @@ using XLua;
 /// </summary>
 public static class CustomLevel
 {
-    private static LuaEnv luaEnv=> Tool.LuaManager.luaEnv;
+    private static LuaEnv luaEnv;
     private static string LuaText;
 
     public static string[] ModePathParts;
@@ -32,6 +31,12 @@ public static class CustomLevel
 
     public static bool CreateCustomLevel(string lua)
     {
+        if (luaEnv == null)
+        {
+            luaEnv = new LuaEnv();
+            Tool.OnApplicationQuitEvent += () => luaEnv.Dispose();
+        }
+
         LuaText = lua;
 
         try
