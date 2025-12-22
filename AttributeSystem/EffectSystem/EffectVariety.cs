@@ -1,9 +1,10 @@
 using AttributeSystem.Attributes;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 using Variety.Template;
+using static UnityEngine.GraphicsBuffer;
 
 public enum EffectType
 {
@@ -23,59 +24,39 @@ namespace AttributeSystem.DataOrientedEffects
             this.adder = adder;
             this.receiver = receiver;
         }
-        public Target GetAdder() => Tool.SceneController.GetTarget(adder);
-        public Target GetReceiver() => Tool.SceneController.GetTarget(receiver);
+        public readonly Target GetAdder() => Tool.SceneController.GetTarget(adder);
+        public readonly Target GetReceiver() => Tool.SceneController.GetTarget(receiver);
         public override int GetHashCode()
         {
             return adder * 10000 + receiver;
         }
     }
-    public struct HealthRegeneration
+    public interface IEffect
     {
-        private int value;
-        private float endTime;
-        private float nextUpdateTime;
-
-        private static Dictionary<EffectId, HealthRegeneration> Effects = new();
-        public static void AddEffect(int adder, int receiver, int value, float time)
-        {
-            if(!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            Effects.Add(new EffectId(adder, receiver), new HealthRegeneration()
-            { value = value, endTime = Time.time + time, nextUpdateTime = Time.time + 1f });
-        }
-        private static void Update()
+        float GetEndTime();
+    }
+    public abstract class EffectSystem<T>where T: IEffect
+    {
+        protected static Dictionary<EffectId, T> Effects = new();
+        public abstract void AddEffect(int adder, int receiver, float value, float time);
+        protected virtual void Update()
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime) GlobalEffectManager.ToRemove.Add(key);
+                if (Time.time > Effects[key].GetEndTime()) GlobalEffectManager.ToRemove.Add(key);
             }
             if (GlobalEffectManager.ToRemove.Count > 0)
             {
                 foreach (var i in GlobalEffectManager.ToRemove)
                 {
                     var t = i.GetReceiver();
-                    if (t && t.effectController) t.effectController.EffectEnd(i.adder, EffectType.HealthRegeneration);
-                    Effects.Remove(i);
+                    if (t && t.effectController) t.effectController.EffectEnd(i.adder, GetEffectType());
+                    SetEffectActive(false, i, Effects[i]);
                 }
                 GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-            if (Effects.Count > 0)
-            {
-                foreach (var key in Effects.Keys)
-                {
-                    if (Time.time > Effects[key].nextUpdateTime)
-                    {
-                        var p = Effects[key];
-                        Effects[key] = new HealthRegeneration() { value = p.value, endTime = p.endTime, nextUpdateTime = Time.time + 1 };
-                        var t=Tool.SceneController.GetTarget(key.receiver);
-                        if (t != null) t.Shengming += p.value;
-                    }
-                }
             }
         }
-        private static void OnTargetDestroyed(int id)
+        protected virtual void OnTargetDestroyed(int id)
         {
             foreach (var key in Effects.Keys)
             {
@@ -84,12 +65,32 @@ namespace AttributeSystem.DataOrientedEffects
                     GlobalEffectManager.ToRemove.Add(key);
                 }
             }
-            foreach (var i in GlobalEffectManager.ToRemove) Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
+            if (GlobalEffectManager.ToRemove.Count > 0)
+            {
+                foreach (var i in GlobalEffectManager.ToRemove)
+                {
+                    SetEffectActive(false, i, Effects[i]);
+                }
+                GlobalEffectManager.ToRemove.Clear();
+            }
         }
-        private static bool eventsActive = false;
-        private static void EnableEvents()
+        protected abstract EffectType GetEffectType();
+        protected virtual void SetEffectActive(bool active, EffectId id, T effect)
+        {
+            if (active)
+            {
+                Effects.Add(id, effect);
+                EnableEvents();
+            }
+            else
+            {
+                Effects.Remove(id);
+                DisableEvents();
+            }
+        }
+
+        private bool eventsActive = false;
+        protected void EnableEvents()
         {
             if (eventsActive) return;
             if (Effects.Count == 0) return;
@@ -97,7 +98,7 @@ namespace AttributeSystem.DataOrientedEffects
             GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
             eventsActive = true;
         }
-        private static void DisableEvents()
+        protected void DisableEvents()
         {
             if (!eventsActive) return;
             if (Effects.Count > 0) return;
@@ -106,49 +107,74 @@ namespace AttributeSystem.DataOrientedEffects
             eventsActive = false;
         }
     }
-    // 燃烧效果实现
-    public struct Burning
+    public struct HealthRegeneration: IEffect
     {
-        private int damageValue;
-        private float endTime;
-        private float nextUpdateTime;
-
-        private static Dictionary<EffectId, Burning> Effects = new();
-        public static void AddEffect(int adder, int receiver, int value, float time)
+        public int value;
+        public float endTime;
+        public float nextUpdateTime;
+        public float GetEndTime() => endTime;
+    }
+    public class HealthRegenerationSystem : EffectSystem<HealthRegeneration>
+    {
+        private Dictionary<EffectId, HealthRegeneration> Temp = new Dictionary<EffectId, HealthRegeneration>();
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            Effects.Add(new EffectId(adder, receiver), new Burning
+            SetEffectActive(true,new EffectId(adder, receiver), new HealthRegeneration()
+            { value = (int)value, endTime = Time.time + time, nextUpdateTime = Time.time + 1f });
+        }
+        protected override void Update()
+        {
+            base.Update();
+            if (Effects.Count > 0)
             {
-                damageValue = value,
+                foreach (var key in Effects.Keys)
+                {
+                    if (Time.time > Effects[key].nextUpdateTime)
+                    {
+                        var p = Effects[key];
+                        var t = Tool.SceneController.GetTarget(key.receiver);
+                        if (t != null) t.Shengming += p.value;
+                        Temp.Add(key, new HealthRegeneration() { value = p.value, endTime = p.endTime, nextUpdateTime = Time.time + 1 });
+                    }
+                }
+                if (Temp.Count > 0)
+                {
+                    foreach(var key in Temp.Keys)
+                    {
+                        Effects[key]= Temp[key];
+                    }
+                    Temp.Clear();
+                }
+            }
+        }
+        protected override EffectType GetEffectType() => EffectType.HealthRegeneration;
+    }
+    // 燃烧效果实现
+    public struct Burning:IEffect
+    {
+        public int damageValue;
+        public float endTime;
+        public float nextUpdateTime;
+        public float GetEndTime() => endTime;
+    }
+    public class BurningSystem : EffectSystem<Burning>
+    {
+        private Dictionary<EffectId, Burning> Temp=new Dictionary<EffectId, Burning>();
+        public override void AddEffect(int adder, int receiver, float value, float time)
+        {
+            if (!GlobalEffectManager.TargetCheck(receiver)) return;
+            SetEffectActive(true,new EffectId(adder, receiver), new Burning
+            {
+                damageValue = (int)value,
                 endTime = Time.time + time,
                 nextUpdateTime = Time.time + 1f
             });
         }
 
-        private static void Update()
+        protected override void Update()
         {
-            // 移除过期效果
-            foreach (var key in Effects.Keys)
-            {
-                if (Time.time > Effects[key].endTime)
-                    GlobalEffectManager.ToRemove.Add(key);
-            }
-
-            // 处理移除
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                {
-                    var t = i.GetReceiver();
-                    if (t && t.effectController) t.effectController.EffectEnd(i.adder, EffectType.Burning);
-                    Effects.Remove(i);
-                }
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-
-            // 执行周期性伤害
+            base.Update();
             if (Effects.Count > 0)
             {
                 foreach (var key in Effects.Keys)
@@ -157,1338 +183,483 @@ namespace AttributeSystem.DataOrientedEffects
                     if (Time.time > effect.nextUpdateTime)
                     {
                         var receiver = key.GetReceiver();
-                        if (receiver != null)
+                        if (receiver == null) continue;
+                        var attributes = receiver.FloatingAttributes;
+                        if (attributes.Shengming.Value > 1)
                         {
-                            var attributes = receiver.FloatingAttributes;
-                            if (attributes.Shengming.Value > 1)
-                            {
-                                attributes.Shengming.Value = Mathf.Max(1, attributes.Shengming.Value - effect.damageValue);
-                            }
+                            attributes.Shengming.Value = Mathf.Max(1, attributes.Shengming.Value - effect.damageValue);
                         }
 
-                        // 更新下次触发时间
-                        Effects[key] = new Burning
+                        Temp.Add(key, new Burning
                         {
                             damageValue = effect.damageValue,
                             endTime = effect.endTime,
                             nextUpdateTime = Time.time + 1f
-                        };
+                        });
                     }
+                }
+                if(Temp.Count>0)
+                {
+                    foreach(var key in Temp.Keys)
+                    {
+                        Effects[key] = Temp[key];
+                    }
+                    Temp.Clear();
                 }
             }
         }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                    GlobalEffectManager.ToRemove.Add(key);
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
-        }
+        protected override EffectType GetEffectType() => EffectType.Burning;
     }
 
     // 速度加成效果
-    public struct Speed
+    public struct Speed:IEffect
     {
-        private float value;
-        private float endTime;
-
-        private static Dictionary<EffectId, Speed> Effects = new();
-        public static void AddEffect(int adder, int receiver, float value, float time)
+        public float value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class SpeedSystem : EffectSystem<Speed>
+    {
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true, new EffectId(adder, receiver), new Speed
             {
-                target.FloatingAttributes.Jixing.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new Speed
-                {
-                    value = value,
-                    endTime = Time.time + time,
-                });
-            }
+                value = value,
+                endTime = Time.time + time,
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.Speed;
+        protected override void SetEffectActive(bool active, EffectId id, Speed effect)
         {
-            // 移除过期效果并恢复属性
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.Speed);
-                        receiver.FloatingAttributes.Jixing.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Jixing.Value += effect.value*(active?1:-1);
             }
-
-            // 处理移除
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
 
     // 减速效果 (与速度效果类似，仅方向相反)
-    public struct Slowness
+    public struct Slowness:IEffect
     {
-        private float value;
-        private float endTime;
-
-        private static Dictionary<EffectId, Slowness> Effects = new();
-        public static void AddEffect(int adder, int receiver, float value, float time)
+        public float value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class SlownessSystem:EffectSystem<Slowness>
+    {
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new Slowness
             {
-                target.FloatingAttributes.Jixing.Value -= value;
-
-                Effects.Add(new EffectId(adder, receiver), new Slowness
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = value,
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.Slowness;
+        protected override void SetEffectActive(bool active, EffectId id, Slowness effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.Slowness);
-                        receiver.FloatingAttributes.Jixing.Value += Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Jixing.Value -= effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
 
     // 跳跃提升效果
-    public struct JumpBoost
+    public struct JumpBoost:IEffect
     {
-        private float value;
-        private float endTime;
-
-        private static Dictionary<EffectId, JumpBoost> Effects = new();
-        public static void AddEffect(int adder, int receiver, float value, float time)
+        public float value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class JumpBoosttSystem : EffectSystem<JumpBoost>
+    {
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new JumpBoost
             {
-                target.FloatingAttributes.Tengkong.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new JumpBoost
-                {
-                    value = value,
-                    endTime = Time.time + time,
-                });
-            }
+                value = value,
+                endTime = Time.time + time,
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.JumpBoost;
+        protected override void SetEffectActive(bool active, EffectId id, JumpBoost effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.JumpBoost);
-                        receiver.FloatingAttributes.Tengkong.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Tengkong.Value += effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 敏捷提升效果
-    public struct AgileBoost
+    public struct AgileBoost:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, AgileBoost> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class AgileBoostSystem : EffectSystem<AgileBoost>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new AgileBoost
             {
-                var attr = target.FloatingAttributes;
-                var value = (int)(attr.Shanbi.Value * rate);
-                attr.Shanbi.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new AgileBoost
-                {
-                    value = value,
-                    endTime = Time.time + time,
-                });
-            }
+                value = (int)(rate*Tool.SceneController.GetTarget(receiver).BaseAttributes.Shanbi.Value),
+                endTime = Time.time + time,
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.AgileBoost;
+        protected override void SetEffectActive(bool active, EffectId id, AgileBoost effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.AgileBoost);
-                        receiver.FloatingAttributes.Shanbi.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Shanbi.Value += effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 精准提升效果
-    public struct AccuracyBoost
+    public struct AccuracyBoost:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, AccuracyBoost> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class AccuracyBoostSystem : EffectSystem<AccuracyBoost>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new AccuracyBoost
             {
-                var baseAttr = target.FloatingAttributes;
-                var value = (int)(baseAttr.Mingzhong.Value * rate);
-                baseAttr.Mingzhong.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new AccuracyBoost
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)(rate * Tool.SceneController.GetTarget(receiver).BaseAttributes.Mingzhong.Value),
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.AccuracyBoost;
+        protected override void SetEffectActive(bool active, EffectId id, AccuracyBoost effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.AccuracyBoost);
-                        receiver.FloatingAttributes.Mingzhong.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Mingzhong.Value += effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 攻击提升效果
-    public struct AttackBoost
+    public struct AttackBoost:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, AttackBoost> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class AttackBoostSystem : EffectSystem<AttackBoost>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new AttackBoost
             {
-                var attr = target.FloatingAttributes;
-                var value = (int)(attr.Gongji.Value * rate);
-                attr.Gongji.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new AttackBoost
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)(rate*Tool.SceneController.GetTarget(receiver).BaseAttributes.Gongji.Value),
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.AttackBoost;
+        protected override void SetEffectActive(bool active, EffectId id, AttackBoost effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.AttackBoost);
-                        receiver.FloatingAttributes.Gongji.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Gongji.Value += effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 防御提升效果
-    public struct DefenseBoost
+    public struct DefenseBoost:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, DefenseBoost> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class DefenseBoostSystem : EffectSystem<DefenseBoost>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new DefenseBoost
             {
-                var attr = target.FloatingAttributes;
-                var value = (int)(attr.Fangyu.Value * rate);
-                attr.Fangyu.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new DefenseBoost
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)(rate * Tool.SceneController.GetTarget(receiver).BaseAttributes.Fangyu.Value),
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.DefenseBoost;
+        protected override void SetEffectActive(bool active, EffectId id, DefenseBoost effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.DefenseBoost);
-                        receiver.FloatingAttributes.Fangyu.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Fangyu.Value += effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 敏捷降低效果
-    public struct AgileDecrease
+    public struct AgileDecrease:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, AgileDecrease> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class AgileDecreaseSystem : EffectSystem<AgileDecrease>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new AgileDecrease
             {
-                var baseAttr = target.FloatingAttributes;
-                var value = (int)(baseAttr.Shanbi.Value * rate);
-                var initial = baseAttr.Shanbi.Value;
-                baseAttr.Shanbi.Value -= value;
-
-                Effects.Add(new EffectId(adder, receiver), new AgileDecrease
-                {
-                    value = value,
-                    endTime = Time.time + time,
-                });
-            }
+                value = (int)(rate * Tool.SceneController.GetTarget(receiver).BaseAttributes.Shanbi.Value),
+                endTime = Time.time + time,
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.AgileDecrease;
+        protected override void SetEffectActive(bool active, EffectId id, AgileDecrease effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.AgileDecrease);
-                        receiver.FloatingAttributes.Shanbi.Value += Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Shanbi.Value -= effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 精准度降低效果
-    public struct AccuracyDecrease
+    public struct AccuracyDecrease:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, AccuracyDecrease> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class AccuracyDecreaseSystem : EffectSystem<AccuracyDecrease>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new AccuracyDecrease
             {
-                var attr = target.FloatingAttributes;
-                var value = (int)(attr.Mingzhong.Value * rate);
-                attr.Mingzhong.Value -= value;
-
-                Effects.Add(new EffectId(adder, receiver), new AccuracyDecrease
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)(rate * Tool.SceneController.GetTarget(receiver).BaseAttributes.Mingzhong.Value),
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.AccuracyDecrease;
+        protected override void SetEffectActive(bool active, EffectId id, AccuracyDecrease effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.AccuracyDecrease);
-                        receiver.FloatingAttributes.Mingzhong.Value += Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Mingzhong.Value -= effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 攻击降低效果
-    public struct AttackDecrease
+    public struct AttackDecrease:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, AttackDecrease> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class AttackDecreaseSystem : EffectSystem<AttackDecrease>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new AttackDecrease
             {
-                var attr = target.FloatingAttributes;
-                var value = (int)(attr.Gongji.Value * rate);
-                attr.Gongji.Value -= value;
-
-                Effects.Add(new EffectId(adder, receiver), new AttackDecrease
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)(rate * Tool.SceneController.GetTarget(receiver).BaseAttributes.Gongji.Value),
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.AttackDecrease;
+        protected override void SetEffectActive(bool active, EffectId id, AttackDecrease effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.AttackDecrease);
-                        receiver.FloatingAttributes.Gongji.Value += Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Gongji.Value -= effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 防御降低效果
-    public struct DefenseDecrease
+    public struct DefenseDecrease:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, DefenseDecrease> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class DefenseDecreaseSystem : EffectSystem<DefenseDecrease>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new DefenseDecrease
             {
-                var attr = target.FloatingAttributes;
-                var value = (int)(attr.Fangyu.Value * rate);
-                attr.Fangyu.Value -= value;
-
-                Effects.Add(new EffectId(adder, receiver), new DefenseDecrease
-                {
-                    value = value,
-                    endTime = Time.time + time,
-                });
-            }
+                value = (int)(rate * Tool.SceneController.GetTarget(receiver).BaseAttributes.Fangyu.Value),
+                endTime = Time.time + time,
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.DefenseDecrease;
+        protected override void SetEffectActive(bool active, EffectId id, DefenseDecrease effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.DefenseDecrease);
-                        receiver.FloatingAttributes.Fangyu.Value += Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Fangyu.Value -= effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 护甲强化效果
-    public struct ArmorFortity
+    public struct ArmorFortity:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, ArmorFortity> Effects = new();
-        public static void AddEffect(int adder, int receiver, int value, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class ArmorFortitySystem : EffectSystem<ArmorFortity>
+    {
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new ArmorFortity
             {
-                var baseAttr = target.FloatingAttributes;
-                baseAttr.Jianshang.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new ArmorFortity
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)value,
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.ArmorFortity;
+        protected override void SetEffectActive(bool active, EffectId id, ArmorFortity effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.ArmorFortity);
-                        receiver.FloatingAttributes.Jianshang.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Jianshang.Value += effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 护甲破碎效果
-    public struct ArmorShatter
+    public struct ArmorShatter:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, ArmorShatter> Effects = new();
-        public static void AddEffect(int adder, int receiver, int value, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class ArmorShatterSystem : EffectSystem<ArmorShatter>
+    {
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new ArmorShatter
             {
-                var baseAttr = target.FloatingAttributes;
-                baseAttr.Jianshang.Value -= value;
-
-                Effects.Add(new EffectId(adder, receiver), new ArmorShatter
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)value,
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.ArmorShatter;
+        protected override void SetEffectActive(bool active, EffectId id, ArmorShatter effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.ArmorShatter);
-                        receiver.FloatingAttributes.Jianshang.Value += Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Jianshang.Value -= effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 伤害提升效果
-    public struct DamageBoost
+    public struct DamageBoost:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, DamageBoost> Effects = new();
-        public static void AddEffect(int adder, int receiver,int value, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class DamageBoostSystem : EffectSystem<DamageBoost>
+    {
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new DamageBoost
             {
-                var attr = target.FloatingAttributes;
-                attr.Jiashang.Value += value;
-
-                Effects.Add(new EffectId(adder, receiver), new DamageBoost
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)value,
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.DamageBoost;
+        protected override void SetEffectActive(bool active, EffectId id, DamageBoost effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.DamageBoost);
-                        receiver.FloatingAttributes.Jiashang.Value -= Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Jianshang.Value += effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 伤害降低效果
-    public struct DamageDecrease
+    public struct DamageDecrease:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, DamageDecrease> Effects = new();
-        public static void AddEffect(int adder, int receiver, int value, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class DamageDecreaseSystem : EffectSystem<DamageDecrease>
+    {
+        public override void AddEffect(int adder, int receiver, float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new DamageDecrease
             {
-                var baseAttr = target.FloatingAttributes;
-                baseAttr.Jiashang.Value -= value;
-
-                Effects.Add(new EffectId(adder, receiver), new DamageDecrease
-                {
-                    value = value,
-                    endTime = Time.time + time
-                });
-            }
+                value = (int)value,
+                endTime = Time.time + time
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.DamageDecrease;
+        protected override void SetEffectActive(bool active, EffectId id, DamageDecrease effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.DamageDecrease);
-                        receiver.FloatingAttributes.Jiashang.Value += Effects[key].value;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Jiashang.Value -= effect.value * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 生命偷取效果
-    public struct LifeSteal
+    public struct LifeSteal:IEffect
     {
-        private int value;
-        private float endTime;
-
-        private static Dictionary<EffectId, LifeSteal> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class LifeStealSystem : EffectSystem<LifeSteal>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
             var t = Tool.SceneController.GetTarget(receiver);
             int v = (int)(t.BaseAttributes.Shengming.Value * rate);
             if (v >= t.Shengming) v = t.Shengming - 1;
@@ -1497,736 +668,284 @@ namespace AttributeSystem.DataOrientedEffects
                 value = v,
                 endTime = Time.time + time
             };
-            t.Shengming -= l.value;
-            Effects.Add(new EffectId(adder, receiver),l);
+            SetEffectActive(true,new EffectId(adder, receiver), l);
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.LifeSteal;
+        protected override void SetEffectActive(bool active, EffectId id, LifeSteal effect)
         {
-            // 移除过期效果
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                    GlobalEffectManager.ToRemove.Add(key);
+                t.Shengming += effect.value * (active ? 1 : -1);
             }
-
-            // 执行实际移除
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                {
-                    var receiver = i.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.LifeSteal);
-                        receiver.Shengming += Effects[i].value;
-                        Effects.Remove(i);
-                    }
-                }
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                    GlobalEffectManager.ToRemove.Add(key);
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 幸运提升效果
-    public struct Luck
+    public struct Luck:IEffect
     {
-        private int value1;
-        private int value2;
-        private int value3;
-        private int value4;
-        private float endTime;
-
-        private static Dictionary<EffectId, Luck> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value1;
+        public int value2;
+        public int value3;
+        public int value4;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class LuckSystem : EffectSystem<Luck>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
             EnableEvents();
             var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            var att = target.FloatingAttributes;
+            var l = new Luck
             {
-                var att = target.FloatingAttributes;
-                var l = new Luck
-                {
-                    value1 = (int)(att.Mingzhong.Value * rate),
-                    value2 = (int)(att.Shanbi.Value * rate),
-                    value3 = (int)(att.Baoji.Value * rate),
-                    value4 = (int)(att.Renxing.Value * rate),
-                    endTime = Time.time + time,
-                };
-                att.Mingzhong.Value += l.value1;
-                att.Shanbi.Value+= l.value2;
-                att.Baoji.Value+= l.value3;
-                att.Renxing.Value+= l.value4;
-                Effects.Add(new EffectId(adder, receiver),l );
-            }
+                value1 = (int)(att.Mingzhong.Value * rate),
+                value2 = (int)(att.Shanbi.Value * rate),
+                value3 = (int)(att.Baoji.Value * rate),
+                value4 = (int)(att.Renxing.Value * rate),
+                endTime = Time.time + time,
+            };
+            SetEffectActive(true, new EffectId(adder, receiver), l);
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.Luck;
+        protected override void SetEffectActive(bool active, EffectId id, Luck effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.Luck);
-                        var att = receiver.FloatingAttributes;
-                        att.Mingzhong.Value -= Effects[key].value1;
-                        att.Shanbi.Value -= Effects[key].value2;
-                        att.Baoji.Value -= Effects[key].value3;
-                        att.Renxing.Value -= Effects[key].value4;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Mingzhong.Value += effect.value1 * (active ? 1 : -1);
+                t.FloatingAttributes.Shanbi.Value += effect.value2 * (active ? 1 : -1);
+                t.FloatingAttributes.Baoji.Value += effect.value3 * (active ? 1 : -1);
+                t.FloatingAttributes.Renxing.Value += effect.value4 * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 厄运效果
-    public struct BadLuck
+    public struct BadLuck:IEffect
     {
-        private int value1;
-        private int value2;
-        private int value3;
-        private int value4;
-        private float endTime;
-
-        private static Dictionary<EffectId, BadLuck> Effects = new();
-        public static void AddEffect(int adder, int receiver, float rate, float time)
+        public int value1;
+        public int value2;
+        public int value3;
+        public int value4;
+        public float endTime;
+        public float GetEndTime() => endTime;
+    }
+    public class BadLuckSystem : EffectSystem<BadLuck>
+    {
+        public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
             EnableEvents();
             var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            var att = target.FloatingAttributes;
+            var l = new BadLuck
             {
-                var att = target.FloatingAttributes;
-                var l = new BadLuck
-                {
-                    value1 = (int)(att.Mingzhong.Value * rate),
-                    value2 = (int)(att.Shanbi.Value * rate),
-                    value3 = (int)(att.Baoji.Value * rate),
-                    value4 = (int)(att.Renxing.Value * rate),
-                    endTime = Time.time + time,
-                };
-                att.Mingzhong.Value -= l.value1;
-                att.Shanbi.Value -= l.value2;
-                att.Baoji.Value -= l.value3;
-                att.Renxing.Value -= l.value4;
-                Effects.Add(new EffectId(adder, receiver), l);
-            }
+                value1 = (int)(att.Mingzhong.Value * rate),
+                value2 = (int)(att.Shanbi.Value * rate),
+                value3 = (int)(att.Baoji.Value * rate),
+                value4 = (int)(att.Renxing.Value * rate),
+                endTime = Time.time + time,
+            };
+            SetEffectActive(true, new EffectId(adder, receiver), l);
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.BadLuck;
+        protected override void SetEffectActive(bool active, EffectId id, BadLuck effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            var t = id.GetReceiver();
+            if (t)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    var receiver = key.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(key.adder, EffectType.BadLuck);
-                        var att = receiver.FloatingAttributes;
-                        att.Mingzhong.Value += Effects[key].value1;
-                        att.Shanbi.Value += Effects[key].value2;
-                        att.Baoji.Value += Effects[key].value3;
-                        att.Renxing.Value += Effects[key].value4;
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                t.FloatingAttributes.Mingzhong.Value -= effect.value1 * (active ? 1 : -1);
+                t.FloatingAttributes.Shanbi.Value -= effect.value2 * (active ? 1 : -1);
+                t.FloatingAttributes.Baoji.Value -= effect.value3 * (active ? 1 : -1);
+                t.FloatingAttributes.Renxing.Value -= effect.value4 * (active ? 1 : -1);
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                    Effects.Remove(i);
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 冻结效果
-    public struct Freeze
+    public struct Freeze:IEffect
     {
-        private float endTime;
-        private LockChain moveLock;
-        private LockChain skillLock;
-
-        private static Dictionary<EffectId, Freeze> Effects = new();
-        public static void AddEffect(int adder, int receiver, float time)
+        public float endTime;
+        public LockChain moveLock;
+        public LockChain skillLock;
+        public float GetEndTime() => endTime;
+    }
+    public class FreezeSystem : EffectSystem<Freeze>
+    {
+        public override void AddEffect(int adder, int receiver,float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            var target=Tool.SceneController.GetTarget(receiver);
+            SetEffectActive(true,new EffectId(adder, receiver), new Freeze
             {
-                var moveLock = target.OperationLock.GetChain();
-                var skillLock = target.SkillLock.GetChain();
-                moveLock.Locked = true;
-                skillLock.Locked = true;
-                Effects.Add(new EffectId(adder, receiver), new Freeze
-                {
-                    endTime = Time.time + time,
-                    moveLock = moveLock,
-                    skillLock = skillLock
-                });
-            }
+                endTime = Time.time + time,
+                moveLock = target.OperationLock.GetChain(),
+                skillLock = target.SkillLock.GetChain()
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.Freeze;
+        protected override void SetEffectActive(bool active, EffectId id, Freeze effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            if (effect.moveLock.InUse)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    if (Effects[key].moveLock.InUse)
-                    {
-                        Effects[key].moveLock.Locked = false;
-                        Effects[key].moveLock.Discard();
-                    }
-                    if (Effects[key].skillLock.InUse)
-                    {
-                        Effects[key].skillLock.Locked = false;
-                        Effects[key].skillLock.Discard();
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                effect.moveLock.Locked = active;
+                if (!active) effect.moveLock.Discard();
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
+            if (effect.skillLock.InUse)
             {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                {
-                    var receiver = i.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.Freeze);
-                    }
-                    Effects.Remove(i);
-                }
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
+                effect.skillLock.Locked = active;
+                if(!active)effect.skillLock.Discard();
             }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 眩晕效果
-    public struct Stun
+    public struct Stun:IEffect
     {
-        private float endTime;
-        private LockChain moveLock;
-        private LockChain skillLock;
-
-        private static Dictionary<EffectId, Stun> Effects = new();
-        public static void AddEffect(int adder, int receiver, float time)
+        public float endTime;
+        public LockChain moveLock;
+        public LockChain skillLock;
+        public float GetEndTime() => endTime;
+    }
+    public class StunSystem : EffectSystem<Stun>
+    {
+        public override void AddEffect(int adder, int receiver,float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
             var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true, new EffectId(adder, receiver), new Stun
             {
-                var moveLock = target.OperationLock.GetChain();
-                var skillLock = target.SkillLock.GetChain();
-                moveLock.Locked = true;
-                skillLock.Locked = true;
-                Effects.Add(new EffectId(adder, receiver), new Stun
-                {
-                    endTime = Time.time + time,
-                    moveLock = moveLock,
-                    skillLock = skillLock
-                });
-            }
+                endTime = Time.time + time,
+                moveLock = target.OperationLock.GetChain(),
+                skillLock = target.SkillLock.GetChain()
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.Stun;
+        protected override void SetEffectActive(bool active, EffectId id, Stun effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            if (effect.moveLock.InUse)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    if (Effects[key].moveLock.InUse)
-                    {
-                        Effects[key].moveLock.Locked = false;
-                        Effects[key].moveLock.Discard();
-                    }
-                    if (Effects[key].skillLock.InUse)
-                    {
-                        Effects[key].skillLock.Locked = false;
-                        Effects[key].skillLock.Discard();
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                effect.moveLock.Locked = active;
+                if (!active) effect.moveLock.Discard();
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
+            if (effect.skillLock.InUse)
             {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                {
-                    var receiver = i.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.Stun);
-                    }
-                    Effects.Remove(i);
-                }
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
+                effect.skillLock.Locked = active;
+                if (!active) effect.skillLock.Discard();
             }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 粘性效果
-    public struct Sticky
+    public struct Sticky:IEffect
     {
-        private float endTime;
-        private LockChain moveLock;
-
-        private static Dictionary<EffectId, Sticky> Effects = new();
-        public static void AddEffect(int adder, int receiver, float time)
+        public float endTime;
+        public LockChain moveLock;
+        public float GetEndTime() => endTime;
+    }
+    public class StickySystem : EffectSystem<Sticky>
+    {
+        public override void AddEffect(int adder, int receiver,float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
             var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true, new EffectId(adder, receiver), new Sticky
             {
-                var chain=target.OperationLock.GetChain();
-                chain.Locked=true;
-                Effects.Add(new EffectId(adder, receiver), new Sticky
-                {
-                    moveLock = chain,
-                    endTime = Time.time + time,
-                });
-            }
+                endTime = Time.time + time,
+                moveLock = target.OperationLock.GetChain()
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.Sticky;
+        protected override void SetEffectActive(bool active, EffectId id, Sticky effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            if (effect.moveLock.InUse)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    if (Effects[key].moveLock.InUse)
-                    {
-                        Effects[key].moveLock.Locked = false;
-                        Effects[key].moveLock.Discard();
-                    }
-
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                effect.moveLock.Locked = active;
+                if (!active) effect.moveLock.Discard();
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                {
-                    var receiver = i.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.Sticky);
-                    }
-                    Effects.Remove(i);
-                }
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 沉默效果
-    public struct Silence
+    public struct Silence:IEffect
     {
-        private float endTime;
-        private LockChain chain;
-
-        private static Dictionary<EffectId, Silence> Effects = new();
-        public static void AddEffect(int adder, int receiver, float time)
+        public float endTime;
+        public LockChain chain;
+        public float GetEndTime() => endTime;
+    }
+    public class SilenceSystem : EffectSystem<Silence>
+    {
+        public override void AddEffect(int adder, int receiver,float value, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
             var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true, new EffectId(adder, receiver), new Silence
             {
-                var c = target.SkillLock.GetChain();
-                c.Locked= true;
-                Effects.Add(new EffectId(adder, receiver), new Silence
-                {
-                    endTime = Time.time + time,
-                    chain = c
-                });
-            }
+                endTime = Time.time + time,
+                chain = target.SkillLock.GetChain()
+            });
         }
-
-        private static void Update()
+        protected override EffectType GetEffectType() => EffectType.Silence;
+        protected override void SetEffectActive(bool active, EffectId id, Silence effect)
         {
-            foreach (var key in Effects.Keys)
+            base.SetEffectActive(active, id, effect);
+            if (effect.chain.InUse)
             {
-                if (Time.time > Effects[key].endTime)
-                {
-                    if (Effects[key].chain.InUse)
-                    {
-                        Effects[key].chain.Locked = false;
-                        Effects[key].chain.Discard();
-                    }
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
+                effect.chain.Locked = active;
+                if (!active) effect.chain.Discard();
             }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                {
-                    var receiver = i.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.Silence);
-                    }
-                    Effects.Remove(i);
-                }
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                }
-            }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
-        }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
         }
     }
-
     // 麻痹效果（间歇性无法行动）
-    public struct Paralysis
+    public struct Paralysis:IEffect
     {
-        private float endTime;
-        private float interval; // 麻痹间隔时间
-        private float nextUpdateTime;
-
-        private static Dictionary<EffectId, Paralysis> Effects = new();
-        public static void AddEffect(int adder, int receiver, float interval, float time)
+        public float endTime;
+        public float interval; // 麻痹间隔时间
+        public float nextUpdateTime;
+        public float GetEndTime() => endTime;
+    }
+    public class ParalysisSystem : EffectSystem<Paralysis>
+    {
+        private Dictionary<EffectId,Paralysis>Temp=new Dictionary<EffectId,Paralysis>();
+        public override void AddEffect(int adder, int receiver, float interval, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
-            var target = Tool.SceneController.GetTarget(receiver);
-            if (target != null)
+            SetEffectActive(true,new EffectId(adder, receiver), new Paralysis
             {
-                Effects.Add(new EffectId(adder, receiver), new Paralysis
-                {
-                    endTime = Time.time + time,
-                    interval = interval,
-                    nextUpdateTime = Time.time
-                });
-            }
+                endTime = Time.time + time,
+                interval = interval,
+                nextUpdateTime = Time.time
+            });
         }
 
-        private static void Update()
+        protected override void Update()
         {
-            foreach (var key in Effects.Keys)
-            {
-                var effect = Effects[key];
-                var receiver = key.GetReceiver();
-                if (receiver == null)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
-                    continue;
-                }
-            }
-
-            if (GlobalEffectManager.ToRemove.Count > 0)
-            {
-                foreach (var i in GlobalEffectManager.ToRemove)
-                {
-                    var receiver = i.GetReceiver();
-                    if (receiver && receiver.effectController)
-                    {
-                        receiver.effectController.EffectEnd(i.adder, EffectType.Paralysis);
-                    }
-                    Effects.Remove(i);
-                }
-                GlobalEffectManager.ToRemove.Clear();
-                DisableEvents();
-            }
+            base.Update();
             if (Effects.Count > 0)
             {
                 foreach (var key in Effects.Keys)
                 {
                     if (Time.time > Effects[key].nextUpdateTime)
                     {
-                        var p = Effects[key];
-                        Effects[key] = new Paralysis() { interval=p.interval, endTime = p.endTime, nextUpdateTime = Time.time + 1 };
                         var t = key.GetReceiver();
                         t.Interrupt();
                         t.ApplyMotion(new MotionStatic(0.3f, false, 0));
+                        var p = Effects[key];
+                        Temp.Add(key,new Paralysis() { interval = p.interval, endTime = p.endTime, nextUpdateTime = Time.time + 1 });
                     }
                 }
-            }
-        }
-
-        private static void OnTargetDestroyed(int id)
-        {
-            foreach (var key in Effects.Keys)
-            {
-                if (key.adder == id || key.receiver == id)
-                {
-                    GlobalEffectManager.ToRemove.Add(key);
+                if (Temp.Count > 0) {
+                    foreach (var key in Temp.Keys)
+                    {
+                        Effects[key] = Temp[key];
+                    }
+                    Temp.Clear();
                 }
             }
-
-            foreach (var i in GlobalEffectManager.ToRemove)
-                Effects.Remove(i);
-            GlobalEffectManager.ToRemove.Clear();
-            DisableEvents();
         }
-
-        private static bool eventsActive = false;
-        private static void EnableEvents()
-        {
-            if (eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
-            GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
-            eventsActive = true;
-        }
-
-        private static void DisableEvents()
-        {
-            if (!eventsActive || Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
-            GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
-            eventsActive = false;
-        }
+        protected override EffectType GetEffectType() => EffectType.Paralysis;
     }
 }
