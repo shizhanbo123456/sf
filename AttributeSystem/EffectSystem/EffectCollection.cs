@@ -35,31 +35,31 @@ namespace AttributeSystem.Effect
             int receiverid = receiver.ObjectId;
             switch (effect)
             {
-                case EffectType.HealthRegeneration:HealthRegeneration.AddEffect(adder,receiverid,(int)value,time);break;
-                case EffectType.Burning: Burning.AddEffect(adder, receiverid, (int)value, time); break;
-                case EffectType.Speed:Speed.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.Slowness:Slowness.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.JumpBoost:JumpBoost.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.AgileBoost:AgileBoost.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.AccuracyBoost:AccuracyBoost.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.AttackBoost:AttackBoost.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.DefenseBoost:DefenseBoost.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.AgileDecrease:AgileDecrease.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.AccuracyDecrease:AccuracyDecrease.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.AttackDecrease:AttackDecrease.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.DefenseDecrease:DefenseDecrease.AddEffect(adder,receiverid,value,time); break;
-                case EffectType.ArmorFortity:ArmorFortity.AddEffect(adder,receiverid,(int)value,time); break;
-                case EffectType.ArmorShatter:ArmorShatter.AddEffect(adder, receiverid, (int)value, time); break;
-                case EffectType.DamageBoost:DamageBoost.AddEffect(adder, receiverid, (int)value, time); break;
-                case EffectType.DamageDecrease:DamageDecrease.AddEffect(adder, receiverid, (int)value, time); break;
-                case EffectType.LifeSteal:LifeSteal.AddEffect(adder, receiverid, value, time); break;
-                case EffectType.Luck:Luck.AddEffect(adder, receiverid, value, time); break;
-                case EffectType.BadLuck:BadLuck.AddEffect(adder, receiverid, value, time); break;
-                case EffectType.Freeze:Freeze.AddEffect(adder, receiverid, time); break;
-                case EffectType.Stun:Stun.AddEffect(adder, receiverid, time); break;
-                case EffectType.Sticky:Sticky.AddEffect(adder, receiverid, time); break;
-                case EffectType.Silence:Silence.AddEffect(adder, receiverid, time); break;
-                case EffectType.Paralysis:Paralysis.AddEffect(adder, receiverid,value, time); break;
+                case EffectType.HealthRegeneration:HealthRegenerationSystem.Instance.AddEffect(adder,receiverid,value,time);break;
+                case EffectType.Burning: BurningSystem.Instance.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.Speed: SpeedSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.Slowness: SlownessSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.JumpBoost: JumpBoostSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AgileBoost: AgileBoostSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AccuracyBoost: AccuracyBoostSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AttackBoost: AttackBoostSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.DefenseBoost: DefenseBoostSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AgileDecrease: AgileDecreaseSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AccuracyDecrease: AccuracyDecreaseSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.AttackDecrease: AttackDecreaseSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.DefenseDecrease: DefenseDecreaseSystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.ArmorFortity: ArmorFortitySystem.Instance.AddEffect(adder,receiverid,value,time); break;
+                case EffectType.ArmorShatter: ArmorShatterSystem.Instance.AddEffect(adder, receiverid,value, time); break;
+                case EffectType.DamageBoost: DamageBoostSystem.Instance.AddEffect(adder, receiverid,value, time); break;
+                case EffectType.DamageDecrease: DamageDecreaseSystem.Instance.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.LifeSteal: LifeStealSystem.Instance.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.Luck: LuckSystem.Instance.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.BadLuck: BadLuckSystem.Instance.AddEffect(adder, receiverid, value, time); break;
+                case EffectType.Freeze: FreezeSystem.Instance.AddEffect(adder, receiverid,0, time); break;
+                case EffectType.Stun: StunSystem.Instance.AddEffect(adder, receiverid,0, time); break;
+                case EffectType.Sticky: StickySystem.Instance.AddEffect(adder, receiverid,0, time); break;
+                case EffectType.Silence: SilenceSystem.Instance.AddEffect(adder, receiverid,0, time); break;
+                case EffectType.Paralysis: ParalysisSystem.Instance.AddEffect(adder, receiverid,value, time); break;
                 default:UnityEngine.Debug.LogError("有效果类型未注册");break;
             }
         }

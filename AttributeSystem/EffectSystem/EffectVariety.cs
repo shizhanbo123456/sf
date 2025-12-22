@@ -32,7 +32,7 @@ namespace AttributeSystem.DataOrientedEffects
     {
         float GetEndTime();
     }
-    public abstract class EffectSystem<T>where T: IEffect
+    public abstract class EffectSystem<T,Tsingleton>:Singleton<Tsingleton> where T: IEffect where Tsingleton:new()
     {
         protected static Dictionary<EffectId, T> Effects = new();
         public abstract void AddEffect(int adder, int receiver, float value, float time);
@@ -87,7 +87,7 @@ namespace AttributeSystem.DataOrientedEffects
         }
 
         private bool eventsActive = false;
-        protected void EnableEvents()
+        private void EnableEvents()
         {
             if (eventsActive) return;
             if (Effects.Count == 0) return;
@@ -95,7 +95,7 @@ namespace AttributeSystem.DataOrientedEffects
             GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
             eventsActive = true;
         }
-        protected void DisableEvents()
+        private void DisableEvents()
         {
             if (!eventsActive) return;
             if (Effects.Count > 0) return;
@@ -111,7 +111,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float nextUpdateTime;
         public float GetEndTime() => endTime;
     }
-    public class HealthRegenerationSystem : EffectSystem<HealthRegeneration>
+    public class HealthRegenerationSystem : EffectSystem<HealthRegeneration,HealthRegenerationSystem>
     {
         private Dictionary<EffectId, HealthRegeneration> Temp = new Dictionary<EffectId, HealthRegeneration>();
         public override void AddEffect(int adder, int receiver, float value, float time)
@@ -155,7 +155,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float nextUpdateTime;
         public float GetEndTime() => endTime;
     }
-    public class BurningSystem : EffectSystem<Burning>
+    public class BurningSystem : EffectSystem<Burning,BurningSystem>
     {
         private Dictionary<EffectId, Burning> Temp=new Dictionary<EffectId, Burning>();
         public override void AddEffect(int adder, int receiver, float value, float time)
@@ -215,7 +215,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class SpeedSystem : EffectSystem<Speed>
+    public class SpeedSystem : EffectSystem<Speed,SpeedSystem>
     {
         public override void AddEffect(int adder, int receiver, float value, float time)
         {
@@ -245,7 +245,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class SlownessSystem:EffectSystem<Slowness>
+    public class SlownessSystem:EffectSystem<Slowness,SlownessSystem>
     {
         public override void AddEffect(int adder, int receiver, float value, float time)
         {
@@ -275,7 +275,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class JumpBoosttSystem : EffectSystem<JumpBoost>
+    public class JumpBoostSystem : EffectSystem<JumpBoost,JumpBoostSystem>
     {
         public override void AddEffect(int adder, int receiver, float value, float time)
         {
@@ -304,7 +304,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class AgileBoostSystem : EffectSystem<AgileBoost>
+    public class AgileBoostSystem : EffectSystem<AgileBoost,AgileBoostSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -333,7 +333,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class AccuracyBoostSystem : EffectSystem<AccuracyBoost>
+    public class AccuracyBoostSystem : EffectSystem<AccuracyBoost,AccuracyBoostSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -362,7 +362,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class AttackBoostSystem : EffectSystem<AttackBoost>
+    public class AttackBoostSystem : EffectSystem<AttackBoost,AttackBoostSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -391,7 +391,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class DefenseBoostSystem : EffectSystem<DefenseBoost>
+    public class DefenseBoostSystem : EffectSystem<DefenseBoost, DefenseBoostSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -420,7 +420,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class AgileDecreaseSystem : EffectSystem<AgileDecrease>
+    public class AgileDecreaseSystem : EffectSystem<AgileDecrease, AgileDecreaseSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -449,7 +449,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class AccuracyDecreaseSystem : EffectSystem<AccuracyDecrease>
+    public class AccuracyDecreaseSystem : EffectSystem<AccuracyDecrease, AccuracyDecreaseSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -478,7 +478,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class AttackDecreaseSystem : EffectSystem<AttackDecrease>
+    public class AttackDecreaseSystem : EffectSystem<AttackDecrease, AttackDecreaseSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -507,7 +507,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class DefenseDecreaseSystem : EffectSystem<DefenseDecrease>
+    public class DefenseDecreaseSystem : EffectSystem<DefenseDecrease, DefenseDecreaseSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -536,7 +536,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class ArmorFortitySystem : EffectSystem<ArmorFortity>
+    public class ArmorFortitySystem : EffectSystem<ArmorFortity, ArmorFortitySystem>
     {
         public override void AddEffect(int adder, int receiver, float value, float time)
         {
@@ -565,7 +565,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class ArmorShatterSystem : EffectSystem<ArmorShatter>
+    public class ArmorShatterSystem : EffectSystem<ArmorShatter, ArmorShatterSystem>
     {
         public override void AddEffect(int adder, int receiver, float value, float time)
         {
@@ -594,7 +594,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class DamageBoostSystem : EffectSystem<DamageBoost>
+    public class DamageBoostSystem : EffectSystem<DamageBoost, DamageBoostSystem>
     {
         public override void AddEffect(int adder, int receiver, float value, float time)
         {
@@ -623,7 +623,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class DamageDecreaseSystem : EffectSystem<DamageDecrease>
+    public class DamageDecreaseSystem : EffectSystem<DamageDecrease, DamageDecreaseSystem>
     {
         public override void AddEffect(int adder, int receiver, float value, float time)
         {
@@ -652,7 +652,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class LifeStealSystem : EffectSystem<LifeSteal>
+    public class LifeStealSystem : EffectSystem<LifeSteal, LifeStealSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
@@ -688,12 +688,11 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class LuckSystem : EffectSystem<Luck>
+    public class LuckSystem : EffectSystem<Luck, LuckSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
             var target = Tool.SceneController.GetTarget(receiver);
             var att = target.FloatingAttributes;
             var l = new Luck
@@ -730,12 +729,11 @@ namespace AttributeSystem.DataOrientedEffects
         public float endTime;
         public float GetEndTime() => endTime;
     }
-    public class BadLuckSystem : EffectSystem<BadLuck>
+    public class BadLuckSystem : EffectSystem<BadLuck, BadLuckSystem>
     {
         public override void AddEffect(int adder, int receiver, float rate, float time)
         {
             if (!GlobalEffectManager.TargetCheck(receiver)) return;
-            EnableEvents();
             var target = Tool.SceneController.GetTarget(receiver);
             var att = target.FloatingAttributes;
             var l = new BadLuck
@@ -770,7 +768,7 @@ namespace AttributeSystem.DataOrientedEffects
         public LockChain skillLock;
         public float GetEndTime() => endTime;
     }
-    public class FreezeSystem : EffectSystem<Freeze>
+    public class FreezeSystem : EffectSystem<Freeze, FreezeSystem>
     {
         public override void AddEffect(int adder, int receiver,float value, float time)
         {
@@ -807,7 +805,7 @@ namespace AttributeSystem.DataOrientedEffects
         public LockChain skillLock;
         public float GetEndTime() => endTime;
     }
-    public class StunSystem : EffectSystem<Stun>
+    public class StunSystem : EffectSystem<Stun, StunSystem>
     {
         public override void AddEffect(int adder, int receiver,float value, float time)
         {
@@ -843,7 +841,7 @@ namespace AttributeSystem.DataOrientedEffects
         public LockChain moveLock;
         public float GetEndTime() => endTime;
     }
-    public class StickySystem : EffectSystem<Sticky>
+    public class StickySystem : EffectSystem<Sticky, StickySystem>
     {
         public override void AddEffect(int adder, int receiver,float value, float time)
         {
@@ -873,7 +871,7 @@ namespace AttributeSystem.DataOrientedEffects
         public LockChain chain;
         public float GetEndTime() => endTime;
     }
-    public class SilenceSystem : EffectSystem<Silence>
+    public class SilenceSystem : EffectSystem<Silence, SilenceSystem>
     {
         public override void AddEffect(int adder, int receiver,float value, float time)
         {
@@ -904,7 +902,7 @@ namespace AttributeSystem.DataOrientedEffects
         public float nextUpdateTime;
         public float GetEndTime() => endTime;
     }
-    public class ParalysisSystem : EffectSystem<Paralysis>
+    public class ParalysisSystem : EffectSystem<Paralysis, ParalysisSystem>
     {
         private Dictionary<EffectId,Paralysis>Temp=new Dictionary<EffectId,Paralysis>();
         public override void AddEffect(int adder, int receiver, float interval, float time)
