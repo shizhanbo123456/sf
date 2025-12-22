@@ -21,7 +21,6 @@ public class Tool:MonoBehaviour
     public static Notice Notice;
     public static SubInput SubInput;
     public static BulletManager BulletManager;
-    public static LuaManager LuaManager;
     [Space]
     public GameObject WindowsUI;
     public GameObject AndroidUI;
