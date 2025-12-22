@@ -79,8 +79,6 @@ public class TargetDataSync : EnsBehaviour
     {
         var sb = Tool.stringBuilder;
         sb.Append(index).Append('_').
-            Append(transform.position.x.ToString("F1")).Append('_').
-            Append(transform.position.y.ToString("F2")).Append('_').
             Append(target.FaceRight ? '1' : '0');
         CallFuncRpc(nameof(UseSkillLocal), SendTo.Everyone, sb.ToString());
     }
@@ -88,9 +86,8 @@ public class TargetDataSync : EnsBehaviour
     {
         string[] s = param.Split('_');
         int index = int.Parse(s[0]);
-        Vector3 pos = new Vector3(float.Parse(s[1]), float.Parse(s[2]));
-        bool faceright = s[3][0] == '1';
-        VarietyManager.GetSkill(index).UseSkill(target, pos, faceright);
+        bool faceright = s[1][0] == '1';
+        VarietyManager.GetSkill(index).UseSkill(target, target.transform.position, faceright);
     }
     public void SyncEffectIconRpc(HashSet<(EffectType, int)> values)
     {

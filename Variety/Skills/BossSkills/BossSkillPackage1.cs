@@ -184,34 +184,34 @@ namespace Variety.Skill.Boss1
             }
             for(int i = -5; i < 5; i+=2)
             {
-                WarningCircle.Warn(Target.transform.position + new Vector3(i * 5, 0, 0), 3, 1);
+                WarningCircle.Warn(pos + new Vector3(i * 5, 0, 0), 3, 1);
             }
-            AddEvent(0.5f, (d) =>
+            AddEvent(0.5f, new TimeLineData(Target,pos),(d) =>
             {
 
                 for (int i = -4; i < 4; i += 2)
                 {
-                    WarningCircle.Warn(d.Target.transform.position + new Vector3(i * 5, 0, 0), 3, 1);
+                    WarningCircle.Warn(d.pos + new Vector3(i * 5, 0, 0), 3, 1);
                 }
             });
-            AddEvent(1, (d) =>
+            AddEvent(1, new TimeLineData(Target, pos), (d) =>
             {
                 for (int i = -5; i < 5; i += 2)
                 {
                     var b = GetBullet(11);
                     b.Init(2.8f);
-                    BulletStaticSystem.RegistObject(b,3,0.3f, d.Target.transform.position + new Vector3(i * 5, 0, 0));
+                    BulletStaticSystem.RegistObject(b,3,0.3f, d.pos + new Vector3(i * 5, 0, 0));
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
             });
-            AddEvent(1.5f, (d) =>
+            AddEvent(1.5f, new TimeLineData(Target, pos), (d) =>
             {
                 for (int i = -4; i < 4; i += 2)
                 {
                     var b = GetBullet(11);
                     b.Init(2.8f);
-                    BulletStaticSystem.RegistObject(b, 3, 0.3f, d.Target.transform.position + new Vector3(i * 5, 0, 0));
+                    BulletStaticSystem.RegistObject(b, 3, 0.3f, d.pos + new Vector3(i * 5, 0, 0));
                     BulletDamageOnceSystem.Regist(b);
                     b.Shoot();
                 }
