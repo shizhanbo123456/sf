@@ -1,10 +1,7 @@
-using AttributeSystem.Attributes;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Variety.Template;
-using static UnityEngine.GraphicsBuffer;
 
 public enum EffectType
 {
