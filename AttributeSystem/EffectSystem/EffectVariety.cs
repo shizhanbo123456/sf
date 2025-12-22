@@ -1786,12 +1786,18 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime || !Effects[key].moveLock.InUse || !Effects[key].skillLock.InUse)
+                if (Time.time > Effects[key].endTime)
                 {
-                    Effects[key].moveLock.Locked = false;
-                    Effects[key].skillLock.Locked = false;
-                    Effects[key].moveLock.Discard();
-                    Effects[key].skillLock.Discard();
+                    if (Effects[key].moveLock.InUse)
+                    {
+                        Effects[key].moveLock.Locked = false;
+                        Effects[key].moveLock.Discard();
+                    }
+                    if (Effects[key].skillLock.InUse)
+                    {
+                        Effects[key].skillLock.Locked = false;
+                        Effects[key].skillLock.Discard();
+                    }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
             }
@@ -1878,12 +1884,18 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime || !Effects[key].moveLock.InUse || !Effects[key].skillLock.InUse)
+                if (Time.time > Effects[key].endTime)
                 {
-                    Effects[key].moveLock.Locked = false;
-                    Effects[key].skillLock.Locked = false;
-                    Effects[key].moveLock.Discard();
-                    Effects[key].skillLock.Discard();
+                    if (Effects[key].moveLock.InUse)
+                    {
+                        Effects[key].moveLock.Locked = false;
+                        Effects[key].moveLock.Discard();
+                    }
+                    if (Effects[key].skillLock.InUse)
+                    {
+                        Effects[key].skillLock.Locked = false;
+                        Effects[key].skillLock.Discard();
+                    }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
             }
@@ -1966,10 +1978,13 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime || !Effects[key].moveLock.InUse)
+                if (Time.time > Effects[key].endTime)
                 {
-                    Effects[key].moveLock.Locked = false;
-                    Effects[key].moveLock.Discard();
+                    if (Effects[key].moveLock.InUse)
+                    {
+                        Effects[key].moveLock.Locked = false;
+                        Effects[key].moveLock.Discard();
+                    }
 
                     GlobalEffectManager.ToRemove.Add(key);
                 }
@@ -2053,10 +2068,13 @@ namespace AttributeSystem.DataOrientedEffects
         {
             foreach (var key in Effects.Keys)
             {
-                if (Time.time > Effects[key].endTime || !Effects[key].chain.InUse)
+                if (Time.time > Effects[key].endTime)
                 {
-                    Effects[key].chain.Locked=false;
-                    Effects[key].chain.Discard();
+                    if (Effects[key].chain.InUse)
+                    {
+                        Effects[key].chain.Locked = false;
+                        Effects[key].chain.Discard();
+                    }
                     GlobalEffectManager.ToRemove.Add(key);
                 }
             }

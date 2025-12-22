@@ -108,7 +108,6 @@ public class TargetDataSync : EnsBehaviour
             target.graphic.header.ShowEffects(new List<EffectType>());
             return;
         }
-        Debug.Log(data);
         var list = Format.StringToList(data, int.Parse, '+');
         target.graphic.header.ShowEffects(list.Select(i => (EffectType)i).ToList());
     }

@@ -15,6 +15,7 @@ public class MonsterSkillController:TargetSkillController
     }
     protected override void Update()
     {
+        base.Update();
         useSkillCD -= Time.deltaTime;
         if (useSkillCD < 0) UseSkill();
     }
@@ -28,11 +29,16 @@ public class MonsterSkillController:TargetSkillController
             if (!b)
             {
                 useSkillCD = 0.2f;
+                Debug.Log("333");
             }
             else
             {
                 useSkillCD = interval;
             }
+        }
+        else
+        {
+            Debug.Log("222");
         }
         skillIndex++;
     }
