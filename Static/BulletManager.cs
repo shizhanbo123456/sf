@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BulletManager:MonoBehaviour
 {
+    public List<GameObject> BulletList;
     private void Awake()
     {
         Tool.BulletManager = this;
@@ -15,8 +16,8 @@ public class BulletManager:MonoBehaviour
     {
         for(int i = 0;i< Tool.PrefabManager.BulletList.Count; i++)
         {
-            Pools.Add(GameObjectPool.Create(Tool.PrefabManager.BulletList[i]));
-            Size.Add(Tool.PrefabManager.BulletList[i].transform.localScale.x);
+            Pools.Add(GameObjectPool.Create(BulletList[i]));
+            Size.Add(BulletList[i].transform.localScale.x);
             //Pools[i].PreWarm(4);
         }
     }

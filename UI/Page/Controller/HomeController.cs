@@ -16,7 +16,7 @@ public class HomeController:Singleton<HomeController>
     public void SetPlayerName(string value)
     {
         PlayerInfo.Name = value;
-        Tool.FileManager.WriteData();
+        FileManager.WriteData();
         Repaint();
     }
     public void DedicateServerMatch()

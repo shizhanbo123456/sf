@@ -4,28 +4,23 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class FileManager : MonoBehaviour
+public static class FileManager
 {
-    private bool Initialized = false;
-    private bool TemData = false;
+    private static bool Initialized = false;
+    private static bool TemData = false;
 
     private const string VersionKey = "SF_Version";
     private const string DataKey = "SF_Data";
 
-    public void Awake()
+    public static void Init()
     {
-        Tool.FileManager = this;
-        Init();
+        if (Initialized) return; 
         TransitionController.Instance.ExecuteWithLoading(async () =>
         {
             TransitionController.Instance.SetLabel("正在加载关卡逻辑");
             await CustomLevelLoader.LoadAsync();
             CustomLevelSelector.ProcessData();
         });
-    }
-    public void Init()
-    {
-        if (Initialized) return;
         try
         {
             if (Exists())
@@ -47,24 +42,20 @@ public class FileManager : MonoBehaviour
             Initialized = true;
         }
     }
-    private void ReadData()
+    private static void ReadData()
     {
         if (TemData) return;
         var s = PlayerPrefs.GetString(DataKey);
         PlayerInfo.SetData(s);
     }
-    private bool Exists()
+    private static bool Exists()
     {
         if (TemData) return false;
         return PlayerPrefs.HasKey(VersionKey) && PlayerPrefs.GetString(VersionKey)[0] ==Application.version[0];
     }
-    public void WriteData()
+    public static void WriteData()
     {
         if (TemData) return;
         PlayerPrefs.SetString(DataKey , PlayerInfo.GetData());
-    }
-    private void OnApplicationQuit()
-    {
-        WriteData();
     }
 }

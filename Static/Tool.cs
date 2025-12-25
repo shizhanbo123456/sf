@@ -17,7 +17,6 @@ public class Tool:MonoBehaviour
     public static SceneController SceneController;//生成/摧毁 玩家/场景
     public static WorldTextController WorldTextController;
     public static NetworkCorrespondent NetworkCorrespondent;
-    public static FileManager FileManager;
     public static Notice Notice;
     public static SubInput SubInput;
     public static BulletManager BulletManager;
@@ -41,13 +40,14 @@ public class Tool:MonoBehaviour
     private void OnApplicationQuit()
     {
         OnApplicationQuitEvent?.Invoke();
+
+        FileManager.WriteData();
     }
 
 
     private void Awake()
     {
         Instance = this;
-        Instantiate(WindowsUI, Vector3.zero, Quaternion.identity);
         if (Platform == TargetPlatform.Windows)
         {
             QualitySettings.vSyncCount = 0;
@@ -59,8 +59,11 @@ public class Tool:MonoBehaviour
             Notice.ShowMesg("连接失败");
         };
     }
-
-
+    private void Start()
+    {
+        FileManager.Init();
+        Instantiate(WindowsUI, Vector3.zero, Quaternion.identity);
+    }
 
     public static string GetIP()
     {
