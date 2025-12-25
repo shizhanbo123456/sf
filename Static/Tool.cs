@@ -37,12 +37,7 @@ public class Tool:MonoBehaviour
         get { return stringbuilder.Clear(); }
     }
     public static Action OnApplicationQuitEvent;
-    private void OnApplicationQuit()
-    {
-        OnApplicationQuitEvent?.Invoke();
-
-        FileManager.WriteData();
-    }
+    public static Action MainLoop;
 
 
     private void Awake()
@@ -64,7 +59,16 @@ public class Tool:MonoBehaviour
         FileManager.Init();
         Instantiate(WindowsUI, Vector3.zero, Quaternion.identity);
     }
+    private void Update()
+    {
+        MainLoop?.Invoke();
+    }
+    private void OnApplicationQuit()
+    {
+        OnApplicationQuitEvent?.Invoke();
 
+        FileManager.WriteData();
+    }
     public static string GetIP()
     {
         /*

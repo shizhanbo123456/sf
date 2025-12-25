@@ -91,7 +91,7 @@ namespace AttributeSystem.DataOrientedEffects
         {
             if (eventsActive) return;
             if (Effects.Count == 0) return;
-            GlobalEffectManager.EffectUpdate += Update;
+            GlobalEffectManager.Regist(Update);
             GlobalEffectManager.OnTargetDestroyed += OnTargetDestroyed;
             eventsActive = true;
         }
@@ -99,7 +99,7 @@ namespace AttributeSystem.DataOrientedEffects
         {
             if (!eventsActive) return;
             if (Effects.Count > 0) return;
-            GlobalEffectManager.EffectUpdate -= Update;
+            GlobalEffectManager.Unregist(Update);
             GlobalEffectManager.OnTargetDestroyed -= OnTargetDestroyed;
             eventsActive = false;
         }

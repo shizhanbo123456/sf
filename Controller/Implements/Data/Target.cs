@@ -105,6 +105,7 @@ public abstract class Target : MonoBehaviour
     protected virtual void RegistOnDestroy()
     {
         Tool.SceneController.OnTargetPredestroy(this);
+        GlobalEffectManager.OnTargetDestroyed?.Invoke(ObjectId);
 
         OperationLock?.Discard();
         SkillLock?.Discard();
