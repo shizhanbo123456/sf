@@ -66,13 +66,19 @@ public class FightController : EnsBehaviour
     private void SettleRpc()
     {
         if (!Fighting) return;
-        CallFuncRpc(nameof(SettleLocal), SendTo.Everyone);
+        foreach(var i in ServerDataContainer.GetAllKeys())
+        {
+            CustomLevel.FigureScore(i,out int killscore, out int timescore, out int challengescore);
+            var sb=Tool.stringBuilder;
+            sb.Append(killscore).Append('_').Append(timescore).Append('_').Append(challengescore);
+            CallFuncRpc(nameof(SettleLocal),new List<int>() { i}, sb.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+        }
     }
-    private void SettleLocal()
+    private void SettleLocal(string data)
     {
         StopFightLocal();
-        CustomLevel.FigureScore(out int killscore, out int timescore, out int challengescore);
-        PlayModeController.Instance.Settle(killscore, timescore, challengescore);
+        string[] s = data.Split('_',StringSplitOptions.RemoveEmptyEntries);
+        PlayModeController.Instance.Settle(int.Parse(s[0]), int.Parse(s[1]), int.Parse(s[2]));
     }
     public void StopFightLocal()//立即停止，不结算，保留关卡
     {

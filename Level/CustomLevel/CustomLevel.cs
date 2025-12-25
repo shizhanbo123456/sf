@@ -130,13 +130,13 @@ public static class CustomLevel
             return false;
         }
     }
-    public static void FigureScore(out int killScore,out int timeScore,out int challengeScore)
+    public static void FigureScore(int clientId,out int killScore,out int timeScore,out int challengeScore)
     {
         try
         {
-            killScore = KillScoreFunction.Func<int, int>(0);
-            timeScore = TimeScoreFunction.Func<int, int>(0);
-            challengeScore = ModeScoreFunction.Func<int, int>(0);
+            killScore = KillScoreFunction.Func<int, int>(clientId);
+            timeScore = TimeScoreFunction.Func<int, int>(clientId);
+            challengeScore = ModeScoreFunction.Func<int, int>(clientId);
         }
         catch (System.Exception e)
         {
