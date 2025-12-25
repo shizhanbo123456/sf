@@ -18,11 +18,14 @@ public class GroundDetector : MonoBehaviour
             return _collider;
         }
     }
-
+    private Rigidbody2D _rb;
     private Vector2 leftBottom;
     private Vector2 rightTop;
     private void Start()
     {
+        _rb=GetComponentInParent<Rigidbody2D>();
+        if (_rb == null) Debug.LogError(transform.parent.name+"Î´ÕÒµ½¸ÕÌå");
+
         if (boxCollider == null)
         {
             Debug.LogError("Î´ÕÒµ½Åö×²Æ÷");
@@ -42,6 +45,7 @@ public class GroundDetector : MonoBehaviour
     public virtual bool IsGround()
     {
         if (boxCollider == null) return false;
+        if(_rb.velocity.y>0.1f)return false;
         Vector2 pos = transform.position;
         Collider2D hitCollider = Physics2D.OverlapArea(
             leftBottom+pos, rightTop+pos,
