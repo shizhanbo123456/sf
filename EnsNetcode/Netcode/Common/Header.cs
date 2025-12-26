@@ -10,7 +10,6 @@ public static class Header
     public static string f => "[f]";
     public static string kf => "kf]";
     public static string Kf => "Kf]";
-    public static string kS => "kS]";
     public static string D => "[D]";
     public static string H => "[H]";
     public static string Q => "[Q]";
