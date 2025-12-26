@@ -70,6 +70,9 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist('H',(data) =>
         {
+            int index=data.LastIndexOf('#');
+            if(index>=0)EnsInstance.LocalClientDelay=int.Parse(data.Substring(index+1,data.Length-index-1));
+            Debug.Log(EnsInstance.LocalClientDelay.ToString());
             EnsInstance.Corr.Client?.SendData(data);
         });
     }

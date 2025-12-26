@@ -64,7 +64,7 @@ public class EnsServer : Disposable
                 }
                 if (i.hbSendTime.Reached)
                 {
-                    i.SendData(Header.H + ((int)(Utils.Time.time * 1000)).ToString());
+                    i.SendData(Header.H + ((int)(Utils.Time.time * 1000)).ToString()+'#'+i.delay.ToString());
                     i.hbSendTime.ReachAfter(EnsInstance.HeartbeatMsgInterval);
                 }
                 i.Update();

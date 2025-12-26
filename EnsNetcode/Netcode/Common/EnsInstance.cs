@@ -14,6 +14,7 @@ public class EnsInstance
     public static int LocalClientId = -1;
     public static int PresentRoomId = 0;
     public static bool HasAuthority = false;
+    public static int LocalClientDelay=20;
 
     public static bool DevelopmentDebug;
 
