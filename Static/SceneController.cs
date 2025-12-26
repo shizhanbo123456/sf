@@ -7,8 +7,8 @@ public class SceneController//联机状态下的生成由FightController控制
     public void InitScene()
     {
         DestroyLevel();
-        CreateUnnetPlayer();
         CreateLevel(0);
+        CreateUnnetPlayer();
     }
 
     [HideInInspector]public GameObject Player;
