@@ -117,7 +117,7 @@ public class CustomTargetCreater
 
     public void Create()
     {
-        EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.TargetCollection.CollectionId, EnsBehaviour.SendTo.Everyone, ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+        EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.TargetCollection.CollectionId, EnsBehaviour.SendTo.Everyone, ToString(), Delivery.Reliable);
     }
     public void ApplyForTarget(GameObject obj)
     {

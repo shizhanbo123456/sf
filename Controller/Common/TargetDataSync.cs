@@ -22,7 +22,7 @@ public class TargetDataSync : EnsBehaviour
             HealthDirty = false;
             var sb = Tool.stringBuilder;
             sb.Append(DedicatedAttributes.Shengming.Value.Item1).Append('_').Append(DedicatedAttributes.Shengming.Value.Item2);
-            CallFuncRpc(nameof(OnSyncHealthLocal), SendTo.ExcludeSender, sb.ToString(),KeyLibrary.KeyFormatType.DisorderConfirm);
+            CallFuncRpc(nameof(OnSyncHealthLocal), SendTo.ExcludeSender, sb.ToString(),Delivery.Reliable);
             HealthDirtyClearCD = 0.15f;
         }
     }
@@ -41,7 +41,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncGongji(int value)
     {
-        CallFuncRpc(nameof(Sgj),SendTo.ExcludeSender,value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+        CallFuncRpc(nameof(Sgj),SendTo.ExcludeSender,value.ToString(), Delivery.Reliable);
         DedicatedAttributes.Gongji = value;
     }
     private void Sgj(string data)
@@ -50,7 +50,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncMingzhong(int value)
     {
-        CallFuncRpc(nameof(Smz),SendTo.ExcludeSender,value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+        CallFuncRpc(nameof(Smz),SendTo.ExcludeSender,value.ToString(), Delivery.Reliable);
         DedicatedAttributes.Mingzhong = value;
     }
     private void Smz(string data)
@@ -59,7 +59,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncBaoji(int value)
     {
-        CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender, value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+        CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender, value.ToString(), Delivery.Reliable);
         DedicatedAttributes.Baoji = value;
     }
     private void Sbj(string data)
@@ -68,7 +68,7 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncJiashang(int value)
     {
-        CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, value.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+        CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, value.ToString(), Delivery.Reliable);
         DedicatedAttributes.Jiashang = value;
     }
     private void Sjs(string data)

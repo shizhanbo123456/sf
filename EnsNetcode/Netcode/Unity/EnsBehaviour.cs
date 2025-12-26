@@ -19,11 +19,11 @@ public abstract class EnsBehaviour : MonoBehaviour
     internal EnsBehaviourCollection collection;
 
 
-    private static readonly Dictionary<KeyFormatType, string> Key2Header = new Dictionary<KeyFormatType, string>() 
+    private static readonly Dictionary<Delivery, string> Key2Header = new Dictionary<Delivery, string>() 
     { 
-        {KeyFormatType.None,Header.F },
-        {KeyFormatType.DisorderConfirm,Header.kF },
-        {KeyFormatType.OrderWise,Header.KF }
+        {Delivery.Unreliable,Header.F },
+        {Delivery.Reliable,Header.kF },
+        {Delivery.OrderWise,Header.KF }
     };
     public enum SendTo
     {
@@ -71,7 +71,7 @@ public abstract class EnsBehaviour : MonoBehaviour
     {
         
     }
-    public void DestroyRpc(KeyFormatType keyFormatType=KeyFormatType.DisorderConfirm)
+    public void DestroyRpc(Delivery keyFormatType=Delivery.Reliable)
     {
         CallFuncRpc(nameof(DestroyLocal), SendTo.Everyone, keyFormatType);
     }
@@ -96,7 +96,7 @@ public abstract class EnsBehaviour : MonoBehaviour
 
     }
 
-    public void CallFuncRpc(string func, SendTo mode, KeyFormatType type=KeyFormatType.None )
+    public void CallFuncRpc(string func, SendTo mode, Delivery type=Delivery.Unreliable )
     {
         if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
         {
@@ -105,7 +105,7 @@ public abstract class EnsBehaviour : MonoBehaviour
         }
         EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + (int)mode);
     }
-    public void CallFuncRpc(string func,List<int> targets, KeyFormatType type = KeyFormatType.None)
+    public void CallFuncRpc(string func,List<int> targets, Delivery type = Delivery.Unreliable)
     {
         if (targets.Count == 0) return;
         if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
@@ -115,7 +115,7 @@ public abstract class EnsBehaviour : MonoBehaviour
         }
         EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + Format.ListToString(targets));
     }
-    public void CallFuncRpc(string func, SendTo mode,string param, KeyFormatType type = KeyFormatType.None)
+    public void CallFuncRpc(string func, SendTo mode,string param, Delivery type = Delivery.Unreliable)
     {
         if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
         {
@@ -124,7 +124,7 @@ public abstract class EnsBehaviour : MonoBehaviour
         }
         EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + (int)mode + "#{" + param+'}');
     }
-    public void CallFuncRpc(string func, List<int> targets,string param, KeyFormatType type = KeyFormatType.None)
+    public void CallFuncRpc(string func, List<int> targets,string param, Delivery type = Delivery.Unreliable)
     {
         if (targets.Count == 0) return;
         if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)

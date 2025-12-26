@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using Utils;
 
+public enum Delivery
+{
+    Unreliable,
+    Reliable,//k
+    OrderWise//K
+}
 /// <summary>
 /// Add OnReceive Update Clear
 /// </summary>
 public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，即"占用"中的信息
 {
-    public enum KeyFormatType
-    {
-        None,
-        DisorderConfirm,//k
-        OrderWise//K
-    }
     private List<ENCKey> Keys = new List<ENCKey>();
     private List<ENCKey> TimeWiseKeys = new List<ENCKey>();
     private List<ENCRKey> RecvKeys = new List<ENCRKey>();
@@ -36,7 +36,7 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
                         k.ToConfirmIntervalLeft.ReachAfter(EnsInstance.KeySendInterval);
 
                         string res;
-                        if (k.Type == KeyFormatType.DisorderConfirm) res = "[k" + k.Index + "]" + k.Key;
+                        if (k.Type == Delivery.Reliable) res = "[k" + k.Index + "]" + k.Key;
                         else res = "[K" + k.Index + "]" + k.Key;
                         r.Add(res);
                     }
@@ -61,19 +61,19 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
         return skip;
     }
 
-    public static string Format(string data,KeyFormatType type)
+    public static string Format(string data,Delivery type)
     {
-        if (type == KeyFormatType.None)
+        if (type == Delivery.Unreliable)
         {
             if (data[0]=='[') Debug.Log("格式错误");
             return '[' + data.Substring(1, data.Length - 1);
         }
-        if (type == KeyFormatType.DisorderConfirm)
+        if (type == Delivery.Reliable)
         {
             if (data[0] == 'k') Debug.Log("格式错误");
             return 'k' + data.Substring(1, data.Length - 1);
         }
-        if (type == KeyFormatType.OrderWise)
+        if (type == Delivery.OrderWise)
         {
             if (data[0] == 'K') Debug.Log("格式错误");
             return 'K' + data.Substring(1, data.Length - 1);
@@ -109,8 +109,8 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
         int index = int.Parse(data.Substring(2, indexEnd - 2));//[K112233]abc
 
         t_data = data.Substring(indexEnd + 1, data.Length - indexEnd - 1);
-        if (t_data[1]=='K')t_data=Format(t_data,KeyFormatType.OrderWise);
-        else t_data = Format(t_data, KeyFormatType.DisorderConfirm);
+        if (t_data[1]=='K')t_data=Format(t_data,Delivery.OrderWise);
+        else t_data = Format(t_data, Delivery.Reliable);
 
 
         //本地//////////////////////////////////////////////////////////////
@@ -152,9 +152,9 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
     {
         while(AddBuffer.Read(out var data))
         {
-            data = Format(data,KeyFormatType.None);
-            if (data[0]=='k')Keys.Add(new ENCKey(data,KeyFormatType.DisorderConfirm));
-            else TimeWiseKeys.Add(new ENCKey(data, KeyFormatType.OrderWise));
+            data = Format(data,Delivery.Unreliable);
+            if (data[0]=='k')Keys.Add(new ENCKey(data,Delivery.Reliable));
+            else TimeWiseKeys.Add(new ENCKey(data, Delivery.OrderWise));
         }
 
         for (int i = RecvKeys.Count - 1; i >= 0; i--)
@@ -188,7 +188,7 @@ public class ENCKey
     public static int IndexRange = 100000000;
     public string Key;
     public int Index;
-    public KeyLibrary.KeyFormatType Type;
+    public Delivery Type;
     public enum KeyState
     {
         TobeConfirmed, ConfirmedExisting, End
@@ -197,7 +197,7 @@ public class ENCKey
     public ReachTime ToConfirmIntervalLeft;
     public ReachTime ConfirmedExistingSource;
 
-    public ENCKey(string data, KeyLibrary.KeyFormatType type)
+    public ENCKey(string data, Delivery type)
     {
         ToConfirmIntervalLeft = new ReachTime();
         ToConfirmIntervalLeft.ReachAt(-1f);

@@ -28,19 +28,19 @@ public class FightController : EnsBehaviour
         set
         {
             customLevel = value;
-            CallFuncRpc(nameof(SyncNameLocal), SendTo.ExcludeSender, customLevel.joinedPath, KeyLibrary.KeyFormatType.OrderWise);
-            CallFuncRpc(nameof(SyncDesLocal), SendTo.ExcludeSender, customLevel.description, KeyLibrary.KeyFormatType.OrderWise);
+            CallFuncRpc(nameof(SyncNameLocal), SendTo.ExcludeSender, customLevel.joinedPath, Delivery.OrderWise);
+            CallFuncRpc(nameof(SyncDesLocal), SendTo.ExcludeSender, customLevel.description, Delivery.OrderWise);
             OnModeNameChanged?.Invoke(customLevel.joinedPath);
         }
     }
     public void SyncNameTo(int player)
     {
-        CallFuncRpc(nameof(SyncNameLocal),new List<int>() { player},customLevel.joinedPath,KeyLibrary.KeyFormatType.OrderWise);
+        CallFuncRpc(nameof(SyncNameLocal),new List<int>() { player},customLevel.joinedPath,Delivery.OrderWise);
     }
     private void SyncNameLocal(string data)=> OnModeNameChanged?.Invoke(data);
     public void SyncDesTo(int player)
     {
-        CallFuncRpc(nameof(SyncDesLocal), new List<int>() { player },customLevel.description,KeyLibrary.KeyFormatType.OrderWise);
+        CallFuncRpc(nameof(SyncDesLocal), new List<int>() { player },customLevel.description,Delivery.OrderWise);
     }
     private void SyncDesLocal(string data)=>OnDescriptionChanged?.Invoke(data);
 
@@ -71,7 +71,7 @@ public class FightController : EnsBehaviour
             CustomLevel.FigureScore(i,out int killscore, out int timescore, out int challengescore);
             var sb=Tool.stringBuilder;
             sb.Append(killscore).Append('_').Append(timescore).Append('_').Append(challengescore);
-            CallFuncRpc(nameof(SettleLocal),new List<int>() { i}, sb.ToString(), KeyLibrary.KeyFormatType.DisorderConfirm);
+            CallFuncRpc(nameof(SettleLocal),new List<int>() { i}, sb.ToString(), Delivery.Reliable);
         }
     }
     private void SettleLocal(string data)

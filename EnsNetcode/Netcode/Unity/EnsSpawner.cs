@@ -13,11 +13,11 @@ public sealed class EnsSpawner : EnsBehaviour
     public List<EnsBehaviourCollection> Prefabs = new List<EnsBehaviourCollection>();
     public Vector3 DefaultSpawnPosition = new Vector3(0, -10000, 0);
 
-    private static readonly Dictionary<KeyFormatType, string> Key2Header = new Dictionary<KeyFormatType, string>()
+    private static readonly Dictionary<Delivery, string> Key2Header = new Dictionary<Delivery, string>()
     {
-        {KeyFormatType.None,Header.f },
-        {KeyFormatType.DisorderConfirm,Header.kf },
-        {KeyFormatType.OrderWise,Header.Kf }
+        {Delivery.Unreliable,Header.f },
+        {Delivery.Reliable,Header.kf },
+        {Delivery.OrderWise,Header.Kf }
     };
 
     private static int prefabid = 1000000000;
@@ -34,7 +34,7 @@ public sealed class EnsSpawner : EnsBehaviour
         }
     }
 
-    private void CallFuncServrRpc(string func, int mode, string param,int id, KeyFormatType type = KeyFormatType.None)
+    private void CallFuncServrRpc(string func, int mode, string param,int id, Delivery type = Delivery.Unreliable)
     {
         if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
         {
@@ -47,7 +47,7 @@ public sealed class EnsSpawner : EnsBehaviour
         }
         EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + mode + "#{" + param+"}#"+GetBehaviourCount(id));
     }
-    private void CallFuncServrRpc(string func, List<int> targets, string param,int id, KeyFormatType type = KeyFormatType.None)
+    private void CallFuncServrRpc(string func, List<int> targets, string param,int id, Delivery type = Delivery.Unreliable)
     {
         if (targets.Count == 0) return;
         if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
@@ -74,14 +74,14 @@ public sealed class EnsSpawner : EnsBehaviour
     }
 
     /// <param name="mode">==-1 All   ==-2 IgnoreSelf</param>
-    public void CreateServerRpc(int id,SendTo mode, KeyFormatType type = KeyFormatType.None)
+    public void CreateServerRpc(int id,SendTo mode, Delivery type = Delivery.Unreliable)
     {
         CallFuncServrRpc(nameof(CreateLocal), (int)mode, id.ToString(),id,type);//会处理未联网时的状态
     }
     /// <summary>
     /// 此方法在非联网情况下无法运作
     /// </summary>
-    public void CreateServerRpc(int id, List<int> targets, KeyFormatType type = KeyFormatType.None)
+    public void CreateServerRpc(int id, List<int> targets, Delivery type = Delivery.Unreliable)
     {
         CallFuncServrRpc(nameof(CreateLocal), targets, id.ToString(),id,type);
     }
@@ -89,7 +89,7 @@ public sealed class EnsSpawner : EnsBehaviour
     ///可以通过此方法在其被创建时立即传入参数
     ///</summary>
     /// <param name="mode">==-1 All   ==-2 IgnoreSelf</param>
-    public void CreateServerRpc(int id, SendTo mode,string param, KeyFormatType type = KeyFormatType.None)
+    public void CreateServerRpc(int id, SendTo mode,string param, Delivery type = Delivery.Unreliable)
     {
         CallFuncServrRpc(nameof(CreateLocalP), (int)mode, id.ToString()+'%'+param,id,type);//会处理未联网时的状态
     }
@@ -97,7 +97,7 @@ public sealed class EnsSpawner : EnsBehaviour
     /// 此方法在非联网情况下无法运作<br></br>
     /// 可以通过此方法在其被创建时立即传入参数
     /// </summary>
-    public void CreateServerRpc(int id, List<int> targets,string param, KeyFormatType type = KeyFormatType.None)
+    public void CreateServerRpc(int id, List<int> targets,string param, Delivery type = Delivery.Unreliable)
     {
         CallFuncServrRpc(nameof(CreateLocalP), targets, id.ToString()+'%'+param,id,type);
     }
@@ -175,7 +175,7 @@ public sealed class EnsSpawner : EnsBehaviour
     /// <summary>
     /// 对所有客户端执行（已经生成的不会执行）
     /// </summary>
-    public void RespawnCheckServerRpc(EnsBehaviourCollection collection, string param, KeyFormatType type = KeyFormatType.None)
+    public void RespawnCheckServerRpc(EnsBehaviourCollection collection, string param, Delivery type = Delivery.Unreliable)
     {
         CallFuncRpc(nameof(RespawnCheckLocal), SendTo.Everyone, collection.CollectionId + "%" + collection.Behaviors[0].ObjectId
             + '%' + param + "%" + collection.Behaviors[0].ObjectId,type);
