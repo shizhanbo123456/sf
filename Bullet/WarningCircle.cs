@@ -14,12 +14,12 @@ public class WarningCircle:BulletWarning
 
     public static void Warn(Vector3 center, float radius, float time)
     {
-        var w=Instantiate(Tool.PrefabManager.BulletWarningCircle, center, Quaternion.identity).GetComponent<WarningCircle>();
+        var w=Instantiate(Tool.BulletManager.BulletWarningCircle, center, Quaternion.identity).GetComponent<WarningCircle>();
         w.Init(center, radius, time);
     }
     public static void Warn(Transform t, float radius, float time)
     {
-        var w = Instantiate(Tool.PrefabManager.BulletWarningCircle,t.position , Quaternion.identity).GetComponent<WarningCircle>();
+        var w = Instantiate(Tool.BulletManager.BulletWarningCircle,t.position , Quaternion.identity).GetComponent<WarningCircle>();
         w.Init(t, radius, time);
     }
     public void Init(Vector3 center,float radius, float time)

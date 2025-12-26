@@ -12,7 +12,7 @@ public class WarningRect : BulletWarning
     private bool initializd = false;
     public static void Warn(Vector3 start, Vector3 end, float width, float time)
     {
-        var w=Instantiate(Tool.PrefabManager.BulletWarningRect, (start + end) / 2, Quaternion.identity).GetComponent<WarningRect>();
+        var w=Instantiate(Tool.BulletManager.BulletWarningRect, (start + end) / 2, Quaternion.identity).GetComponent<WarningRect>();
         w.Init(start, end, width, time);
     }
     public void Init(Vector3 start, Vector3 end, float width, float time)

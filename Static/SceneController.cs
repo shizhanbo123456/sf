@@ -2,21 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿ØÖÆ
+public class SceneController//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿ØÖÆ
 {
-    private void Awake()
+    public void InitScene()
     {
-        Tool.SceneController = this;
-        Invoke(nameof(LateInit), 0.2f);
-    }
-    private void LateInit()
-    {
+        DestroyLevel();
         CreateUnnetPlayer();
+        CreateLevel(0);
     }
 
-    public GameObject Player;
-    public Level Level;
-    [Space]
+    [HideInInspector]public GameObject Player;
+    [HideInInspector]public Level Level;
+    
     public Dictionary<int,NonSkillPlayerData> NonSkillPlayers = new Dictionary<int,NonSkillPlayerData>();//½ö½öÓÃÓÚ´æ´¢
 
 
@@ -55,11 +52,11 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
 
     public void CreateUnnetPlayer()
     {
-        Instantiate(Tool.PrefabManager.UnnetPlayer);
+        Object.Instantiate(Tool.PrefabManager.UnnetPlayer);
     }
     public void DestroyPlayer()
     {
-        if (Player != null) Destroy(Player);
+        if (Player != null) Object.Destroy(Player);
     }
     public void DestroyNonSkillPlayer()
     {
@@ -78,10 +75,10 @@ public class SceneController : MonoBehaviour//Áª»ú×´Ì¬ÏÂµÄÉú³ÉÓÉFightController¿
     }
     public void CreateLevel(int index)
     {
-        Level = Instantiate(Tool.PrefabManager.Levels[index].gameObject).GetComponent<Level>();
+        Level = Object.Instantiate(Tool.PrefabManager.Levels[index].gameObject).GetComponent<Level>();
     }
     public void DestroyLevel() 
     {
-        if (Level != null) Destroy(Level.gameObject);
+        if (Level != null) Object.Destroy(Level.gameObject);
     }
 }

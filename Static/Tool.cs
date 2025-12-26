@@ -14,13 +14,17 @@ public class Tool:MonoBehaviour
     public static SpriteManager SpriteManager;
     public static FightController FightController;
     public static PageManager PageManager;
-    public static SceneController SceneController;//生成/摧毁 玩家/场景
     public static WorldTextController WorldTextController;
     public static NetworkCorrespondent NetworkCorrespondent;
     public static Notice Notice;
     public static SubInput SubInput;
     public static BulletManager BulletManager;
-    [Space]
+
+
+    public static SceneController SceneController=new SceneController();//生成/摧毁 玩家/场景
+
+
+
     public GameObject WindowsUI;
     public GameObject AndroidUI;
     [Space]
@@ -57,6 +61,7 @@ public class Tool:MonoBehaviour
     private void Start()
     {
         FileManager.Init();
+        SceneController.InitScene();
         Instantiate(WindowsUI, Vector3.zero, Quaternion.identity);
     }
     private void Update()

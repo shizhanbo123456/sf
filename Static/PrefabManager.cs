@@ -16,10 +16,6 @@ public class PrefabManager : MonoBehaviour
     public GameObject SkillColumn;
     [Space]
     public GameObject RoomInfoUnit;
-    [Header("Bullet")]
-    public GameObject BulletWarningRect;
-    public GameObject BulletWarningCircle;
-    public List<GameObject> BulletList = new List<GameObject>();
     [Header("Level")]
     public List<Level> Levels = new List<Level>();
     [Header("Player")]
