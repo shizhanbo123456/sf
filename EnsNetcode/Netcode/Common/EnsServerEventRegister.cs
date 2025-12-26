@@ -37,7 +37,8 @@ public class EnsServerEventRegister
     {
         MessageHandlerServer.Regist('H',(data, conn) =>
         {
-            int d = int.Parse(data.Substring(3, data.Length - 3));
+            int index = data.LastIndexOf('#');
+            int d = int.Parse(data.Substring(3, index- 3));
             conn.delay = ((int)(Utils.Time.time * 1000) - d) / 2;
         });
     }
