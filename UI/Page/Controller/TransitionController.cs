@@ -8,24 +8,24 @@ public class TransitionController:Singleton<TransitionController>
     {
         get
         {
-            if (Tool.PageManager.Pages.TryGetValue(PageManager.PageType.Transition, out var value)) return value.gameObject.activeSelf ? value: null;
+            if (Tool.PageManager&&Tool.PageManager.Pages.TryGetValue(PageManager.PageType.Transition, out var value)) return value.gameObject.activeSelf ? value: null;
             return null;
         }
     }
     public string Label;
     private void Repaint()
     {
-        Tool.PageManager.PageRepaint(PageManager.PageType.Transition);
+        if(Tool.PageManager) Tool.PageManager.PageRepaint(PageManager.PageType.Transition);
     }
     private void Show()
     {
         Label = string.Empty;
-        Tool.PageManager.PageActive(PageManager.PageType.Transition, true);
+        if (Tool.PageManager) Tool.PageManager.PageActive(PageManager.PageType.Transition, true);
         Repaint();
     }
     private void Hide()
     {
-        Tool.PageManager.PageActive(PageManager.PageType.Transition, false);
+        if (Tool.PageManager) Tool.PageManager.PageActive(PageManager.PageType.Transition, false);
     }
     public void SetLabel(string text)
     {
