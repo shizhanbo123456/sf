@@ -9,7 +9,6 @@ public class EnsServerEventRegister
         Server_H();
         Server_D();
         Server_F();
-        Server_S();
         Server_f();
         Server_Q();
         Server_Any();
@@ -87,42 +86,6 @@ public class EnsServerEventRegister
             }
         });
     }
-    protected static void Server_S()
-    {
-        MessageHandlerServer.Regist('S',(data, conn) =>
-        {
-            if (conn.room == null) return;
-            var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-            string target = s[2];
-            if (target[0] == '-')
-            {
-                if (target[1] == '1')//全部
-                {
-                    foreach (var i in EnsServer.Instance.ClientConnections.Values)
-                    {
-                        SyncSendTo(s, conn.delay, i);
-                    }
-                }
-                else if (target[1] == '2')//忽略自身
-                {
-                    foreach (var i in EnsServer.Instance.ClientConnections.Values)
-                    {
-                        if (i.ClientId == conn.ClientId) continue;
-                        SyncSendTo(s, conn.delay, i);
-                    }
-                }
-            }
-            else
-            {
-                var targets = Format.StringToList(target, int.Parse);
-                foreach (var i in EnsServer.Instance.ClientConnections.Values)
-                {
-                    if (targets.Contains(i.ClientId))
-                        SyncSendTo(s, conn.delay, i);
-                }
-            }
-        });
-    }
     protected static void Server_f()
     {
         //物体Id同步
@@ -160,17 +123,5 @@ public class EnsServerEventRegister
             if (reply == string.Empty) return;
             conn.SendData(data[0] + "Q]{" + s[0] + "}#{" + reply + "}");
         });
-    }
-    private static void SyncSendTo(List<string> s, int senderDelay, EnsConnection target)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.Append("IF]");
-        for (int i = 0; i < s.Count; i++)
-        {
-            if (i != 0) sb.Append('#');
-            if (i != 3) sb.Append(s[i]);
-            else sb.Append((int.Parse(s[3]) - senderDelay - target.delay).ToString());
-        }
-        target.SendData(sb.ToString());
     }
 }

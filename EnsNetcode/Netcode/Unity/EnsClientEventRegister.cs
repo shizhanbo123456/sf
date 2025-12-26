@@ -13,7 +13,6 @@ public class EnsClientEventRegister
         Client_H();
         Client_D();
         Client_F();
-        Client_S();
         Client_f();
         Client_Q();
         Client_Any();
@@ -113,22 +112,6 @@ public class EnsClientEventRegister
             {
                 obj.CallFuncLocal(func);
             }
-        });
-    }
-    protected static void Client_S()
-    {
-        MessageHandlerClient.Regist('S',(data) =>
-        {
-            var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-            int id = int.Parse(s[0]);
-            string func = s[1];
-            EnsBehaviour obj = EnsNetworkObjectManager.GetObject(id);
-            if (obj == null)
-            {
-                if (EnsInstance.DevelopmentDebug) Debug.LogWarning("[N]ÎÞÎïÌåid=" + id);
-                return;
-            }
-            obj.DelayInvoke(s);
         });
     }
     protected static void Client_f()

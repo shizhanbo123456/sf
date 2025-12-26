@@ -133,44 +133,6 @@ public abstract class EnsBehaviour : MonoBehaviour
         }
         EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + Format.ListToString(targets) + "#{" + param+'}');
     }
-    public void CallFuncRpc(string func, SendTo mode, int delay)
-    {
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (mode != SendTo.ExcludeSender) StartCoroutine(func);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Header.kS + ObjectId.ToString() + "#{" + func+ "}#" + (int)mode + "#" + delay);
-    }
-    public void CallFuncRpc(string func, List<int> targets, int delay)
-    {
-        if (targets.Count == 0) return;
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (targets.Contains(EnsInstance.LocalClientId)) StartCoroutine(func);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Header.kS + ObjectId.ToString() + "#{" + func + "}#" + Format.ListToString(targets) + "#" + delay);
-    }
-    public void CallFuncRpc(string func, SendTo mode, string param, int delay)
-    {
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (mode != SendTo.ExcludeSender) StartCoroutine(func, param);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Header.kS + ObjectId.ToString() + "#{" + func + "}#" + (int)mode + "#" + delay + "#{" + param+'}');
-    }
-    public void CallFuncRpc(string func, List<int> targets, string param, int delay)
-    {
-        if (targets.Count == 0) return;
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (targets.Contains(EnsInstance.LocalClientId)) StartCoroutine(func, param);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Header.kS + ObjectId.ToString() + "#{" + func + "}#" + Format.ListToString(targets) + "#" + delay + "#{" + param+'}');
-    }
 
 
     internal void CallFuncLocal(string func)
@@ -182,23 +144,6 @@ public abstract class EnsBehaviour : MonoBehaviour
         if (gameObject.activeSelf)
         {
             StartCoroutine(func, param);
-        }
-    }
-    internal void DelayInvoke(List<string> s)
-    {
-        StartCoroutine(WaitForInvoke(s));
-    }
-    private IEnumerator WaitForInvoke(List<string> s)
-    {
-        var delay = int.Parse(s[3]);
-        if(delay>0)yield return new WaitForSeconds(delay / 1000f);
-        if (s.Count >= 5)
-        {
-            CallFuncLocal(s[1], s[4]);
-        }
-        else
-        {
-            CallFuncLocal(s[1]);
         }
     }
 }
