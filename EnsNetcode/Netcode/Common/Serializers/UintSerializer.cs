@@ -1,0 +1,28 @@
+using System;
+
+public struct UintSerializer
+{
+    public static bool Serialize(uint value, byte[] result, ref int indexStart)
+    {
+        if (result.Length - indexStart < 4) return false;
+        result[indexStart] = (byte)(value >> 24);
+        result[indexStart + 1] = (byte)(value >> 16);
+        result[indexStart + 2] = (byte)(value >> 8);
+        result[indexStart + 3] = (byte)value;
+        indexStart += 4;
+        return true;
+    }
+
+    public static uint Deserialize(byte[] data, ref int indexStart)
+    {
+        if (data.Length - indexStart < 4)
+            throw new ArgumentException("反序列化uint失败：剩余数据不足4字节");
+
+        uint result = (uint)data[indexStart] << 24
+                      | (uint)data[indexStart + 1] << 16
+                      | (uint)data[indexStart + 2] << 8
+                      | data[indexStart + 3];
+        indexStart += 4;
+        return result;
+    }
+}
