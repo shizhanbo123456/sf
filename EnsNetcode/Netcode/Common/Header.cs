@@ -1,17 +1,12 @@
 public static class Header
 {
-    public static string kE => "kE]";
-    public static string kC => "kC]";
-    public static string kR => "kR]";
-    public static string kA => "kA]";
-    public static string F => "[F]";
-    public static string kF => "kF]";
-    public static string KF => "KF]";
-    public static string f => "[f]";
-    public static string kf => "kf]";
-    public static string Kf => "Kf]";
-    public static string D => "[D]";
-    public static string H => "[H]";
-    public static string Q => "[Q]";
-    public static string kQ => "kQ]";
+    public const byte E = (byte)'E';
+    public const byte C = (byte)'C';
+    public const byte R = (byte)'R';
+    public const byte A = (byte)'A';
+    public const byte F = (byte)'F';
+    public const byte f = (byte)'f';
+    public const byte D = (byte)'D';
+    public const byte H = (byte)'H';
+    public const byte Q = (byte)'Q';
 }

@@ -41,6 +41,7 @@ public class CircularQueue<T>
     }
     public CircularQueue(int size)
     {
+        this.size= size;
         x = new T[size];
     }
     //返回值表示是否有效
@@ -92,6 +93,19 @@ public class CircularQueue<T>
             return true;
         }
     }
+    public bool Top(out T data)
+    {
+        if (Empty())
+        {
+            data = default;
+            return false;
+        }
+        else
+        {
+            data = x[r];
+            return true;
+        }
+    }
     public bool Empty()
     {
         return Count == 0;
@@ -99,5 +113,15 @@ public class CircularQueue<T>
     public bool Full()
     {
         return Count == size;
+    }
+    public T this[int index]
+    {
+        get
+        {
+            if (index >= Count) throw new System.IndexOutOfRangeException();
+            int i = index + r;
+            if (i >= size) i = i % size;
+            return x[i];
+        }
     }
 }

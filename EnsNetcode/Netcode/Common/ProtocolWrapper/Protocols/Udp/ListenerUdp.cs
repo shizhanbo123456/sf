@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Utils;
 
 namespace ProtocolWrapper.Protocols.Udp
 {
@@ -78,19 +79,16 @@ namespace ProtocolWrapper.Protocols.Udp
         }
         private void OnRecvData(byte[] b,IPEndPoint ep)
         {
-            string s = Format.DeFormat(Format.GetString(b), out bool rightFormat);
-            if (!rightFormat) return;
-            var data = Format.Split(s);
             if (!Connections.ContainsKey(ep))
             {
                 var c = new ConnectionUdp();
                 c.Init(this, ep);
                 Connections.Add(ep, c);
                 Protocol.OnRecvConnection?.Invoke(c, ++connectionIndex);
-                if (Protocol.DevelopmentDebug) Utils.Debug.Log("[W]有新客户端连接");
             }
             var conn = Connections[ep];
-            foreach (var d in data) conn.RecvBuffer.Write(d);
+            if (!conn.Cancelled) conn.RecvBuffer.Write(b);
+            else Debug.LogError("[W]接收已经被取消");
         }
 
 

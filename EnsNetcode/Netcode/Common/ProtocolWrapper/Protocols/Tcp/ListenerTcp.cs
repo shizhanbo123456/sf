@@ -82,7 +82,6 @@ namespace ProtocolWrapper.Protocols.Tcp
             var Connection = new ConnectionTcp();
             Connection.Init(Client, this);
             Protocol.OnRecvConnection?.Invoke(Connection, ++connectionIndex);
-            if (Protocol.DevelopmentDebug) Utils.Debug.Log("[W]有新客户端连接");
         }
 
         public override void ShutDown()

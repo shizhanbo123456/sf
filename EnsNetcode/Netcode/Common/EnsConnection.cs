@@ -28,10 +28,9 @@ public class EnsConnection:SR
 
         SendData(Header.kC + ClientId);
     }
-    internal override void SendData(string data)
+    public override void Send(byte messageType, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        if (data[0] == 'k' || data[0]=='K') KeyLibrary.Add(data);
-        else Connection.SendData(data);
+        ProtocolBase.Send(Connection,DeliverySource,messageType,target,delivery,writer);
     }
     internal override void Update()
     {
@@ -68,6 +67,10 @@ public class EnsConnection:SR
         Connection.ShutDown();
 
         Dispose();
+    }
+    internal override ProtocolBase GetProtocolBase()
+    {
+        return Connection;
     }
     protected override void ReleaseManagedMenory()
     {

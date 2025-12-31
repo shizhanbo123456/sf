@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,29 +18,15 @@ public abstract class EnsBehaviour : MonoBehaviour
 
     internal EnsBehaviourCollection collection;
 
-
-    private static readonly Dictionary<Delivery, string> Key2Header = new Dictionary<Delivery, string>() 
-    { 
-        {Delivery.Unreliable,Header.F },
-        {Delivery.Reliable,Header.kF },
-        {Delivery.OrderWise,Header.KF }
-    };
-    public enum SendTo
-    {
-        Everyone=-1,
-        ExcludeSender=-2,
-        RoomOwner=-3
-    }
-
     internal bool IdAutoAllocated=false;
     private bool startInvoked=false;
 
     protected void Start()
     {
-        NOMStart();
+        Regist();
         _Start();
     }
-    internal void NOMStart()
+    internal void Regist()
     {
         if(startInvoked) return;
         startInvoked = true;
@@ -70,16 +57,6 @@ public abstract class EnsBehaviour : MonoBehaviour
     {
         
     }
-    public void DestroyRpc(Delivery keyFormatType=Delivery.Reliable)
-    {
-        CallFuncRpc(nameof(DestroyLocal), SendTo.Everyone, keyFormatType);
-    }
-    public void DestroyLocal()
-    {
-        //foreach (var i in collection.Behaviors) i.NOMOnDestroy();//物体管理器移除物体+人为分配id移除物体
-        if (collection != null) Destroy(collection.gameObject);
-        else Destroy(gameObject);
-    }
     /// <summary>
     /// 需要发送数据时，在此Update中使用，减少调用到传输的延迟<br></br>
     /// </summary>
@@ -95,55 +72,35 @@ public abstract class EnsBehaviour : MonoBehaviour
 
     }
 
-    public void CallFuncRpc(string func, SendTo mode, Delivery type=Delivery.Unreliable )
+
+    //使用泛型方法，用户编写代码时调用，实际编译时加入了生成的代码，不调用泛型方法
+    public void CallFuncRpc(Action func, SendTo sendto, Delivery delivery)
     {
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (mode != SendTo.ExcludeSender) StartCoroutine(func);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + (int)mode);
+        LogUnknownFunc();
     }
-    public void CallFuncRpc(string func,List<int> targets, Delivery type = Delivery.Unreliable)
+    public void CallFuncRpc<T>(Action<T> func, SendTo sendto, Delivery delivery, T param1)
     {
-        if (targets.Count == 0) return;
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (targets.Contains(EnsInstance.LocalClientId)) StartCoroutine(func);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + Format.ListToString(targets));
+        LogUnknownFunc();
     }
-    public void CallFuncRpc(string func, SendTo mode,string param, Delivery type = Delivery.Unreliable)
+    public void CallFuncRpc<T1, T2>(Action<T1, T2> func, SendTo sendto, Delivery delivery, T1 param1, T2 param2)
     {
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (mode != SendTo.ExcludeSender) StartCoroutine(func,param);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + (int)mode + "#{" + param+'}');
+        LogUnknownFunc();
     }
-    public void CallFuncRpc(string func, List<int> targets,string param, Delivery type = Delivery.Unreliable)
+    public void CallFuncRpc<T1, T2, T3>(Action<T1, T2, T3> func, SendTo sendto, Delivery delivery, T1 param1, T2 param2, T3 param3)
     {
-        if (targets.Count == 0) return;
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (targets.Contains(EnsInstance.LocalClientId)) StartCoroutine(func, param);
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + Format.ListToString(targets) + "#{" + param+'}');
+        LogUnknownFunc();
+    }
+    public void CallFuncRpc<T1, T2, T3, T4>(Action<T1, T2, T3, T4> func, SendTo sendto, Delivery delivery, T1 param1, T2 param2, T3 param3, T4 param4)
+    {
+        LogUnknownFunc();
+    }
+    private void LogUnknownFunc()
+    {
+        Debug.LogError("调用未注册的代码，请检查调用堆栈");
     }
 
+    public virtual void InvokeFunc(byte[] bytes)
+    {
 
-    internal void CallFuncLocal(string func)
-    {
-        StartCoroutine(func);
-    }
-    internal void CallFuncLocal(string func, string param)
-    {
-        if (gameObject.activeSelf)
-        {
-            StartCoroutine(func, param);
-        }
     }
 }

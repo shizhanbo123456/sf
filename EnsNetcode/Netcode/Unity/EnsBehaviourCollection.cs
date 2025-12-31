@@ -31,7 +31,7 @@ public class EnsBehaviourCollection : MonoBehaviour
     }
     public void PreInit(string data)
     {
-        foreach (var i in Behaviors) i.NOMStart();
+        foreach (var i in Behaviors) i.Regist();
         Init(data);
     }
     protected virtual void Init(string data)
@@ -40,7 +40,7 @@ public class EnsBehaviourCollection : MonoBehaviour
     }
     public void PreRespawn(string data)
     {
-        foreach (var i in Behaviors) i.NOMStart();
+        foreach (var i in Behaviors) i.Regist();
         Respawn(data);
     }
     protected virtual void Respawn(string data)

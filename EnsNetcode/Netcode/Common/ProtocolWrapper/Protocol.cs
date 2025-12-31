@@ -15,10 +15,6 @@ namespace ProtocolWrapper
     }
     public class Protocol
     {
-        internal static int BufferLength = 400;
-
-        internal static bool DevelopmentDebug = true;
-
         /// <summary>
         /// 标识，所有的Listener和Protocol的id都不一样
         /// </summary>

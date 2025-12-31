@@ -23,7 +23,7 @@ namespace ProtocolWrapper.Protocols.Tcp
         }
         protected virtual void Receive()
         {
-            byte[] buffer = new byte[Protocol.BufferLength];
+            var buffer = BytesPool.GetBuffer(512);
             while (!Cancelled)
             {
                 try
@@ -36,11 +36,12 @@ namespace ProtocolWrapper.Protocols.Tcp
                     
                 }
             }
+            BytesPool.ReturnBuffer(buffer);
         }
 
         protected async Task ReceiveAsync()
         {
-            byte[] buffer = new byte[Protocol.BufferLength];
+            var buffer = BytesPool.GetBuffer(512);
             while (!Cancelled)
             {
                 try
@@ -53,47 +54,19 @@ namespace ProtocolWrapper.Protocols.Tcp
                     
                 }
             }
+            BytesPool.ReturnBuffer(buffer);
         }
         private void OnRecvData(byte[] buffer,int bytesRead)
         {
-            if (bytesRead == 0) return;
-            string s = Format.DeFormat(Format.GetString(buffer, 0, bytesRead), out bool rightFormat);
-            if (!rightFormat) return;
-            var data = Format.Split(s);
-            foreach (var d in data)
-            {
-                ReceiveBuffer.Write(d);
-            }
-        }
-
-        public override void SendData(string data)
-        {
-            if (!Initialized)
-            {
-                Debug.LogError("[W]WrapperTcp未完成初始化");
-                return;
-            }
+            if (bytesRead == 0 || ReceiveBuffer.Full()) return;
             if (Cancelled)
             {
-                Debug.LogError("[W]WrapperTcp已被取消");
+                Debug.LogError("[W]已被取消");
                 return;
             }
-            SendBuffer.Write(data);
-        }
-
-        public override CircularQueue<string> RefreshRecvBuffer()
-        {
-            if (!Initialized)
-            {
-                Debug.LogError("[W]WrapperTcp未完成初始化");
-                return null;
-            }
-            if (Cancelled)
-            {
-                Debug.LogError("[W]WrapperTcp已被取消");
-                return null;
-            }
-            return ReceiveBuffer;
+            byte[] data = new byte[bytesRead];
+            for(int i = 0; i < bytesRead; i++) data[i]=buffer[i];
+            ReceiveBuffer.Write(data);
         }
 
         public override void RefreshSendBuffer()
@@ -108,19 +81,17 @@ namespace ProtocolWrapper.Protocols.Tcp
                 Debug.LogError("[W]WrapperTcp已被取消");
                 return;
             }
-            if (SendBuffer==null||SendBuffer.Empty()) return;
+            if (SendBuffer==null|| SendBuffer.indexStart <= StartSeparatorLength) return;
             
-            string data = Format.EnFormat(Format.Combine(SendBuffer));
-
-            byte[] SendData = Format.GetBytes(data);
             try
             {
-                Stream.Write(SendData, 0, SendData.Length);
+                Stream.Write(SendBuffer.bytes, 0, SendBuffer.indexStart);
             }
             catch (Exception)
             {
                 
             }
+            base.RefreshSendBuffer();
         }
         public override void ShutDown()
         {
@@ -132,12 +103,9 @@ namespace ProtocolWrapper.Protocols.Tcp
         {
             Stream?.Dispose();
             Client?.Dispose();
-        }
-        protected override void ReleaseUnmanagedMenory()
-        {
-            base.ReleaseUnmanagedMenory();
             Stream = null;
             Client = null;
+            base.ReleaseManagedMenory();
         }
     }
 }

@@ -1,4 +1,5 @@
 using ProtocolWrapper;
+using System;
 
 /// <summary>
 /// 实例化时启动客户端
@@ -27,6 +28,10 @@ internal class EnsClient:SR
             KeyLibrary.Add(data);
         }
         else Client.SendData(data);
+    }
+    public override void Send(byte messageType, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    {
+        ProtocolBase.Send(Client, DeliverySource, messageType, target, delivery, writer);
     }
     internal override void Update()
     {
@@ -70,6 +75,10 @@ internal class EnsClient:SR
         _on = false;
         Client.ShutDown();
         KeyLibrary.Clear();
+    }
+    internal override ProtocolBase GetProtocolBase()
+    {
+        return Client;
     }
 
     protected override void ReleaseManagedMenory()

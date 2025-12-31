@@ -1,75 +1,54 @@
 每次会把下列各语句合并，并用*分隔，一起发送
 
+(x messageSeparator)(1 messageHeader)(2 messageFrom)(2 messageTarget)(1 deliveyType)[body](2 messageLength)(x messageSeparator)
+messageType和messageLength都必定不包含Separator
+消息长度只包含(1 messageType)(2 messageTarget)[body]
+
 
 >>客户端接收                事件
-[E](int eventId)(string id)                                      //eventId    ==1 OnClientConnect  ==2 OnClientDisconnect
-[E]1#0                                                                        ==3 OnServerConnect  ==4 OnServerDisconnect
+E(byte eventId)[int id]                                      //eventId    ==1 OnClientConnect  ==2 OnClientDisconnect
+                                                                            ==3 OnServerConnect  ==4 OnServerDisconnect
                                                       //[E]3在C事件触发，[E]4在ShutDowm触发(超时/D事件/主动调用)
 
-
 >>客户端接收                分配Id
-[C](int Clientid)
-[C]10
+C(int Clientid)
 
 >>服务器接收
-[A](int clientId)
-[A]2
+A(int clientId)         设置房主权限
 
 >>客户端接收
-[A](int authorityActive)
-[A]1                        // 1=true 0=false
+A(bool authorityActive)
+
 
 >>服务器接收                函数调用
-[F](int NOMObjectId)({string func})(string targets){{string param}}   //targets   ==-1 All,    ==-2 IgnoreSelf,   ==1/2/3 Custom
-[F]-10#{Shoot}#-1
-[F]-10#{Shoot}#-1#{ffffff}
-[F]-10#{Shoot}#1/2/3
-[F]-10#{Shoot}#1/2/3#{ffffff}
+F(int NOMObjectId)(string func)(int targets){string param}
 特别的
-[f](int NOMObjectId)({string func})(string targets)({string param})(int behaviourCount)  //表示NOMSpawner的调用
-[f]-10#{Shoot}#-1#{ffffff}#3
-[f]-10#{Shoot}#1/2/3#{ffffff}#3  //Spawner调用必定有参数
-特别的
-[S](int NOMObjectId)({string func})(string targets)(string delay){{string param}}
-[S]-10#{Shoot}#-1#500#{ffffff}  //同步调用
+f(int NOMObjectId)(string func)(string targets)(string param)(int behaviourCount)  //表示NOMSpawner的调用
 
 >>客户端接收                函数调用
-[F](int NOMObjectId)({string func})(string targets){{string param}}
-[F]-10#{Shoot}#-1
-[F]-10#{Shoot}#-1#{ffffff}
+F(int NOMObjectId)(string func)(string targets){string param}
 特别的
-[f](int NOMObjectId)({string func})(string targets)({string param})(int idStart)  //表示NOMSpawner的调用
-[f]-10#{Shoot}#-1#{ffffff}#1100  //Spawner调用必定有参数
-特别的
-[S](int NOMObjectId)({string func})(string targets)({string delay}){string param}
-[S]-10#{Shoot}#-1#350#ffffff  //同步调用
+f(int NOMObjectId)(string func)(string targets)(string param)(int idStart)  //表示NOMSpawner的调用
 
 
 >>服务器接收                心跳检测
-[H]
+H
 
 >>客户端接收                心跳检测
-[H]
+H
 
->>通用
-[K1122334455](string data)    //此处data是上文任一格式的信息，用于处理关键信息
-KF]-10#Shoot#-1#ffffff        //此类为在同一程序内的格式，用于标记是否要进行检查
-kF]-10#Shoot#-1#ffffff        //k无时序，K有时序
+>>服务器接收
+D  //断开连接
+
+>>客户端接收
+D  //断开连接
+
+>>服务器接收
+Q(string header)(string content)
+
+>>客户端接收
+Q(string header)(string content)
 
 
 >>广播
 ,key1:value1,key2:value2,
-
->>服务器接收
-[D]  //断开连接
-
->>客户端接收
-[D]  //断开连接
-
->>服务器接收
-[Q]({string header})({string content})
-[Q]SetRoomPassword#22222
-
->>客户端接收
-[Q]({string header})({string content})
-[Q]SetRoomPassword#succeed

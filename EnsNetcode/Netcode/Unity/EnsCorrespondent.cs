@@ -71,7 +71,6 @@ public class EnsCorrespondent :MonoBehaviour
 
         ProtocolWrapper.Protocol.mode = recvMode;
         ProtocolWrapper.Protocol.type = protocolType;
-        ProtocolWrapper.Protocol.DevelopmentDebug = DevelopmentDebug;
 
         EnsClientEventRegister.RegistUnity();
 

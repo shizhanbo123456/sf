@@ -10,12 +10,12 @@ namespace ProtocolWrapper.Protocols.Udp
     internal abstract class WrapperUdp : ProtocolBase
     {
         protected UdpClient Client;
-        protected IPAddress ipAddress;
-        public void Init(UdpClient client,IPAddress ip,int port)
+        protected IPEndPoint ep;
+        public void Init(UdpClient client,IPEndPoint ep)
         {
             Client= client;
-            Init(ip.ToString(), port);
-            ipAddress=ip;
+            this.ep= ep;
+            base.Init(ep.Address.ToString(),ep.Port);
         }
         
 
@@ -23,71 +23,32 @@ namespace ProtocolWrapper.Protocols.Udp
         {
             if (!Initialized)
             {
-                Debug.LogError("[W]WrapperUdp未完成初始化");
+                Debug.LogError("[W]未完成初始化");
                 return;
             }
             if (Cancelled)
             {
-                Debug.LogError("[W]WrapperUdp已被取消");
+                Debug.LogError("[W]已被取消");
                 return;
             }
-            if (SendBuffer == null || SendBuffer.Empty()) return;
+            if (SendBuffer == null || SendBuffer.indexStart <= StartSeparatorLength) return;
 
-            string data = Format.EnFormat(Format.Combine(SendBuffer));
-            byte[] SendData = Format.GetBytes(data);
             try
             {
-                Client.Send(SendData, SendData.Length, new IPEndPoint(ipAddress, Port));
+                Client.Send(SendBuffer.bytes, SendBuffer.indexStart,ep);
             }
             catch
             {
-                
-            }
-        }
 
-        public override CircularQueue<string> RefreshRecvBuffer()
-        {
-            if (!Initialized)
-            {
-                Debug.LogError("[W]WrapperUdp未完成初始化");
-                return null;
             }
-            if (Cancelled)
-            {
-                Debug.LogError("[W]WrapperUdp已被取消");
-                return null;
-            }
-            return ReceiveBuffer;
-        }
-
-        public override void SendData(string data)
-        {
-            if (!Initialized)
-            {
-                Debug.LogError("[W]WrapperUdp未完成初始化");
-                return;
-            }
-            if (Cancelled)
-            {
-                Debug.LogError("[W]WrapperUdp已被取消");
-                return;
-            }
-            SendBuffer.Write(data);
-        }
-
-        public override void ShutDown()
-        {
-            Cancelled = true;
+            base.RefreshSendBuffer();
         }
         protected override void ReleaseManagedMenory()
         {
             Client.Dispose();
+            Client = null;
+            ep= null;
             base.ReleaseManagedMenory();
-        }
-        protected override void ReleaseUnmanagedMenory()
-        {
-            Client=null;
-            base.ReleaseUnmanagedMenory();
         }
     }
 }

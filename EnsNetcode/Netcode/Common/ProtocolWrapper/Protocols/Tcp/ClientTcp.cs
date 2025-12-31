@@ -62,9 +62,5 @@ namespace ProtocolWrapper.Protocols.Tcp
 
             _ = ReceiveAsync();
         }
-        public override void ShutDown()
-        {
-            base.ShutDown();
-        }
     }
 }

@@ -1,39 +1,76 @@
-﻿using System;
+﻿using ProtocolWrapper;
+using System;
 using System.Collections.Generic;
 using Utils;
 
-public enum Delivery
-{
-    Unreliable,
-    Reliable,//k
-    OrderWise//K
-}
 /// <summary>
 /// Add OnReceive Update Clear
 /// </summary>
 public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，即"占用"中的信息
 {
-    private List<ENCKey> Keys = new List<ENCKey>();
-    private List<ENCKey> TimeWiseKeys = new List<ENCKey>();
-    private List<ENCRKey> RecvKeys = new List<ENCRKey>();
+    public class SenderKey
+    {
+        private static Random Random = new Random();
+        public enum KeyState
+        {
+            TobeConfirmed, ConfirmedExisting, End
+        }
+
+        public static int IndexRange = 100000000;
+        public string Key;
+        public int Index;
+        public Delivery Type;
+        public KeyState State = KeyState.TobeConfirmed;
+        public float ToConfirmIntervalLeft;
+        public float ConfirmedExistingSource;
+
+        public SenderKey(string data, Delivery type)
+        {
+            ToConfirmIntervalLeft = -1f;
+            ConfirmedExistingSource = EnsInstance.KeyExistTime + Time.time;
+            Key = data;
+            Index = Random.Next(IndexRange, IndexRange * 10 - 1);
+            Type = type;
+        }
+    }
+    public class ReceiverKey
+    {
+        public int Index;
+        public float EndTime;
+        public ReceiverKey(int index)
+        {
+            Index = index;
+            EndTime = EnsInstance.RKeyExistTime + Time.time;
+        }
+    }
+    private SR sr;
+
+    private List<SenderKey> Keys = new List<SenderKey>();
+    private List<SenderKey> TimeWiseKeys = new List<SenderKey>();
+    private List<ReceiverKey> RecvKeys = new List<ReceiverKey>();
 
     private CircularQueue<string> Response = new CircularQueue<string>();//储存的格式：[K112233][F]....
     private CircularQueue<string> AddBuffer= new CircularQueue<string>();
 
-    private static void UpdateEvent(ENCKey k, List<string>r)
+    public KeyLibrary(SR sr)
+    {
+        this.sr= sr;
+    }
+
+    private static void UpdateEvent(SenderKey k, List<string>r)
     {
         switch (k.State)
         {
-            case ENCKey.KeyState.TobeConfirmed:
+            case SenderKey.KeyState.TobeConfirmed:
                 {
-                    if (k.ConfirmedExistingSource.Reached)
+                    if (k.ConfirmedExistingSource>Time.time)
                     {
-                        k.State = ENCKey.KeyState.End;
+                        k.State = SenderKey.KeyState.End;
                     }
 
-                    if (k.ToConfirmIntervalLeft.Reached)
+                    if (k.ToConfirmIntervalLeft > Time.time)
                     {
-                        k.ToConfirmIntervalLeft.ReachAfter(EnsInstance.KeySendInterval);
+                        k.ToConfirmIntervalLeft=Time.time+EnsInstance.KeySendInterval;
 
                         string res;
                         if (k.Type == Delivery.Reliable) res = "[k" + k.Index + "]" + k.Key;
@@ -42,83 +79,81 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
                     }
                     break;
                 }
-            case ENCKey.KeyState.ConfirmedExisting:
+            case SenderKey.KeyState.ConfirmedExisting:
                 {
-                    if (k.ConfirmedExistingSource.Reached) k.State = ENCKey.KeyState.End;
+                    if (k.ConfirmedExistingSource>Time.time) k.State = SenderKey.KeyState.End;
                     break;
                 }
         }
     }
-    private static bool RecvEvent(ENCKey k)
+    private static bool RecvEvent(SenderKey k)
     {
         bool skip = false;
-        if (k.State == ENCKey.KeyState.ConfirmedExisting) skip = true;
-        else if (k.State == ENCKey.KeyState.TobeConfirmed)
+        if (k.State == SenderKey.KeyState.ConfirmedExisting) skip = true;
+        else if (k.State == SenderKey.KeyState.TobeConfirmed)
         {
-            k.State = ENCKey.KeyState.ConfirmedExisting;
+            k.State = SenderKey.KeyState.ConfirmedExisting;
             skip = true;
         }
         return skip;
     }
-
-    public static string Format(string data,Delivery type)
-    {
-        if (type == Delivery.Unreliable)
-        {
-            if (data[0]=='[') Debug.Log("格式错误");
-            return '[' + data.Substring(1, data.Length - 1);
-        }
-        if (type == Delivery.Reliable)
-        {
-            if (data[0] == 'k') Debug.Log("格式错误");
-            return 'k' + data.Substring(1, data.Length - 1);
-        }
-        if (type == Delivery.OrderWise)
-        {
-            if (data[0] == 'K') Debug.Log("格式错误");
-            return 'K' + data.Substring(1, data.Length - 1);
-        }
-        Debug.LogError("未处理的关键类型");
-        return string.Empty;
-    }
-
 
     /// <summary>
     /// 程序内部传输，将需要进行检查的信息第一位'['改为'K'<br></br>
     /// 识别一个数据释放要进行检查的唯一依据就是data[0]=='K'<br></br>
     /// 传入KF]....，传入[K112233][F]....
     /// </summary>
-    public void Add(string data)//输入  KF].... kF]....
+    public void Add(byte key,byte messageType, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
         AddBuffer.Write(data);
+    }
+    public void Update()//传出[K112233][F]....
+    {
+        while(AddBuffer.Read(out var data))
+        {
+            data = Format(data,Delivery.Unreliable);
+            if (data[0]=='k')Keys.Add(new SenderKey(data,Delivery.Reliable));
+            else TimeWiseKeys.Add(new SenderKey(data, Delivery.OrderWise));
+        }
+
+        for (int i = RecvKeys.Count - 1; i >= 0; i--)
+        {
+            if (RecvKeys[i].EndTime>Time.time) RecvKeys.RemoveAt(i);
+        }
+        List<string> r = new List<string>();
+        foreach (var k in Keys) UpdateEvent(k, r);
+        if (TimeWiseKeys.Count > 0)
+        {
+            int index = 0;
+            while (index < TimeWiseKeys.Count&&TimeWiseKeys[index].State != SenderKey.KeyState.TobeConfirmed) index++;
+
+            for (int i = Math.Min(index,TimeWiseKeys.Count-1); i >= 0; i--) UpdateEvent(TimeWiseKeys[i], r);
+        }
+        for(int i = Keys.Count - 1; i >= 0; i--) if (Keys[i].State == SenderKey.KeyState.End) Keys.RemoveAt(i);
+        for (int i = TimeWiseKeys.Count - 1; i >= 0; i--) if (TimeWiseKeys[i].State == SenderKey.KeyState.End) TimeWiseKeys.RemoveAt(i);
+
+        while (Response.Read(out var d)) r.Add(d);
+        return r;
+    }
+    public void Clear()
+    {
+        Keys.Clear();
+        TimeWiseKeys.Clear();
     }
     /// <summary>
     /// 处理所有标记为K的信息<br></br>
     /// 本地无标记则发送回应确认收到<br></br>
     /// 传入[K112233][F]....，传出 KF]....
     /// </summary>
-    public void OnRecvData(string data, out bool skip, out string t_data)//传入[K112233][F].... [k112233][F]....
+    public void OnRecvData(byte[] src,ProtocolBase.Segment segment, out bool skip)//传入[K112233][F].... [k112233][F]....
     {
         skip = false;
-        t_data = string.Empty;
-        if (data[1] != 'K'&& data[1] != 'k') return;
-
-        int indexEnd = 1;
-        while (data[indexEnd] != ']' && indexEnd < data.Length - 1) indexEnd++;
-        if (data[indexEnd] != ']') return;
-        int index = int.Parse(data.Substring(2, indexEnd - 2));//[K112233]abc
-
-        t_data = data.Substring(indexEnd + 1, data.Length - indexEnd - 1);
-        if (t_data[1]=='K')t_data=Format(t_data,Delivery.OrderWise);
-        else t_data = Format(t_data, Delivery.Reliable);
-
-
         //本地//////////////////////////////////////////////////////////////
         foreach (var k in Keys)
         {
             if (k.Index == index)
             {
-                skip=RecvEvent(k);
+                skip = RecvEvent(k);
                 return;
             }
         }
@@ -145,77 +180,7 @@ public class KeyLibrary//处理的是未经NetcodeTool格式处理的信息，�
         }
         if (!skip)
         {
-            RecvKeys.Add(new ENCRKey(t_data, index));
+            RecvKeys.Add(new ReceiverKey(index));
         }
-    }
-    public List<string> Update()//传出[K112233][F]....
-    {
-        while(AddBuffer.Read(out var data))
-        {
-            data = Format(data,Delivery.Unreliable);
-            if (data[0]=='k')Keys.Add(new ENCKey(data,Delivery.Reliable));
-            else TimeWiseKeys.Add(new ENCKey(data, Delivery.OrderWise));
-        }
-
-        for (int i = RecvKeys.Count - 1; i >= 0; i--)
-        {
-            if (RecvKeys[i].cancel.Reached) RecvKeys.RemoveAt(i);
-        }
-        List<string> r = new List<string>();
-        foreach (var k in Keys) UpdateEvent(k, r);
-        if (TimeWiseKeys.Count > 0)
-        {
-            int index = 0;
-            while (index < TimeWiseKeys.Count&&TimeWiseKeys[index].State != ENCKey.KeyState.TobeConfirmed) index++;
-
-            for (int i = Math.Min(index,TimeWiseKeys.Count-1); i >= 0; i--) UpdateEvent(TimeWiseKeys[i], r);
-        }
-        for(int i = Keys.Count - 1; i >= 0; i--) if (Keys[i].State == ENCKey.KeyState.End) Keys.RemoveAt(i);
-        for (int i = TimeWiseKeys.Count - 1; i >= 0; i--) if (TimeWiseKeys[i].State == ENCKey.KeyState.End) TimeWiseKeys.RemoveAt(i);
-
-        while (Response.Read(out var d)) r.Add(d);
-        return r;
-    }
-    public void Clear()
-    {
-        Keys.Clear();
-        TimeWiseKeys.Clear();
-    }
-}
-public class ENCKey
-{
-    private static Random Random = new Random();
-    public static int IndexRange = 100000000;
-    public string Key;
-    public int Index;
-    public Delivery Type;
-    public enum KeyState
-    {
-        TobeConfirmed, ConfirmedExisting, End
-    }
-    public KeyState State = KeyState.TobeConfirmed;
-    public ReachTime ToConfirmIntervalLeft;
-    public ReachTime ConfirmedExistingSource;
-
-    public ENCKey(string data, Delivery type)
-    {
-        ToConfirmIntervalLeft = new ReachTime();
-        ToConfirmIntervalLeft.ReachAt(-1f);
-        ConfirmedExistingSource = new ReachTime(EnsInstance.KeyExistTime, ReachTime.InitTimeFlagType.ReachAfter);
-        Key = data;
-        Index = Random.Next(IndexRange, IndexRange * 10 - 1);
-        Type = type;
-    }
-}
-public class ENCRKey//仅用于记录收到的信息
-{
-    public string Key;
-    public int Index;
-    public ReachTime cancel;
-    public ENCRKey(string data, int index)
-    {
-        Key = data;
-        Index = index;
-        cancel= new ReachTime(EnsInstance.RKeyExistTime,ReachTime.InitTimeFlagType.ReachAfter);
     }
 }
