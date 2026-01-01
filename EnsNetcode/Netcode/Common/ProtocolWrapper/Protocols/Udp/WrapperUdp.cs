@@ -19,7 +19,7 @@ namespace ProtocolWrapper.Protocols.Udp
         }
         
 
-        public override void RefreshSendBuffer()
+        public override void Send()
         {
             if (!Initialized)
             {
@@ -31,17 +31,15 @@ namespace ProtocolWrapper.Protocols.Udp
                 Debug.LogError("[W]已被取消");
                 return;
             }
-            if (SendBuffer == null || SendBuffer.indexStart <= StartSeparatorLength) return;
 
             try
             {
                 Client.Send(SendBuffer.bytes, SendBuffer.indexStart,ep);
             }
-            catch
+            catch (Exception)
             {
 
             }
-            base.RefreshSendBuffer();
         }
         protected override void ReleaseManagedMenory()
         {

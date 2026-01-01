@@ -21,17 +21,9 @@ internal class EnsClient:SR
 
         _on= true;
     }
-    internal override void SendData(string data)
+    internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        if (data[0] == 'k' || data[0]=='K')
-        {
-            KeyLibrary.Add(data);
-        }
-        else Client.SendData(data);
-    }
-    public override void Send(byte messageType, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
-    {
-        ProtocolBase.Send(Client, DeliverySource, messageType, target, delivery, writer);
+        KeyLibrary.OnSend(messageType, sendFrom, target, delivery, writer);
     }
     internal override void Update()
     {
@@ -45,10 +37,10 @@ internal class EnsClient:SR
             Utils.Debug.LogWarning("客户端初始化中");
             return;
         }
-        var d = KeyLibrary.Update();
-        foreach (var s in d) Client.SendData(s);
-        Client.RefreshSendBuffer();
-        var q = Client.RefreshRecvBuffer();
+        KeyLibrary.Update();
+        Client.Send();
+
+        var q = Client.ReceiveBuffer;
         if (q == null) return;
         while(q.Read(out var data)&&_on)
         {
@@ -70,7 +62,7 @@ internal class EnsClient:SR
     {
         if (Client == null || Client.Cancelled) return;
         Client.SendData(Header.D);
-        Client.RefreshSendBuffer();
+        Client.Send();
 
         _on = false;
         Client.ShutDown();

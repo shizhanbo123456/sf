@@ -69,7 +69,7 @@ namespace ProtocolWrapper.Protocols.Tcp
             ReceiveBuffer.Write(data);
         }
 
-        public override void RefreshSendBuffer()
+        public override void Send()
         {
             if (!Initialized)
             {
@@ -81,8 +81,7 @@ namespace ProtocolWrapper.Protocols.Tcp
                 Debug.LogError("[W]WrapperTcp已被取消");
                 return;
             }
-            if (SendBuffer==null|| SendBuffer.indexStart <= StartSeparatorLength) return;
-            
+
             try
             {
                 Stream.Write(SendBuffer.bytes, 0, SendBuffer.indexStart);
@@ -91,7 +90,6 @@ namespace ProtocolWrapper.Protocols.Tcp
             {
                 
             }
-            base.RefreshSendBuffer();
         }
         public override void ShutDown()
         {

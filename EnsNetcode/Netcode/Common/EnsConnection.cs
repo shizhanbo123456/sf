@@ -28,16 +28,16 @@ public class EnsConnection:SR
 
         SendData(Header.kC + ClientId);
     }
-    public override void Send(byte messageType, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        ProtocolBase.Send(Connection,DeliverySource,messageType,target,delivery,writer);
+        KeyLibrary.OnSend(messageType,sendFrom,target,delivery,writer);
     }
     internal override void Update()
     {
-        var d = KeyLibrary.Update();
-        foreach (var s in d) Connection.SendData(s);
-        Connection.RefreshSendBuffer();
-        var q=Connection.RefreshRecvBuffer();
+        KeyLibrary.Update();
+        Connection.Send();
+
+        var q=Connection.ReceiveBuffer;
         if (q == null) return;
         while (q.Read(out var data)&&_on)
         {
@@ -60,7 +60,7 @@ public class EnsConnection:SR
         if (Connection==null||Connection.Cancelled) return;
         OnShutDown?.Invoke(this);
         Connection.SendData(Header.D);
-        Connection.RefreshSendBuffer();
+        Connection.Send();
 
         _on = false;
         KeyLibrary.Clear();
