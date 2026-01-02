@@ -47,6 +47,7 @@ public class BytesPool
     public static void ReturnBuffer(byte[] buffer)
     {
         int length = buffer.Length;
+        for (int i = 0; i < length; i++) buffer[i] = 0x00;
         if (length < 128)
         {
             if (length >= 64) { BytePool64.Return(buffer); return; }

@@ -11,7 +11,7 @@ public class EnsInstance
     public static EnsSpawner EnsSpawner;
 #endif
 
-    public static int LocalClientId = -1;
+    public static short LocalClientId = -1;
     public static int PresentRoomId = 0;
     public static bool HasAuthority = false;
     public static int LocalClientDelay=20;

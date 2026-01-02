@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class EnsBehaviourCollection : MonoBehaviour
 {
-    [HideInInspector]public int CollectionId;
+    [HideInInspector]public short CollectionId;
     [Space]
     public List<EnsBehaviour> Behaviors = new List<EnsBehaviour>();
     public int Count
@@ -18,7 +18,7 @@ public class EnsBehaviourCollection : MonoBehaviour
         }
     }
 
-    internal void AllocateId(int idstart)
+    internal void AllocateId(short idstart)
     {
         for(int i=0;i<Behaviors.Count;i++)
         {

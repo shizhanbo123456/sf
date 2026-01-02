@@ -5,6 +5,7 @@ public class DeliverySource
     //Unreliable 0
     //Reliable 1-200
     //Orderwise 201-255
+    public static byte Unreliable = 0;
 
     private int reliableSource = 1;
     private byte Reliable
@@ -45,6 +46,12 @@ public class DeliverySource
             case Delivery.OrderWise:return b >= 201 && b <= 255;
         }
         return false;
+    }
+    public static Delivery ByteToDelivery(byte b)
+    {
+        if (b == 0) return Delivery.Unreliable;
+        else if (b >= 1 && b <= 200) return Delivery.Reliable;
+        else return Delivery.OrderWise;
     }
 }
 public enum Delivery

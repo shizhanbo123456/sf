@@ -15,7 +15,7 @@ internal class EnsClient:SR
     protected EnsClient(){ }
     internal EnsClient(string ip,int port)
     {
-        KeyLibrary = new KeyLibrary();
+        KeyLibrary = new KeyLibrary(Client.SendBuffer,DeliverySource);
 
         Client = Protocol.GetClient(ip,port);
 
@@ -42,26 +42,28 @@ internal class EnsClient:SR
 
         var q = Client.ReceiveBuffer;
         if (q == null) return;
-        while(q.Read(out var data)&&_on)
+        while (q.Read(out var data) && _on)
         {
-            try
+            ExtractData(data, Parts);
+            foreach (var part in Parts)
             {
-                if (data[1] == 'K' || data[1] == 'k')
+                try
                 {
-                    KeyLibrary.OnRecvData(data, out var skip, out data);
+                    KeyLibrary.OnRecvData(data, part, out bool skip);
                     if (skip) continue;
+                    MessageHandlerClient.Invoke(data,part);
                 }
-                MessageHandlerClient.Invoke(data);
+                catch
+                {
+                }
             }
-            catch
-            {
-            }
+            Parts.Clear();
         }
     }
     internal override void ShutDown()
     {
         if (Client == null || Client.Cancelled) return;
-        Client.SendData(Header.D);
+        Send(Header.D, SendTo.To(EnsInstance.LocalClientId), SendTo.Server, Delivery.Unreliable);
         Client.Send();
 
         _on = false;

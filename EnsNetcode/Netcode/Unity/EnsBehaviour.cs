@@ -13,7 +13,7 @@ using UnityEngine;
 public abstract class EnsBehaviour : MonoBehaviour
 {
     // <0为玩家设置的初始化场景时制造的物体  >0为游戏过程中制造的物体的Id  =0为未分配的
-    public int ObjectId=0;
+    public short ObjectId=0;
     public bool nomEnabled = true;
 
     internal EnsBehaviourCollection collection;
@@ -39,7 +39,7 @@ public abstract class EnsBehaviour : MonoBehaviour
         {
             if (!IdAutoAllocated)
             {
-                int id = ObjectId % 100000000 + 2000000000;
+                short id = (short)(ObjectId % 2000+30000);
                 if (EnsNetworkObjectManager.ManualAssignedId.Contains(id))
                 {
                     if(EnsNetworkObjectManager.HasObject(id))
@@ -98,9 +98,16 @@ public abstract class EnsBehaviour : MonoBehaviour
     {
         Debug.LogError("调用未注册的代码，请检查调用堆栈");
     }
-
-    public virtual void InvokeFunc(byte[] bytes)
+    public void Send(Delivery delivery, SendTo sendto, byte[] s)
     {
-
+        //发送字节
+        //Delivery，sendTo，随机数标识，具体bytes
+    }
+    /// <summary>
+    /// 传入的s的片段仅包含(byte func)[string param]部分
+    /// </summary>
+    public virtual bool InvokeFunc(byte[] bytes, Segment s)
+    {
+        return false;
     }
 }

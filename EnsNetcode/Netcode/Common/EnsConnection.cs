@@ -1,32 +1,38 @@
 using ProtocolWrapper;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// 服务器使用，用于简化和客户端的通信
 /// </summary>
 public class EnsConnection:SR
 {
-    internal int ClientId;
+    internal short ClientId;
     private KeyLibrary KeyLibrary;
     private ProtocolBase Connection;
     internal EnsRoom room;
 
-    internal Action<EnsConnection> OnShutDown;
+    private Action<EnsConnection> OnShutDown;
 
     internal int delay = 20;//20ms
 
     protected bool _on;
 
     protected EnsConnection() { }
-    internal EnsConnection(ProtocolBase _base,int index)
+    internal EnsConnection(ProtocolBase _base,short index,Action<EnsConnection>onShutDown)
     {
-        KeyLibrary = new KeyLibrary();
+        KeyLibrary = new KeyLibrary(Connection.SendBuffer,DeliverySource);
 
         Connection = _base;
         ClientId = index;
+        OnShutDown = onShutDown;
         _on= true;
 
-        SendData(Header.kC + ClientId);
+        Send(Header.C, SendTo.Server, SendTo.To(ClientId), Delivery.Reliable, ClientIdWriter);
+    }
+    private bool ClientIdWriter(SendBuffer buffer)
+    {
+        return IntSerializer.Serialize(ClientId, buffer.bytes,ref buffer.indexStart);
     }
     internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
@@ -41,25 +47,27 @@ public class EnsConnection:SR
         if (q == null) return;
         while (q.Read(out var data)&&_on)
         {
-            try
+            ExtractData(data, Parts);
+            foreach (var part in Parts) 
             {
-                if (data[1] == 'K' || data[1]=='k')
+                try
                 {
-                    KeyLibrary.OnRecvData(data, out var skip, out data);
+                    KeyLibrary.OnRecvData(data, part, out bool skip);
                     if (skip) continue;
+                    MessageHandlerServer.Invoke(this, data, part);
                 }
-                MessageHandlerServer.Invoke(data, this);
+                catch
+                {
+                }
             }
-            catch
-            {
-            }
+            Parts.Clear();
         }
     }
     internal override void ShutDown()
     {
         if (Connection==null||Connection.Cancelled) return;
         OnShutDown?.Invoke(this);
-        Connection.SendData(Header.D);
+        Send(Header.D, SendTo.Server, SendTo.To(ClientId),Delivery.Unreliable);
         Connection.Send();
 
         _on = false;

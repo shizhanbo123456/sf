@@ -286,17 +286,18 @@ class RpcCodeGenerator
         }
 
         // 4. 生成InvokeFunc方法
-        codeBuilder.AppendLine("    public override void InvokeFunc(byte[] bytes)");
+        codeBuilder.AppendLine("    public override void InvokeFunc(byte[] bytes,Segment s)");
         codeBuilder.AppendLine("    {");
         codeBuilder.AppendLine("        if (bytes == null || bytes.Length == 0) return;");
-        codeBuilder.AppendLine("        byte funcId = bytes[0];");
+        codeBuilder.AppendLine("        byte funcId = bytes[s.StartIndex];");
         codeBuilder.AppendLine("        if (FuncRecorder.TryGetValue(funcId, out var action))");
         codeBuilder.AppendLine("        {");
         codeBuilder.AppendLine("            action.Invoke(this, bytes);");
+        codeBuilder.AppendLine("            return true");
         codeBuilder.AppendLine("        }");
         codeBuilder.AppendLine("        else");
         codeBuilder.AppendLine("        {");
-        codeBuilder.AppendLine("            Debug.LogError(\"未找到对应的RPC方法: \" + funcId);");
+        codeBuilder.AppendLine("            return base.InvokeFunc(bytes,s)");
         codeBuilder.AppendLine("        }");
         codeBuilder.AppendLine("    }");
 

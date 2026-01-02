@@ -62,7 +62,7 @@ namespace ProtocolWrapper
 
             try
             {
-                byte[] data = Format.GetBytes(s);
+                byte[] data = StringSerializer.Encode(s);
                 senderClient.Send(data, data.Length, broadcastEndPoint);
             }
             catch
@@ -125,7 +125,7 @@ namespace ProtocolWrapper
                 {
                     IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
                     byte[] receivedData = receiverClient.Receive(ref remoteEndPoint);
-                    string message = Format.GetString(receivedData);
+                    string message = StringSerializer.Decode(receivedData,0,receivedData.Length);
 
                     int msgstart = message.IndexOf(global::Format.DictionarySeparator);
                     int msgend = message.LastIndexOf(global::Format.DictionarySeparator);

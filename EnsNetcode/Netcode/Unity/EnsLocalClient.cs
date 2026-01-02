@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 /// <summary>
 /// ENCLocalClient和ENCHost一起使用<br></br>
@@ -6,27 +7,44 @@ using UnityEngine;
 /// </summary>
 internal class ENCLocalClient : EnsClient
 {
-    internal CircularQueue<string> ReceivedData = new CircularQueue<string>();
+    internal CircularQueue<byte[]> ReceivedData = new();
+    private SendBuffer _buffer;
     public ENCLocalClient()
     {
         _on = true;
+        _buffer = new SendBuffer(OnSend);
     }
-    internal override void SendData(string data)
+    internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        EnsInstance.Corr.Host.ReceivedData.Write(data);
+        Send(_buffer, messageType, sendFrom, target, DeliverySource.Unreliable, writer);
+    }
+    private void OnSend(byte[] bytes, int length)
+    {
+        var b = BytesPool.GetBuffer(length);
+        for (int i = 0; i < length; i++)
+        {
+            b[i] = bytes[i];
+        }
+        EnsInstance.Corr.Host.ReceivedData.Write(b);
     }
     internal override void Update()
     {
-        while (ReceivedData.Read(out var data)&&_on)
+        var q = ReceivedData;
+        if (q == null) return;
+        while (q.Read(out var data) && _on)
         {
-            try
+            ExtractData(data, Parts);
+            foreach (var part in Parts)
             {
-                MessageHandlerClient.Invoke(data);
+                try
+                {
+                    MessageHandlerClient.Invoke(data, part);
+                }
+                catch
+                {
+                }
             }
-            catch (System.Exception ex)
-            {
-                Debug.LogException(ex);
-            }
+            Parts.Clear();
         }
     }
     internal override void ShutDown()

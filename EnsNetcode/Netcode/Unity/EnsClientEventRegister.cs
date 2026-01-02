@@ -15,6 +15,7 @@ public class EnsClientEventRegister
         Client_F();
         Client_f();
         Client_Q();
+        Client_R();
         Client_Any();
         RegistClientRequests();
 
@@ -34,20 +35,18 @@ public class EnsClientEventRegister
     }
     protected static void Client_Any()
     {
-        MessageHandlerClient.RegistAny((data) =>
+        MessageHandlerClient.RegistAny((datb,s) =>
         {
-            if (data.Length > 2)
-            {
-                EnsInstance.Corr.Client.hbRecvTime.ReachAfter(EnsInstance.DisconnectThreshold);
-            }
+            EnsInstance.Corr.Client.hbRecvTime.ReachAfter(EnsInstance.DisconnectThreshold);
         });
     }
     protected static void Client_C()
     {
         //成功连接
-        MessageHandlerClient.Regist('C',(data) =>
+        MessageHandlerClient.Regist(Header.C,(b,s) =>
         {
-            var i = int.Parse(data.Substring(3, data.Length - 3));
+            int index = s.StartIndex + 6;
+            var i=ShortSerializer.Deserialize(b,ref index);
             EnsInstance.LocalClientId = i;
             EnsInstance.OnServerConnect.Invoke();
         });
@@ -55,90 +54,93 @@ public class EnsClientEventRegister
     protected static void Client_E()
     {
         //事件
-        MessageHandlerClient.Regist('E', (data) =>
+        MessageHandlerClient.Regist(Header.E, (b,s) =>
         {
-            string[] s = data.Substring(3, data.Length - 3).Split('#');
-            int e = int.Parse(s[0]);
-            int i = int.Parse(s[1]);
+            int index = s.StartIndex + 6;
+            var e = IntSerializer.Deserialize(b, ref index);
+            var i = IntSerializer.Deserialize(b, ref index);
             if (e == 1) EnsInstance.OnClientEnter?.Invoke(i);
             else if (e == 2) EnsInstance.OnClientExit?.Invoke(i);
-            else Debug.LogError("[E]存在错误的事件消息 " + data);
+            else Debug.LogError("[E]存在错误的事件消息");
         });
     }
     protected static void Client_H()
     {
-        MessageHandlerClient.Regist('H',(data) =>
+        MessageHandlerClient.Regist(Header.H,(b,s) =>
         {
-            int index=data.LastIndexOf('#');
-            if(index>=0)EnsInstance.LocalClientDelay=int.Parse(data.Substring(index+1,data.Length-index-1));
-            EnsInstance.Corr.Client?.SendData(data);
+            int index = s.StartIndex + 6;
+            var serverTime = IntSerializer.Deserialize(b, ref index);
+            var delay = IntSerializer.Deserialize(b, ref index);
+            EnsInstance.LocalClientDelay = delay;
+            EnsInstance.Corr.Client?.Send(Header.H, SendTo.To(EnsInstance.LocalClientId), SendTo.Server, Delivery.Unreliable);
         });
     }
     protected static void Client_D()
     {
-        MessageHandlerClient.Regist('D',(data) =>
+        MessageHandlerClient.Regist(Header.D,(b,s) =>
         {
             EnsInstance.Corr.ShutDown();
         });
     }
     protected static void Client_A()
     {
-        MessageHandlerClient.Regist('A',(data) =>
+        MessageHandlerClient.Regist(Header.A,(b,s) =>
         {
-            int d = int.Parse(data.Substring(3, data.Length - 3));
-            EnsInstance.HasAuthority = d == 1;
+            int index = s.StartIndex + 6;
+            EnsInstance.HasAuthority = BoolSerializer.Deserialize(b, ref index);
             EnsInstance.OnAuthorityChanged?.Invoke();
         });
     }
     protected static void Client_F()
     {
-        MessageHandlerClient.Regist('F',(data) =>
+        MessageHandlerClient.Regist(Header.F,(b,s) =>
         {
-            var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-            int id = int.Parse(s[0]);
-            string func = s[1];
+            int indexStart = s.StartIndex + 6;
+            short id=ShortSerializer.Deserialize(b, ref indexStart);
             EnsBehaviour obj = EnsNetworkObjectManager.GetObject(id);
             if (obj == null)
             {
-                if (EnsInstance.DevelopmentDebug) Debug.LogError("未找到id为" + id + "的物体，参数为"+data);
+                if (EnsInstance.DevelopmentDebug) Debug.LogError("未找到id为" + id + "的物体");
                 return;
             }
-            if (s.Count >= 4)
+            if(!obj.InvokeFunc(b, new Segment(s.StartIndex + 8, s.Length - 8)))
             {
-                string param = s[3];
-                obj.CallFuncLocal(func, param);
-            }
-            else
-            {
-                obj.CallFuncLocal(func);
+                Debug.LogError("检测到未注册的函数");
             }
         });
     }
+    private static bool t_spawnMode;
+    private static short t_spawnCollectionId;
+    private static string t_spawnParam;
+    private static short t_spawnIdStart;
     protected static void Client_f()
     {
-        MessageHandlerClient.Regist('f',(data) =>
+        MessageHandlerClient.Regist(Header.f,(b, s) =>
         {
-            if (data[1] == 'f')
-            {
-                var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-                int id = int.Parse(s[0]);
-                //string func = s[1];
-                EnsSpawner obj = EnsInstance.EnsSpawner;
-                int idStart = int.Parse(s[s.Count - 1]);
-                string param = s[3];
-                obj.Create(param, idStart);
-            }
+            int indexStart = s.StartIndex + 6;
+            t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart);
+            t_spawnCollectionId = ShortSerializer.Deserialize(b, ref indexStart);
+            t_spawnParam = StringSerializer.Deserialize(b, ref indexStart);
+            t_spawnIdStart = ShortSerializer.Deserialize(b, ref indexStart);
+            if(t_spawnMode)EnsInstance.EnsSpawner.RespawnCheckLocal(t_spawnCollectionId,t_spawnParam,t_spawnIdStart);
+            else EnsInstance.EnsSpawner.CreateLocal(t_spawnCollectionId,t_spawnParam,t_spawnIdStart);
         });
     }
     protected static void Client_Q()
     {
-        MessageHandlerClient.Regist('Q',(data) =>
+        MessageHandlerClient.Regist(Header.Q,(b,s) =>
         {
-            if (data[1] == 'Q')
-            {
-                var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-                EnsClientRequest.RecvReply(s[0], s[1]);
-            }
+            int index = s.StartIndex + 6;
+            string header = StringSerializer.Deserialize(b, ref index);
+            string cotent = StringSerializer.Deserialize(b, ref index);
+            EnsClientRequest.RecvReply(header, cotent);
+        });
+    }
+    protected static void Client_R()
+    {
+        MessageHandlerClient.Regist(Header.R, (b,s) =>
+        {
+            Ens.Request.Client.ExitRoom.OnRecvReply?.Invoke();
         });
     }
 

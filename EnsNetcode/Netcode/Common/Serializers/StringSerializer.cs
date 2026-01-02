@@ -16,7 +16,7 @@ public struct StringSerializer
         // 处理null：视为空字符串
         byte[] strBytes = string.IsNullOrEmpty(value)
             ? Array.Empty<byte>()
-            : Encoding.UTF8.GetBytes(value);
+            : Encode(value);
 
         // 总所需字节数 = int长度标识(4字节) + UTF8真实字节数
         int totalNeedBytes = 4 + strBytes.Length;
@@ -66,10 +66,12 @@ public struct StringSerializer
         string result = string.Empty;
         if (strByteLength > 0)
         {
-            result = Encoding.UTF8.GetString(data, indexStart, strByteLength);
+            result = Decode(data, indexStart, strByteLength);
             indexStart += strByteLength;
         }
 
         return result;
     }
+    public static byte[] Encode(string s)=>Encoding.UTF8.GetBytes(s);
+    public static string Decode(byte[] b,int start,int length)=>Encoding.UTF8.GetString(b, start, length);
 }

@@ -21,12 +21,18 @@ public static class EnsClientRequest
             Requests.Add(key, request);
         }
     }
-    internal static bool SendRequest(string header,string content,bool keyValue=true)
+    private static string header;
+    private static string content;
+    internal static bool SendRequest(string header,string content)
     {
         if (ActiveRequestHeader.ContainsKey(header)) return false;
         if (EnsInstance.Corr == null) return false;
         if (EnsInstance.Corr.Client == null) return false;
-        EnsInstance.Corr.Client.SendData((keyValue ? Header.kQ : Header.Q) + "{" + header + "}#{" + content + "}");
+        EnsInstance.Corr.Client.Send(Header.Q, SendTo.To(EnsInstance.LocalClientId), SendTo.Server, Delivery.Reliable, (b) =>
+        {
+            return StringSerializer.Serialize(header,b.bytes,ref b.indexStart)
+                && StringSerializer.Serialize(content, b.bytes, ref b.indexStart);
+        });
         ActiveRequestHeader.Add(header, Time.time + EnsInstance.KeyExistTime + 1);
         return true;
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,8 +9,9 @@ using UnityEngine;
 /// </summary>
 internal class EnsHost : EnsConnection
 {
-    internal CircularQueue<string> ReceivedData = new CircularQueue<string>();
+    internal CircularQueue<byte[]> ReceivedData = new();
     private ENCLocalClient _client;
+    private SendBuffer _buffer;
 
     internal static void Create(out EnsHost host,out ENCLocalClient client)
     {
@@ -28,26 +30,42 @@ internal class EnsHost : EnsConnection
     internal EnsHost(ENCLocalClient client)
     {
         _client = client;
+        _buffer=new SendBuffer(OnSend);
         ClientId = 0;
         EnsInstance.LocalClientId = ClientId;
         _on = true;
     }
-    internal override void SendData(string data)
+    internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        if(_client!=null)_client.ReceivedData.Write(data);
+        Send(_buffer, messageType, sendFrom, target, DeliverySource.Unreliable, writer);
+    }
+    private void OnSend(byte[] bytes,int length)
+    {
+        var b=BytesPool.GetBuffer(length);
+        for(int i = 0; i < length; i++)
+        {
+            b[i]=bytes[i];
+        }
+        _client.ReceivedData.Write(b);
     }
     internal override void Update()
     {
-        while(ReceivedData.Read(out var s)&&_on)
+        var q = ReceivedData;
+        if (q == null) return;
+        while (q.Read(out var data) && _on)
         {
-            try
+            ExtractData(data, Parts);
+            foreach (var part in Parts)
             {
-                MessageHandlerServer.Invoke(s, this);
+                try
+                {
+                    MessageHandlerServer.Invoke(this, data, part);
+                }
+                catch
+                {
+                }
             }
-            catch(System.Exception e)
-            {
-                Debug.LogException(e);
-            }
+            Parts.Clear();
         }
     }
     internal override void ShutDown()

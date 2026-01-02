@@ -4,11 +4,11 @@ using Utils;
 
 public static class EnsNetworkObjectManager
 {
-    public static HashSet<int> ManualAssignedId = new HashSet<int>();
+    public static HashSet<short> ManualAssignedId = new HashSet<short>();
 
     //<0为玩家设置的初始化场景时制造的物体
-    private static int sceneobjid = -1;
-    internal static int GetAutoAllocatedId()
+    private static short sceneobjid = -1;
+    internal static short GetAutoAllocatedId()
     {
         return sceneobjid--;
     }

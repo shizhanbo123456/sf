@@ -9,6 +9,8 @@ public abstract class SR : Disposable//具有信息收发功能
     internal ReachTime hbSendTime = new ReachTime(EnsInstance.HeartbeatMsgInterval, ReachTime.InitTimeFlagType.ReachAfter);
     internal DeliverySource DeliverySource = new DeliverySource();
 
+    protected static List<Segment> Parts = new List<Segment>();
+
     internal abstract void Send(byte messageType,SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null);
     internal abstract void Update();
     internal abstract void ShutDown();
@@ -51,39 +53,32 @@ public abstract class SR : Disposable//具有信息收发功能
     }
 
 
-    #region 分离出有效消息 -> ExtractData(byte[] data, List<Segment> parts
 
-    /// <summary>
-    /// 最终版解析方法：适配最新格式+复用Segment+新增messageFrom
-    /// 输出：List<Segment> 中每个元素的StartIndex=body起始下标，Length=body字节长度
-    /// 规则：无body时 → StartIndex > 0 && Length = 0（等价原end<start）
-    /// </summary>
-    /// <param name="data">原始字节数组</param>
-    /// <param name="parts">输出参数：存储body片段的Segment集合</param>
+    #region 分离出有效消息 -> ExtractData(byte[] data, List<Segment> parts)，传出的数据为消息头+消息体，不包含消息尾的长度
+
+    private static List<Segment> segments = new List<Segment>();
     public static void ExtractData(byte[] data, List<Segment> parts)
     {
-        // 1. 前置空值防护，杜绝运行时异常
+        segments.Clear();
         if (data == null || data.Length == 0 || parts == null) return;
 
-        // 核心步骤1：按Separator预切割数组，生成候选片段列表（解决内部分隔符干扰）
         List<Segment> candidateSegments = SplitDataBySeparator(data);
         if (candidateSegments.Count == 0) return;
 
-        // 核心步骤2：从后往前遍历候选片段，执行反向长度校验+拼接补偿
         int currentSegIndex = candidateSegments.Count - 1;
         while (currentSegIndex >= 0)
         {
             ProcessCandidateSegment(data, candidateSegments, ref currentSegIndex, parts);
         }
+        parts.Reverse();
     }
 
     /// <summary>
-    /// 按Separator拆分原始数组，返回候选片段（连续分隔符视为单个边界）
-    /// 修复全局静态变量问题，纯局部变量，无数据污染
+    /// 按分隔符拆分，连续分隔符视为单一边界 | 修复：必处理最后一段数据
+    /// 适配：消息首尾/消息间均有分隔符 → 拆分结果全为有效候选片段
     /// </summary>
     private static List<Segment> SplitDataBySeparator(byte[] data)
     {
-        List<Segment> segments = new List<Segment>();
         int start = 0;
         int len = data.Length;
 
@@ -92,12 +87,11 @@ public abstract class SR : Disposable//具有信息收发功能
             if (data[i] == SendBuffer.Separator)
             {
                 if (i > start) segments.Add(new Segment(start, i - start));
-                // 跳过连续分隔符
                 while (i < len && data[i] == SendBuffer.Separator) i++;
                 start = i;
             }
         }
-        // 不处理最后一个不完整片段，等待下一轮拼接
+        //格式决定了无需处理最后一段，每个片段都被分隔符包裹了
         return segments;
     }
 
@@ -113,88 +107,37 @@ public abstract class SR : Disposable//具有信息收发功能
 
         while (true)
         {
-            // 关键修改1：最小消息长度阈值 → 8字节
-            // 计算依据：1+2+2+1 +2 =8 （固定头6字节 + 长度2字节）
-            if (checkTotalLength < 8)
-            {
-                currentSegIndex = mergeSegIndex;
-                return;
-            }
+            // 最小长度阈值：固定头6字节 + 末尾长度段2字节 = 8字节
+            if (checkTotalLength < 8) { currentSegIndex = mergeSegIndex; return; }
 
-            // 提取末尾2字节Length字段，校验合法性（禁止为Separator）
+            // 提取末尾2字节Length段（已编码，无分隔符，无需校验）
             int lenRightIdx = checkStartIdx + checkTotalLength - 1;
             int lenLeftIdx = lenRightIdx - 1;
-            byte lenLeft = data[lenLeftIdx];
-            byte lenRight = data[lenRightIdx];
-            if (lenLeft == SendBuffer.Separator || lenRight == SendBuffer.Separator)
-            {
-                currentSegIndex = mergeSegIndex;
-                return;
-            }
+            int msgDeclaredLength = data[lenLeftIdx] * 200 + data[lenRightIdx];
 
-            // 解析声明长度（包含：header+from+target+delivery+body）
-            ProtocolBase.BytesToLength(lenLeft, lenRight, out int msgDeclaredLength);
-
-            // 反向长度校验核心逻辑（不变）
-            if (checkTotalLength == msgDeclaredLength)
+            //严格遵循你的理解：核心长度校验逻辑
+            if (checkTotalLength == msgDeclaredLength + 2)
             {
-                ParseValidBodyToSegment(data, checkStartIdx, msgDeclaredLength, parts);
+                parts.Add(new Segment(checkStartIdx, msgDeclaredLength));
                 currentSegIndex = mergeSegIndex;
                 return;
             }
-            else if (checkTotalLength > msgDeclaredLength)
+            else if (checkTotalLength < msgDeclaredLength + 2)
             {
-                currentSegIndex = mergeSegIndex;
-                return;
-            }
-            else
-            {
+                // 长度不足 → 继续向前合并（被分隔符拆分）
                 if (mergeSegIndex < 0) { currentSegIndex = mergeSegIndex; return; }
                 checkStartIdx = candidateSegments[mergeSegIndex].StartIndex;
                 checkTotalLength += candidateSegments[mergeSegIndex].Length;
                 mergeSegIndex--;
             }
+            else
+            {
+                // 长度超限 → 传输错误，放弃解析
+                currentSegIndex = mergeSegIndex;
+                return;
+            }
         }
     }
-
-    /// <summary>
-    /// 核心适配：解析合法消息，将BODY片段封装为Segment（完全复用，替代原MessagePart）
-    /// 规则映射：Segment.StartIndex → BODY起始下标 | Segment.Length → BODY字节长度
-    /// 无BODY时：Length=0（等价原end<start，调用方可通过Length==0判定）
-    /// </summary>
-    private static void ParseValidBodyToSegment(
-        byte[] data,
-        int msgStartIdx,
-        int msgDeclaredLength,
-        List<Segment> parts)
-    {
-        // 校验消息头合法性（禁止为Separator）
-        byte msgHeader = data[msgStartIdx];
-        if (msgHeader == SendBuffer.Separator) return;
-
-        // 关键修改2：BODY起始偏移 → +6
-        // 计算依据：1(header)+2(from)+2(target)+1(delivery) =6 字节
-        int bodyStartIdx = msgStartIdx + 6;
-        // 计算BODY结束下标 & 实际长度
-        int bodyEndIdx = msgStartIdx + msgDeclaredLength - 1;
-        int bodyRealLength = bodyEndIdx - bodyStartIdx + 1;
-
-        // 核心：复用Segment封装BODY片段，完美替代MessagePart
-        Segment bodySegment;
-        if (bodyRealLength > 0)
-        {
-            // 有BODY：正常赋值【起始下标+有效长度】
-            bodySegment = new Segment(bodyStartIdx, bodyRealLength);
-            parts.Add(bodySegment);
-        }
-        else
-        {
-            // 无BODY：按规则赋值【Length=0】（等价原end<start，调用方易判断）
-            bodySegment = new Segment(bodyStartIdx, 0);
-            parts.Add(bodySegment);
-        }
-    }
-
     #endregion
 
     protected override void ReleaseUnmanagedMenory()

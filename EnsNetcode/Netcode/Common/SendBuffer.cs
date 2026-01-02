@@ -10,12 +10,12 @@ internal class SendBuffer:Disposable
     public const int StartSeparatorLength = 5;//±ØÐë´óÓÚEndSeparatorLength
     public const int EndSeparatorLength = 3;
 
-    private static ObjectPool<byte[]> BytePool = new ObjectPool<byte[]>(() => new byte[1420]);
-    private ProtocolBase pb;
-    internal SendBuffer(ProtocolBase pb)
+    private static ObjectPool<byte[]> BytePool = new ObjectPool<byte[]>(() => new byte[MaxLength]);
+    private Action<byte[],int>onSend;
+    internal SendBuffer(Action<byte[],int>onSend)
     {
         bytes = BytePool.Get();
-        this.pb = pb;
+        this.onSend = onSend;
         indexStart = 0;
         while (indexStart < StartSeparatorLength)
             bytes[indexStart++] = Separator;
@@ -36,17 +36,23 @@ internal class SendBuffer:Disposable
     internal void RequireLength(int length)
     {
         if (MaxLength - indexStart > length) return;
-        pb.Send();
+        if (Empty()) return;
+        onSend?.Invoke(bytes,indexStart);
         indexStart = StartSeparatorLength;
     }
     internal void Flush()
     {
-        pb.Send();
+        if (Empty()) return;
+        onSend?.Invoke(bytes, indexStart);
         indexStart = StartSeparatorLength;
     }
     internal void Clear()
     {
         indexStart = StartSeparatorLength;
+    }
+    internal bool Empty()
+    {
+        return indexStart <= StartSeparatorLength;
     }
 
     protected override void ReleaseManagedMenory()

@@ -125,10 +125,12 @@ internal class KeyLibrary
     private static readonly HashSet<byte>ToRemove=new HashSet<byte>();
     internal void Update()
     {
-        foreach (var kvp in RecvKeys) if (kvp.Value.EndTime > Time.time) ToRemove.Add(kvp.Key);
-        foreach (var i in ToRemove) RecvKeys.Remove(i);
-        ToRemove.Clear();
-
+        if (RecvKeys.Count > 0)
+        {
+            foreach (var kvp in RecvKeys) if (kvp.Value.EndTime > Time.time) ToRemove.Add(kvp.Key);
+            foreach (var i in ToRemove) RecvKeys.Remove(i);
+            ToRemove.Clear();
+        }
         if (Keys.Count > 0)
         {
             foreach (var kvp in Keys)
@@ -168,9 +170,14 @@ internal class KeyLibrary
     /// <summary>
     /// 处理所有关键消息
     /// </summary>
-    internal void OnRecvData(byte[] src,Segment segment, out bool skip)//传入[K112233][F].... [k112233][F]....
+    internal void OnRecvData(byte[] src,Segment segment, out bool skip)
     {
         var deliveryKey = src[segment.StartIndex + 5];
+        if (deliveryKey == 0)
+        {
+            skip = false;
+            return;
+        }
         ///////////////////////////////////////////////////////////////A收到B对A的回应
         if (src[segment.StartIndex + 1] == src[segment.StartIndex + 3] && 
             src[segment.StartIndex + 2] == src[segment.StartIndex + 4])//发送者和接收者相同表示是对关键消息的回复
@@ -203,6 +210,8 @@ internal class KeyLibrary
             {
                 skip = true;
             }
+            SendTo from = SendTo.To(src[segment.StartIndex + 1], src[segment.StartIndex + 2]);
+            SR.Send(buffer, src[segment.StartIndex], from, from, src[segment.StartIndex + 5]);
         }
     }
 }

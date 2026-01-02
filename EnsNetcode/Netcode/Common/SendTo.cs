@@ -5,11 +5,8 @@ public struct SendTo
     public static SendTo Everyone=>new SendTo(-1);
     public static SendTo ExcludeSender=>new SendTo(-2);
     public static SendTo RoomOwner=>new SendTo(-3);
-    public static SendTo To(short id) 
-    {
-        if (id < 0) throw new Exception("id不能小于0");
-        return new SendTo(id);
-    }
+    public static SendTo Server=>new SendTo(-4);
+    public static SendTo To(short id) => new SendTo(id);
     public static SendTo To(byte b1,byte b2)
     {
         var b=BytesPool.GetBuffer(2);
@@ -26,5 +23,22 @@ public struct SendTo
     private SendTo(short target)
     {
         this.target=target;
+    }
+    public static bool operator ==(SendTo a,SendTo b)
+    {
+        return a.target == b.target;
+    }
+    public static bool operator !=(SendTo a, SendTo b)
+    {
+        return a.target != b.target;
+    }
+    public override bool Equals(object obj)
+    {
+        return obj is SendTo to &&
+               target == to.target;
+    }
+    public override int GetHashCode()
+    {
+        return target;
     }
 }

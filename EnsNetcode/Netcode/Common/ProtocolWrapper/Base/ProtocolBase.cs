@@ -31,7 +31,7 @@ namespace ProtocolWrapper
         /// </summary>
         protected void Init(string ip, int port)
         {
-            SendBuffer = new SendBuffer(this);
+            SendBuffer = new SendBuffer(Send);
             ReceiveBuffer = new CircularQueue<byte[]>(4);
             IP = ip;
             Port = port;
@@ -40,8 +40,9 @@ namespace ProtocolWrapper
         }
 
 
+        public void Send() => Send(SendBuffer.bytes, SendBuffer.indexStart);
         //直接对外暴露SendBuffer方便直接写入，省去复制
-        public abstract void Send();
+        public abstract void Send(byte[] bytes, int indexStart);
 
         public virtual void ShutDown()
         {

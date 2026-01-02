@@ -25,10 +25,9 @@ public class EnsServer : Disposable
         RoomManager = new EnsRoomManager();
         On = true;
     }
-    internal virtual void OnRecvConnection(ProtocolBase conn, int index)
+    internal virtual void OnRecvConnection(ProtocolBase conn, short index)
     {
-        EnsConnection connection = new EnsConnection(conn, index);
-        connection.OnShutDown += OnConnectionShutDown;
+        EnsConnection connection = new EnsConnection(conn, index,OnConnectionShutDown);
         ClientConnections.Add(index, connection);
     }
     internal void OnConnectionShutDown(EnsConnection conn)
@@ -64,7 +63,8 @@ public class EnsServer : Disposable
                 }
                 if (i.hbSendTime.Reached)
                 {
-                    i.SendData(Header.H + ((int)(Utils.Time.time * 1000)).ToString()+'#'+i.delay.ToString());
+                    t_connection=i;
+                    i.Send(Header.H, SendTo.Server, SendTo.To(i.ClientId), Delivery.Unreliable, HeartBeatWriter);
                     i.hbSendTime.ReachAfter(EnsInstance.HeartbeatMsgInterval);
                 }
                 i.Update();
@@ -74,6 +74,12 @@ public class EnsServer : Disposable
                 ClientIds.RemoveAt(index);
             }
         }
+    }
+    private static EnsConnection t_connection;
+    private static bool HeartBeatWriter(SendBuffer buffer)
+    {
+        return IntSerializer.Serialize((int)(Utils.Time.time * 1000), buffer.bytes, ref buffer.indexStart)
+            && IntSerializer.Serialize(t_connection.delay, buffer.bytes, ref buffer.indexStart);
     }
     public virtual void ShutDown()
     {

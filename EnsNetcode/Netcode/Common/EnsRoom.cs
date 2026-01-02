@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public class EnsRoom:Disposable
@@ -13,14 +14,14 @@ public class EnsRoom:Disposable
     }
     private Dictionary<int,EnsConnection> ClientConnections =new Dictionary<int, EnsConnection>();
     public int RoomId;
-    internal int CurrentAuthorityAt = -1;
+    internal short CurrentAuthorityAt = -1;
 
     public Dictionary<string, (char, int)> Rule = new Dictionary<string, (char, int)>();
     public Dictionary<string,string>Info= new Dictionary<string, string>();
 
     // >0为游戏过程中制造的物体的Id
-    private int createdid = 1;
-    internal int CreatedId
+    private short createdid = 1;
+    internal short CreatedId
     {
         get
         {
@@ -37,72 +38,95 @@ public class EnsRoom:Disposable
     {
         RoomId = id;
     }
-
+    private static short t_connId;
     internal void Join(EnsConnection conn)
     {
         ClientConnections.Add(conn.ClientId,conn);
         conn.room = this;
-        Broadcast(Header.kE+"1#" + conn.ClientId, conn.ClientId);
+        t_connId = conn.ClientId;
+        Broadcast(conn.ClientId, Header.E, SendTo.Server, Delivery.Reliable, b =>
+        {
+            return ByteSerializer.Serialize(0x01,b.bytes,ref b.indexStart)
+                && ShortSerializer.Serialize(t_connId, b.bytes, ref b.indexStart);
+        });
         if (CurrentAuthorityAt == -1)
         {
             CurrentAuthorityAt = conn.ClientId;
-            conn.SendData(Header.kA + "1");
-        }
-        else conn.SendData(Header.kA + "0");
-    }
-    internal bool Exit(EnsConnection conn)
-    {
-        ClientConnections.Remove(conn.ClientId);
-        conn.room = null;
-        conn.SendData(Header.kR + "0");
-        if (conn.ClientId == CurrentAuthorityAt)
-        {
-            Broadcast(Header.kE + "2#" + conn.ClientId);
-            Broadcast(Header.kR + "0");
-            ShutDown();
-            return true;
-        }
-        else if (ClientConnections.Count == 0)//房主离开后房间关闭
-        {
-            ShutDown();
-            return true;
+            conn.Send(Header.A, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            {
+                return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart);
+            });
         }
         else
         {
-            Broadcast(Header.kE + "2#" + conn.ClientId);
-            return true;
+            conn.Send(Header.A, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            {
+                return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
+            });
         }
     }
-    internal void SetAuthority(int clientId)
+    internal void Exit(EnsConnection conn)
     {
-        if (!ClientConnections.ContainsKey(CurrentAuthorityAt)) return;
+        ClientConnections.Remove(conn.ClientId);
+        conn.room = null; 
+        conn.Send(Header.R, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, null);
+        if (conn.ClientId == CurrentAuthorityAt)
+        {
+            ShutDown();
+        }
+        else
+        {
+            Broadcast(conn.ClientId, Header.E, SendTo.Server, Delivery.Reliable, b =>
+            {
+                return ByteSerializer.Serialize(0x02, b.bytes, ref b.indexStart)
+                    && ShortSerializer.Serialize(t_connId, b.bytes, ref b.indexStart);
+            });
+        }
+    }
+    internal void SetAuthority(short clientId)
+    {
+        if (!ClientConnections.ContainsKey(clientId)) return;
         if (ClientConnections.ContainsKey(CurrentAuthorityAt))
         {
-            ClientConnections[CurrentAuthorityAt].SendData(Header.kA+"0");
+            var conn = ClientConnections[CurrentAuthorityAt];
+            conn.Send(Header.A, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            {
+                return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
+            });
         }
         CurrentAuthorityAt= clientId;
-        ClientConnections[CurrentAuthorityAt].SendData(Header.kA+"1");
+        var c = ClientConnections[CurrentAuthorityAt];
+        c.Send(Header.A, SendTo.Server, SendTo.To(c.ClientId), Delivery.Reliable, b =>
+        {
+            return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart);
+        });
     }
 
-    internal void Broadcast(string data)
+    internal void Broadcast(byte messageType, SendTo from, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        foreach (var i in ClientConnections.Values) i.SendData(data);
+        foreach (var i in ClientConnections.Values) i.Send(messageType,from,SendTo.To(i.ClientId),delivery,writer);
     }
-    internal void Broadcast(string data, int self)
+    internal void Broadcast(int ignore, byte messageType, SendTo from, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        foreach (var i in ClientConnections.Values) if (i.ClientId != self) i.SendData(data);
+        foreach (var i in ClientConnections.Values) 
+            if (i.ClientId != ignore) 
+                i.Send(messageType, from, SendTo.To(i.ClientId), delivery, writer);
     }
-    internal void PTP(string data, int id)
+    internal void PTP(short id, byte messageType, SendTo from, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        foreach (var i in ClientConnections.Values) if (id == i.ClientId) i.SendData(data);
-    }
-    internal void PTP(string data, List<int> id)
-    {
-        foreach (var i in ClientConnections.Values) if (id.Contains(i.ClientId)) i.SendData(data);
+        if(ClientConnections.TryGetValue(id, out var conn))
+        {
+            conn.Send(messageType, from, SendTo.To(id), delivery, writer);
+        }
     }
 
     internal void ShutDown()
     {
+        Broadcast(Header.R, SendTo.Server, Delivery.Reliable, null);
+        foreach(var i in ClientConnections)
+        {
+            i.Value.room = null;
+        }
         EnsRoomManager.Instance.rooms.Remove(RoomId);
         Dispose();
     }

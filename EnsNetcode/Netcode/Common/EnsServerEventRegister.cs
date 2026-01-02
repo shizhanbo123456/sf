@@ -27,23 +27,23 @@ public class EnsServerEventRegister
     }
     protected static void Server_Any()
     {
-        MessageHandlerServer.RegistAny((data, conn) =>
+        MessageHandlerServer.RegistAny((conn,b,s) =>
         {
-            if (data.Length > 2) conn.hbRecvTime.ReachAfter(EnsInstance.DisconnectThreshold);
+            conn.hbRecvTime.ReachAfter(EnsInstance.DisconnectThreshold);
         });
     }
     protected static void Server_H()
     {
-        MessageHandlerServer.Regist('H',(data, conn) =>
+        MessageHandlerServer.Regist(Header.H,(conn, b, s) =>
         {
-            int index = data.LastIndexOf('#');
-            int d = int.Parse(data.Substring(3, index- 3));
+            int index = s.StartIndex + 6;
+            var d = IntSerializer.Deserialize(b, ref index);
             conn.delay = ((int)(Utils.Time.time * 1000) - d) / 2;
         });
     }
     protected static void Server_D()
     {
-        MessageHandlerServer.Regist('D',(data, conn) =>
+        MessageHandlerServer.Regist(Header.D,(conn, b, s) =>
         {
             conn.ShutDown();
         });
@@ -51,77 +51,124 @@ public class EnsServerEventRegister
 
     protected static void Server_A()
     {
-        MessageHandlerServer.Regist('A',(data, conn) =>
+        MessageHandlerServer.Regist(Header.A,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            int d = int.Parse(data.Substring(3, data.Length - 3));
+            int index = s.StartIndex + 6;
+            var d = ShortSerializer.Deserialize(b, ref index);
             conn.room.SetAuthority(d);
         });
     }
+    private static byte[] t_bytes;
+    private static Segment t_segment;
     protected static void Server_F()
     {
-        MessageHandlerServer.Regist('F',(data, conn) =>
+        static bool BodyWriter(SendBuffer b)
+        {
+            if (b.bytes.Length - b.indexStart < t_segment.Length) return false;
+            for (int i = t_segment.StartIndex; i < t_segment.StartIndex+t_segment.Length; i++)
+            {
+                b.bytes[b.indexStart++]=t_bytes[i];
+            }
+            return true;
+        }
+        MessageHandlerServer.Regist(Header.F,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-            string target = s[2];
-            if (target[0] == '-')
+            byte messageType = b[s.StartIndex];
+            SendTo from = SendTo.To(b[s.StartIndex + 1], b[s.StartIndex + 2]);
+            SendTo to = SendTo.To(b[s.StartIndex + 3], b[s.StartIndex + 4]);
+            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex+5]);
+            t_bytes = b;
+            t_segment = s;
+            if (to == SendTo.Everyone)
             {
-                if (target[1] == '1')//全部
-                {
-                    conn.room.Broadcast(data);
-                }
-                else if (target[1] == '2')//忽略自身
-                {
-                    conn.room.Broadcast(data, conn.ClientId);
-                }
-                else if (target[1] == '3')//权限所在
-                {
-                    conn.room.PTP(data, conn.room.CurrentAuthorityAt);
-                }
+                conn.room.Broadcast(messageType, from, delivery,BodyWriter);
             }
+            else if (to == SendTo.ExcludeSender)
+            {
+                conn.room.Broadcast(conn.ClientId,messageType, from, delivery, BodyWriter);
+            }
+            else if (to == SendTo.RoomOwner)
+            {
+                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType, from, delivery, BodyWriter);
+            }
+            else if (to == SendTo.Server) { }
             else
             {
-                conn.room.PTP(data, Format.StringToList(target, int.Parse));
+                conn.room.PTP(to.Target, messageType, from, delivery, BodyWriter);
             }
         });
     }
+    private static bool t_spawnMode;
+    private static short t_spawnCollectionId;
+    private static string t_spawnParam;
+    private static short t_spawnIdStart;
     protected static void Server_f()
     {
+        static bool BodyWriter(SendBuffer b)
+        {
+            return BoolSerializer.Serialize(t_spawnMode, b.bytes, ref b.indexStart)
+                && ShortSerializer.Serialize(t_spawnCollectionId, b.bytes, ref b.indexStart)
+                && StringSerializer.Serialize(t_spawnParam, b.bytes, ref b.indexStart)
+                && ShortSerializer.Serialize(t_spawnIdStart, b.bytes, ref b.indexStart);
+        }
         //物体Id同步
-        MessageHandlerServer.Regist('f',(data, conn) =>
+        MessageHandlerServer.Regist(Header.f,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-            string target = s[2];
-            int behaviourCount = int.Parse(s[4]);
-            data = data[0] + "f]" + s[0] + "#" + s[1] + "#" + s[2] + "#" + s[3] + "#" + conn.room.CreatedId;
-            conn.room.CreatedId += behaviourCount;
-            if (target[0] == '-')
+            byte messageType = b[s.StartIndex];
+            SendTo from = SendTo.To(b[s.StartIndex + 1], b[s.StartIndex + 2]);
+            SendTo to = SendTo.To(b[s.StartIndex + 3], b[s.StartIndex + 4]);
+            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex + 5]);
+
+            int indexStart = s.StartIndex+6;
+            t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart);
+            t_spawnCollectionId=ShortSerializer.Deserialize(b, ref indexStart);
+            t_spawnParam= StringSerializer.Deserialize(b,ref indexStart);
+            t_spawnIdStart=ShortSerializer.Deserialize(b,ref indexStart);
+            if (!t_spawnMode)
             {
-                if (target[1] == '1')//全部
-                {
-                    conn.room.Broadcast(data);
-                }
-                else if (target[1] == '2')//忽略自身
-                {
-                    conn.room.Broadcast(data, conn.ClientId);
-                }
+                //createdID+=spawnIdStart,spawnIdStart=createdID
+                short t = conn.room.CreatedId;
+                conn.room.CreatedId +=t_spawnIdStart;
+                t_spawnIdStart = t;
             }
+            if (to == SendTo.Everyone)
+            {
+                conn.room.Broadcast(messageType, from, delivery, BodyWriter);
+            }
+            else if (to == SendTo.ExcludeSender)
+            {
+                conn.room.Broadcast(conn.ClientId, messageType, from, delivery, BodyWriter);
+            }
+            else if (to == SendTo.RoomOwner)
+            {
+                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType, from, delivery, BodyWriter);
+            }
+            else if (to == SendTo.Server) { }
             else
             {
-                conn.room.PTP(data, Format.StringToList(target, int.Parse));
+                conn.room.PTP(to.Target, messageType, from, delivery, BodyWriter);
             }
         });
     }
+    private static string t_header;
+    private static string t_content;
     protected static void Server_Q()
     {
-        MessageHandlerServer.Regist('Q',(data, conn) =>
+        MessageHandlerServer.Regist(Header.Q,(conn, b, s) =>
         {
-            var s = Format.SplitWithBoundaries(data.Substring(3, data.Length - 3), '#');
-            string reply = EnsServerRequest.OnRecvRequest(s[0], s[1], conn);
+            int index = s.StartIndex + 6;
+            t_header = StringSerializer.Deserialize(b, ref index);
+            t_content = StringSerializer.Deserialize(b, ref index);
+            string reply = EnsServerRequest.OnRecvRequest(t_header,t_content, conn);
             if (reply == string.Empty) return;
-            conn.SendData(data[0] + "Q]{" + s[0] + "}#{" + reply + "}");
+            conn.Send(Header.Q, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            {
+                return StringSerializer.Serialize(t_header, b.bytes, ref b.indexStart)
+                    && StringSerializer.Serialize(t_content, b.bytes, ref b.indexStart);
+            });
         });
     }
 }

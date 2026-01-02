@@ -1,27 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static KeyLibrary;
 
 /// <summary>
 /// 调用CreateServerRpc制造物体
 /// 此类已经继承了NOMBehaviour来同步制造函数
 /// </summary>
-public sealed class EnsSpawner : EnsBehaviour
+public sealed class EnsSpawner : MonoBehaviour
 {
     [Space]
     public List<EnsBehaviourCollection> Prefabs = new List<EnsBehaviourCollection>();
     public Vector3 DefaultSpawnPosition = new Vector3(0, -10000, 0);
 
-    private static readonly Dictionary<Delivery, string> Key2Header = new Dictionary<Delivery, string>()
-    {
-        {Delivery.Unreliable,Header.f },
-        {Delivery.Reliable,Header.kf },
-        {Delivery.OrderWise,Header.Kf }
-    };
-
-    private static int prefabid = 1000000000;
-    private static int SingleModeCreatedId=0;
+    private static short prefabid = 10000;
 
     private void Awake()
     {
@@ -33,173 +25,74 @@ public sealed class EnsSpawner : EnsBehaviour
             prefabid++;
         }
     }
-
-    private void CallFuncServrRpc(string func, int mode, string param,int id, Delivery type = Delivery.Unreliable)
-    {
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (mode != -2) 
-            { 
-                Create(param, SingleModeCreatedId); 
-                SingleModeCreatedId += GetBehaviourCount(id);
-            }
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + mode + "#{" + param+"}#"+GetBehaviourCount(id));
-    }
-    private void CallFuncServrRpc(string func, List<int> targets, string param,int id, Delivery type = Delivery.Unreliable)
-    {
-        if (targets.Count == 0) return;
-        if (EnsInstance.Corr.networkMode == EnsCorrespondent.NetworkMode.None)
-        {
-            if (targets.Contains(EnsInstance.LocalClientId)) 
-            { 
-                Create(param, SingleModeCreatedId); 
-                SingleModeCreatedId += GetBehaviourCount(id); 
-            }
-            return;
-        }
-        EnsInstance.Corr.Client.SendData(Key2Header[type] + ObjectId.ToString() + "#{" + func + "}#" + Format.ListToString(targets) + "#{" + param + "}#" + GetBehaviourCount(id));
-    }
-    private int GetBehaviourCount(int id)
+    private short GetBehaviourCount(short id)
     {
         foreach(var i in Prefabs)
         {
             if(i.CollectionId == id)
             {
-                return i.Count;
+                return (short)i.Count;
             }
         }
         throw new System.Exception("[E]无对应的物体");
     }
 
-    /// <param name="mode">==-1 All   ==-2 IgnoreSelf</param>
-    public void CreateServerRpc(int id,SendTo mode, Delivery type = Delivery.Unreliable)
+    private static short t_id;
+    private static string t_param;
+    private static short t_indexStart;
+    public void CreateServerRpc(SendTo sendto, short id,string param)
     {
-        CallFuncServrRpc(nameof(CreateLocal), (int)mode, id.ToString(),id,type);//会处理未联网时的状态
+        t_id = id;
+        t_param = param;
+        t_indexStart=GetBehaviourCount(id);
+        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable,Writer);
     }
-    /// <summary>
-    /// 此方法在非联网情况下无法运作
-    /// </summary>
-    public void CreateServerRpc(int id, List<int> targets, Delivery type = Delivery.Unreliable)
+    public void RespawnCheckServerRpc(SendTo sendto, EnsBehaviourCollection collection, string param)
     {
-        CallFuncServrRpc(nameof(CreateLocal), targets, id.ToString(),id,type);
+        t_id = collection.CollectionId;
+        t_param = param;
+        t_indexStart = collection.Behaviors[0].ObjectId;
+        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable, Writer);
     }
-    ///<summary>
-    ///可以通过此方法在其被创建时立即传入参数
-    ///</summary>
-    /// <param name="mode">==-1 All   ==-2 IgnoreSelf</param>
-    public void CreateServerRpc(int id, SendTo mode,string param, Delivery type = Delivery.Unreliable)
+    private static bool Writer(SendBuffer b)
     {
-        CallFuncServrRpc(nameof(CreateLocalP), (int)mode, id.ToString()+'%'+param,id,type);//会处理未联网时的状态
-    }
-    /// <summary>
-    /// 此方法在非联网情况下无法运作<br></br>
-    /// 可以通过此方法在其被创建时立即传入参数
-    /// </summary>
-    public void CreateServerRpc(int id, List<int> targets,string param, Delivery type = Delivery.Unreliable)
-    {
-        CallFuncServrRpc(nameof(CreateLocalP), targets, id.ToString()+'%'+param,id,type);
+        return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart)
+            && ShortSerializer.Serialize(t_id, b.bytes, ref b.indexStart)
+            && StringSerializer.Serialize(t_param, b.bytes, ref b.indexStart)
+            && ShortSerializer.Serialize(t_indexStart, b.bytes, ref b.indexStart);
     }
 
-
-
-    internal void Create(string data,int idStart)
+    public void CreateLocal(short id,string param,short idStart)
     {
-        if (HasParam(data))
-        {
-            CreateLocalP(data, idStart);
-        }
-        else
-        {
-            CreateLocal(data, idStart);
-        }
-    }
-    private bool HasParam(string data)
-    {
-        bool param = false;
-        foreach (var i in data)
-        {
-            if (i == '%')
-            {
-                param = true;
-                break;
-            }
-        }
-        return param;
-    }
-
-    /// <summary>
-    /// 无参数
-    /// </summary>
-    private void CreateLocal(string data,int idStart)
-    {
-        int id = int.Parse(data);
         for (int i = 0; i < Prefabs.Count; i++)
         {
             if (Prefabs[i].CollectionId == id)
             {
-                GameObject obj = Instantiate(Prefabs[i].gameObject);
-                obj.transform.position = DefaultSpawnPosition;
-                obj.GetComponent<EnsBehaviourCollection>().AllocateId(idStart);
-
-                return;
-            }
-        }
-        Debug.LogError("[N]未找到目标物体");
-    }
-    /// <summary>
-    /// 有参数
-    /// </summary>
-    private void CreateLocalP(string data,int idStart)
-    {
-        string[] s = data.Split('%');
-        int id = int.Parse(s[0]);
-        for (int i = 0; i < Prefabs.Count; i++)
-        {
-            if (Prefabs[i].CollectionId == id)
-            {
-                GameObject obj = Instantiate(Prefabs[i].gameObject);
-                obj.transform.position = DefaultSpawnPosition;
+                GameObject obj = Instantiate(Prefabs[i].gameObject, DefaultSpawnPosition,Quaternion.identity);
                 var c = obj.GetComponent<EnsBehaviourCollection>();
                 c.AllocateId(idStart);
-                c.PreInit(s[1]);
+                c.PreInit(param);
 
                 return;
             }
         }
         Debug.LogError("[N]未找到目标物体");
     }
-
-
-    /// <summary>
-    /// 对所有客户端执行（已经生成的不会执行）
-    /// </summary>
-    public void RespawnCheckServerRpc(EnsBehaviourCollection collection, string param, Delivery type = Delivery.Unreliable)
+    public void RespawnCheckLocal(short id, string param, short idStart)
     {
-        CallFuncRpc(nameof(RespawnCheckLocal), SendTo.Everyone, collection.CollectionId + "%" + collection.Behaviors[0].ObjectId
-            + '%' + param + "%" + collection.Behaviors[0].ObjectId,type);
-    }
-    
-    private void RespawnCheckLocal(string data)
-    {
-        string[] s = data.Split('%');
-        int check = int.Parse(s[3]);
-        if (EnsNetworkObjectManager.HasObject(check)) return;
-        int id = int.Parse(s[0]);
+        if (EnsNetworkObjectManager.HasObject(idStart)) return;
         for (int i = 0; i < Prefabs.Count; i++)
         {
             if (Prefabs[i].CollectionId == id)
             {
-                GameObject obj = Instantiate(Prefabs[i].gameObject);
-                obj.transform.position = DefaultSpawnPosition;
+                GameObject obj = Instantiate(Prefabs[i].gameObject, DefaultSpawnPosition, Quaternion.identity);
                 var c = obj.GetComponent<EnsBehaviourCollection>();
-                c.AllocateId(int.Parse(s[1]));
-                c.PreRespawn(s[2]);
+                c.AllocateId(idStart);
+                c.PreRespawn(param);
 
-
-                break;
+                return;
             }
         }
+        Debug.LogError("[N]未找到目标物体");
     }
 }

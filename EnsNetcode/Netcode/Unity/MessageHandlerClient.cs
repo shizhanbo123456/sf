@@ -4,13 +4,13 @@ using Utils;
 
 public static class MessageHandlerClient
 {
-    private static Action<string> AnyHeader;
-    private static Dictionary<char,Action<string>>Events=new Dictionary<char,Action<string>>();
-    public static void RegistAny(Action<string> action)
+    private static Action<byte[], Segment> AnyHeader;
+    private static Dictionary<byte,Action<byte[], Segment>>Events=new();
+    public static void RegistAny(Action<byte[], Segment> action)
     {
         AnyHeader += action;
     }
-    public static void Regist(char header,Action<string> action)
+    public static void Regist(byte header, Action<byte[],Segment> action)
     {
         if (Events.ContainsKey(header))
         {
@@ -19,15 +19,15 @@ public static class MessageHandlerClient
         }
         Events.Add(header,action);
     }
-    public static void Invoke(string msg)
+    public static void Invoke(byte[] src,Segment segment)
     {
-        char header = msg[1];
+        byte header = src[segment.StartIndex];
         if (!Events.ContainsKey(header))
         {
             Debug.Log("Î´×¢²áÏûÏ¢Í·£º" + header);
             return;
         }
-        AnyHeader.Invoke(msg);
-        Events[header].Invoke(msg);
+        AnyHeader?.Invoke(src,segment);
+        Events[header].Invoke(src, segment);
     }
 }

@@ -19,7 +19,7 @@ namespace ProtocolWrapper.Protocols.Udp
         }
         
 
-        public override void Send()
+        public override void Send(byte[] bytes, int indexStart)
         {
             if (!Initialized)
             {
@@ -31,7 +31,6 @@ namespace ProtocolWrapper.Protocols.Udp
                 Debug.LogError("[W]已被取消");
                 return;
             }
-
             try
             {
                 Client.Send(SendBuffer.bytes, SendBuffer.indexStart,ep);

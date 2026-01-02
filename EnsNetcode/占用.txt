@@ -2,11 +2,9 @@
 
 (x messageSeparator)(1 messageHeader)(2 messageFrom)(2 messageTarget)(1 deliveyType)[body](2 messageLength)(x messageSeparator)
 messageType和messageLength都必定不包含Separator
-消息长度只包含(1 messageType)(2 messageTarget)[body]
-
 
 >>客户端接收                事件
-E(byte eventId)[int id]                                      //eventId    ==1 OnClientConnect  ==2 OnClientDisconnect
+E(byte eventId)[short clientId]                                //eventId    ==1 OnClientConnect  ==2 OnClientDisconnect
                                                                             ==3 OnServerConnect  ==4 OnServerDisconnect
                                                       //[E]3在C事件触发，[E]4在ShutDowm触发(超时/D事件/主动调用)
 
@@ -21,27 +19,34 @@ A(bool authorityActive)
 
 
 >>服务器接收                函数调用
-F(int NOMObjectId)(string func)(int targets){string param}
-特别的
-f(int NOMObjectId)(string func)(string targets)(string param)(int behaviourCount)  //表示NOMSpawner的调用
+F(short NOMObjectId)(byte func)[string param]
 
 >>客户端接收                函数调用
-F(int NOMObjectId)(string func)(string targets){string param}
-特别的
-f(int NOMObjectId)(string func)(string targets)(string param)(int idStart)  //表示NOMSpawner的调用
+F(short NOMObjectId)(byte func)[string param]
+
+>>服务器接收                创建物体
+f(bool false)(short collectionId)(string param)(short behaviourCount)
+f(bool true)(short collectionId)(string param)(short idStart)
+
+>>客户端接收                创建物体
+f(bool false)(short collectionId)(string param)(short idStart)
+f(bool true)(short collectionId)(string param)(short idStart)
 
 
 >>服务器接收                心跳检测
-H
+H(int millisecondInServerMsg)
 
 >>客户端接收                心跳检测
-H
+H(int serverMillisecond)(int delay)
 
 >>服务器接收
 D  //断开连接
 
 >>客户端接收
 D  //断开连接
+
+>>客户端接收
+R  //离开房间，重置
 
 >>服务器接收
 Q(string header)(string content)
