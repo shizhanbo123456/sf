@@ -22,7 +22,7 @@ public class TargetDataSync : EnsBehaviour
             HealthDirty = false;
             var sb = Tool.stringBuilder;
             sb.Append(DedicatedAttributes.Shengming.Value.Item1).Append('_').Append(DedicatedAttributes.Shengming.Value.Item2);
-            CallFuncRpc(nameof(OnSyncHealthLocal), SendTo.ExcludeSender, sb.ToString(),Delivery.Reliable);
+            CallFuncRpc(OnSyncHealthLocal, SendTo.ExcludeSender, Delivery.Reliable, sb.ToString());
             HealthDirtyClearCD = 0.15f;
         }
     }
@@ -34,6 +34,7 @@ public class TargetDataSync : EnsBehaviour
         HealthDirty = true;
         DedicatedAttributes.Shengming.Value = (max,present);
     }
+    [Rpc]
     private void OnSyncHealthLocal(string param)
     {
         var s = param.Split('_');
@@ -41,36 +42,40 @@ public class TargetDataSync : EnsBehaviour
     }
     public void SyncGongji(int value)
     {
-        CallFuncRpc(nameof(Sgj),SendTo.ExcludeSender,value.ToString(), Delivery.Reliable);
+        CallFuncRpc(Sgj,SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
         DedicatedAttributes.Gongji = value;
     }
+    [Rpc]
     private void Sgj(string data)
     {
         DedicatedAttributes.Gongji = int.Parse(data);
     }
     public void SyncMingzhong(int value)
     {
-        CallFuncRpc(nameof(Smz),SendTo.ExcludeSender,value.ToString(), Delivery.Reliable);
+        CallFuncRpc(Smz,SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
         DedicatedAttributes.Mingzhong = value;
     }
+    [Rpc]
     private void Smz(string data)
     {
         DedicatedAttributes.Mingzhong = int.Parse(data);
     }
     public void SyncBaoji(int value)
     {
-        CallFuncRpc(nameof(Sbj), SendTo.ExcludeSender, value.ToString(), Delivery.Reliable);
+        CallFuncRpc(Sbj, SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
         DedicatedAttributes.Baoji = value;
     }
+    [Rpc]
     private void Sbj(string data)
     {
         DedicatedAttributes.Baoji = int.Parse(data);
     }
     public void SyncJiashang(int value)
     {
-        CallFuncRpc(nameof(Sjs), SendTo.ExcludeSender, value.ToString(), Delivery.Reliable);
+        CallFuncRpc(Sjs, SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
         DedicatedAttributes.Jiashang = value;
     }
+    [Rpc]
     private void Sjs(string data)
     {
         DedicatedAttributes.Jiashang = int.Parse(data);
@@ -80,8 +85,9 @@ public class TargetDataSync : EnsBehaviour
         var sb = Tool.stringBuilder;
         sb.Append(index).Append('_').
             Append(target.FaceRight ? '1' : '0');
-        CallFuncRpc(nameof(UseSkillLocal), SendTo.Everyone, sb.ToString());
+        CallFuncRpc(UseSkillLocal, SendTo.Everyone,Delivery.Unreliable, sb.ToString());
     }
+    [Rpc]
     private void UseSkillLocal(string param)
     {
         string[] s = param.Split('_');
@@ -93,11 +99,12 @@ public class TargetDataSync : EnsBehaviour
     {
         if (values == null || values.Count == 0)
         {
-            CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, "null");
+            CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable,"null");
             return;
         }
-        CallFuncRpc(nameof(SyncEffectIconLocal), SendTo.Everyone, Format.ListToString(values, t=>((int)t.Item1).ToString(),'+'));
+        CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable,Format.ListToString(values, t=>((int)t.Item1).ToString(),'+'));
     }
+    [Rpc]
     private void SyncEffectIconLocal(string data)
     {
         if (data == "null")
@@ -107,5 +114,14 @@ public class TargetDataSync : EnsBehaviour
         }
         var list = Format.StringToList(data, int.Parse, '+');
         target.graphic.header.ShowEffects(list.Select(i => (EffectType)i).ToList());
+    }
+    public void DestroyRpc()
+    {
+        CallFuncRpc(DestroyLocal, SendTo.Everyone, Delivery.Reliable);
+    }
+    [Rpc]
+    private void DestroyLocal()
+    {
+
     }
 }

@@ -8,9 +8,9 @@ public class ServerDataContainer
     public static Action OnInfoChanged;
     public struct PlayerDataContainer
     {
-        public int id;
+        public short id;
         public string name;
-        public PlayerDataContainer(int id, string name)
+        public PlayerDataContainer(short id, string name)
         {
             this.id = id;
             this.name = name;
@@ -18,7 +18,7 @@ public class ServerDataContainer
         public PlayerDataContainer(string data)
         {
             var s = data.Split('+', System.StringSplitOptions.RemoveEmptyEntries);
-            id = int.Parse(s[0]);
+            id = short.Parse(s[0]);
             name = s[1];
         }
         public override string ToString()
@@ -27,9 +27,9 @@ public class ServerDataContainer
         }
     }
 
-    private static SortedDictionary<int, PlayerDataContainer> PlayerData = new SortedDictionary<int, PlayerDataContainer>();
+    private static SortedDictionary<short, PlayerDataContainer> PlayerData = new SortedDictionary<short, PlayerDataContainer>();
 
-    public static int[] GetAllKeys()
+    public static short[] GetAllKeys()
     {
         return PlayerData.Keys.ToArray();
     }
@@ -46,16 +46,16 @@ public class ServerDataContainer
         }
         OnInfoChanged?.Invoke();
     }
-    public static void Remove(int id)
+    public static void Remove(short id)
     {
         if (PlayerData.ContainsKey(id)) PlayerData.Remove(id);
         OnInfoChanged?.Invoke();
     }
-    public static bool TryGet(int id,out PlayerDataContainer playerDataContainer)
+    public static bool TryGet(short id,out PlayerDataContainer playerDataContainer)
     {
         return PlayerData.TryGetValue(id, out playerDataContainer);
     }
-    public static SortedDictionary<int,PlayerDataContainer>.ValueCollection GetAllValues()
+    public static SortedDictionary<short,PlayerDataContainer>.ValueCollection GetAllValues()
     {
         return PlayerData.Values;
     }

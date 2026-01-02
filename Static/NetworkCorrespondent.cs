@@ -14,7 +14,7 @@ public class NetworkCorrespondent : EnsBehaviour
         {
             DeleteData(id);
             Debug.Log("id为" + id + "的玩家断开连接");
-            if (Tool.SceneController.NonSkillPlayers.ContainsKey(id)) Tool.SceneController.NonSkillPlayers[id].DestroyLocal();
+            if (Tool.SceneController.NonSkillPlayers.ContainsKey(id)) Destroy(Tool.SceneController.NonSkillPlayers[id]);
             Tool.SceneController.DestroyTargetByOwner(id);
         };
         //离开房间重置场景
@@ -67,11 +67,12 @@ public class NetworkCorrespondent : EnsBehaviour
             EnsInstance.LocalClientId,
             PlayerInfo.Name
             );
-        CallFuncRpc(nameof(RecvData), SendTo.RoomOwner, player.ToString(),Delivery.Reliable);
+        CallFuncRpc(RecvData, SendTo.RoomOwner, Delivery.Reliable, player.ToString());
         Tool.FightController.SelectedMode = Tool.FightController.SelectedMode;
     }
 
     //接收到新增客户端的信息
+    [Rpc]
     private void RecvData(string data)//Server
     {
         var playerData = new ServerDataContainer.PlayerDataContainer(data);
@@ -80,38 +81,40 @@ public class NetworkCorrespondent : EnsBehaviour
         if (ServerDataContainer.GetAllValues().Count != 0)
         {
             string AllData = ServerDataContainer.ReturnAll();
-            CallFuncRpc(nameof(RecvAllData), new List<int>() { playerData.id }, AllData, Delivery.OrderWise);
+            CallFuncRpc(RecvAllData, SendTo.To(playerData.id), Delivery.OrderWise, AllData);
         }
 
-        CallFuncRpc(nameof(RecvNewData), SendTo.Everyone, data, Delivery.OrderWise);
+        CallFuncRpc(RecvNewData, SendTo.Everyone, Delivery.OrderWise, data);
         Tool.FightController.SyncNameTo(playerData.id);
         Tool.FightController.SyncDesTo(playerData.id);
 
-        StartCoroutine(RecreatePlayers(playerData));
+        StartCoroutine(RecreatePlayers(playerData.id,playerData));
     }
+    [Rpc]
     private void RecvAllData(string data)
     {
         ServerDataContainer.LoadAll(data);
     }
+    [Rpc]
     private void RecvNewData(string data)
     {
         var playerData = new ServerDataContainer.PlayerDataContainer(data);
         ServerDataContainer.Set(playerData);
     }
-    public IEnumerator RecreatePlayers(ServerDataContainer.PlayerDataContainer playerData)
+    public IEnumerator RecreatePlayers(short playerid,ServerDataContainer.PlayerDataContainer playerData)
     {
         yield return 3;
         foreach (var i in Tool.SceneController.NonSkillPlayers.Values)
         {
-            EnsInstance.EnsSpawner.RespawnCheckServerRpc(i.GetComponent<NonSkillPlayerCollection>(), i.id.ToString(),Delivery.OrderWise);
+            EnsInstance.EnsSpawner.RespawnCheckServerRpc(SendTo.To(playerid),i.GetComponent<NonSkillPlayerCollection>(), i.id.ToString());
         }
-        EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, SendTo.Everyone,
-            playerData.id.ToString(),Delivery.OrderWise);
+        EnsInstance.EnsSpawner.CreateServerRpc(SendTo.Everyone,Tool.PrefabManager.NonSkillPlayerCollection.CollectionId,
+            playerData.id.ToString());
     }
 
     
 
-    public void DeleteData(int id)
+    public void DeleteData(short id)
     {
         ServerDataContainer.Remove(id);
     }
@@ -120,8 +123,9 @@ public class NetworkCorrespondent : EnsBehaviour
 
     public void SetScoreboardActiveRpc(bool active)
     {
-        CallFuncRpc(nameof(SetScoreboardActiveLocal), SendTo.Everyone, active ? "1" : "0", Delivery.Reliable);
+        CallFuncRpc(SetScoreboardActiveLocal, SendTo.Everyone, Delivery.Reliable,active ? "1" : "0");
     }
+    [Rpc]
     private void SetScoreboardActiveLocal(string data)
     {
         PlayModeController.Instance.SetScoreboardActive(data == "1");
@@ -130,8 +134,9 @@ public class NetworkCorrespondent : EnsBehaviour
     {
         var sb=Tool.stringBuilder;
         sb.Append(x).Append('_').Append(y).Append('_').Append(data);
-        CallFuncRpc(nameof(SetScoreboardTextLocal), SendTo.Everyone, sb.ToString(), Delivery.Reliable);
+        CallFuncRpc(SetScoreboardTextLocal, SendTo.Everyone, Delivery.Reliable, sb.ToString());
     }
+    [Rpc]
     private void SetScoreboardTextLocal(string data)
     {
         string[] s = data.Split('_');
@@ -139,16 +144,18 @@ public class NetworkCorrespondent : EnsBehaviour
     }
     public void CreateLevelRpc(int type)
     {
-        CallFuncRpc(nameof(CreateLevelLocal), SendTo.Everyone,type.ToString(), Delivery.Reliable);
+        CallFuncRpc(CreateLevelLocal, SendTo.Everyone, Delivery.Reliable, type.ToString());
     }
+    [Rpc]
     private void CreateLevelLocal(string data)
     {
         Tool.SceneController.CreateLevel(int.Parse(data));
     }
     public void DestroyLevelRpc()
     {
-        CallFuncRpc(nameof(DestroyLevelLocal), SendTo.Everyone, Delivery.Reliable);
+        CallFuncRpc(DestroyLevelLocal, SendTo.Everyone, Delivery.Reliable);
     }
+    [Rpc]
     private void DestroyLevelLocal()
     {
         Tool.SceneController.DestroyLevel();
@@ -164,15 +171,16 @@ public class NetworkCorrespondent : EnsBehaviour
         //info用/划分
         if(killer == null)
         {
-            CallFuncRpc(nameof(TargetKilledLocal), SendTo.RoomOwner, killed.Info.ToString(),Delivery.Reliable);
+            CallFuncRpc(TargetKilledLocal, SendTo.RoomOwner, Delivery.Reliable, killed.Info.ToString());
         }
         else
         {
             var sb=Tool.stringBuilder;
             sb.Append(killer.Info.ToString()).Append('_').Append(killed.Info.ToString());
-            CallFuncRpc(nameof(TargetKilledLocal), SendTo.RoomOwner, sb.ToString(), Delivery.Reliable);
+            CallFuncRpc(TargetKilledLocal, SendTo.RoomOwner, Delivery.Reliable, sb.ToString());
         }
     }
+    [Rpc]
     private void TargetKilledLocal(string data)
     {
         if (data.Contains('_'))
@@ -192,9 +200,10 @@ public class NetworkCorrespondent : EnsBehaviour
     {
         if (Tool.FightController.TryLoadLevelLua())
         {
-            CallFuncRpc(nameof(ControllerStartFight), SendTo.Everyone, Delivery.OrderWise);
+            CallFuncRpc(ControllerStartFight, SendTo.Everyone, Delivery.OrderWise);
         }
     }
+    [Rpc]
     private void ControllerStartFight()
     {
         Tool.FightController.StartFight();
@@ -203,10 +212,11 @@ public class NetworkCorrespondent : EnsBehaviour
     }
     public void BackToPrepare()
     {
-        CallFuncRpc(nameof(RecvBackToPrepare), SendTo.Everyone);
+        CallFuncRpc(RecvBackToPrepare, SendTo.Everyone,Delivery.Reliable);
 
         Invoke(nameof(LateBackToPrepare), 0.05f);
     }
+    [Rpc]
     private void RecvBackToPrepare()
     {
         Tool.FightController.StopFightLocal();
@@ -222,7 +232,7 @@ public class NetworkCorrespondent : EnsBehaviour
     {
         foreach (var i in ServerDataContainer.GetAllValues())
         {
-            EnsInstance.EnsSpawner.CreateServerRpc(Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, SendTo.Everyone, i.id.ToString(),Delivery.Reliable);
+            EnsInstance.EnsSpawner.CreateServerRpc(SendTo.Everyone, Tool.PrefabManager.NonSkillPlayerCollection.CollectionId, i.id.ToString());
         }
     }
     #endregion

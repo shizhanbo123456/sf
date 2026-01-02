@@ -57,8 +57,8 @@ public class EnsClientEventRegister
         MessageHandlerClient.Regist(Header.E, (b,s) =>
         {
             int index = s.StartIndex + 6;
-            var e = IntSerializer.Deserialize(b, ref index);
-            var i = IntSerializer.Deserialize(b, ref index);
+            var e = ByteSerializer.Deserialize(b, ref index);
+            var i = ShortSerializer.Deserialize(b, ref index);
             if (e == 1) EnsInstance.OnClientEnter?.Invoke(i);
             else if (e == 2) EnsInstance.OnClientExit?.Invoke(i);
             else Debug.LogError("[E]存在错误的事件消息");

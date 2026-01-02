@@ -20,7 +20,7 @@ public class NonSkillPlayerData : EnsBehaviour
         id = int.Parse(data);
         isLocalPlayer = FightController.localPlayerId == id;
 
-        ServerDataContainer.TryGet(id, out var p);
+        ServerDataContainer.TryGet((short)id, out var p);
         var Name = p.name;
         Anim.SetName($"P{id}-{Name}", Color.white);
 

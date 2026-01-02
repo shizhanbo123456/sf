@@ -66,11 +66,12 @@ public class WorldTextController : EnsBehaviour
         for(i=Mathf.Min(TextInfos.Count-1,i); i >= 0; i--)
         {
             var s = TextInfos[i].ToString();
-            CallFuncRpc(nameof(ShowTextLocal), SendTo.ExcludeSender,s,Delivery.Unreliable);
+            CallFuncRpc(ShowTextLocal, SendTo.ExcludeSender,Delivery.Unreliable,s);
             ShowTextLocal(s);
             TextInfos.RemoveAt(i);
         }
     }
+    [Rpc]
     public void ShowTextLocal(string data)
     {
         var info=new TextInfo(data);

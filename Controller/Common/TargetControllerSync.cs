@@ -86,7 +86,7 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
             Append(moveLock ? 0 : 1).Append('_').
             Append(isGrounded ? '1' : '0').Append('_').
             Append(motionIsNull ? '1' : '0');
-        CallFuncRpc(nameof(SyncControllerRpc), SendTo.ExcludeSender, sb.ToString());
+        CallFuncRpc(SyncControllerRpc, SendTo.ExcludeSender, Delivery.Unreliable,sb.ToString());
 
         Resistance = resistance;
         IgnoreLevitaningPlatrm = ignoreLevitatingPlatform;
@@ -98,6 +98,7 @@ public class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
         this.isGrounded= isGrounded;
         OnPostSyncRpc?.Invoke();
     }
+    [Rpc]
     private void SyncControllerRpc(string data)
     {
         string[] s = data.Split('_');

@@ -47,7 +47,7 @@ public class SceneController//联机状态下的生成由FightController控制
     {
         List<Target> toDetroy = new List<Target>();
         foreach (var c in Targets.Values) foreach (var t in c.Values) if (t.Owner == ownerId) toDetroy.Add(t);
-        foreach (var i in toDetroy) i.targetDataSync.DestroyLocal();
+        foreach (var i in toDetroy) Object.Destroy(i.gameObject);
     }
 
     public void CreateUnnetPlayer()
@@ -60,7 +60,7 @@ public class SceneController//联机状态下的生成由FightController控制
     }
     public void DestroyNonSkillPlayer()
     {
-        foreach (var i in NonSkillPlayers.Values) i.DestroyLocal();
+        foreach (var i in NonSkillPlayers.Values) Object.Destroy(i.gameObject);
     }
 
     public void DestroyAllTargetsLocal()
@@ -69,7 +69,7 @@ public class SceneController//联机状态下的生成由FightController控制
         {
             foreach(var j in i.Values)
             {
-                j.targetDataSync.DestroyLocal();
+                Object.Destroy(j.gameObject);
             }
         }
     }

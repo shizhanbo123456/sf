@@ -68,7 +68,7 @@ public class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontrollerInfo
             Append(velocity.x.ToString()).Append('_').
             Append(velocity.y.ToString()).Append('_').
             Append(isGrounded ? '1' : '0');
-        CallFuncRpc(nameof(SyncMotionRpc), SendTo.ExcludeSender, sb.ToString());
+        CallFuncRpc(SyncMotionRpc, SendTo.ExcludeSender, Delivery.Unreliable,sb.ToString());
 
         IgnoreLevitaningPlatrm = ignoreLevitatingPlatform;
         this.isGrounded = isGrounded;
@@ -77,6 +77,7 @@ public class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontrollerInfo
 
         OnPostSyncRpc?.Invoke();
     }
+    [Rpc]
     private void SyncMotionRpc(string data)
     {
         string[] s = data.Split('_');

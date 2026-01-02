@@ -7,7 +7,7 @@ using XLua;
 public static class LccManifest//CustomLevelAPIManifest
 {
     public static float TimeUsed => CustomLevel.FightTime;
-    public static int[] ClientIds => ServerDataContainer.GetAllKeys();
+    public static short[] ClientIds => ServerDataContainer.GetAllKeys();
     public static string NullName=>TargetGraphic.NullName;//名字设为此值时自动隐藏
     public static void CreateLevel(int type)=>Tool.NetworkCorrespondent.CreateLevelRpc(type);
     public static void DestroyLevel() => Tool.NetworkCorrespondent.DestroyLevelRpc();

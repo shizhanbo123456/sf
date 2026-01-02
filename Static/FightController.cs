@@ -28,20 +28,23 @@ public class FightController : EnsBehaviour
         set
         {
             customLevel = value;
-            CallFuncRpc(nameof(SyncNameLocal), SendTo.ExcludeSender, customLevel.joinedPath, Delivery.OrderWise);
-            CallFuncRpc(nameof(SyncDesLocal), SendTo.ExcludeSender, customLevel.description, Delivery.OrderWise);
+            CallFuncRpc(SyncNameLocal, SendTo.ExcludeSender, Delivery.OrderWise, customLevel.joinedPath);
+            CallFuncRpc(SyncDesLocal, SendTo.ExcludeSender, Delivery.OrderWise, customLevel.description);
             OnModeNameChanged?.Invoke(customLevel.joinedPath);
+            OnDescriptionChanged?.Invoke(customLevel.description);
         }
     }
-    public void SyncNameTo(int player)
+    public void SyncNameTo(short player)
     {
-        CallFuncRpc(nameof(SyncNameLocal),new List<int>() { player},customLevel.joinedPath,Delivery.OrderWise);
+        CallFuncRpc(SyncNameLocal, SendTo.To(player), Delivery.OrderWise, customLevel.joinedPath);
     }
+    [Rpc]
     private void SyncNameLocal(string data)=> OnModeNameChanged?.Invoke(data);
-    public void SyncDesTo(int player)
+    public void SyncDesTo(short player)
     {
-        CallFuncRpc(nameof(SyncDesLocal), new List<int>() { player },customLevel.description,Delivery.OrderWise);
+        CallFuncRpc(SyncDesLocal, SendTo.To(player), Delivery.OrderWise, customLevel.description);
     }
+    [Rpc]
     private void SyncDesLocal(string data)=>OnDescriptionChanged?.Invoke(data);
 
 
@@ -71,9 +74,10 @@ public class FightController : EnsBehaviour
             CustomLevel.FigureScore(i,out int killscore, out int timescore, out int challengescore);
             var sb=Tool.stringBuilder;
             sb.Append(killscore).Append('_').Append(timescore).Append('_').Append(challengescore);
-            CallFuncRpc(nameof(SettleLocal),new List<int>() { i}, sb.ToString(), Delivery.Reliable);
+            CallFuncRpc(SettleLocal,SendTo.To(i), Delivery.Reliable, sb.ToString());
         }
     }
+    [Rpc]
     private void SettleLocal(string data)
     {
         StopFightLocal();
