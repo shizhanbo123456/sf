@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Utils;
 
-public class EnsServer : Disposable
+public class EnsServer
 {
     internal static EnsServer Instance;
 
@@ -53,19 +54,18 @@ public class EnsServer : Disposable
             id = ClientIds[index];
             if (ClientConnections.TryGetValue(id, out var i))
             {
-                if (i.hbRecvTime.Reached)
+                if (i.hbRecvTime>Time.time)
                 {
                     i.ShutDown();
-                    i.Dispose();
                     ClientConnections.Remove(ClientIds[index]);
                     ClientIds.Remove(ClientIds[index]);
                     continue;
                 }
-                if (i.hbSendTime.Reached)
+                if (i.hbSendTime>Time.time)
                 {
                     t_connection=i;
                     i.Send(Header.H, SendTo.Server, SendTo.To(i.ClientId), Delivery.Unreliable, HeartBeatWriter);
-                    i.hbSendTime.ReachAfter(EnsInstance.HeartbeatMsgInterval);
+                    i.hbSendTime=Time.time+EnsInstance.HeartbeatMsgInterval;
                 }
                 i.Update();
             }
@@ -86,24 +86,14 @@ public class EnsServer : Disposable
         if (!On) return;
         On = false;
         EndListening();
-        foreach (var i in ClientConnections.Values) i.ShutDown();
         Listener.ShutDown();
-        RoomManager.ShutDown();
-    }
-    protected override void ReleaseManagedMenory()
-    {
-        foreach (var i in ClientConnections.Values) i.Dispose();
-        ClientConnections.Clear();
         Listener.Dispose();
-        RoomManager.Dispose();
-        base.ReleaseManagedMenory();
-    }
-    protected override void ReleaseUnmanagedMenory()
-    {
+        RoomManager.ShutDown();
+        foreach (var i in ClientConnections.Values) i.ShutDown();
+        ClientConnections.Clear();
         ClientConnections = null;
         Listener = null;
         RoomManager = null;
         Instance = null;
-        base.ReleaseUnmanagedMenory();
     }
 }

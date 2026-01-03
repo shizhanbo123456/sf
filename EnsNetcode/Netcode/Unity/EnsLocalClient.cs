@@ -7,11 +7,12 @@ using UnityEngine;
 /// </summary>
 internal class ENCLocalClient : EnsClient
 {
-    internal CircularQueue<byte[]> ReceivedData = new();
+    internal CircularQueue<byte[]> ReceivedData;
     private SendBuffer _buffer;
     public ENCLocalClient()
     {
         _on = true;
+        ReceivedData=new CircularQueue<byte[]>();
         _buffer = new SendBuffer(OnSend);
     }
     internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
@@ -52,13 +53,6 @@ internal class ENCLocalClient : EnsClient
     {
         _on = false;
         ReceivedData = null;
-    }
-    protected override void ReleaseManagedMenory()
-    {
-        
-    }
-    protected override void ReleaseUnmanagedMenory()
-    {
-        ReceivedData = null;
+        _buffer = null;
     }
 }

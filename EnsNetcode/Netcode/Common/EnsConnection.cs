@@ -71,25 +71,16 @@ public class EnsConnection:SR
         Connection.Send();
 
         _on = false;
+        base.ShutDown();
         KeyLibrary.Clear();
         Connection.ShutDown();
-
-        Dispose();
+        Connection?.Dispose();
+        Connection = null;
+        KeyLibrary = null;
+        room = null;
     }
     internal override ProtocolBase GetProtocolBase()
     {
         return Connection;
-    }
-    protected override void ReleaseManagedMenory()
-    {
-        Connection?.Dispose();
-        base.ReleaseManagedMenory();
-    }
-    protected override void ReleaseUnmanagedMenory()
-    {
-        Connection = null;
-        KeyLibrary = null;
-        room = null;
-        base.ReleaseUnmanagedMenory();
     }
 }

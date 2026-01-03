@@ -1,13 +1,28 @@
 using System;
+using Utils;
 
 public class DeliverySource
 {
     //Unreliable 0
     //Reliable 1-200
     //Orderwise 201-255
-    public static byte Unreliable = 0;
+    public static readonly byte Unreliable = 0;
 
     private int reliableSource = 1;
+    private int orderWiseSource = 201;
+    private DeliverySource() { }
+    private static readonly ObjectPool<DeliverySource> pool=new ObjectPool<DeliverySource>(() => new DeliverySource());
+    public static DeliverySource Get()
+    {
+        var p=pool.Get();
+        p.reliableSource = 1;
+        p.orderWiseSource = 201;
+        return p;
+    }
+    public static void Return(DeliverySource d)
+    {
+        pool.Return(d);
+    }
     private byte Reliable
     {
         get
@@ -17,8 +32,7 @@ public class DeliverySource
             return (byte)reliableSource;
         }
     }
-    private int orderWiseSource = 201;
-   private byte Orderwise
+    private byte Orderwise
     {
         get
         {

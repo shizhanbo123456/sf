@@ -37,7 +37,7 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.RegistAny((datb,s) =>
         {
-            EnsInstance.Corr.Client.hbRecvTime.ReachAfter(EnsInstance.DisconnectThreshold);
+            EnsInstance.Corr.Client.hbRecvTime=Time.time+EnsInstance.DisconnectThreshold;
         });
     }
     protected static void Client_C()

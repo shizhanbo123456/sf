@@ -168,15 +168,17 @@ public class EnsCorrespondent :MonoBehaviour
                 if (Client != null)
                 {
                     Client.ShutDown();
-                    Client.Dispose();
                 }
             }
             else if (networkMode == NetworkMode.Host)
             {
-                if (Server != null)//关闭Server->关闭Host->关闭LocalClient
+                if (Server != null)//关闭Server->关闭Host
                 {
                     Server.ShutDown();
-                    Server.Dispose();
+                }
+                if (Client != null)
+                {
+                    Client.ShutDown();
                 }
             }
         }

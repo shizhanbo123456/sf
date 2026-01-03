@@ -1,5 +1,6 @@
 using ProtocolWrapper;
 using System;
+using Utils;
 
 /// <summary>
 /// 实例化时启动客户端
@@ -27,7 +28,7 @@ internal class EnsClient:SR
     }
     internal override void Update()
     {
-        if (hbRecvTime.Reached)
+        if (hbRecvTime>Time.time)
         {
             EnsInstance.Corr.ShutDown();
             return;
@@ -67,23 +68,15 @@ internal class EnsClient:SR
         Client.Send();
 
         _on = false;
-        Client.ShutDown();
+        base.ShutDown();
         KeyLibrary.Clear();
+        Client.ShutDown();
+        Client?.Dispose();
+        Client = null;
+        KeyLibrary = null;
     }
     internal override ProtocolBase GetProtocolBase()
     {
         return Client;
-    }
-
-    protected override void ReleaseManagedMenory()
-    {
-        Client?.Dispose();
-        base.ReleaseManagedMenory();
-    }
-    protected override void ReleaseUnmanagedMenory()
-    {
-        Client = null;
-        KeyLibrary= null;
-        base.ReleaseUnmanagedMenory();
     }
 }

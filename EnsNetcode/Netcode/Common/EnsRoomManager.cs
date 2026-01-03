@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Utils;
 
-public class EnsRoomManager:Disposable
+public class EnsRoomManager
 {
     public const int roomIdStart = 10000;
     public static EnsRoomManager Instance;
@@ -61,28 +61,12 @@ public class EnsRoomManager:Disposable
         if (PrintRoomData) Debug.Log(ToString());
         return true;
     }
-
-
-
-
-
-
     public void ShutDown()
     {
-        //不需要ShutDown因为ShutDown只是移除了RoomManager对它的引用
-        foreach (var i in rooms.Values) i.Dispose();
-    }
-    protected override void ReleaseManagedMenory()
-    {
-        foreach (var r in rooms.Values) r.Dispose();
+        foreach (var i in rooms.Values) i.ShutDown();
         rooms.Clear();
-        base.ReleaseManagedMenory();
-    }
-    protected override void ReleaseUnmanagedMenory()
-    {
         Instance = null;
         rooms = null;
-        base.ReleaseUnmanagedMenory();
     }
     public override string ToString()
     {

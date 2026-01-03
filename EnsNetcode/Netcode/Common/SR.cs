@@ -3,17 +3,24 @@ using System;
 using System.Collections.Generic;
 using Utils;
 
-public abstract class SR : Disposable//具有信息收发功能
+public abstract class SR//具有信息收发功能
 {
-    internal ReachTime hbRecvTime = new ReachTime(EnsInstance.DisconnectThreshold, ReachTime.InitTimeFlagType.ReachAfter);
-    internal ReachTime hbSendTime = new ReachTime(EnsInstance.HeartbeatMsgInterval, ReachTime.InitTimeFlagType.ReachAfter);
-    internal DeliverySource DeliverySource = new DeliverySource();
+    internal float hbRecvTime = Time.time+EnsInstance.DisconnectThreshold;//new ReachTime(EnsInstance.DisconnectThreshold, ReachTime.InitTimeFlagType.ReachAfter);
+    internal float hbSendTime = Time.time + EnsInstance.HeartbeatMsgInterval;//new ReachTime(EnsInstance.HeartbeatMsgInterval, ReachTime.InitTimeFlagType.ReachAfter);
+    internal DeliverySource DeliverySource = DeliverySource.Get();
 
     protected static List<Segment> Parts = new List<Segment>();
 
     internal abstract void Send(byte messageType,SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null);
     internal abstract void Update();
-    internal abstract void ShutDown();
+    internal virtual void ShutDown()
+    {
+        if (DeliverySource != null)
+        {
+            DeliverySource.Return(DeliverySource);
+            DeliverySource = null;
+        }
+    }
     internal abstract ProtocolBase GetProtocolBase();
 
 
@@ -139,12 +146,6 @@ public abstract class SR : Disposable//具有信息收发功能
         }
     }
     #endregion
-
-    protected override void ReleaseUnmanagedMenory()
-    {
-        hbRecvTime = null;
-        hbSendTime = null;
-    }
 }
 public struct Segment
 {

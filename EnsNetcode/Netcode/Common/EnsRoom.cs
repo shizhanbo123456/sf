@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class EnsRoom:Disposable
+public class EnsRoom
 {
     public static EnsRoom Instance
     {
@@ -68,8 +68,7 @@ public class EnsRoom:Disposable
     internal void Exit(EnsConnection conn)
     {
         ClientConnections.Remove(conn.ClientId);
-        conn.room = null; 
-        conn.Send(Header.R, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, null);
+        conn.room = null;
         if (conn.ClientId == CurrentAuthorityAt)
         {
             ShutDown();
@@ -123,28 +122,11 @@ public class EnsRoom:Disposable
     internal void ShutDown()
     {
         Broadcast(Header.R, SendTo.Server, Delivery.Reliable, null);
-        foreach(var i in ClientConnections)
-        {
-            i.Value.room = null;
-        }
         EnsRoomManager.Instance.rooms.Remove(RoomId);
-        Dispose();
-    }
-
-
-
-    protected override void ReleaseManagedMenory()
-    {
-        foreach(var i in ClientConnections.Values) i.Dispose();
+        foreach (var i in ClientConnections.Values) i.room = null;
         ClientConnections.Clear();
-        base.ReleaseManagedMenory();
-    }
-    protected override void ReleaseUnmanagedMenory()
-    {
         ClientConnections = null;
-        base.ReleaseUnmanagedMenory();
     }
-
     public override string ToString()
     {
         string t = "[ " + RoomId.ToString() + " : ";

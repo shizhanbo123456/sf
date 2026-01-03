@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 internal class EnsHost : EnsConnection
 {
-    internal CircularQueue<byte[]> ReceivedData = new();
+    internal CircularQueue<byte[]> ReceivedData;
     private ENCLocalClient _client;
     private SendBuffer _buffer;
 
@@ -30,6 +30,7 @@ internal class EnsHost : EnsConnection
     internal EnsHost(ENCLocalClient client)
     {
         _client = client;
+        ReceivedData=new CircularQueue<byte[]>();
         _buffer=new SendBuffer(OnSend);
         ClientId = 0;
         EnsInstance.LocalClientId = ClientId;
@@ -71,7 +72,9 @@ internal class EnsHost : EnsConnection
     }
     internal override void ShutDown()
     {
-        _client.ShutDown();
         _on = false;
+        ReceivedData= null;
+        _client = null;
+        _buffer = null;
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using Utils;
 using request = Ens.Request;
 public class EnsServerEventRegister
 {
@@ -29,7 +30,7 @@ public class EnsServerEventRegister
     {
         MessageHandlerServer.RegistAny((conn,b,s) =>
         {
-            conn.hbRecvTime.ReachAfter(EnsInstance.DisconnectThreshold);
+            conn.hbRecvTime=Time.time+EnsInstance.DisconnectThreshold;
         });
     }
     protected static void Server_H()
