@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NonSkillPlayerData : EnsBehaviour
+public partial class NonSkillPlayerData : EnsBehaviour
 {
     private NonSkillPlayerController PlayerController;
     public TargetGraphic Anim;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WorldTextController : EnsBehaviour
+public partial class WorldTextController : EnsBehaviour
 {
     private struct TextInfo
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class TargetDataSync : EnsBehaviour
+public partial class TargetDataSync : EnsBehaviour
 {
     private Target target;
     public DedicateSyncAttributes DedicatedAttributes;

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontrollerInfo
+public partial class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontrollerInfo
 {
     public Action OnPostSyncRpc { get; set; }
 

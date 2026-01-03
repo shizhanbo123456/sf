@@ -98,10 +98,18 @@ public abstract class EnsBehaviour : MonoBehaviour
     {
         Debug.LogError("调用未注册的代码，请检查调用堆栈");
     }
-    public void Send(Delivery delivery, SendTo sendto, byte[] s)
+    public void Send(Delivery delivery, SendTo sendto)
     {
         //发送字节
-        //Delivery，sendTo，随机数标识，具体bytes
+        EnsInstance.Corr.Client.Send(Header.F, SendTo.To(EnsInstance.LocalClientId), sendto,delivery, Writer);
+    }
+    private static bool Writer(SendBuffer b)
+    {
+        if (b.bytes.Length - b.indexStart < EnsTemporaryBuffer.length) return false;
+        Buffer.BlockCopy(EnsTemporaryBuffer.bytes, 0, b.bytes, b.indexStart, EnsTemporaryBuffer.length);
+        b.indexStart += EnsTemporaryBuffer.length;
+        EnsTemporaryBuffer.length = 0;
+        return true;
     }
     /// <summary>
     /// 传入的s的片段仅包含(byte func)[string param]部分

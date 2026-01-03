@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NetworkCorrespondent : EnsBehaviour
+public partial class NetworkCorrespondent : EnsBehaviour
 {
     private void Awake()
     {

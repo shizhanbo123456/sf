@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 class RpcCodeGenerator
 {
     private static readonly string sourceDir = "Assets/Scripts";
-    private static readonly string genDir = "Assets/Scripts/Gen";
+    private static readonly string genDir = "Assets/Scripts/EnsNetcode/Gen";
 
     [UnityEditor.MenuItem("Ens/GenerateCode")]
     public static void GenCode()
@@ -212,7 +212,7 @@ class RpcCodeGenerator
                 ? $", {string.Join(", ", parameters.Select(p => $"{p.Type} {paramNames[parameters.IndexOf(p)]}"))}"
                 : string.Empty;
 
-            codeBuilder.AppendLine($"    public {(parametersIsNotNull ? string.Empty : "new ")}void RpcInvoke({actionType} func, SendTo sendto, Delivery delivery{parametersDeclaration})");
+            codeBuilder.AppendLine($"    public {(parametersIsNotNull ? string.Empty : "new ")}void CallFuncRpc({actionType} func, SendTo sendto, Delivery delivery{parametersDeclaration})");
             codeBuilder.AppendLine("    {");
             codeBuilder.AppendLine($"        if (map_{paramKey} == null) map_{paramKey} = new()");
             codeBuilder.AppendLine("        {");
@@ -226,12 +226,8 @@ class RpcCodeGenerator
             codeBuilder.AppendLine();
 
             // 计算字节数组大小
-            if (parametersIsNotNull) codeBuilder.AppendLine("        int indexStart = 1;");
-            string sizeCalculation = parameters.Any()
-                ? $"1 + {string.Join(" + ", paramTypes.Select(t => $"sizeof({t})"))}"
-                : "1";
-            codeBuilder.AppendLine($"        Span<byte> span = stackalloc byte[{sizeCalculation}];");
-            codeBuilder.AppendLine($"        span[0] = map_{paramKey}[func];");
+            if (parametersIsNotNull) codeBuilder.AppendLine("        EnsTemporaryBuffer.length=1;");
+            codeBuilder.AppendLine($"        EnsTemporaryBuffer.bytes[0] = map_{paramKey}[func];");
             codeBuilder.AppendLine();
 
             // 序列化参数
@@ -239,10 +235,10 @@ class RpcCodeGenerator
             {
                 string type = paramTypes[i];
                 string serializer = $"{char.ToUpperInvariant(type[0])}{type.Substring(1)}Serializer";
-                codeBuilder.AppendLine($"        {serializer}.Serialize({paramNames[i]}, span, ref indexStart);");
+                codeBuilder.AppendLine($"        {serializer}.Serialize({paramNames[i]}, EnsTemporaryBuffer.bytes, ref EnsTemporaryBuffer.length);");
             }
 
-            codeBuilder.AppendLine("        Send(delivery, sendto, span.ToArray());");
+            codeBuilder.AppendLine("        Send(delivery, sendto);");
             codeBuilder.AppendLine("    }");
             codeBuilder.AppendLine();
         }
@@ -269,14 +265,18 @@ class RpcCodeGenerator
             }
             codeBuilder.AppendLine($"    private void Invoke_{methodName}{count}(byte[] bytes)");
             codeBuilder.AppendLine("    {");
-            if (parameters.Count != 0) codeBuilder.AppendLine("        int indexStart = 1;");
+            if (parameters.Count != 0)
+            {
+                codeBuilder.AppendLine("        int indexStart = RpcInvokeSegment.StartIndex+1;");
+                codeBuilder.AppendLine("        int invalidIndex = RpcInvokeSegment.StartIndex+RpcInvokeSegment.Length;");
+            }
 
             // 反序列化参数
             for (int i = 0; i < parameters.Count; i++)
             {
                 string type = paramTypes[i];
                 string serializer = $"{char.ToUpperInvariant(type[0])}{type.Substring(1)}Serializer";
-                codeBuilder.AppendLine($"        {type} {paramNames[i]} = {serializer}.Deserialize(bytes, ref indexStart);");
+                codeBuilder.AppendLine($"        {type} {paramNames[i]} = {serializer}.Deserialize(bytes, ref indexStart,invalidIndex);");
             }
 
             // 调用原方法
@@ -286,18 +286,19 @@ class RpcCodeGenerator
         }
 
         // 4. 生成InvokeFunc方法
-        codeBuilder.AppendLine("    public override void InvokeFunc(byte[] bytes,Segment s)");
+        codeBuilder.AppendLine("    private static Segment RpcInvokeSegment;");
+        codeBuilder.AppendLine("    public override bool InvokeFunc(byte[] bytes,Segment s)");
         codeBuilder.AppendLine("    {");
-        codeBuilder.AppendLine("        if (bytes == null || bytes.Length == 0) return;");
+        codeBuilder.AppendLine("        RpcInvokeSegment=s;");
         codeBuilder.AppendLine("        byte funcId = bytes[s.StartIndex];");
         codeBuilder.AppendLine("        if (FuncRecorder.TryGetValue(funcId, out var action))");
         codeBuilder.AppendLine("        {");
         codeBuilder.AppendLine("            action.Invoke(this, bytes);");
-        codeBuilder.AppendLine("            return true");
+        codeBuilder.AppendLine("            return true;");
         codeBuilder.AppendLine("        }");
         codeBuilder.AppendLine("        else");
         codeBuilder.AppendLine("        {");
-        codeBuilder.AppendLine("            return base.InvokeFunc(bytes,s)");
+        codeBuilder.AppendLine("            return base.InvokeFunc(bytes,s);");
         codeBuilder.AppendLine("        }");
         codeBuilder.AppendLine("    }");
 
