@@ -14,13 +14,15 @@ public struct Vector2IntSerializer
         return true;
     }
 
-    public static Vector2Int Deserialize(byte[] data, ref int indexStart)
+    public static Vector2Int Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 8)
             throw new ArgumentException("反序列化Vector2Int失败：剩余数据不足8字节");
 
-        int x = IntSerializer.Deserialize(data, ref indexStart);
-        int y = IntSerializer.Deserialize(data, ref indexStart);
+        int x = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        int y = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return new Vector2Int(x, y);
     }
 }

@@ -15,15 +15,17 @@ public struct Color32Serializer
         return true;
     }
 
-    public static Color32 Deserialize(byte[] data, ref int indexStart)
+    public static Color32 Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 4)
             throw new ArgumentException("反序列化Color32失败：剩余数据不足4字节");
 
-        byte r = ByteSerializer.Deserialize(data, ref indexStart);
-        byte g = ByteSerializer.Deserialize(data, ref indexStart);
-        byte b = ByteSerializer.Deserialize(data, ref indexStart);
-        byte a = ByteSerializer.Deserialize(data, ref indexStart);
+        byte r = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        byte g = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        byte b = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        byte a = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return new Color32(r, g, b, a);
     }
 }

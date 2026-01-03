@@ -37,7 +37,8 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.H,(conn, b, s) =>
         {
             int index = s.StartIndex + 6;
-            var d = IntSerializer.Deserialize(b, ref index);
+            int invalidIndex=s.StartIndex+ s.Length;
+            var d = IntSerializer.Deserialize(b, ref index, invalidIndex);
             conn.delay = ((int)(Utils.Time.time * 1000) - d) / 2;
         });
     }
@@ -55,7 +56,8 @@ public class EnsServerEventRegister
         {
             if (conn.room == null) return;
             int index = s.StartIndex + 6;
-            var d = ShortSerializer.Deserialize(b, ref index);
+            int invalidIndex = s.StartIndex + s.Length;
+            var d = ShortSerializer.Deserialize(b, ref index, invalidIndex);
             conn.room.SetAuthority(d);
         });
     }
@@ -123,10 +125,11 @@ public class EnsServerEventRegister
             Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex + 5]);
 
             int indexStart = s.StartIndex+6;
-            t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart);
-            t_spawnCollectionId=ShortSerializer.Deserialize(b, ref indexStart);
-            t_spawnParam= StringSerializer.Deserialize(b,ref indexStart);
-            t_spawnIdStart=ShortSerializer.Deserialize(b,ref indexStart);
+            int invalidIndex = s.StartIndex + s.Length;
+            t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart, invalidIndex);
+            t_spawnCollectionId=ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
+            t_spawnParam= StringSerializer.Deserialize(b,ref indexStart, invalidIndex);
+            t_spawnIdStart=ShortSerializer.Deserialize(b,ref indexStart, invalidIndex);
             if (!t_spawnMode)
             {
                 //createdID+=spawnIdStart,spawnIdStart=createdID
@@ -160,8 +163,9 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.Q,(conn, b, s) =>
         {
             int index = s.StartIndex + 6;
-            t_header = StringSerializer.Deserialize(b, ref index);
-            t_content = StringSerializer.Deserialize(b, ref index);
+            int invalidIndex = s.StartIndex + s.Length;
+            t_header = StringSerializer.Deserialize(b, ref index, invalidIndex);
+            t_content = StringSerializer.Deserialize(b, ref index, invalidIndex);
             string reply = EnsServerRequest.OnRecvRequest(t_header,t_content, conn);
             if (reply == string.Empty) return;
             conn.Send(Header.Q, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>

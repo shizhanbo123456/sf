@@ -15,15 +15,17 @@ public struct ColorSerializer
         return true;
     }
 
-    public static Color Deserialize(byte[] data, ref int indexStart)
+    public static Color Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 32)
             throw new ArgumentException("反序列化Color失败：剩余数据不足32字节");
 
-        float r = (float)DoubleSerializer.Deserialize(data, ref indexStart);
-        float g = (float)DoubleSerializer.Deserialize(data, ref indexStart);
-        float b = (float)DoubleSerializer.Deserialize(data, ref indexStart);
-        float a = (float)DoubleSerializer.Deserialize(data, ref indexStart);
+        float r = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        float g = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        float b = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        float a = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return new Color(r, g, b, a);
     }
 }

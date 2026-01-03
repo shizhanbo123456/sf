@@ -45,7 +45,7 @@ public struct StringSerializer
     /// <param name="indexStart">起始索引（ref自动偏移）</param>
     /// <returns>反序列化后的字符串</returns>
     /// <exception cref="ArgumentException">数据不足/格式错误时抛异常</exception>
-    public static string Deserialize(byte[] data, ref int indexStart)
+    public static string Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         // 先校验长度标识的基础4字节
         if (data.Length - indexStart < 4)
@@ -54,7 +54,7 @@ public struct StringSerializer
         }
 
         // 步骤1：先反序列化【字符串UTF8字节长度】
-        int strByteLength = IntSerializer.Deserialize(data, ref indexStart);
+        int strByteLength = IntSerializer.Deserialize(data, ref indexStart,invalidIndex);
 
         // 校验真实字节数据的剩余空间
         if (strByteLength < 0 || data.Length - indexStart < strByteLength)
@@ -70,6 +70,8 @@ public struct StringSerializer
             indexStart += strByteLength;
         }
 
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return result;
     }
     public static byte[] Encode(string s)=>Encoding.UTF8.GetBytes(s);

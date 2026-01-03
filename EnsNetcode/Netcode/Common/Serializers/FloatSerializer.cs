@@ -1,27 +1,38 @@
 using System;
 
-/// <summary>float 32位单精度浮点型 专属序列化器</summary>
 public struct FloatSerializer
 {
     public static bool Serialize(float value, byte[] result, ref int indexStart)
     {
-        if (result.Length - indexStart < 4) return false;
-        byte[] bytes = BitConverter.GetBytes(value);
-        Array.Reverse(bytes); // 转为大端序
-        Buffer.BlockCopy(bytes, 0, result, indexStart, 4);
+        if (result is null || indexStart < 0 || result.Length - indexStart < 4)
+            return false;
+
+        int num = BitConverter.SingleToInt32Bits(value);
+
+        result[indexStart] = (byte)(num >> 24);
+        result[indexStart + 1] = (byte)(num >> 16);
+        result[indexStart + 2] = (byte)(num >> 8);
+        result[indexStart + 3] = (byte)num;
+
         indexStart += 4;
         return true;
     }
 
-    public static float Deserialize(byte[] data, ref int indexStart)
+    public static float Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
-        if (data.Length - indexStart < 4)
-            throw new ArgumentException("反序列化float失败：剩余数据不足4字节");
+        if (data is null || indexStart < 0 || data.Length - indexStart < 4)
+            throw new ArgumentException("反序列化float失败：剩余数据不足4字节或参数非法");
 
-        byte[] bytes = new byte[4];
-        Buffer.BlockCopy(data, indexStart, bytes, 0, 4);
-        Array.Reverse(bytes); // 还原小端序供解析
+        int num = data[indexStart] << 24
+                | data[indexStart + 1] << 16
+                | data[indexStart + 2] << 8
+                | data[indexStart + 3];
+
         indexStart += 4;
-        return BitConverter.ToSingle(bytes, 0);
+
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException(nameof(indexStart), "索引超出合法范围");
+
+        return BitConverter.Int32BitsToSingle(num);
     }
 }

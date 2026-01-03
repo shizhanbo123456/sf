@@ -4,23 +4,44 @@ public struct DoubleSerializer
 {
     public static bool Serialize(double value, byte[] result, ref int indexStart)
     {
-        if (result.Length - indexStart < 8) return false;
-        byte[] bytes = BitConverter.GetBytes(value);
-        Array.Reverse(bytes); // 转为大端序
-        Buffer.BlockCopy(bytes, 0, result, indexStart, 8);
+        // 校验剩余空间，严谨可靠
+        if (result == null || indexStart < 0 || result.Length - indexStart < 8)
+            return false;
+
+        ulong num = (ulong)BitConverter.DoubleToInt64Bits(value);
+
+        result[indexStart] = (byte)(num >> 56);
+        result[indexStart + 1] = (byte)(num >> 48);
+        result[indexStart + 2] = (byte)(num >> 40);
+        result[indexStart + 3] = (byte)(num >> 32);
+        result[indexStart + 4] = (byte)(num >> 24);
+        result[indexStart + 5] = (byte)(num >> 16);
+        result[indexStart + 6] = (byte)(num >> 8);
+        result[indexStart + 7] = (byte)num;
+
         indexStart += 8;
         return true;
     }
 
-    public static double Deserialize(byte[] data, ref int indexStart)
+    // 反序列化：零分配、零反转、零拷贝，纯位运算解析大端序
+    public static double Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
-        if (data.Length - indexStart < 8)
+        if (data == null || indexStart < 0 || data.Length - indexStart < 8)
             throw new ArgumentException("反序列化double失败：剩余数据不足8字节");
 
-        byte[] bytes = new byte[8];
-        Buffer.BlockCopy(data, indexStart, bytes, 0, 8);
-        Array.Reverse(bytes); // 还原小端序供解析
+        ulong num = (ulong)data[indexStart] << 56
+                   | (ulong)data[indexStart + 1] << 48
+                   | (ulong)data[indexStart + 2] << 40
+                   | (ulong)data[indexStart + 3] << 32
+                   | (ulong)data[indexStart + 4] << 24
+                   | (ulong)data[indexStart + 5] << 16
+                   | (ulong)data[indexStart + 6] << 8
+                   | data[indexStart + 7];
+
         indexStart += 8;
-        return BitConverter.ToDouble(bytes, 0);
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException(nameof(indexStart));
+
+        return BitConverter.Int64BitsToDouble((long)num);
     }
 }

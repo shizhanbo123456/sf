@@ -17,7 +17,7 @@ public struct UlongSerializer
         return true;
     }
 
-    public static ulong Deserialize(byte[] data, ref int indexStart)
+    public static ulong Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 8)
             throw new ArgumentException("反序列化ulong失败：剩余数据不足8字节");
@@ -31,6 +31,8 @@ public struct UlongSerializer
                        | (ulong)data[indexStart + 6] << 8
                        | data[indexStart + 7];
         indexStart += 8;
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return result;
     }
 }

@@ -11,13 +11,15 @@ public struct CharSerializer
         return true;
     }
 
-    public static char Deserialize(byte[] data, ref int indexStart)
+    public static char Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 2)
             throw new ArgumentException("反序列化char失败：剩余数据不足2字节");
 
         char result = (char)((data[indexStart] << 8) | data[indexStart + 1]);
         indexStart += 2;
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return result;
     }
 }

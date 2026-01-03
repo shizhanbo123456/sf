@@ -15,14 +15,16 @@ public struct Vector3IntSerializer
         return true;
     }
 
-    public static Vector3Int Deserialize(byte[] data, ref int indexStart)
+    public static Vector3Int Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 12)
             throw new ArgumentException("反序列化Vector3Int失败：剩余数据不足12字节");
 
-        int x = IntSerializer.Deserialize(data, ref indexStart);
-        int y = IntSerializer.Deserialize(data, ref indexStart);
-        int z = IntSerializer.Deserialize(data, ref indexStart);
+        int x = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        int y = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        int z = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return new Vector3Int(x, y, z);
     }
 }

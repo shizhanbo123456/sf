@@ -11,13 +11,15 @@ public struct SbyteSerializer
         return true;
     }
 
-    public static sbyte Deserialize(byte[] data, ref int indexStart)
+    public static sbyte Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 1)
             throw new ArgumentException("反序列化sbyte失败：剩余数据不足1字节");
 
         sbyte result = (sbyte)data[indexStart];
         indexStart += 1;
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return result;
     }
 }

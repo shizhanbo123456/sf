@@ -12,11 +12,13 @@ public struct IntSerializer
         indexStart += 4;
         return true;
     }
-    public static int Deserialize(byte[] data, ref int indexStart)
+    public static int Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length < 4) throw new ArgumentException("数据长度不足");
         int result = data[indexStart + 3] | (data[indexStart + 2] << 8) | (data[indexStart + 1] << 16) | (data[indexStart] << 24);
         indexStart += 4;
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return result;
     }
 }

@@ -13,7 +13,7 @@ public struct UintSerializer
         return true;
     }
 
-    public static uint Deserialize(byte[] data, ref int indexStart)
+    public static uint Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 4)
             throw new ArgumentException("反序列化uint失败：剩余数据不足4字节");
@@ -23,6 +23,8 @@ public struct UintSerializer
                       | (uint)data[indexStart + 2] << 8
                       | data[indexStart + 3];
         indexStart += 4;
+        if (indexStart > invalidIndex)
+            throw new ArgumentOutOfRangeException("index");
         return result;
     }
 }
