@@ -80,7 +80,7 @@ namespace ProtocolWrapper.Protocols.Tcp
                 return;
             }
             var Connection = new ConnectionTcp();
-            Connection.Init(Client, this);
+            Connection.Init(Client);
             Protocol.OnRecvConnection?.Invoke(Connection, ++connectionIndex);
         }
 

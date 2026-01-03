@@ -7,14 +7,14 @@ public struct SendTo
     public static SendTo RoomOwner=>new SendTo(-3);
     public static SendTo Server=>new SendTo(-4);
     public static SendTo To(short id) => new SendTo(id);
+
+    private static readonly byte[] buffer = new byte[2];
     public static SendTo To(byte b1,byte b2)
     {
-        var b=BytesPool.GetBuffer(2);
-        b[0] = b1;
-        b[1] = b2;
+        buffer[0] = b1;
+        buffer[1] = b2;
         int index = 0;
-        var s=ShortSerializer.Deserialize(b, ref index,2);
-        BytesPool.ReturnBuffer(b);
+        var s=ShortSerializer.Deserialize(buffer, ref index,2);
         return new SendTo(s);
     }
 

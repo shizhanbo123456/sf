@@ -94,21 +94,22 @@ namespace ProtocolWrapper.Protocols.Udp
 
         public override void ShutDown()
         {
-            Listening = false;
+            if(Listening)EndListening();
             Cancelled = true;
-            foreach (var c in Connections.Keys.ToList()) if (Connections.ContainsKey(c)) Connections[c].ShutDown();
+            foreach (var c in Connections.Keys)Connections[c].ShutDown();
         }
 
 
         protected override void ReleaseManagedMenory()
         {
             client.Dispose();
-            foreach (var c in Connections.Keys.ToList()) if (Connections.ContainsKey(c)) Connections[c].Dispose();
+            foreach (var c in Connections.Keys)Connections[c].Dispose();
             Connections.Clear();
         }
         protected override void ReleaseUnmanagedMenory()
         {
             client = null;
+            Connections.Clear();
             Connections = null;
         }
     }

@@ -65,7 +65,7 @@ namespace ProtocolWrapper.Protocols.Tcp
                 return;
             }
             byte[] data = new byte[bytesRead];
-            for(int i = 0; i < bytesRead; i++) data[i]=buffer[i];
+            Buffer.BlockCopy(buffer,0, data, 0, bytesRead);
             ReceiveBuffer.Write(data);
         }
 
@@ -92,14 +92,18 @@ namespace ProtocolWrapper.Protocols.Tcp
         }
         public override void ShutDown()
         {
-            Cancelled= true;
+            base.ShutDown();
             Stream?.Close();
             Client?.Close();
         }
-        protected override void ReleaseManagedMenory()
+        protected override void ReleaseUnmanagedMenory()
         {
             Stream?.Dispose();
             Client?.Dispose();
+            base.ReleaseUnmanagedMenory();
+        }
+        protected override void ReleaseManagedMenory()
+        {
             Stream = null;
             Client = null;
             base.ReleaseManagedMenory();

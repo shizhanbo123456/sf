@@ -7,12 +7,9 @@ namespace ProtocolWrapper.Protocols.Tcp
 {
     internal class ConnectionTcp : WrapperTcp
     {
-        public ListenerTcp Server;
-
-        public void Init(TcpClient client,ListenerTcp server)
+        public new void Init(TcpClient client)
         {
-            Server=server;
-            Init(client);
+            base.Init(client);
             Initialized = true;
 
             if (Protocol.mode == ConcurrentType.Multithreading)
@@ -24,15 +21,6 @@ namespace ProtocolWrapper.Protocols.Tcp
             {
                 _ = ReceiveAsync();
             }
-        }
-        public override void ShutDown()
-        {
-            base.ShutDown();
-        }
-        protected override void ReleaseUnmanagedMenory()
-        {
-            base.ReleaseUnmanagedMenory();
-            Server = null;
         }
     }
 }

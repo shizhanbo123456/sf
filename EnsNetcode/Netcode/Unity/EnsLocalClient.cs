@@ -45,6 +45,7 @@ internal class ENCLocalClient : EnsClient
                 }
             }
             Parts.Clear();
+            BytesPool.ReturnBuffer(data);
         }
     }
     internal override void ShutDown()

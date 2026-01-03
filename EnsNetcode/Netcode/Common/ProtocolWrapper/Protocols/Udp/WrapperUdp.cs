@@ -40,11 +40,15 @@ namespace ProtocolWrapper.Protocols.Udp
 
             }
         }
-        protected override void ReleaseManagedMenory()
+        protected override void ReleaseUnmanagedMenory()
         {
             Client.Dispose();
+            base.ReleaseUnmanagedMenory();
+        }
+        protected override void ReleaseManagedMenory()
+        {
+            ep = null;
             Client = null;
-            ep= null;
             base.ReleaseManagedMenory();
         }
     }

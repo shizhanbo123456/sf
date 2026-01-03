@@ -61,9 +61,13 @@ namespace ProtocolWrapper
             right = (byte)(value % 200);
         }
 
-        protected override void ReleaseManagedMenory()
+        protected override void ReleaseUnmanagedMenory()
         {
             SendBuffer?.Dispose();
+            base.ReleaseUnmanagedMenory();
+        }
+        protected override void ReleaseManagedMenory()
+        {
             SendBuffer = null;
             ReceiveBuffer = null;
             base.ReleaseManagedMenory();

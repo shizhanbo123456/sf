@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Utils;
-public class BytesPool
+public partial class BytesPool
 {
     public static ObjectPool<byte[]> BytePool4 = new ObjectPool<byte[]>(() => new byte[4]);
     public static ObjectPool<byte[]> BytePool8 = new ObjectPool<byte[]>(() => new byte[8]);
@@ -50,19 +50,19 @@ public class BytesPool
         for (int i = 0; i < length; i++) buffer[i] = 0x00;
         if (length < 128)
         {
-            if (length >= 64) { BytePool64.Return(buffer); return; }
-            if (length >= 32) { BytePool64.Return(buffer); return; }
-            if (length >= 16) { BytePool64.Return(buffer); return; }
-            if (length >= 8) { BytePool64.Return(buffer); return; }
-            if (length >= 4) { BytePool64.Return(buffer); return; }
+            if (length >= 64) { BytePool64.Return(buffer); TooManyStoredCheck(BytePool64); return; }
+            if (length >= 32) { BytePool32.Return(buffer); TooManyStoredCheck(BytePool32); return; }
+            if (length >= 16) { BytePool16.Return(buffer); TooManyStoredCheck(BytePool16); return; }
+            if (length >= 8) { BytePool8.Return(buffer); TooManyStoredCheck(BytePool8); return; }
+            if (length >= 4) { BytePool4.Return(buffer); TooManyStoredCheck(BytePool4); return; }
             //<4的直接丢弃
         }
         else if (length <= 1024)
         {
-            if (length == 1024) { BytePool1024.Return(buffer); return; }
-            if (length >= 512) { BytePool512.Return(buffer); return; }
-            if (length >= 256) { BytePool256.Return(buffer); return; }
-            if (length >= 128) { BytePool128.Return(buffer); return; }
+            if (length == 1024) { BytePool1024.Return(buffer); TooManyStoredCheck(BytePool1024); return; }
+            if (length >= 512) { BytePool512.Return(buffer); TooManyStoredCheck(BytePool512); return; }
+            if (length >= 256) { BytePool256.Return(buffer); TooManyStoredCheck(BytePool256); return; }
+            if (length >= 128) { BytePool128.Return(buffer); TooManyStoredCheck(BytePool128); return; }
         }
         else
         {
@@ -83,4 +83,14 @@ public class BytesPool
             }
         }
     }
+    static partial void TooManyStoredCheck(ObjectPool<byte[]> pool);
 }
+#if UNITY_EDITOR
+public partial class BytesPool
+{
+    static partial void TooManyStoredCheck(ObjectPool<byte[]> pool)
+    {
+        if (pool.Count > 50) Debug.LogWarning("存在字节池存入了过多对象");
+    }
+}
+#endif

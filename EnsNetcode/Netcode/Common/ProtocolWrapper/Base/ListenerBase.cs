@@ -28,5 +28,10 @@ namespace ProtocolWrapper
             Listening = false;
             Cancelled = true;
         }
+        protected override void ReleaseManagedMenory()
+        {
+            IP=null;
+            base.ReleaseManagedMenory();
+        }
     }
 }

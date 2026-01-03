@@ -66,6 +66,7 @@ internal class EnsHost : EnsConnection
                 }
             }
             Parts.Clear();
+            BytesPool.ReturnBuffer(data);
         }
     }
     internal override void ShutDown()
