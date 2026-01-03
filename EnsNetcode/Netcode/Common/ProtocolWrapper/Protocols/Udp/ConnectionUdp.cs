@@ -23,7 +23,7 @@ namespace ProtocolWrapper.Protocols.Udp
         public override void ShutDown()
         {
             Cancelled = true;
-            Listener.Connections.Remove(ep);
+            if(Listener.Connections.ContainsKey(ep))Listener.Connections.Remove(ep);
         }
         protected override void ReleaseManagedMenory()
         {

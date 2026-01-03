@@ -59,11 +59,7 @@ namespace ProtocolWrapper.Protocols.Tcp
         private void OnRecvData(byte[] buffer,int bytesRead)
         {
             if (bytesRead == 0 || ReceiveBuffer.Full()) return;
-            if (Cancelled)
-            {
-                Debug.LogError("[W]已被取消");
-                return;
-            }
+            if (Cancelled) return;
             byte[] data = new byte[bytesRead];
             Buffer.BlockCopy(buffer,0, data, 0, bytesRead);
             ReceiveBuffer.Write(data);
@@ -81,6 +77,7 @@ namespace ProtocolWrapper.Protocols.Tcp
                 Debug.LogError("[W]WrapperTcp已被取消");
                 return;
             }
+
             try
             {
                 Stream.Write(bytes, 0, indexStart);

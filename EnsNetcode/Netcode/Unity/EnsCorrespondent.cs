@@ -82,17 +82,23 @@ public class EnsCorrespondent :MonoBehaviour
         if (networkMode == NetworkMode.Host)
         {
             Server.Update();
+            Server.FlushSendBuffer();
         }
         if (networkMode == NetworkMode.Host || networkMode == NetworkMode.Client)
         {
             Client.Update();
+            Client.FlushSendBuffer();
         }
     }
     private void Update()
     {
-        foreach (var p in EnsNetworkObjectManager.GetPriority().ToArray())//创建副本避免因修改产生错误
+        if (networkMode != NetworkMode.None)
         {
-            EnsNetworkObjectManager.Update(p);
+            foreach (var p in EnsNetworkObjectManager.GetPriority().ToArray())//创建副本避免因修改产生错误
+            {
+                EnsNetworkObjectManager.Update(p);
+                Client.FlushSendBuffer();
+            }
             UpdateServerAndClient();
         }
         Loop.LoopCommon();
@@ -100,21 +106,25 @@ public class EnsCorrespondent :MonoBehaviour
     }
     protected virtual void FixedUpdate()
     {
-        foreach (var p in EnsNetworkObjectManager.GetFixedPriority().ToArray())//创建副本避免因修改产生错误
+        if (networkMode != NetworkMode.None)
         {
-            EnsNetworkObjectManager.FixedUpdate(p);
+            foreach (var p in EnsNetworkObjectManager.GetFixedPriority().ToArray())//创建副本避免因修改产生错误
+            {
+                EnsNetworkObjectManager.FixedUpdate(p);
+                Client.FlushSendBuffer();
+            }
         }
     }
     public void StartHost()
     {
         if (networkMode != NetworkMode.None)
         {
-            Debug.LogWarning("[N]已启动，关闭后才可调用");
+            Debug.LogWarning("已启动，关闭后才可调用");
             return;
         }
         if (!IPAddress.TryParse(IP, out _) || Port < 0 || Port > 65535)
         {
-            Debug.Log("[N]输入的IP或端口有误");
+            Debug.Log("输入的IP或端口有误");
             return;
         }
 
@@ -128,12 +138,12 @@ public class EnsCorrespondent :MonoBehaviour
     {
         if (networkMode != NetworkMode.None)
         {
-            Debug.LogWarning("[E]已启动，关闭后才可调用");
+            Debug.LogWarning("已启动，关闭后才可调用");
             return;
         }
         if (!IPAddress.TryParse(IP, out _) || Port < 0 || Port > 65535)
         {
-            Debug.Log("[E]输入的IP或端口有误");
+            Debug.Log("输入的IP或端口有误");
             return;
         }
 
@@ -145,7 +155,7 @@ public class EnsCorrespondent :MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError("[E]客户端启动失败，IP=" + IP + " Port=" + Port + " Log:" + e.ToString());
+            Debug.LogError("客户端启动失败，IP=" + IP + " Port=" + Port + " Log:" + e.ToString());
         }
     }
     public void SetServerListening(bool listening)

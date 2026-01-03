@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+
 /// <summary>
 /// ENCLocalClient和ENCHost一起使用<br></br>
 /// 在调用StartHost时由ENCHost创建
@@ -30,9 +30,8 @@ internal class ENCLocalClient : EnsClient
     }
     internal override void Update()
     {
-        var q = ReceivedData;
-        if (q == null) return;
-        while (q.Read(out var data) && _on)
+        var buffer = ReceivedData;
+        while (buffer.Read(out var data) && _on)
         {
             ExtractData(data, Parts);
             foreach (var part in Parts)
@@ -48,6 +47,10 @@ internal class ENCLocalClient : EnsClient
             Parts.Clear();
             BytesPool.ReturnBuffer(data);
         }
+    }
+    internal override void FlushSendBuffer()
+    {
+        _buffer.Flush();
     }
     internal override void ShutDown()
     {

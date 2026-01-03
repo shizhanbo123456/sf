@@ -13,6 +13,7 @@ public abstract class SR//具有信息收发功能
 
     internal abstract void Send(byte messageType,SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null);
     internal abstract void Update();
+    internal abstract void FlushSendBuffer();
     internal virtual void ShutDown()
     {
         if (DeliverySource != null)
@@ -28,7 +29,7 @@ public abstract class SR//具有信息收发功能
     {
         SendBuffer.RequireLength(376);
         int bytesStart = SendBuffer.indexStart;
-        SendBuffer.bytes[SendBuffer.indexStart++] = messageType;
+        ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
         ShortSerializer.Serialize(sendFrom.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
         ShortSerializer.Serialize(target.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
         ByteSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
@@ -40,7 +41,7 @@ public abstract class SR//具有信息收发功能
                 //无法全部写入
                 SendBuffer.Flush();
                 bytesStart = SendBuffer.indexStart;
-                SendBuffer.bytes[SendBuffer.indexStart++] = messageType;
+                ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
                 ShortSerializer.Serialize(sendFrom.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
                 ShortSerializer.Serialize(target.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
                 IntSerializer.Serialize(target.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
@@ -57,6 +58,7 @@ public abstract class SR//具有信息收发功能
         SendBuffer.bytes[SendBuffer.indexStart++] = a1;
         SendBuffer.bytes[SendBuffer.indexStart++] = a2;
         SendBuffer.AddSeparator();
+        //UnityEngine.Debug.Log(length+" "+(writer==null));
     }
 
 

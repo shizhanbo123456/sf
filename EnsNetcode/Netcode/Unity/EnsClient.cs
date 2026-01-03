@@ -24,26 +24,22 @@ internal class EnsClient:SR
     }
     internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
+        if (!Client.Initialized)
+        {
+            Debug.LogWarning("客户端初始化中");
+            return;
+        }
         KeyLibrary.OnSend(messageType, sendFrom, target, delivery, writer);
     }
     internal override void Update()
     {
-        if (hbRecvTime>Time.time)
+        if (Time.time>hbRecvTime)
         {
             EnsInstance.Corr.ShutDown();
             return;
         }
-        if (!Client.Initialized)
-        {
-            Utils.Debug.LogWarning("客户端初始化中");
-            return;
-        }
-        KeyLibrary.Update();
-        Client.Send();
-
-        var q = Client.ReceiveBuffer;
-        if (q == null) return;
-        while (q.Read(out var data) && _on)
+        var buffer = Client.ReceiveBuffer;
+        while (buffer.Read(out var data) && _on)
         {
             ExtractData(data, Parts);
             foreach (var part in Parts)
@@ -52,7 +48,7 @@ internal class EnsClient:SR
                 {
                     KeyLibrary.OnRecvData(data, part, out bool skip);
                     if (skip) continue;
-                    MessageHandlerClient.Invoke(data,part);
+                    MessageHandlerClient.Invoke(data, part);
                 }
                 catch
                 {
@@ -60,12 +56,17 @@ internal class EnsClient:SR
             }
             Parts.Clear();
         }
+        KeyLibrary.Update();
+    }
+    internal override void FlushSendBuffer()
+    {
+        Client.SendBuffer.Flush();
     }
     internal override void ShutDown()
     {
         if (Client == null || Client.Cancelled) return;
         Send(Header.D, SendTo.To(EnsInstance.LocalClientId), SendTo.Server, Delivery.Unreliable);
-        Client.Send();
+        Client.SendBuffer.Flush();
 
         _on = false;
         base.ShutDown();

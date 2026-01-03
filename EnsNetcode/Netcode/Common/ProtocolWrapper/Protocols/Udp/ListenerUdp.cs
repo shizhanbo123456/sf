@@ -88,7 +88,7 @@ namespace ProtocolWrapper.Protocols.Udp
             }
             var conn = Connections[ep];
             if (!conn.Cancelled) conn.RecvBuffer.Write(b);
-            else Debug.LogError("[W]接收已经被取消");
+            else return;
         }
 
 

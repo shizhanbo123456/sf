@@ -40,12 +40,8 @@ public class EnsConnection:SR
     }
     internal override void Update()
     {
-        KeyLibrary.Update();
-        Connection.Send();
-
-        var q=Connection.ReceiveBuffer;
-        if (q == null) return;
-        while (q.Read(out var data)&&_on)
+        var buffer=Connection.ReceiveBuffer;
+        while (buffer.Read(out var data)&&_on)
         {
             ExtractData(data, Parts);
             foreach (var part in Parts) 
@@ -62,13 +58,18 @@ public class EnsConnection:SR
             }
             Parts.Clear();
         }
+        KeyLibrary.Update();
+    }
+    internal override void FlushSendBuffer()
+    {
+        Connection.SendBuffer.Flush();
     }
     internal override void ShutDown()
     {
         if (Connection==null||Connection.Cancelled) return;
         OnShutDown?.Invoke(this);
         Send(Header.D, SendTo.Server, SendTo.To(ClientId),Delivery.Unreliable);
-        Connection.Send();
+        Connection.SendBuffer.Flush();
 
         _on = false;
         base.ShutDown();

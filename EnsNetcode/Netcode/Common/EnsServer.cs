@@ -1,4 +1,6 @@
 ﻿using ProtocolWrapper;
+using ProtocolWrapper.Protocols.Udp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,7 +11,7 @@ public class EnsServer
     internal static EnsServer Instance;
 
     internal Dictionary<int, EnsConnection> ClientConnections;
-    private List<int>ClientIds = new List<int>();
+    private static List<int>ToRemove= new List<int>();
     internal EnsRoomManager RoomManager;
     internal ListenerBase Listener;
 
@@ -45,35 +47,34 @@ public class EnsServer
     {
         if (Listener.Listening) Listener.EndListening();
     }
-    public virtual void Update()
+    internal void Update()
     {
-        if (ClientIds.Count != ClientConnections.Count) ClientIds = ClientConnections.Keys.ToList();
-        int id;
-        for (int index = ClientIds.Count - 1; index >= 0; index--)
+        foreach (var kvp in ClientConnections)
         {
-            id = ClientIds[index];
-            if (ClientConnections.TryGetValue(id, out var i))
+            var i=kvp.Value;
+            if (Time.time > i.hbRecvTime)
             {
-                if (i.hbRecvTime>Time.time)
-                {
-                    i.ShutDown();
-                    ClientConnections.Remove(ClientIds[index]);
-                    ClientIds.Remove(ClientIds[index]);
-                    continue;
-                }
-                if (i.hbSendTime>Time.time)
-                {
-                    t_connection=i;
-                    i.Send(Header.H, SendTo.Server, SendTo.To(i.ClientId), Delivery.Unreliable, HeartBeatWriter);
-                    i.hbSendTime=Time.time+EnsInstance.HeartbeatMsgInterval;
-                }
-                i.Update();
+                i.ShutDown();
+                ToRemove.Add(kvp.Key);
+                continue;
             }
-            else
+            if (Time.time > i.hbSendTime)
             {
-                ClientIds.RemoveAt(index);
+                t_connection = i;
+                i.Send(Header.H, SendTo.Server, SendTo.To(i.ClientId), Delivery.Unreliable, HeartBeatWriter);
+                i.hbSendTime = Time.time + EnsInstance.HeartbeatMsgInterval;
             }
+            i.Update();
         }
+        if (ToRemove.Count > 0)
+        {
+            foreach (var i in ToRemove) ClientConnections.Remove(i);
+            ToRemove.Clear();
+        }
+    }
+    internal void FlushSendBuffer()
+    {
+        foreach (var i in ClientConnections.Values) i.FlushSendBuffer();
     }
     private static EnsConnection t_connection;
     private static bool HeartBeatWriter(SendBuffer buffer)

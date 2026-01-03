@@ -40,7 +40,6 @@ namespace ProtocolWrapper
         }
 
 
-        public void Send() => Send(SendBuffer.bytes, SendBuffer.indexStart);
         //直接对外暴露SendBuffer方便直接写入，省去复制
         public abstract void Send(byte[] bytes, int indexStart);
 

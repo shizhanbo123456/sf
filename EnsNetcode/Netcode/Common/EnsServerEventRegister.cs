@@ -168,7 +168,12 @@ public class EnsServerEventRegister
             t_header = StringSerializer.Deserialize(b, ref index, invalidIndex);
             t_content = StringSerializer.Deserialize(b, ref index, invalidIndex);
             string reply = EnsServerRequest.OnRecvRequest(t_header,t_content, conn);
-            if (reply == string.Empty) return;
+            if (reply == string.Empty)
+            {
+                Utils.Debug.LogError($"对{t_header}:{t_content}的响应为空");
+                return;
+            }
+            t_content = reply;
             conn.Send(Header.Q, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
             {
                 return StringSerializer.Serialize(t_header, b.bytes, ref b.indexStart)
