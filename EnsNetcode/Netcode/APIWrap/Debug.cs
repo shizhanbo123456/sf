@@ -28,5 +28,16 @@ namespace Utils
             Console.WriteLine("Log:" + msg);
 #endif
         }
+        private static System.Text.StringBuilder sb=new System.Text.StringBuilder();
+        public static void PrintBytes(byte[] bytes,Segment segment)
+        {
+            for(int i = segment.StartIndex;i<segment.StartIndex+segment.Length;i++)sb.Append(bytes[i]).Append(' ');
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogError(sb.ToString());
+#elif !UNITY_2017_1_OR_NEWER
+            Console.WriteLine(sb.ToString());
+#endif
+            sb.Clear();
+        }
     }
 }

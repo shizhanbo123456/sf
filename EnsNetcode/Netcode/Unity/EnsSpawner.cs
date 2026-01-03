@@ -64,6 +64,7 @@ public sealed class EnsSpawner : MonoBehaviour
 
     public void CreateLocal(short id,string param,short idStart)
     {
+        Debug.Log(id + " " + param + " " + idStart);
         for (int i = 0; i < Prefabs.Count; i++)
         {
             if (Prefabs[i].CollectionId == id)
