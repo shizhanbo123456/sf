@@ -50,7 +50,8 @@ public struct StringSerializer
         // 先校验长度标识的基础4字节
         if (data.Length - indexStart < 4)
         {
-            throw new ArgumentException("反序列化string失败：剩余数据不足，无法读取长度标识");
+            Utils.Debug.LogError("反序列化string失败：剩余数据不足，无法读取长度标识");
+            return default;
         }
 
         // 步骤1：先反序列化【字符串UTF8字节长度】
@@ -59,7 +60,8 @@ public struct StringSerializer
         // 校验真实字节数据的剩余空间
         if (strByteLength < 0 || data.Length - indexStart < strByteLength)
         {
-            throw new ArgumentException($"反序列化string失败：长度标识({strByteLength}字节)超出剩余缓冲区大小");
+            Utils.Debug.LogError($"反序列化string失败：长度标识({strByteLength}字节)超出剩余缓冲区大小");
+            return default;
         }
 
         // 步骤2：再反序列化【字符串UTF8真实字节数据】
@@ -71,7 +73,10 @@ public struct StringSerializer
         }
 
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return result;
     }
     public static byte[] Encode(string s)=>Encoding.UTF8.GetBytes(s);

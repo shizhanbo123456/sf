@@ -20,7 +20,10 @@ public struct LongSerializer
     public static long Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 8)
-            throw new ArgumentException("反序列化long失败：剩余数据不足8字节");
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         long result = (long)data[indexStart] << 56
                       | (long)data[indexStart + 1] << 48
@@ -32,7 +35,10 @@ public struct LongSerializer
                       | data[indexStart + 7];
         indexStart += 8;
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return result;
     }
 }

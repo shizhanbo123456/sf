@@ -16,14 +16,20 @@ public struct Vector3Serializer
 
     public static Vector3 Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
-        if (data.Length - indexStart < 24)
-            throw new ArgumentException("反序列化Vector3失败：剩余数据不足24字节");
+        if (data.Length - indexStart < 12)
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         float x = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
         float y = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
         float z = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return new Vector3(x, y, z);
     }
 }

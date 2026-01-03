@@ -8,24 +8,30 @@ public struct ColorSerializer
         // Color = r+g+b+a → 4*8=32字节 (0~1浮点值)
         if (result.Length - indexStart < 32) return false;
 
-        DoubleSerializer.Serialize(value.r, result, ref indexStart);
-        DoubleSerializer.Serialize(value.g, result, ref indexStart);
-        DoubleSerializer.Serialize(value.b, result, ref indexStart);
-        DoubleSerializer.Serialize(value.a, result, ref indexStart);
+        FloatSerializer.Serialize(value.r, result, ref indexStart);
+        FloatSerializer.Serialize(value.g, result, ref indexStart);
+        FloatSerializer.Serialize(value.b, result, ref indexStart);
+        FloatSerializer.Serialize(value.a, result, ref indexStart);
         return true;
     }
 
     public static Color Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
-        if (data.Length - indexStart < 32)
-            throw new ArgumentException("反序列化Color失败：剩余数据不足32字节");
+        if (data.Length - indexStart < 16)
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
-        float r = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
-        float g = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
-        float b = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
-        float a = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        float r = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        float g = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        float b = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
+        float a = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return new Color(r, g, b, a);
     }
 }

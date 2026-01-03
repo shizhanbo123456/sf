@@ -27,7 +27,10 @@ public struct DoubleSerializer
     public static double Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data == null || indexStart < 0 || data.Length - indexStart < 8)
-            throw new ArgumentException("反序列化double失败：剩余数据不足8字节");
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         ulong num = (ulong)data[indexStart] << 56
                    | (ulong)data[indexStart + 1] << 48
@@ -40,7 +43,10 @@ public struct DoubleSerializer
 
         indexStart += 8;
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException(nameof(indexStart));
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
 
         return BitConverter.Int64BitsToDouble((long)num);
     }

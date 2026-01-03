@@ -17,15 +17,21 @@ public struct QuaternionSerializer
 
     public static Quaternion Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
-        if (data.Length - indexStart < 32)
-            throw new ArgumentException("反序列化Quaternion失败：剩余数据不足32字节");
+        if (data.Length - indexStart < 16)
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         float x = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
         float y = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
         float z = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
         float w = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return new Quaternion(x, y, z, w);
     }
 }

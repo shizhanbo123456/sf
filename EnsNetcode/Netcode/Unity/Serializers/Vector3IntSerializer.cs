@@ -18,13 +18,19 @@ public struct Vector3IntSerializer
     public static Vector3Int Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 12)
-            throw new ArgumentException("反序列化Vector3Int失败：剩余数据不足12字节");
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         int x = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
         int y = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
         int z = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return new Vector3Int(x, y, z);
     }
 }

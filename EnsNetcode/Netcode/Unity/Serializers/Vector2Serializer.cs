@@ -15,13 +15,19 @@ public struct Vector2Serializer
 
     public static Vector2 Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
-        if (data.Length - indexStart < 16)
-            throw new ArgumentException("反序列化Vector2失败：剩余数据不足16字节");
+        if (data.Length - indexStart < 8)
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         float x = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
         float y = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return new Vector2(x, y);
     }
 }

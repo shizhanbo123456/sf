@@ -14,12 +14,18 @@ public struct UshortSerializer
     public static ushort Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 2)
-            throw new ArgumentException("反序列化ushort失败：剩余数据不足2字节");
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         ushort result = (ushort)((data[indexStart] << 8) | data[indexStart + 1]);
         indexStart += 2;
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return result;
     }
 }

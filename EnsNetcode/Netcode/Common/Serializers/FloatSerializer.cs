@@ -21,7 +21,10 @@ public struct FloatSerializer
     public static float Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data is null || indexStart < 0 || data.Length - indexStart < 4)
-            throw new ArgumentException("反序列化float失败：剩余数据不足4字节或参数非法");
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         int num = data[indexStart] << 24
                 | data[indexStart + 1] << 16
@@ -31,7 +34,10 @@ public struct FloatSerializer
         indexStart += 4;
 
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException(nameof(indexStart), "索引超出合法范围");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
 
         return BitConverter.Int32BitsToSingle(num);
     }

@@ -16,7 +16,10 @@ public struct UintSerializer
     public static uint Deserialize(byte[] data, ref int indexStart, int invalidIndex)
     {
         if (data.Length - indexStart < 4)
-            throw new ArgumentException("反序列化uint失败：剩余数据不足4字节");
+        {
+            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
+            return default;
+        }
 
         uint result = (uint)data[indexStart] << 24
                       | (uint)data[indexStart + 1] << 16
@@ -24,7 +27,10 @@ public struct UintSerializer
                       | data[indexStart + 3];
         indexStart += 4;
         if (indexStart > invalidIndex)
-            throw new ArgumentOutOfRangeException("index");
+        {
+            Utils.Debug.LogError("下标越界");
+            return default;
+        }
         return result;
     }
 }
