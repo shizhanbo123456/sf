@@ -100,12 +100,15 @@ public abstract class EnsBehaviour : MonoBehaviour
     }
     public void Send(Delivery delivery, SendTo sendto)
     {
+        activeObjectId = ObjectId;
         //·¢ËÍ×Ö½Ú
         EnsInstance.Corr.Client.Send(Header.F, SendTo.To(EnsInstance.LocalClientId), sendto,delivery, Writer);
     }
+    private static short activeObjectId;
     private static bool Writer(SendBuffer b)
     {
-        if (b.bytes.Length - b.indexStart < EnsTemporaryBuffer.length) return false;
+        if (b.bytes.Length - b.indexStart < EnsTemporaryBuffer.length+2) return false;
+        ShortSerializer.Serialize(activeObjectId, b.bytes, ref b.indexStart);
         Buffer.BlockCopy(EnsTemporaryBuffer.bytes, 0, b.bytes, b.indexStart, EnsTemporaryBuffer.length);
         b.indexStart += EnsTemporaryBuffer.length;
         EnsTemporaryBuffer.length = 0;

@@ -349,6 +349,9 @@ class RpcCodeGenerator
                 try
                 {
                     File.Delete(file);
+                    string metaFile = file + ".meta";
+                    if(File.Exists(metaFile))
+                        File.Delete(metaFile);
                 }
                 catch (Exception ex)
                 {
