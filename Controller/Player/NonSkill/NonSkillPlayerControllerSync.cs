@@ -13,7 +13,7 @@ public partial class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontroll
 
     private const float sqrDist = 0.01f;
     private const float sqrVelocity = 1f;
-    private const float minSyncInterval = 0.02f;
+    private const float minSyncInterval = 0.04f;
     private Rigidbody2D rb;
     private Vector3 lastSyncPosition;
     private float lastSyncTime = 0f;
@@ -43,18 +43,18 @@ public partial class NonSkillPlayerControllerSync : EnsBehaviour,ITargetcontroll
         if (Time.time - lastSyncTime < minSyncInterval) return false;
         if ((transform.position - lastSyncPosition).sqrMagnitude > sqrDist || rb.velocity.sqrMagnitude > sqrVelocity)
         {
-            lastSyncTime = 0;
+            lastSyncTime = Time.time;
             lastSyncPosition = transform.position;
             return true;
         }
-        else if (lastSyncTime < 0.05f + Time.time)
+        else if (lastSyncTime + 0.05f > Time.time)
         {
             lastSyncPosition = transform.position;
             return true;
         }
-        else if (lastSyncTime > 0.5f + Time.time)
+        else if (lastSyncTime + 0.5f < Time.time)
         {
-            lastSyncTime = 0.1f;
+            lastSyncTime = 0.1f+Time.time;
             lastSyncPosition = transform.position;
             return true;
         }

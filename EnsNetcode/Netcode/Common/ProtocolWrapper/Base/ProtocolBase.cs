@@ -32,7 +32,7 @@ namespace ProtocolWrapper
         protected void Init(string ip, int port)
         {
             SendBuffer = new SendBuffer(Send);
-            ReceiveBuffer = new CircularQueue<byte[]>(4);
+            ReceiveBuffer = new CircularQueue<byte[]>(20);
             IP = ip;
             Port = port;
 

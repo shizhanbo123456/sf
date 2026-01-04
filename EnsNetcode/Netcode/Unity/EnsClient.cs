@@ -41,8 +41,8 @@ internal class EnsClient:SR
         var buffer = Client.ReceiveBuffer;
         while (buffer.Read(out var data) && _on)
         {
-            ExtractData(data, Parts);
-            foreach (var part in Parts)
+            ExtractData(data);
+            foreach (var part in segments)
             {
                 try
                 {
@@ -55,7 +55,7 @@ internal class EnsClient:SR
                     Utils.Debug.ErrorCaught(e);
                 }
             }
-            Parts.Clear();
+            segments.Clear();
         }
         KeyLibrary.Update();
     }

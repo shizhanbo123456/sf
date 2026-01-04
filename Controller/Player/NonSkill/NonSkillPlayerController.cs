@@ -5,7 +5,7 @@ using UnityEngine;
 public class NonSkillPlayerController : MonoBehaviour
 {
     private NonSkillPlayerData playerData;
-    private NonSkillPlayerControllerSync targetInfoSync;
+    private NonSkillPlayerControllerSync targetControllerSync;
     private GroundDetector groundDetector => playerData.Anim.groundDetector;
 
     private bool isGrounded;
@@ -28,7 +28,7 @@ public class NonSkillPlayerController : MonoBehaviour
     public void Init(int id, NonSkillPlayerData data)
     {
         playerData = data; 
-        if (!TryGetComponent(out targetInfoSync))
+        if (!TryGetComponent(out targetControllerSync))
         {
             Debug.LogError("未找到信息同步");
         }
@@ -41,9 +41,9 @@ public class NonSkillPlayerController : MonoBehaviour
         Ground();
         Motion_Update();
 
-        if (targetInfoSync.OnPlayerPostUpdate())
+        if (targetControllerSync.OnPlayerPostUpdate())
         {
-            targetInfoSync.SyncMotion(transform.position, rb.velocity, isGrounded,Tool.SubInput.FallSignal());
+            targetControllerSync.SyncMotion(transform.position, rb.velocity, isGrounded,Tool.SubInput.FallSignal());
         }
     }
     private void Motion_Update()

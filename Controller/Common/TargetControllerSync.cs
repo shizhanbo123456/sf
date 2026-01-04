@@ -20,7 +20,7 @@ public partial class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
 
     private const float sqrDist = 0.01f;
     private const float sqrVelocity = 1f;
-    private const float minSyncInterval = 0.02f;
+    private const float minSyncInterval = 0.04f;
     private Rigidbody2D rb;
     private Vector3 lastSyncPosition;
     private float lastSyncTime = 0f;
@@ -56,7 +56,6 @@ public partial class TargetControllerSync:EnsBehaviour,ITargetcontrollerInfo
         }
         else if (Time.time < 0.05f + lastSyncTime)
         {
-            lastSyncTime = Time.time;
             lastSyncPosition = transform.position;
             return true;
         }

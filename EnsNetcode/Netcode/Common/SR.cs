@@ -9,7 +9,6 @@ public abstract class SR//具有信息收发功能
     internal float hbSendTime = Time.time + EnsInstance.HeartbeatMsgInterval;//new ReachTime(EnsInstance.HeartbeatMsgInterval, ReachTime.InitTimeFlagType.ReachAfter);
     internal DeliverySource DeliverySource = DeliverySource.Get();
 
-    protected static List<Segment> Parts = new List<Segment>();
 
     internal abstract void Send(byte messageType,SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null);
     internal abstract void Update();
@@ -64,53 +63,76 @@ public abstract class SR//具有信息收发功能
 
     #region 分离出有效消息 -> ExtractData(byte[] data, List<Segment> parts)，传出的数据为消息头+消息体，不包含消息尾的长度
 
-    private static List<Segment> segments = new List<Segment>();
-    public static void ExtractData(byte[] data, List<Segment> parts)
+    protected static List<Segment> segments = new List<Segment>();
+
+    protected static List<Segment> t_segments = new List<Segment>();
+    public static void ExtractData(byte[] data,bool raw=false)
     {
         segments.Clear();
-        if (data == null || data.Length == 0 || parts == null) return;
+        t_segments.Clear();
+        if (data == null || data.Length == 0) return;
+        t_segments.Clear();
 
-        List<Segment> candidateSegments = SplitDataBySeparator(data);
-        if (candidateSegments.Count == 0) return;
+        SplitDataBySeparator(data);
+        if(raw)
+        {
+            foreach(var i in t_segments)segments.Add(i);
+            return;
+        }
+        if (t_segments.Count == 0) return;
 
-        int currentSegIndex = candidateSegments.Count - 1;
+        int currentSegIndex = t_segments.Count - 1;
         while (currentSegIndex >= 0)
         {
-            ProcessCandidateSegment(data, candidateSegments, ref currentSegIndex, parts);
+            ProcessCandidateSegment(data, ref currentSegIndex);
         }
-        parts.Reverse();
+        t_segments.Reverse();
     }
 
     /// <summary>
     /// 按分隔符拆分，连续分隔符视为单一边界 | 修复：必处理最后一段数据
     /// 适配：消息首尾/消息间均有分隔符 → 拆分结果全为有效候选片段
     /// </summary>
-    private static List<Segment> SplitDataBySeparator(byte[] data)
+    private static void SplitDataBySeparator(byte[] data)
     {
         int start = 0;
+        byte separator = SendBuffer.Separator;
+        while (data.Length > start && data[start] == separator) start++;
         int len = data.Length;
 
-        for (int i = 0; i < len; i++)
+        for (int i = start; i < len; i++)
         {
-            if (data[i] == SendBuffer.Separator)
+            // 发现分隔符时，先统计连续分隔符的数量
+            if (data[i] == separator)
             {
-                if (i > start) segments.Add(new Segment(start, i - start));
-                while (i < len && data[i] == SendBuffer.Separator) i++;
-                start = i;
+                int continuousSepCount = 1;
+                // 向后遍历，统计连续的分隔符总数
+                while (i + 1 < len && data[i + 1] == separator)
+                {
+                    continuousSepCount++;
+                    i++;
+                }
+
+                // 核心条件：仅连续3个及以上分隔符，才视为有效分隔
+                if (continuousSepCount >= 3)
+                {
+                    // 截取分隔符前的有效数据段（起始位置 到 分隔符开始前）
+                    if (i - continuousSepCount + 1 > start)
+                    {
+                        t_segments.Add(new Segment(start, (i - continuousSepCount + 1) - start));
+                    }
+                    // 更新起始位置，跳过所有连续的有效分隔符
+                    start = i + 1;
+                }
             }
         }
-        //格式决定了无需处理最后一段，每个片段都被分隔符包裹了
-        return segments;
-    }
 
-    private static void ProcessCandidateSegment(
-        byte[] data,
-        List<Segment> candidateSegments,
-        ref int currentSegIndex,
-        List<Segment> parts)
+        // 格式决定了无需处理最后一段，每个片段都被分隔符包裹了
+    }
+    private static void ProcessCandidateSegment(byte[] data,ref int currentSegIndex)
     {
-        int checkStartIdx = candidateSegments[currentSegIndex].StartIndex;
-        int checkTotalLength = candidateSegments[currentSegIndex].Length;
+        int checkStartIdx = t_segments[currentSegIndex].StartIndex;
+        int checkTotalLength = t_segments[currentSegIndex].Length;
         int mergeSegIndex = currentSegIndex - 1;
 
         while (true)
@@ -126,7 +148,7 @@ public abstract class SR//具有信息收发功能
             //严格遵循你的理解：核心长度校验逻辑
             if (checkTotalLength == msgDeclaredLength + 2)
             {
-                parts.Add(new Segment(checkStartIdx, msgDeclaredLength));
+                segments.Add(new Segment(checkStartIdx, msgDeclaredLength));
                 currentSegIndex = mergeSegIndex;
                 return;
             }
@@ -134,8 +156,8 @@ public abstract class SR//具有信息收发功能
             {
                 // 长度不足 → 继续向前合并（被分隔符拆分）
                 if (mergeSegIndex < 0) { currentSegIndex = mergeSegIndex; return; }
-                checkStartIdx = candidateSegments[mergeSegIndex].StartIndex;
-                checkTotalLength += candidateSegments[mergeSegIndex].Length;
+                checkStartIdx = t_segments[mergeSegIndex].StartIndex;
+                checkTotalLength += t_segments[mergeSegIndex].Length;
                 mergeSegIndex--;
             }
             else

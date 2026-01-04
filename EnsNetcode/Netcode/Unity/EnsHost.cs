@@ -30,7 +30,7 @@ internal class EnsHost : EnsConnection
     internal EnsHost(ENCLocalClient client)
     {
         _client = client;
-        ReceivedData=new CircularQueue<byte[]>();
+        ReceivedData=new CircularQueue<byte[]>(20);
         _buffer=new SendBuffer(OnSend);
         DeliverySource = DeliverySource.Get();
         ClientId = 0;
@@ -55,8 +55,8 @@ internal class EnsHost : EnsConnection
         var buffer = ReceivedData;
         while (buffer.Read(out var data) && _on)
         {
-            ExtractData(data, Parts);
-            foreach (var part in Parts)
+            ExtractData(data);
+            foreach (var part in segments)
             {
                 try
                 {
@@ -67,7 +67,7 @@ internal class EnsHost : EnsConnection
                     Utils.Debug.ErrorCaught(e);
                 }
             }
-            Parts.Clear();
+            segments.Clear();
             BytesPool.ReturnBuffer(data);
         }
     }

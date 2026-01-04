@@ -12,7 +12,7 @@ internal class ENCLocalClient : EnsClient
     public ENCLocalClient()
     {
         _on = true;
-        ReceivedData=new CircularQueue<byte[]>();
+        ReceivedData=new CircularQueue<byte[]>(20);
         _buffer = new SendBuffer(OnSend);
         DeliverySource = DeliverySource.Get();
     }
@@ -34,8 +34,8 @@ internal class ENCLocalClient : EnsClient
         var buffer = ReceivedData;
         while (buffer.Read(out var data) && _on)
         {
-            ExtractData(data, Parts);
-            foreach (var part in Parts)
+            ExtractData(data);
+            foreach (var part in segments)
             {
                 try
                 {
@@ -46,7 +46,7 @@ internal class ENCLocalClient : EnsClient
                     Utils.Debug.ErrorCaught(e);
                 }
             }
-            Parts.Clear();
+            segments.Clear();
             BytesPool.ReturnBuffer(data);
         }
     }

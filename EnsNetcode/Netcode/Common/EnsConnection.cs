@@ -43,8 +43,8 @@ public class EnsConnection:SR
         var buffer=Connection.ReceiveBuffer;
         while (buffer.Read(out var data)&&_on)
         {
-            ExtractData(data, Parts);
-            foreach (var part in Parts) 
+            ExtractData(data);
+            foreach (var part in segments) 
             {
                 try
                 {
@@ -57,7 +57,7 @@ public class EnsConnection:SR
                     Utils.Debug.ErrorCaught(e);
                 }
             }
-            Parts.Clear();
+            segments.Clear();
         }
         KeyLibrary.Update();
     }
