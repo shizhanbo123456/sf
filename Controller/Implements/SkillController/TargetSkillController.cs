@@ -14,13 +14,13 @@ public class TargetSkillController : MonoBehaviour
 
     private bool Initialized = false;
 
-    public virtual void Init(Target data, Dictionary<string, string> param)
+    public virtual void Init(Target data, Dictionary<TargetParams, string> param)
     {
         target=data;
 
-        if (param.ContainsKey("skillIndex"))
+        if (param.ContainsKey(TargetParams.Skill))
         {
-            var skillIndex = Format.StringToList(param["skillIndex"], int.Parse);
+            var skillIndex = Format.StringToList(param[TargetParams.Skill], int.Parse);
             for (int i = 0; i < skillIndex.Count; i++)
             {
                 CreateSkillColumn(data, skillIndex[i]);

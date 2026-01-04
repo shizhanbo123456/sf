@@ -5,13 +5,13 @@ using Variety.Base;
 
 public class Ore : Target
 {
-    public override void Init(TargetInfo info, Dictionary<string, string> param)
+    public override void Init(TargetInfo info, Dictionary<TargetParams, string> param)
     {
         base.Init(info, param);
 
         if (UpdateLocally)
         {
-            float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+            float healthRate = param.ContainsKey(TargetParams.HealthScale) ? float.Parse(param[TargetParams.HealthScale]) : 1;
             BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level, healthRate);
             FloatingAttributes = BaseAttributes.Clone();
             RegistSyncAttributes();

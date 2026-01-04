@@ -56,7 +56,7 @@ public abstract class Target : MonoBehaviour
     /// 需要手动调用InitNameAndBar(所有客户端)和RegistSyncAttributes(拥有者)
     /// </summary>
     /// <param name="info"></param>
-    public virtual void Init(TargetInfo info,Dictionary<string,string>param)
+    public virtual void Init(TargetInfo info, Dictionary<TargetParams, string> param)
     {
         Info=info;
         enabled = EnsInstance.LocalClientId == info.owner;

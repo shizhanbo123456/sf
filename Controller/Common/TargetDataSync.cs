@@ -7,11 +7,11 @@ public partial class TargetDataSync : EnsBehaviour
 {
     private Target target;
     public DedicateSyncAttributes DedicatedAttributes;
-    public void Init(Target target,Dictionary<string,string>param)
+    public void Init(Target target, Dictionary<TargetParams, string> param)
     {
         this.target = target;
         nomEnabled = target.UpdateLocally;
-        float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+        float healthRate = param.ContainsKey(TargetParams.HealthScale) ? float.Parse(param[TargetParams.HealthScale]) : 1;
         DedicatedAttributes = new DedicateSyncAttributes(target.Level,healthRate);
     }
     public override void ManagedUpdate()
@@ -122,6 +122,6 @@ public partial class TargetDataSync : EnsBehaviour
     [Rpc]
     private void DestroyLocal()
     {
-
+        Destroy(gameObject);
     }
 }

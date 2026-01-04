@@ -11,16 +11,16 @@ public class PlayerData : Target
 
     public BarController bar;
 
-    public override void Init(TargetInfo info, Dictionary<string, string> param)
+    public override void Init(TargetInfo info, Dictionary<TargetParams, string> param)
     {
         base.Init(info, param);
         if (isLocalPlayer)
         {
-            float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+            float healthRate = param.ContainsKey(TargetParams.HealthScale) ? float.Parse(param[TargetParams.HealthScale]) : 1;
             BaseAttributes = TargetAttributes.GetGameTimeAttributes(Level,healthRate);
             FloatingAttributes = BaseAttributes.Clone();
             float reg=0.01f;
-            if (param.ContainsKey("PReg")) reg = float.Parse(param["PReg"]);
+            if (param.ContainsKey(TargetParams.RegenerationRate)) reg = float.Parse(param[TargetParams.RegenerationRate]);
             ApplyEffect(new EffectCollection(RegenerationAdderId, (EffectType.HealthRegeneration, reg * BaseAttributes.Shengming.Value, 100000)));
             RegistSyncAttributes();
 

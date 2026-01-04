@@ -23,7 +23,7 @@ public static class LccManifest//CustomLevelAPIManifest
         => creater.LoadSkillController(skillcontrollertype);
     public static void LoadEffectController(int effectcontrollertype)
         => creater.LoadEffectController(effectcontrollertype);
-    public static void LoadParams(Dictionary<string, string> Params)
+    public static void LoadParams(Dictionary<TargetParams, string> Params)
         => creater.LoadParams(Params);
     public static void Create()=> creater.Create();
 }

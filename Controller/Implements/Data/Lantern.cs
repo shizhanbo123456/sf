@@ -13,16 +13,16 @@ public class Lantern : Target
     private float TimeOfDie;//生命为0的时间
     private float RegenerationTime;
 
-    public override void Init(TargetInfo info, Dictionary<string, string> param)
+    public override void Init(TargetInfo info, Dictionary<TargetParams, string> param)
     {
         base.Init(info, param);
 
         if (UpdateLocally)
         {
-            float healthRate = param.ContainsKey("health") ? float.Parse(param["health"]) : 1;
+            float healthRate = param.ContainsKey(TargetParams.HealthScale) ? float.Parse(param[TargetParams.HealthScale]) : 1;
             BaseAttributes = TargetAttributes.GetGameTimeAttributes(info.level,healthRate);
             FloatingAttributes = BaseAttributes.Clone();
-            if (param.ContainsKey("LReg")) RegenerationTime = float.Parse(param["LReg"]);
+            if (param.ContainsKey(TargetParams.LanternRegenerationTime)) RegenerationTime = float.Parse(param[TargetParams.LanternRegenerationTime]);
             else RegenerationTime = 30;
 
             RegistSyncAttributes();

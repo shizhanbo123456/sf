@@ -7,10 +7,10 @@ public class MonsterSkillController:TargetSkillController
     private float interval;
     private float useSkillCD;
 
-    public override void Init(Target data, Dictionary<string, string> param)
+    public override void Init(Target data, Dictionary<TargetParams, string> param)
     {
         base.Init(data, param);
-        if (param.ContainsKey("MInterval")) interval = float.Parse(param["MInterval"]);
+        if (param.ContainsKey(TargetParams.MonsterSkillCD)) interval = float.Parse(param[TargetParams.MonsterSkillCD]);
         else interval = 5f;
     }
     protected override void Update()

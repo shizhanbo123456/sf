@@ -58,7 +58,7 @@ public struct TargetInfo
 [LuaCallCSharp]
 public class CustomTargetCreater
 {
-    private static Dictionary<string, string> EmptyParam = new();
+    private static Dictionary<TargetParams, string> EmptyParam = new();
     private TargetInfo info;
     private int targetType;//Player,Ore,Lantern,Monster
     private int graphicType;
@@ -66,7 +66,7 @@ public class CustomTargetCreater
     private int controllerType;//None,Player,Monster
     private int skillControllerType;//None,Player,Monster
     private int effectControllerType;//None,Default
-    private Dictionary<string, string> Params=EmptyParam;
+    private Dictionary<TargetParams, string> Params=EmptyParam;
     public CustomTargetCreater(TargetInfo info,int targetType,int graphicType)
     {
         this.info = info;
@@ -86,7 +86,7 @@ public class CustomTargetCreater
     {
         effectControllerType= effectcontrollertype;
     }
-    public void LoadParams(Dictionary<string, string> Params)
+    public void LoadParams(Dictionary<TargetParams, string> Params)
     {
         this.Params = Params;
     }
@@ -99,7 +99,7 @@ public class CustomTargetCreater
         sb.Append(controllerType).Append('_');
         sb.Append(skillControllerType).Append('_');
         sb.Append(effectControllerType);
-        if(Params!=null)sb.Append('_').Append(Format.DictionaryToString(Params));
+        if(Params!=null)sb.Append('_').Append(Format.DictionaryToString(Params,keyconverter:p=>((int)p).ToString()));
         return sb.ToString();
     }
     public CustomTargetCreater(string data)
@@ -112,7 +112,7 @@ public class CustomTargetCreater
         controllerType=int.Parse(s[index++]);
         skillControllerType = int.Parse(s[index++]);
         effectControllerType=int.Parse(s[index++]);
-        if (s.Length > index) Params = Format.StringToDictionary(s[index++], t => t, t => t);
+        if (s.Length > index) Params = Format.StringToDictionary(s[index++], t => (TargetParams)int.Parse(t), t => t);
     }
 
     public void Create()

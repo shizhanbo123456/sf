@@ -8,7 +8,7 @@ public class TargetEffectController : MonoBehaviour
     private Target target;
     private HashSet<(EffectType, int)> Effects = new();
 
-    public void Init(Target t, Dictionary<string, string> param)
+    public void Init(Target t, Dictionary<TargetParams, string> param)
     {
         target = t;
         enabled = false;
