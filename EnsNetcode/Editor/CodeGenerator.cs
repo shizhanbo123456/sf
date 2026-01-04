@@ -203,7 +203,7 @@ class RpcCodeGenerator
             string actionType = parameters.Any()
                 ? $"Action<{string.Join(", ", paramTypes)}>"
                 : "Action";
-            codeBuilder.AppendLine($"    private static Dictionary<{actionType}, byte> map_{paramKey};");
+            codeBuilder.AppendLine($"    private Dictionary<{actionType}, byte> map_{paramKey};");
             codeBuilder.AppendLine();
 
             // 生成RpcInvoke方法
