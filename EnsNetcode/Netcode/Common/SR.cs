@@ -151,12 +151,16 @@ public abstract class SR//具有信息收发功能
 }
 public struct Segment
 {
-    public int StartIndex { get; } // ← 替代原MessagePart.start
-    public int Length { get; }     // ← 替代原MessagePart.end（通过长度推导结束下标）
+    public int StartIndex { get; }
+    public int Length { get; }
 
     public Segment(int startIndex, int length)
     {
         StartIndex = startIndex;
         Length = length;
+    }
+    public override string ToString()
+    {
+        return StartIndex + " " + Length;
     }
 }

@@ -21,8 +21,7 @@ public struct UlongSerializer
     {
         if (data.Length - indexStart < 8)
         {
-            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            throw new Exception();
+            throw new Exception("反序列化失败：剩余数据字节数不足");
         }
 
         ulong result = (ulong)data[indexStart] << 56
@@ -36,8 +35,7 @@ public struct UlongSerializer
         indexStart += 8;
         if (indexStart > invalidIndex)
         {
-            Utils.Debug.LogError("下标越界");
-            throw new Exception();
+            throw new Exception("下标越界");
         }
         return result;
     }

@@ -50,8 +50,9 @@ internal class EnsClient:SR
                     if (skip) continue;
                     MessageHandlerClient.Invoke(data, part);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Utils.Debug.ErrorCaught(e);
                 }
             }
             Parts.Clear();

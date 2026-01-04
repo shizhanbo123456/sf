@@ -19,8 +19,7 @@ public struct Vector4Serializer
     {
         if (data.Length - indexStart < 16)
         {
-            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            return default;
+            throw new Exception("反序列化失败：剩余数据字节数不足");
         }
 
         float x = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
@@ -29,8 +28,7 @@ public struct Vector4Serializer
         float w = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
         if (indexStart > invalidIndex)
         {
-            Utils.Debug.LogError("下标越界");
-            return default;
+            throw new Exception("下标越界");
         }
         return new Vector4(x, y, z, w);
     }

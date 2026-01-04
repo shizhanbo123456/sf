@@ -104,7 +104,6 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist(Header.F,(b,s) =>
         {
-            Utils.Debug.PrintBytes(b);
             int indexStart = s.StartIndex + 6;
             int invalidIndex = s.StartIndex + s.Length;
             short id=ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
@@ -114,9 +113,10 @@ public class EnsClientEventRegister
                 if (EnsInstance.DevelopmentDebug) Debug.LogError("未找到id为" + id + "的物体");
                 return;
             }
-            if(!obj.InvokeFunc(b, new Segment(s.StartIndex + 8, s.Length - 8)))
+            if(!obj.InvokeFunc(b, new Segment(s.StartIndex + 8, s.Length - 8)))//额外排除物体id部分
             {
                 Debug.LogError("检测到未注册的函数");
+                Utils.Debug.PrintBytes(b,s);
             }
         });
     }

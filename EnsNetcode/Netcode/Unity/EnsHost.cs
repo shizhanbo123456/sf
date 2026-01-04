@@ -61,8 +61,9 @@ internal class EnsHost : EnsConnection
                 {
                     MessageHandlerServer.Invoke(this, data, part);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Utils.Debug.ErrorCaught(e);
                 }
             }
             Parts.Clear();

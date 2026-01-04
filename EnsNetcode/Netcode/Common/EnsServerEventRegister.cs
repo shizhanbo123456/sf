@@ -64,17 +64,17 @@ public class EnsServerEventRegister
     }
     private static byte[] t_bytes;
     private static Segment t_segment;
+    static bool BodyWriter(SendBuffer b)
+    {
+        if (b.bytes.Length - b.indexStart < t_segment.Length - 6) return false;
+        for (int i = t_segment.StartIndex + 6; i < t_segment.StartIndex + t_segment.Length; i++)
+        {
+            b.bytes[b.indexStart++] = t_bytes[i];
+        }
+        return true;
+    }
     protected static void Server_F()
     {
-        static bool BodyWriter(SendBuffer b)
-        {
-            if (b.bytes.Length - b.indexStart < t_segment.Length-6) return false;
-            for (int i = t_segment.StartIndex+6; i < t_segment.StartIndex+t_segment.Length; i++)
-            {
-                b.bytes[b.indexStart++]=t_bytes[i];
-            }
-            return true;
-        }
         MessageHandlerServer.Regist(Header.F,(conn, b, s) =>
         {
             if (conn.room == null) return;

@@ -19,8 +19,7 @@ public struct QuaternionSerializer
     {
         if (data.Length - indexStart < 16)
         {
-            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            return default;
+            throw new Exception("反序列化失败：剩余数据字节数不足");
         }
 
         float x = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
@@ -29,8 +28,7 @@ public struct QuaternionSerializer
         float w = (float)DoubleSerializer.Deserialize(data, ref indexStart, invalidIndex);
         if (indexStart > invalidIndex)
         {
-            Utils.Debug.LogError("下标越界");
-            return default;
+            throw new Exception("下标越界");
         }
         return new Quaternion(x, y, z, w);
     }

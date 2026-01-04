@@ -33,6 +33,9 @@ namespace ProtocolWrapper
         public static bool Sending => senderClient != null;
         public static bool Receiving=>receiverClient != null;
 
+        private static byte[] bytes = new byte[1400];
+        private static int length = 0;
+
         public static bool StartBroadcast()
         {
             if (senderClient != null)
@@ -58,12 +61,13 @@ namespace ProtocolWrapper
             if (BroadcastContent.Count == 0) return;
 
             if (BroadcastContent.Count == 0) Debug.LogError("¹ã²¥ÄÚÈÝÎª¿Õ");
-            var s=global::Format.DictionarySeparator+global::Format.DictionaryToString(BroadcastContent,wrapAll:false)+global::Format.DictionarySeparator;
+            var s=Format.DictionarySeparator+Format.DictionaryToString(BroadcastContent,wrapAll:false)+Format.DictionarySeparator;
 
             try
             {
-                byte[] data = StringSerializer.Encode(s);
-                senderClient.Send(data, data.Length, broadcastEndPoint);
+                length = 0;
+                StringSerializer.Serialize(s,bytes,ref length);
+                senderClient.Send(bytes, length, broadcastEndPoint);
             }
             catch
             {
@@ -125,14 +129,15 @@ namespace ProtocolWrapper
                 {
                     IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
                     byte[] receivedData = receiverClient.Receive(ref remoteEndPoint);
-                    string message = StringSerializer.Decode(receivedData,0,receivedData.Length);
+                    int indexstart = 0;
+                    string message = StringSerializer.Deserialize(receivedData, ref indexstart, receivedData.Length);
 
-                    int msgstart = message.IndexOf(global::Format.DictionarySeparator);
-                    int msgend = message.LastIndexOf(global::Format.DictionarySeparator);
+                    int msgstart = message.IndexOf(Format.DictionarySeparator);
+                    int msgend = message.LastIndexOf(Format.DictionarySeparator);
                     if (msgstart == -1 || msgend == -1 || msgend <= msgstart) continue;
 
                     string msg = message.Substring(msgstart, msgend - msgstart + 1);
-                    var s = global::Format.SplitWithBoundaries(msg, global::Format.DictionarySeparator,removeBoundary:false);
+                    var s = Format.SplitWithBoundaries(msg, Format.DictionarySeparator,removeBoundary:false);
                     foreach (var part in s)
                     {
                         HandleReceivedMesg(part);
@@ -157,7 +162,7 @@ namespace ProtocolWrapper
 
         private static void HandleReceivedMesg(string mesg)
         {
-            var keyValue = global::Format.SplitWithBoundaries(mesg,global::Format.DictionaryPair);
+            var keyValue = Format.SplitWithBoundaries(mesg,Format.DictionaryPair);
             if (keyValue.Count != 2) return;
             string header = keyValue[0];
             string content = keyValue[1];

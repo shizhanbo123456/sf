@@ -225,8 +225,8 @@ class RpcCodeGenerator
             codeBuilder.AppendLine($"        if (!map_{paramKey}.ContainsKey(func)) throw new Exception(\"目标函数未注册\");");
             codeBuilder.AppendLine();
 
-            // 计算字节数组大小
-            if (parametersIsNotNull) codeBuilder.AppendLine("        EnsTemporaryBuffer.length=1;");
+            //写入方法id
+            codeBuilder.AppendLine("        EnsTemporaryBuffer.length=1;");
             codeBuilder.AppendLine($"        EnsTemporaryBuffer.bytes[0] = map_{paramKey}[func];");
             codeBuilder.AppendLine();
 

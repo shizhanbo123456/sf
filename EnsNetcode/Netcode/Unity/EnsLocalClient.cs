@@ -40,8 +40,9 @@ internal class ENCLocalClient : EnsClient
                 {
                     MessageHandlerClient.Invoke(data, part);
                 }
-                catch
+                catch(Exception e)
                 {
+                    Utils.Debug.ErrorCaught(e);
                 }
             }
             Parts.Clear();

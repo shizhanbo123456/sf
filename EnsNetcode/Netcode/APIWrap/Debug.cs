@@ -33,7 +33,7 @@ namespace Utils
         {
             for(int i = segment.StartIndex;i<segment.StartIndex+segment.Length;i++)sb.Append(bytes[i]).Append(' ');
 #if UNITY_EDITOR
-            UnityEngine.Debug.LogError(sb.ToString());
+            UnityEngine.Debug.Log(sb.ToString());
 #elif !UNITY_2017_1_OR_NEWER
             Console.WriteLine(sb.ToString());
 #endif
@@ -48,6 +48,14 @@ namespace Utils
             Console.WriteLine(sb.ToString());
 #endif
             sb.Clear();
+        }
+        public static void ErrorCaught(System.Exception ex)
+        {
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogException(ex);
+#elif !UNITY_2017_1_OR_NEWER
+            Console.WriteLine(sb.ToString());
+#endif
         }
     }
 }

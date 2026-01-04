@@ -15,16 +15,14 @@ public struct SbyteSerializer
     {
         if (data.Length - indexStart < 1)
         {
-            Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            throw new Exception();
+            throw new Exception("反序列化失败：剩余数据字节数不足");
         }
 
         sbyte result = (sbyte)data[indexStart];
         indexStart += 1;
         if (indexStart > invalidIndex)
         {
-            Utils.Debug.LogError("下标越界");
-            throw new Exception();
+            throw new Exception("下标越界");
         }
         return result;
     }
