@@ -46,9 +46,10 @@ public class Monster : Target
     protected override void InitNameAndBar()
     {
         base.InitNameAndBar();
+
         Bar = PlayModeController.Instance.CreateBossBar();
         Bar.SetName(Name);
-        Bar.SetValue(Shengming,Shengming,LayerMax);
+        Bar.SetValue(DedicatedAttributes.Shengming.Value.Item1,DedicatedAttributes.Shengming.Value.Item2,LayerMax);
     }
     protected override void RegistSyncAttributes()
     {
