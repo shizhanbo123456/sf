@@ -54,7 +54,6 @@ public class EnsServer
             var i=kvp.Value;
             if (Time.time > i.hbRecvTime)
             {
-                i.ShutDown();
                 ToRemove.Add(kvp.Key);
                 continue;
             }
@@ -68,7 +67,11 @@ public class EnsServer
         }
         if (ToRemove.Count > 0)
         {
-            foreach (var i in ToRemove) ClientConnections.Remove(i);
+            foreach (var i in ToRemove)
+            {
+                ClientConnections[i].ShutDown();
+                ClientConnections.Remove(i);
+            }
             ToRemove.Clear();
         }
     }

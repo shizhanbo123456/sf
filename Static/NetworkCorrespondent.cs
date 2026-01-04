@@ -186,11 +186,13 @@ public partial class NetworkCorrespondent : EnsBehaviour
         if (data.Contains('_'))
         {
             var s=data.Split('_');
-            CustomLevel.TargetKilled(new TargetInfo(s[0]), new TargetInfo(s[1]));
+            if (EnsInstance.HasAuthority) CustomLevel.TargetKilled(new TargetInfo(s[0]), new TargetInfo(s[1]));
+            else Debug.LogError("击败消息发送到了非权威客户端");
         }
         else
         {
-            CustomLevel.TargetKilled(new TargetInfo(data));
+            if (EnsInstance.HasAuthority) CustomLevel.TargetKilled(new TargetInfo(data));
+            else Debug.LogError("击败消息发送到了非权威客户端");
         }
     }
 
@@ -252,6 +254,7 @@ public partial class NetworkCorrespondent : EnsBehaviour
 
         ServerDataContainer.Reset();
 
+        if(Tool.SceneController.Player!=null)Destroy(Tool.SceneController.Player);
 
         Tool.SceneController.DestroyLevel();
         Tool.SceneController.DestroyNonSkillPlayer();

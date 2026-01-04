@@ -40,6 +40,7 @@ namespace ProtocolWrapper.Protocols.Tcp
 
             Init(Client);
             Initialized = true;
+            Protocol.OnClientInitialized?.Invoke();
 
             Thread Recv = new Thread(new ThreadStart(Receive));
             Recv.Start();
@@ -59,6 +60,7 @@ namespace ProtocolWrapper.Protocols.Tcp
 
             Init(Client);
             Initialized = true;
+            Protocol.OnClientInitialized?.Invoke();
 
             _ = ReceiveAsync();
         }

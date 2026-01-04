@@ -64,18 +64,19 @@ public partial class FightController : EnsBehaviour
         Fighting = true;
         judgeEndCdRecorder = -10;
 
-        CustomLevel.OnFightStart();
+        if (EnsInstance.HasAuthority) CustomLevel.OnFightStart();
     }
     private void SettleRpc()
     {
         if (!Fighting) return;
-        foreach(var i in ServerDataContainer.GetAllKeys())
-        {
-            CustomLevel.FigureScore(i,out int killscore, out int timescore, out int challengescore);
-            var sb=Tool.stringBuilder;
-            sb.Append(killscore).Append('_').Append(timescore).Append('_').Append(challengescore);
-            CallFuncRpc(SettleLocal,SendTo.To(i), Delivery.Reliable, sb.ToString());
-        }
+        if (EnsInstance.HasAuthority)
+            foreach (var i in ServerDataContainer.GetAllKeys())
+            {
+                CustomLevel.FigureScore(i, out int killscore, out int timescore, out int challengescore);
+                var sb = Tool.stringBuilder;
+                sb.Append(killscore).Append('_').Append(timescore).Append('_').Append(challengescore);
+                CallFuncRpc(SettleLocal, SendTo.To(i), Delivery.Reliable, sb.ToString());
+            }
     }
     [Rpc]
     private void SettleLocal(string data)
@@ -87,8 +88,11 @@ public partial class FightController : EnsBehaviour
     public void StopFightLocal()//立即停止，不结算，保留关卡
     {
         Fighting = false;
-        CustomLevel.ReleaseData();
-        CustomLevel.Dispose();
+        if (EnsInstance.HasAuthority)
+        {
+            CustomLevel.ReleaseData();
+            CustomLevel.Dispose();
+        }
     }
 
 
@@ -96,24 +100,27 @@ public partial class FightController : EnsBehaviour
     private void Update()
     {
         if (!Fighting) return;
-        CustomLevel.Update();
-        if (judgeEndCdRecorder < 1)
+        if (EnsInstance.HasAuthority)
         {
-            judgeEndCdRecorder += Time.deltaTime;
-            return;
-        }
-        judgeEndCdRecorder = 0;
+            CustomLevel.Update();
+            if (judgeEndCdRecorder < 1)
+            {
+                judgeEndCdRecorder += Time.deltaTime;
+                return;
+            }
+            judgeEndCdRecorder = 0;
 
-        bool end = false;
-        try
-        {
-            end = CustomLevel.JudgeEnd();
+            bool end;
+            try
+            {
+                end = CustomLevel.JudgeEnd();
+            }
+            catch
+            {
+                end = false;
+                Tool.Notice.ShowMesg("关卡结算异常");
+            }
+            if (end) SettleRpc();
         }
-        catch
-        {
-            end = false;
-            Tool.Notice.ShowMesg("关卡结算异常");
-        }
-        if (end) SettleRpc();
     }
 }

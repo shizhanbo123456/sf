@@ -16,6 +16,7 @@ namespace ProtocolWrapper.Protocols.Udp
             ipAddress=IPAddress.Parse(ip);
             Init(new UdpClient(port), new IPEndPoint(ipAddress, port));
             Initialized = true;
+            Protocol.OnClientInitialized?.Invoke();
 
             if (Protocol.mode == ConcurrentType.Multithreading)
             {

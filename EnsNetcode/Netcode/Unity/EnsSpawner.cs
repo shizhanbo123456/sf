@@ -45,18 +45,25 @@ public sealed class EnsSpawner : MonoBehaviour
         t_id = id;
         t_param = param;
         t_indexStart=GetBehaviourCount(id);
-        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable,Writer);
+        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable,Writer_Create);
     }
     public void RespawnCheckServerRpc(SendTo sendto, EnsBehaviourCollection collection, string param)
     {
         t_id = collection.CollectionId;
         t_param = param;
         t_indexStart = collection.Behaviors[0].ObjectId;
-        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable, Writer);
+        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable, Writer_Respawn);
     }
-    private static bool Writer(SendBuffer b)
+    private static bool Writer_Create(SendBuffer b)
     {
         return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart)
+            && ShortSerializer.Serialize(t_id, b.bytes, ref b.indexStart)
+            && StringSerializer.Serialize(t_param, b.bytes, ref b.indexStart)
+            && ShortSerializer.Serialize(t_indexStart, b.bytes, ref b.indexStart);
+    }
+    private static bool Writer_Respawn(SendBuffer b)
+    {
+        return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart)
             && ShortSerializer.Serialize(t_id, b.bytes, ref b.indexStart)
             && StringSerializer.Serialize(t_param, b.bytes, ref b.indexStart)
             && ShortSerializer.Serialize(t_indexStart, b.bytes, ref b.indexStart);

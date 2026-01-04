@@ -21,18 +21,18 @@ public class EnsConnection:SR
     protected EnsConnection() { }
     internal EnsConnection(ProtocolBase _base,short index,Action<EnsConnection>onShutDown)
     {
-        KeyLibrary = new KeyLibrary(Connection.SendBuffer,DeliverySource);
-
         Connection = _base;
         ClientId = index;
         OnShutDown = onShutDown;
         _on= true;
 
+        KeyLibrary = new KeyLibrary(Connection.SendBuffer, DeliverySource);
+
         Send(Header.C, SendTo.Server, SendTo.To(ClientId), Delivery.Reliable, ClientIdWriter);
     }
     private bool ClientIdWriter(SendBuffer buffer)
     {
-        return IntSerializer.Serialize(ClientId, buffer.bytes,ref buffer.indexStart);
+        return ShortSerializer.Serialize(ClientId, buffer.bytes,ref buffer.indexStart);
     }
     internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {

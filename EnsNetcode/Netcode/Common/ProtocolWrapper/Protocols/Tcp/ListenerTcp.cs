@@ -17,7 +17,7 @@ namespace ProtocolWrapper.Protocols.Tcp
 
         public ListenerTcp(IPAddress ip,int port) : base(ip, port)
         {
-            Listener = new TcpListener(IPAddress.Any, Port);
+            Listener = new TcpListener(ip, Port);
             Listening = false;
         }
         public override void StartListening()

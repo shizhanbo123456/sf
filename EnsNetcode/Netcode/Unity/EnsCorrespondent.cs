@@ -87,7 +87,7 @@ public class EnsCorrespondent :MonoBehaviour
         if (networkMode == NetworkMode.Host || networkMode == NetworkMode.Client)
         {
             Client.Update();
-            Client.FlushSendBuffer();
+            Client?.FlushSendBuffer();
         }
     }
     private void Update()
@@ -194,7 +194,7 @@ public class EnsCorrespondent :MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log(e);
+            Debug.LogException(e);
         }
         finally
         {

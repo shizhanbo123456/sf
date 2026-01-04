@@ -16,11 +16,16 @@ internal class EnsClient:SR
     protected EnsClient(){ }
     internal EnsClient(string ip,int port)
     {
-        KeyLibrary = new KeyLibrary(Client.SendBuffer,DeliverySource);
+        Protocol.OnClientInitialized += OnClientInitialized;
 
         Client = Protocol.GetClient(ip,port);
 
-        _on= true;
+        _on = true;
+    }
+    private void OnClientInitialized()
+    {
+        Protocol.OnClientInitialized -= OnClientInitialized;
+        KeyLibrary = new KeyLibrary(Client.SendBuffer, DeliverySource);
     }
     internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
@@ -38,6 +43,7 @@ internal class EnsClient:SR
             EnsInstance.Corr.ShutDown();
             return;
         }
+        if (!Client.Initialized) return;
         var buffer = Client.ReceiveBuffer;
         while (buffer.Read(out var data) && _on)
         {
@@ -61,6 +67,7 @@ internal class EnsClient:SR
     }
     internal override void FlushSendBuffer()
     {
+        if (!Client.Initialized) return;
         Client.SendBuffer.Flush();
     }
     internal override void ShutDown()
