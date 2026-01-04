@@ -45,7 +45,7 @@ internal class EnsClient:SR
         }
         if (!Client.Initialized) return;
         var buffer = Client.ReceiveBuffer;
-        while (buffer.Read(out var data) && _on)
+        while (buffer.Read(out var data)&&_on)
         {
             ExtractData(data);
             foreach (var part in segments)
@@ -60,10 +60,11 @@ internal class EnsClient:SR
                 {
                     Utils.Debug.ErrorCaught(e);
                 }
+                if (!_on) break;
             }
             segments.Clear();
         }
-        KeyLibrary.Update();
+        if(_on)KeyLibrary.Update();
     }
     internal override void FlushSendBuffer()
     {

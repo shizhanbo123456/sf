@@ -45,6 +45,7 @@ internal class ENCLocalClient : EnsClient
                 {
                     Utils.Debug.ErrorCaught(e);
                 }
+                if (!_on) break;
             }
             segments.Clear();
             BytesPool.ReturnBuffer(data);

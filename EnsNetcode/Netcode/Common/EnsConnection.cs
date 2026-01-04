@@ -56,10 +56,11 @@ public class EnsConnection:SR
                 {
                     Utils.Debug.ErrorCaught(e);
                 }
+                if (!_on) break;
             }
             segments.Clear();
         }
-        KeyLibrary.Update();
+        if(_on)KeyLibrary.Update();
     }
     internal override void FlushSendBuffer()
     {
