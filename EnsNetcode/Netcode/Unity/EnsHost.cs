@@ -32,13 +32,14 @@ internal class EnsHost : EnsConnection
         _client = client;
         ReceivedData=new CircularQueue<byte[]>();
         _buffer=new SendBuffer(OnSend);
+        DeliverySource = DeliverySource.Get();
         ClientId = 0;
         EnsInstance.LocalClientId = ClientId;
         _on = true;
     }
     internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        Send(_buffer, messageType, sendFrom, target, DeliverySource.Unreliable, writer);
+        Send(_buffer, messageType, sendFrom, target, DeliverySource.GetIndex(delivery), writer);
     }
     private void OnSend(byte[] bytes,int length)
     {
@@ -80,5 +81,7 @@ internal class EnsHost : EnsConnection
         ReceivedData= null;
         _client = null;
         _buffer = null;
+        DeliverySource.Return(DeliverySource);
+        DeliverySource = null;
     }
 }

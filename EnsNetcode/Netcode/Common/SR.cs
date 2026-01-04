@@ -58,7 +58,6 @@ public abstract class SR//具有信息收发功能
         SendBuffer.bytes[SendBuffer.indexStart++] = a1;
         SendBuffer.bytes[SendBuffer.indexStart++] = a2;
         SendBuffer.AddSeparator();
-        //UnityEngine.Debug.Log(length+" "+(writer==null));
     }
 
 
@@ -149,7 +148,7 @@ public abstract class SR//具有信息收发功能
     }
     #endregion
 }
-public struct Segment
+public readonly struct Segment
 {
     public int StartIndex { get; }
     public int Length { get; }

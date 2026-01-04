@@ -45,7 +45,7 @@ public class DeliverySource
     {
         return delivery switch
         {
-            Delivery.Unreliable => 0,
+            Delivery.Unreliable => Unreliable,
             Delivery.Reliable => Reliable,
             Delivery.OrderWise => Orderwise,
             _ => throw new Exception("Delivery随机数产生器检测到未知类型")

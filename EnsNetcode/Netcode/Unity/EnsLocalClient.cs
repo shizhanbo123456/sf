@@ -14,10 +14,11 @@ internal class ENCLocalClient : EnsClient
         _on = true;
         ReceivedData=new CircularQueue<byte[]>();
         _buffer = new SendBuffer(OnSend);
+        DeliverySource = DeliverySource.Get();
     }
     internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        Send(_buffer, messageType, sendFrom, target, DeliverySource.Unreliable, writer);
+        Send(_buffer, messageType, sendFrom, target, DeliverySource.GetIndex(delivery), writer);
     }
     private void OnSend(byte[] bytes, int length)
     {
@@ -58,5 +59,7 @@ internal class ENCLocalClient : EnsClient
         _on = false;
         ReceivedData = null;
         _buffer = null;
+        DeliverySource.Return(DeliverySource);
+        DeliverySource = null;
     }
 }
