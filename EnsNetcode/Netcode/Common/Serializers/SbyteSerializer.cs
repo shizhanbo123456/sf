@@ -16,7 +16,7 @@ public struct SbyteSerializer
         if (data.Length - indexStart < 1)
         {
             Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            return default;
+            throw new Exception();
         }
 
         sbyte result = (sbyte)data[indexStart];
@@ -24,7 +24,7 @@ public struct SbyteSerializer
         if (indexStart > invalidIndex)
         {
             Utils.Debug.LogError("下标越界");
-            return default;
+            throw new Exception();
         }
         return result;
     }

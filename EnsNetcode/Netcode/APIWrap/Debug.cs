@@ -39,5 +39,15 @@ namespace Utils
 #endif
             sb.Clear();
         }
+        public static void PrintBytes(byte[] bytes)
+        {
+            for (int i = 0; i < bytes.Length; i++) sb.Append(bytes[i]).Append(' ');
+#if UNITY_EDITOR
+            UnityEngine.Debug.Log(sb.ToString());
+#elif !UNITY_2017_1_OR_NEWER
+            Console.WriteLine(sb.ToString());
+#endif
+            sb.Clear();
+        }
     }
 }

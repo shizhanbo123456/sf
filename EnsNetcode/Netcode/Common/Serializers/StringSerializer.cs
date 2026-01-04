@@ -51,7 +51,7 @@ public struct StringSerializer
         if (data.Length - indexStart < 4)
         {
             Utils.Debug.LogError("反序列化string失败：剩余数据不足，无法读取长度标识");
-            return default;
+            throw new Exception();
         }
 
         // 步骤1：先反序列化【字符串UTF8字节长度】
@@ -61,7 +61,7 @@ public struct StringSerializer
         if (strByteLength < 0 || data.Length - indexStart < strByteLength)
         {
             Utils.Debug.LogError($"反序列化string失败：长度标识({strByteLength}字节)超出剩余缓冲区大小");
-            return default;
+            throw new Exception();
         }
 
         // 步骤2：再反序列化【字符串UTF8真实字节数据】
@@ -75,7 +75,7 @@ public struct StringSerializer
         if (indexStart > invalidIndex)
         {
             Utils.Debug.LogError("下标越界");
-            return default;
+            throw new Exception();
         }
         return result;
     }

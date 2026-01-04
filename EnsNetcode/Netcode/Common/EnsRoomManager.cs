@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Utils;
 
 public class EnsRoomManager
@@ -63,7 +64,7 @@ public class EnsRoomManager
     }
     public void ShutDown()
     {
-        foreach (var i in rooms.Values) i.ShutDown();
+        foreach (var i in rooms.Values.ToList()) i.ShutDown();
         rooms.Clear();
         Instance = null;
         rooms = null;

@@ -104,6 +104,7 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist(Header.F,(b,s) =>
         {
+            Utils.Debug.PrintBytes(b);
             int indexStart = s.StartIndex + 6;
             int invalidIndex = s.StartIndex + s.Length;
             short id=ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);

@@ -2,7 +2,6 @@ using AttributeSystem.Attributes;
 using AttributeSystem.Effect;
 using System;
 using System.Collections.Generic;
-using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using Variety.Base;
 using static WorldTextController;

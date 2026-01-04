@@ -15,14 +15,14 @@ public struct BoolSerializer
         if (data.Length - indexStart < 1)
         {
             Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            return default;
+            throw new Exception();
         }
         bool result = data[indexStart] != 0;
         indexStart += 1;
         if(indexStart>invalidIndex)
         {
             Utils.Debug.LogError("下标越界");
-            return default;
+            throw new Exception();
         }
         return result;
     }

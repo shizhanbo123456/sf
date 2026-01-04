@@ -68,8 +68,8 @@ public class EnsServerEventRegister
     {
         static bool BodyWriter(SendBuffer b)
         {
-            if (b.bytes.Length - b.indexStart < t_segment.Length) return false;
-            for (int i = t_segment.StartIndex; i < t_segment.StartIndex+t_segment.Length; i++)
+            if (b.bytes.Length - b.indexStart < t_segment.Length-6) return false;
+            for (int i = t_segment.StartIndex+6; i < t_segment.StartIndex+t_segment.Length; i++)
             {
                 b.bytes[b.indexStart++]=t_bytes[i];
             }
@@ -86,20 +86,20 @@ public class EnsServerEventRegister
             t_segment = s;
             if (to == SendTo.Everyone)
             {
-                conn.room.Broadcast(messageType, from, delivery,BodyWriter);
+                conn.room.Broadcast(messageType,delivery,BodyWriter);
             }
             else if (to == SendTo.ExcludeSender)
             {
-                conn.room.Broadcast(conn.ClientId,messageType, from, delivery, BodyWriter);
+                conn.room.Broadcast(conn.ClientId,messageType,delivery, BodyWriter);
             }
             else if (to == SendTo.RoomOwner)
             {
-                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType, from, delivery, BodyWriter);
+                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType,delivery, BodyWriter);
             }
             else if (to == SendTo.Server) { }
             else
             {
-                conn.room.PTP(to.Target, messageType, from, delivery, BodyWriter);
+                conn.room.PTP(to.Target, messageType,delivery, BodyWriter);
             }
         });
     }
@@ -140,20 +140,20 @@ public class EnsServerEventRegister
             }
             if (to == SendTo.Everyone)
             {
-                conn.room.Broadcast(messageType, from, delivery, BodyWriter);
+                conn.room.Broadcast(messageType, delivery, BodyWriter);
             }
             else if (to == SendTo.ExcludeSender)
             {
-                conn.room.Broadcast(conn.ClientId, messageType, from, delivery, BodyWriter);
+                conn.room.Broadcast(conn.ClientId, messageType, delivery, BodyWriter);
             }
             else if (to == SendTo.RoomOwner)
             {
-                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType, from, delivery, BodyWriter);
+                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType, delivery, BodyWriter);
             }
             else if (to == SendTo.Server) { }
             else
             {
-                conn.room.PTP(to.Target, messageType, from, delivery, BodyWriter);
+                conn.room.PTP(to.Target, messageType,delivery, BodyWriter);
             }
         });
     }

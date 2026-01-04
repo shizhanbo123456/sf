@@ -16,7 +16,7 @@ public struct UshortSerializer
         if (data.Length - indexStart < 2)
         {
             Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            return default;
+            throw new Exception();
         }
 
         ushort result = (ushort)((data[indexStart] << 8) | data[indexStart + 1]);
@@ -24,7 +24,7 @@ public struct UshortSerializer
         if (indexStart > invalidIndex)
         {
             Utils.Debug.LogError("下标越界");
-            return default;
+            throw new Exception();
         }
         return result;
     }

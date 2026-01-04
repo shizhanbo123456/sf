@@ -22,7 +22,7 @@ public struct LongSerializer
         if (data.Length - indexStart < 8)
         {
             Utils.Debug.LogError("反序列化失败：剩余数据字节数不足");
-            return default;
+            throw new Exception();
         }
 
         long result = (long)data[indexStart] << 56
@@ -37,7 +37,7 @@ public struct LongSerializer
         if (indexStart > invalidIndex)
         {
             Utils.Debug.LogError("下标越界");
-            return default;
+            throw new Exception();
         }
         return result;
     }

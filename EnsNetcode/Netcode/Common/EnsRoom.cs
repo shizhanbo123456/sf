@@ -44,7 +44,7 @@ public class EnsRoom
         ClientConnections.Add(conn.ClientId,conn);
         conn.room = this;
         t_connId = conn.ClientId;
-        Broadcast(conn.ClientId, Header.E, SendTo.Server, Delivery.Reliable, b =>
+        Broadcast(conn.ClientId, Header.E, Delivery.Reliable, b =>
         {
             return ByteSerializer.Serialize(0x01,b.bytes,ref b.indexStart)
                 && ShortSerializer.Serialize(t_connId, b.bytes, ref b.indexStart);
@@ -75,7 +75,7 @@ public class EnsRoom
         }
         else
         {
-            Broadcast(conn.ClientId, Header.E, SendTo.Server, Delivery.Reliable, b =>
+            Broadcast(conn.ClientId, Header.E, Delivery.Reliable, b =>
             {
                 return ByteSerializer.Serialize(0x02, b.bytes, ref b.indexStart)
                     && ShortSerializer.Serialize(t_connId, b.bytes, ref b.indexStart);
@@ -101,27 +101,27 @@ public class EnsRoom
         });
     }
 
-    internal void Broadcast(byte messageType, SendTo from, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void Broadcast(byte messageType,Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        foreach (var i in ClientConnections.Values) i.Send(messageType,from,SendTo.To(i.ClientId),delivery,writer);
+        foreach (var i in ClientConnections.Values) i.Send(messageType,SendTo.Server,SendTo.To(i.ClientId),delivery,writer);
     }
-    internal void Broadcast(int ignore, byte messageType, SendTo from, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void Broadcast(int ignore, byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
         foreach (var i in ClientConnections.Values) 
             if (i.ClientId != ignore) 
-                i.Send(messageType, from, SendTo.To(i.ClientId), delivery, writer);
+                i.Send(messageType, SendTo.Server, SendTo.To(i.ClientId), delivery, writer);
     }
-    internal void PTP(short id, byte messageType, SendTo from, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void PTP(short id, byte messageType,  Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
         if(ClientConnections.TryGetValue(id, out var conn))
         {
-            conn.Send(messageType, from, SendTo.To(id), delivery, writer);
+            conn.Send(messageType, SendTo.Server, SendTo.To(id), delivery, writer);
         }
     }
 
     internal void ShutDown()
     {
-        Broadcast(Header.R, SendTo.Server, Delivery.Reliable, null);
+        Broadcast(Header.R, Delivery.Reliable, null);
         EnsRoomManager.Instance.rooms.Remove(RoomId);
         foreach (var i in ClientConnections.Values) i.room = null;
         ClientConnections.Clear();
