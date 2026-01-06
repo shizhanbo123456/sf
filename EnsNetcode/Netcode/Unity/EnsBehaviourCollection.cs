@@ -26,6 +26,7 @@ public class EnsBehaviourCollection : MonoBehaviour
             Behaviors[i].ObjectId=idstart;
             Behaviors[i].IdAutoAllocated = true;
             idstart++;
+            if (idstart >= 30000) idstart -= 29900;
             //EnsNetworkObjectManager.AddObject(Behaviors[i]);//NOMAwake×¢²áÎïÌå
         }
     }

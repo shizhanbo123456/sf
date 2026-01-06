@@ -84,12 +84,13 @@ internal class KeyLibrary
         {
             case SenderKey.KeyState.TobeConfirmed:
                 {
-                    if (k.ConfirmedExistingSource>Time.time)
+                    if (Time.time>k.ConfirmedExistingSource)
                     {
                         k.State = SenderKey.KeyState.End;
+                        Utils.Debug.LogError($"信息未得到确认：type={k.messageType},from={k.sendFrom.Target},to={k.sendTo.Target},delivery={k.delivery}");
                     }
 
-                    if (k.ToConfirmIntervalLeft > Time.time)
+                    if (Time.time>k.ToConfirmIntervalLeft)
                     {
                         k.ToConfirmIntervalLeft=Time.time+EnsInstance.KeySendInterval;
 
@@ -99,7 +100,7 @@ internal class KeyLibrary
                 }
             case SenderKey.KeyState.ConfirmedExisting:
                 {
-                    if (k.ConfirmedExistingSource>Time.time) k.State = SenderKey.KeyState.End;
+                    if (Time.time>k.ConfirmedExistingSource) k.State = SenderKey.KeyState.End;
                     break;
                 }
         }

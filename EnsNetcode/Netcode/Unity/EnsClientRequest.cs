@@ -48,7 +48,7 @@ public static class EnsClientRequest
         List<string>timeExceedKeys=new List<string>();
         foreach(var pair in ActiveRequestHeader)
         {
-            if (pair.Value < Time.time)
+            if (Time.time>pair.Value)
             {
                 timeExceedKeys.Add(pair.Key);
             }

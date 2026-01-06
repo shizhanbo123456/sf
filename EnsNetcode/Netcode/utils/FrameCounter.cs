@@ -10,6 +10,7 @@ namespace Utils
             else if (Time.time - timeCounter < 1) count++;
             else
             {
+                EnsInstance.frameRate = count;
                 //Debug.Log("frame=" + count);
                 count = 0;
                 timeCounter = Time.time;

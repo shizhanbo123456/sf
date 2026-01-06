@@ -174,10 +174,10 @@ public class EnsServerEventRegister
                 return;
             }
             t_content = reply;
-            conn.Send(Header.Q, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            conn.Send(Header.Q, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, buffer =>
             {
-                return StringSerializer.Serialize(t_header, b.bytes, ref b.indexStart)
-                    && StringSerializer.Serialize(t_content, b.bytes, ref b.indexStart);
+                return StringSerializer.Serialize(t_header, buffer.bytes, ref buffer.indexStart)
+                    && StringSerializer.Serialize(t_content, buffer.bytes, ref buffer.indexStart);
             });
         });
     }

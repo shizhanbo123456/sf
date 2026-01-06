@@ -39,6 +39,7 @@ public class GameObjectPool:MonoBehaviour
     }
     public void Return(GameObject obj)
     {
+        if (obj == null) return;
         OnReturn?.Invoke(obj);
         GameObjects.Enqueue(obj);
     }

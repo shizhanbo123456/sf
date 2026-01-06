@@ -25,6 +25,8 @@ public class EnsInstance
     public static float KeySendInterval = 0.05f;//未确认的关键信息发送间隔
     public static float RKeyExistTime = 5f;//对方对关键信息的忽略时长
 
+    public static int frameRate;
+
 #if UNITY_2017_1_OR_NEWER
     public static Action OnConnectionRejected;
     public static Action OnServerConnect;

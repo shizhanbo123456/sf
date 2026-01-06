@@ -8,7 +8,6 @@ namespace ProtocolWrapper
     {
         protected IPAddress IP;
         protected int Port;
-        protected short connectionIndex=0;
         public bool Listening=false;
         public bool Cancelled=false;
 

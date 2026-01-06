@@ -81,7 +81,7 @@ namespace ProtocolWrapper.Protocols.Tcp
             }
             var Connection = new ConnectionTcp();
             Connection.Init(Client);
-            Protocol.OnRecvConnection?.Invoke(Connection, ++connectionIndex);
+            Protocol.OnRecvConnection?.Invoke(Connection);
         }
 
         public override void ShutDown()

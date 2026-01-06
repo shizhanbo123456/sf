@@ -19,7 +19,7 @@ public struct SendTo
     }
 
     private short target;
-    public readonly short Target => target;
+    public short Target => target;
     private SendTo(short target)
     {
         this.target=target;

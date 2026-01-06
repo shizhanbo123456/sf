@@ -30,6 +30,7 @@ public class EnsRoom
         set
         {
             createdid = value;
+            if (createdid >= 30000) createdid -= 29900;
         }
     }
 

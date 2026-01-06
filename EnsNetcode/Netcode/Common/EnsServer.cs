@@ -15,6 +15,8 @@ public class EnsServer
     internal EnsRoomManager RoomManager;
     internal ListenerBase Listener;
 
+    private short connectionIndex=0;
+
     public bool On;
 
     public EnsServer(IPAddress ip, int port)
@@ -22,20 +24,26 @@ public class EnsServer
         Instance = this;
 
         ClientConnections = new Dictionary<int, EnsConnection>();
-        Protocol.OnRecvConnection = (conn, index) => OnRecvConnection(conn, index);
+        Protocol.OnRecvConnection = conn => OnRecvConnection(conn);
 
         Listener = Protocol.GetListener(ip, port);
         RoomManager = new EnsRoomManager();
         On = true;
     }
-    internal virtual void OnRecvConnection(ProtocolBase conn, short index)
+    internal virtual void OnRecvConnection(ProtocolBase conn)
     {
+        if (connectionIndex == short.MaxValue)
+        {
+            connectionIndex = 0;
+        }
+        while(ClientConnections.ContainsKey(connectionIndex))connectionIndex++;
+        short index = connectionIndex;
         EnsConnection connection = new EnsConnection(conn, index,OnConnectionShutDown);
         ClientConnections.Add(index, connection);
     }
     internal void OnConnectionShutDown(EnsConnection conn)
     {
-        if (!On) return;//房间管理器关闭时不会发送退出房间
+        if (!On) return;
         if (conn.room != null) conn.room.Exit(conn);
         ClientConnections.Remove(conn.ClientId);
     }

@@ -84,7 +84,7 @@ namespace ProtocolWrapper.Protocols.Udp
                 var c = new ConnectionUdp();
                 c.Init(this, ep);
                 Connections.Add(ep, c);
-                Protocol.OnRecvConnection?.Invoke(c, ++connectionIndex);
+                Protocol.OnRecvConnection?.Invoke(c);
             }
             var conn = Connections[ep];
             if (!conn.Cancelled) conn.RecvBuffer.Write(b);

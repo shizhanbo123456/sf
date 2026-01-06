@@ -20,7 +20,7 @@ namespace ProtocolWrapper
         /// </summary>
         internal static int id = 0;
 
-        internal static Action<ProtocolBase, short> OnRecvConnection;
+        internal static Action<ProtocolBase> OnRecvConnection;
         internal static Action OnClientInitialized;
 
         public static ConcurrentType mode=ConcurrentType.Multithreading;
