@@ -36,6 +36,7 @@ public class DedicateServerProgram
         global::Loop.LoopServer();
 
         server.Update();
+        server.FlushSendBuffer();
 
         Thread.Sleep(1);
     }

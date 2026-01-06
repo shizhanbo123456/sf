@@ -3,6 +3,8 @@ EnsBehaviour会占用生命周期的Start函数
 不能在Start调用之前设置为disable
 网络物体分配id在Awake之后，_Start之前
 
+EnsBehaviour可重写UpdatePriority，设置为<0则不更新
+
 
 场景中自带的物体，不设置id，会自动为id为0的物体分配id（<0）
 场景中/预制体中，提前为物体分配任意id，会自动生成30000-31999范围的id，强制id碰撞检测，若碰撞会报错

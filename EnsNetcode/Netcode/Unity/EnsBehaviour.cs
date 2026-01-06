@@ -12,6 +12,7 @@ using UnityEngine;
 /// </summary>
 public abstract class EnsBehaviour : MonoBehaviour
 {
+    protected internal int UpdatePriority => 0;
     // <0为玩家设置的初始化场景时制造的物体  >0为游戏过程中制造的物体的Id  =0为未分配的
     public short ObjectId=0;
     public bool nomEnabled = true;

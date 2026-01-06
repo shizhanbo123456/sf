@@ -171,32 +171,12 @@ public static class EnsNetworkObjectManager
     }
     private static bool GetManagedUpdatePriority(EnsBehaviour behaviour, out int priority)
     {
-        priority = 0;
-
-        var method = behaviour.GetType().GetMethod(nameof(EnsBehaviour.ManagedUpdate),
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-        if (method == null) return false; // 无此方法
-
-        var ignore = method.GetCustomAttribute<EnsIgnoreAttribute>();
-        if (ignore != null) return false;
-        var attribute = method.GetCustomAttribute<EnsPriorityAttribute>();
-        priority = attribute?.priority ?? 0; // 无标记默认优先级0
-        return true;
+        priority = behaviour.UpdatePriority;
+        return priority>=0;
     }
     private static bool GetFixedManagedUpdatePriority(EnsBehaviour behaviour, out int priority)
     {
-        priority = 0;
-
-        var method = behaviour.GetType().GetMethod(nameof(EnsBehaviour.FixedManagedUpdate),
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-        if (method == null) return false; // 无此方法
-
-        var ignore = method.GetCustomAttribute<EnsIgnoreAttribute>();
-        if (ignore != null) return false;
-        var attribute = method.GetCustomAttribute<EnsPriorityAttribute>();
-        priority = attribute?.priority ?? 0; // 无标记默认优先级0
-        return true;
+        priority = behaviour.UpdatePriority;
+        return priority>=0;
     }
 }

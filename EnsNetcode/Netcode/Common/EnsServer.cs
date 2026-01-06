@@ -32,11 +32,15 @@ public class EnsServer
     }
     internal virtual void OnRecvConnection(ProtocolBase conn)
     {
-        if (connectionIndex == short.MaxValue)
+        do
         {
-            connectionIndex = 0;
-        }
-        while(ClientConnections.ContainsKey(connectionIndex))connectionIndex++;
+            connectionIndex++;
+            if (connectionIndex == short.MaxValue)
+            {
+                connectionIndex = 0;
+            }
+        } 
+        while (ClientConnections.ContainsKey(connectionIndex));
         short index = connectionIndex;
         EnsConnection connection = new EnsConnection(conn, index,OnConnectionShutDown);
         ClientConnections.Add(index, connection);
