@@ -30,7 +30,7 @@ public static class EnsClientRequest
         if (EnsInstance.Corr.Client == null) return false;
         t_header = header;
         t_content = content;
-        EnsInstance.Corr.Client.Send(Header.Q, SendTo.To(EnsInstance.LocalClientId), SendTo.Server, Delivery.Reliable, (b) =>
+        EnsInstance.Corr.Client.Send(Header.Q, Delivery.Reliable, (b) =>
         {
             return StringSerializer.Serialize(t_header,b.bytes,ref b.indexStart)
                 && StringSerializer.Serialize(t_content, b.bytes, ref b.indexStart);

@@ -53,14 +53,14 @@ public class EnsRoom
         if (CurrentAuthorityAt == -1)
         {
             CurrentAuthorityAt = conn.ClientId;
-            conn.Send(Header.A, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            conn.Send(Header.A, Delivery.Reliable, b =>
             {
                 return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart);
             });
         }
         else
         {
-            conn.Send(Header.A, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            conn.Send(Header.A, Delivery.Reliable, b =>
             {
                 return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
             });
@@ -89,14 +89,14 @@ public class EnsRoom
         if (ClientConnections.ContainsKey(CurrentAuthorityAt))
         {
             var conn = ClientConnections[CurrentAuthorityAt];
-            conn.Send(Header.A, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, b =>
+            conn.Send(Header.A, Delivery.Reliable, b =>
             {
                 return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
             });
         }
         CurrentAuthorityAt= clientId;
         var c = ClientConnections[CurrentAuthorityAt];
-        c.Send(Header.A, SendTo.Server, SendTo.To(c.ClientId), Delivery.Reliable, b =>
+        c.Send(Header.A, Delivery.Reliable, b =>
         {
             return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart);
         });
@@ -104,19 +104,19 @@ public class EnsRoom
 
     internal void Broadcast(byte messageType,Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        foreach (var i in ClientConnections.Values) i.Send(messageType,SendTo.Server,SendTo.To(i.ClientId),delivery,writer);
+        foreach (var i in ClientConnections.Values) i.Send(messageType,delivery,writer);
     }
     internal void Broadcast(int ignore, byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
         foreach (var i in ClientConnections.Values) 
             if (i.ClientId != ignore) 
-                i.Send(messageType, SendTo.Server, SendTo.To(i.ClientId), delivery, writer);
+                i.Send(messageType, delivery, writer);
     }
     internal void PTP(short id, byte messageType,  Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
         if(ClientConnections.TryGetValue(id, out var conn))
         {
-            conn.Send(messageType, SendTo.Server, SendTo.To(id), delivery, writer);
+            conn.Send(messageType, delivery, writer);
         }
     }
 

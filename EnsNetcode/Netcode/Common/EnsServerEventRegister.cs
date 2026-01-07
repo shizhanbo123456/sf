@@ -37,8 +37,8 @@ public class EnsServerEventRegister
     {
         MessageHandlerServer.Regist(Header.H,(conn, b, s) =>
         {
-            int index = s.StartIndex + 6;
-            int invalidIndex=s.StartIndex+ s.Length;
+            int index = s.StartIndex + 2;
+            int invalidIndex = s.StartIndex + s.Length;
             var d = IntSerializer.Deserialize(b, ref index, invalidIndex);
             conn.delay = ((int)(Utils.Time.time * 1000) - d) / 2;
         });
@@ -56,7 +56,7 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.A,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            int index = s.StartIndex + 6;
+            int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             var d = ShortSerializer.Deserialize(b, ref index, invalidIndex);
             conn.room.SetAuthority(d);
@@ -66,7 +66,7 @@ public class EnsServerEventRegister
     private static Segment t_segment;
     static bool BodyWriter(SendBuffer b)
     {
-        if (b.bytes.Length - b.indexStart < t_segment.Length - 6) return false;
+        if (b.bytes.Length - b.indexStart < t_segment.Length +2) return false;
         for (int i = t_segment.StartIndex + 6; i < t_segment.StartIndex + t_segment.Length; i++)
         {
             b.bytes[b.indexStart++] = t_bytes[i];
@@ -79,11 +79,10 @@ public class EnsServerEventRegister
         {
             if (conn.room == null) return;
             byte messageType = b[s.StartIndex];
-            SendTo from = SendTo.To(b[s.StartIndex + 1], b[s.StartIndex + 2]);
-            SendTo to = SendTo.To(b[s.StartIndex + 3], b[s.StartIndex + 4]);
-            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex+5]);
+            SendTo to = SendTo.To(b[s.StartIndex + s.Length - 2], b[s.StartIndex + s.Length - 1]);
+            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex+1]);
             t_bytes = b;
-            t_segment = s;
+            t_segment = new Segment(s.StartIndex,s.Length-2);
             if (to == SendTo.Everyone)
             {
                 conn.room.Broadcast(messageType,delivery,BodyWriter);
@@ -121,12 +120,11 @@ public class EnsServerEventRegister
         {
             if (conn.room == null) return;
             byte messageType = b[s.StartIndex];
-            SendTo from = SendTo.To(b[s.StartIndex + 1], b[s.StartIndex + 2]);
-            SendTo to = SendTo.To(b[s.StartIndex + 3], b[s.StartIndex + 4]);
-            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex + 5]);
+            SendTo to = SendTo.To(b[s.StartIndex + s.Length - 2], b[s.StartIndex + s.Length - 1]);
+            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex + 1]);
 
-            int indexStart = s.StartIndex+6;
-            int invalidIndex = s.StartIndex + s.Length;
+            int indexStart = s.StartIndex+2;
+            int invalidIndex = s.StartIndex + s.Length-2;
             t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart, invalidIndex);
             t_spawnCollectionId=ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
             t_spawnParam= StringSerializer.Deserialize(b,ref indexStart, invalidIndex);
@@ -163,7 +161,7 @@ public class EnsServerEventRegister
     {
         MessageHandlerServer.Regist(Header.Q,(conn, b, s) =>
         {
-            int index = s.StartIndex + 6;
+            int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             t_header = StringSerializer.Deserialize(b, ref index, invalidIndex);
             t_content = StringSerializer.Deserialize(b, ref index, invalidIndex);
@@ -174,7 +172,7 @@ public class EnsServerEventRegister
                 return;
             }
             t_content = reply;
-            conn.Send(Header.Q, SendTo.Server, SendTo.To(conn.ClientId), Delivery.Reliable, buffer =>
+            conn.Send(Header.Q, Delivery.Reliable, buffer =>
             {
                 return StringSerializer.Serialize(t_header, buffer.bytes, ref buffer.indexStart)
                     && StringSerializer.Serialize(t_content, buffer.bytes, ref buffer.indexStart);

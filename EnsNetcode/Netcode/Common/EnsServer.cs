@@ -72,7 +72,7 @@ public class EnsServer
             if (Time.time > i.hbSendTime)
             {
                 t_connection = i;
-                i.Send(Header.H, SendTo.Server, SendTo.To(i.ClientId), Delivery.Unreliable, HeartBeatWriter);
+                i.Send(Header.H,  Delivery.Unreliable, HeartBeatWriter);
                 i.hbSendTime = Time.time + EnsInstance.HeartbeatMsgInterval;
             }
             i.Update();

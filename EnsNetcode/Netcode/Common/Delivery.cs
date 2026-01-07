@@ -4,8 +4,8 @@ using Utils;
 public class DeliverySource
 {
     //Unreliable 0
-    //Reliable 1-200
-    //Orderwise 201-255
+    //Reliable 1-100 resp=101-200 +100
+    //Orderwise 201-227 resp=228-254 +27
     public static readonly byte Unreliable = 0;
 
     private int reliableSource = 1;
@@ -28,7 +28,7 @@ public class DeliverySource
         get
         {
             reliableSource++;
-            if (reliableSource > 200) reliableSource = 1;
+            if (reliableSource > 100) reliableSource = 1;
             return (byte)reliableSource;
         }
     }
@@ -37,11 +37,11 @@ public class DeliverySource
         get
         {
             orderWiseSource++;
-            if (orderWiseSource > 255) orderWiseSource = 201;
+            if (orderWiseSource > 227) orderWiseSource = 201;
             return (byte)orderWiseSource;
         }
     }
-    public byte GetIndex(Delivery delivery)
+    public byte DeliveryToByte(Delivery delivery)
     {
         return delivery switch
         {
@@ -51,21 +51,27 @@ public class DeliverySource
             _ => throw new Exception("Delivery随机数产生器检测到未知类型")
         };
     }
-    public static bool DeliveryEqual(byte b,Delivery d)
-    {
-        switch (d)
-        {
-            case Delivery.Unreliable:return b == 0;
-            case Delivery.Reliable:return b <=200&&b>=1;
-            case Delivery.OrderWise:return b >= 201 && b <= 255;
-        }
-        return false;
-    }
     public static Delivery ByteToDelivery(byte b)
     {
         if (b == 0) return Delivery.Unreliable;
         else if (b >= 1 && b <= 200) return Delivery.Reliable;
         else return Delivery.OrderWise;
+    }
+    public static bool IsResponse(byte b)
+    {
+        return (b >= 101 && b <= 200) || (b >= 228 && b <= 254);
+    }
+    public static byte MessageToResponse(byte b)
+    {
+        if (b >= 1 && b <= 100) return (byte)(b + 100);
+        else if (b >= 201 && b <= 227) return (byte)(b + 27);
+        else throw new Exception("Delivery随机数产生器检测到未知类型");
+    }
+    public static byte ResponseToMessage(byte b)
+    {
+        if (b >= 101 && b <= 200) return (byte)(b - 100);
+        else if (b >= 228 && b <= 254) return (byte)(b - 27);
+        else throw new Exception("Delivery随机数产生器检测到未知类型");
     }
 }
 public enum Delivery

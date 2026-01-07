@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using Utils;
 
-public abstract class SR//具有信息收发功能
+public abstract class DataTransportBase//具有信息收发功能
 {
     internal float hbRecvTime = Time.time+EnsInstance.DisconnectThreshold;//new ReachTime(EnsInstance.DisconnectThreshold, ReachTime.InitTimeFlagType.ReachAfter);
     internal float hbSendTime = Time.time + EnsInstance.HeartbeatMsgInterval;//new ReachTime(EnsInstance.HeartbeatMsgInterval, ReachTime.InitTimeFlagType.ReachAfter);
     internal DeliverySource DeliverySource = DeliverySource.Get();
 
 
-    internal abstract void Send(byte messageType,SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null);
+    internal abstract void Send(byte messageType,Delivery delivery, Func<SendBuffer, bool> writer = null);
     internal abstract void Update();
     internal abstract void FlushSendBuffer();
     internal virtual void ShutDown()
@@ -24,13 +24,11 @@ public abstract class SR//具有信息收发功能
     internal abstract ProtocolBase GetProtocolBase();
 
 
-    internal static void Send(SendBuffer SendBuffer, byte messageType,SendTo sendFrom, SendTo target, byte delivery, Func<SendBuffer, bool> writer = null)
+    internal static void Send(SendBuffer SendBuffer, byte messageType,byte delivery, Func<SendBuffer, bool> writer = null)
     {
         SendBuffer.RequireLength(376);
         int bytesStart = SendBuffer.indexStart;
         ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
-        ShortSerializer.Serialize(sendFrom.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
-        ShortSerializer.Serialize(target.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
         ByteSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
         if (writer != null)
         {
@@ -41,9 +39,7 @@ public abstract class SR//具有信息收发功能
                 SendBuffer.Flush();
                 bytesStart = SendBuffer.indexStart;
                 ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
-                ShortSerializer.Serialize(sendFrom.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
-                ShortSerializer.Serialize(target.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
-                IntSerializer.Serialize(target.Target, SendBuffer.bytes, ref SendBuffer.indexStart);
+                ByteSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
                 if (!writer.Invoke(SendBuffer))
                 {
                     SendBuffer.Clear();
@@ -71,7 +67,6 @@ public abstract class SR//具有信息收发功能
         segments.Clear();
         t_segments.Clear();
         if (data == null || data.Length == 0) return;
-        t_segments.Clear();
 
         SplitDataBySeparator(data);
         if(raw)
@@ -137,15 +132,15 @@ public abstract class SR//具有信息收发功能
 
         while (true)
         {
-            // 最小长度阈值：固定头6字节 + 末尾长度段2字节 = 8字节
-            if (checkTotalLength < 8) { currentSegIndex = mergeSegIndex; return; }
+            // 最小长度阈值
+            if (checkTotalLength < 3) { currentSegIndex = mergeSegIndex; return; }
 
             // 提取末尾2字节Length段（已编码，无分隔符，无需校验）
             int lenRightIdx = checkStartIdx + checkTotalLength - 1;
             int lenLeftIdx = lenRightIdx - 1;
-            int msgDeclaredLength = data[lenLeftIdx] * 200 + data[lenRightIdx];
+            ProtocolBase.BytesToLength( data[lenLeftIdx],data[lenRightIdx],out int msgDeclaredLength);
 
-            //严格遵循你的理解：核心长度校验逻辑
+            //核心长度校验逻辑
             if (checkTotalLength == msgDeclaredLength + 2)
             {
                 segments.Add(new Segment(checkStartIdx, msgDeclaredLength));

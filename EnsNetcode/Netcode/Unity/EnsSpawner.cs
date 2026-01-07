@@ -45,14 +45,14 @@ public sealed class EnsSpawner : MonoBehaviour
         t_id = id;
         t_param = param;
         t_indexStart=GetBehaviourCount(id);
-        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable,Writer_Create);
+        EnsInstance.Corr.Client.Send(Header.f, Delivery.Reliable,Writer_Create);
     }
     public void RespawnCheckServerRpc(SendTo sendto, EnsBehaviourCollection collection, string param)
     {
         t_id = collection.CollectionId;
         t_param = param;
         t_indexStart = collection.Behaviors[0].ObjectId;
-        EnsInstance.Corr.Client.Send(Header.f, SendTo.To(EnsInstance.LocalClientId), sendto, Delivery.Reliable, Writer_Respawn);
+        EnsInstance.Corr.Client.Send(Header.f, Delivery.Reliable, Writer_Respawn);
     }
     private static bool Writer_Create(SendBuffer b)
     {

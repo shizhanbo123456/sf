@@ -45,7 +45,7 @@ public class EnsClientEventRegister
         //成功连接
         MessageHandlerClient.Regist(Header.C,(b,s) =>
         {
-            int index = s.StartIndex + 6;
+            int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             var i=ShortSerializer.Deserialize(b,ref index, invalidIndex);
             EnsInstance.LocalClientId = i;
@@ -57,7 +57,7 @@ public class EnsClientEventRegister
         //事件
         MessageHandlerClient.Regist(Header.E, (b,s) =>
         {
-            int index = s.StartIndex + 6;
+            int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             var e = ByteSerializer.Deserialize(b, ref index, invalidIndex);
             var i = ShortSerializer.Deserialize(b, ref index, invalidIndex);
@@ -71,12 +71,12 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist(Header.H,(b,s) =>
         {
-            int index = s.StartIndex + 6;
+            int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             t_serverTime = IntSerializer.Deserialize(b, ref index, invalidIndex);
             var delay = IntSerializer.Deserialize(b, ref index, invalidIndex);
             EnsInstance.LocalClientDelay = delay;
-            EnsInstance.Corr.Client?.Send(Header.H, SendTo.To(EnsInstance.LocalClientId), SendTo.Server, Delivery.Unreliable,H_Writer);
+            EnsInstance.Corr.Client?.Send(Header.H, Delivery.Unreliable,H_Writer);
         });
     }
     private static bool H_Writer(SendBuffer b)
@@ -94,7 +94,7 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist(Header.A,(b,s) =>
         {
-            int index = s.StartIndex + 6;
+            int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             EnsInstance.HasAuthority = BoolSerializer.Deserialize(b, ref index, invalidIndex);
             EnsInstance.OnAuthorityChanged?.Invoke();
@@ -104,7 +104,7 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist(Header.F,(b,s) =>
         {
-            int indexStart = s.StartIndex + 6;
+            int indexStart = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             short id=ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
             EnsBehaviour obj = EnsNetworkObjectManager.GetObject(id);
@@ -128,7 +128,7 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist(Header.f,(b, s) =>
         {
-            int indexStart = s.StartIndex + 6;
+            int indexStart = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart, invalidIndex);
             t_spawnCollectionId = ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
@@ -142,7 +142,7 @@ public class EnsClientEventRegister
     {
         MessageHandlerClient.Regist(Header.Q,(b,s) =>
         {
-            int index = s.StartIndex + 6;
+            int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
             string header = StringSerializer.Deserialize(b, ref index, invalidIndex);
             string cotent = StringSerializer.Deserialize(b, ref index, invalidIndex);

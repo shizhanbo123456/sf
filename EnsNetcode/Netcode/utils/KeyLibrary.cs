@@ -21,20 +21,16 @@ internal class KeyLibrary
         public float ConfirmedExistingSource;
 
         public byte messageType;
-        public SendTo sendFrom;
-        public SendTo sendTo;
         public byte delivery;
         public Func<SendBuffer, bool> writer;
 
-        public SenderKey(byte messageType, SendTo sendFrom, SendTo sendTo, byte delivery, Func<SendBuffer, bool> writer)
+        public SenderKey(byte messageType,  byte delivery, Func<SendBuffer, bool> writer)
         {
             State = KeyState.TobeConfirmed;
             ToConfirmIntervalLeft = -1f;
             ConfirmedExistingSource = EnsInstance.KeyExistTime + Time.time;
 
             this.messageType = messageType;
-            this.sendFrom= sendFrom;
-            this.sendTo= sendTo;
             this.delivery = delivery;
             this.writer = writer;
         }
@@ -42,8 +38,8 @@ internal class KeyLibrary
     private class OrderedSenderKey:SenderKey
     {
         internal int index;
-        public OrderedSenderKey(int index,byte messageType, SendTo sendFrom, SendTo sendTo, byte delivery, Func<SendBuffer, bool> writer):
-            base(messageType,sendFrom,sendTo,delivery,writer)
+        public OrderedSenderKey(int index,byte messageType, byte delivery, Func<SendBuffer, bool> writer):
+            base(messageType,delivery,writer)
         {
             this.index = index;
         }
@@ -87,14 +83,14 @@ internal class KeyLibrary
                     if (Time.time>k.ConfirmedExistingSource)
                     {
                         k.State = SenderKey.KeyState.End;
-                        Utils.Debug.LogError($"信息未得到确认：type={k.messageType},from={k.sendFrom.Target},to={k.sendTo.Target},delivery={k.delivery}");
+                        Utils.Debug.LogError($"信息未得到确认：type={k.messageType},delivery={k.delivery}");
                     }
 
                     if (Time.time>k.ToConfirmIntervalLeft)
                     {
                         k.ToConfirmIntervalLeft=Time.time+EnsInstance.KeySendInterval;
 
-                        SR.Send(buffer, k.messageType, k.sendTo, k.sendTo, k.delivery, k.writer);
+                        DataTransportBase.Send(buffer, k.messageType, k.delivery, k.writer);
                     }
                     break;
                 }
@@ -109,18 +105,18 @@ internal class KeyLibrary
     /// <summary>
     /// Add后自动发送，无需再发送
     /// </summary>
-    internal void OnSend(byte messageType, SendTo sendFrom,SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void OnSend(byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        var d=deliverySource.GetIndex(delivery);
-        SR.Send(buffer, messageType,sendFrom, target, d, writer);
+        var d=deliverySource.DeliveryToByte(delivery);
+        DataTransportBase.Send(buffer, messageType, d, writer);
         if (delivery == Delivery.Unreliable) return;
         if(delivery== Delivery.Unreliable)
         {
-            Keys.Add(d, new SenderKey(messageType, sendFrom, target, d, writer));
+            Keys.Add(d, new SenderKey(messageType, d, writer));
         }
         else
         {
-            OrderedKeys.Add(d, new OrderedSenderKey(OrderedIndexSource++,messageType, sendFrom, target, d, writer));
+            OrderedKeys.Add(d, new OrderedSenderKey(OrderedIndexSource++,messageType,d, writer));
         }
     }
     private static readonly HashSet<byte>ToRemove=new HashSet<byte>();
@@ -173,17 +169,17 @@ internal class KeyLibrary
     /// </summary>
     internal void OnRecvData(byte[] src,Segment segment, out bool skip)
     {
-        var deliveryKey = src[segment.StartIndex + 5];
+        var deliveryKey = src[segment.StartIndex + 1];
         if (deliveryKey == 0)
         {
             skip = false;
             return;
         }
         ///////////////////////////////////////////////////////////////A收到B对A的回应
-        if (src[segment.StartIndex + 1] == src[segment.StartIndex + 3] && 
-            src[segment.StartIndex + 2] == src[segment.StartIndex + 4])//发送者和接收者相同表示是对关键消息的回复
+        if (DeliverySource.IsResponse(deliveryKey))//发送者和接收者相同表示是对关键消息的回复
         {
             skip= true;
+            deliveryKey=DeliverySource.ResponseToMessage(deliveryKey);
             if (Keys.ContainsKey(deliveryKey))
             {
                 if (Keys[deliveryKey].State == SenderKey.KeyState.TobeConfirmed)
@@ -211,8 +207,7 @@ internal class KeyLibrary
             {
                 skip = true;
             }
-            SendTo from = SendTo.To(src[segment.StartIndex + 1], src[segment.StartIndex + 2]);
-            SR.Send(buffer, src[segment.StartIndex], from, from, src[segment.StartIndex + 5]);
+            DataTransportBase.Send(buffer, src[segment.StartIndex], DeliverySource.MessageToResponse(deliveryKey));
         }
     }
 }

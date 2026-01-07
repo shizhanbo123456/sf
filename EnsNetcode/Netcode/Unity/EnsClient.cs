@@ -5,7 +5,7 @@ using Utils;
 /// <summary>
 /// 实例化时启动客户端
 /// </summary>
-internal class EnsClient:SR
+internal class EnsClient:DataTransportBase
 {
     protected KeyLibrary KeyLibrary;
 
@@ -27,14 +27,14 @@ internal class EnsClient:SR
         Protocol.OnClientInitialized -= OnClientInitialized;
         KeyLibrary = new KeyLibrary(Client.SendBuffer, DeliverySource);
     }
-    internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal override void Send(byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
         if (!Client.Initialized)
         {
             Debug.LogWarning("客户端初始化中");
             return;
         }
-        KeyLibrary.OnSend(messageType, sendFrom, target, delivery, writer);
+        KeyLibrary.OnSend(messageType, delivery, writer);
     }
     internal override void Update()
     {
@@ -74,7 +74,7 @@ internal class EnsClient:SR
     internal override void ShutDown()
     {
         if (Client == null || Client.Cancelled) return;
-        Send(Header.D, SendTo.To(EnsInstance.LocalClientId), SendTo.Server, Delivery.Unreliable);
+        Send(Header.D, Delivery.Unreliable);
         Client.SendBuffer.Flush();
 
         _on = false;

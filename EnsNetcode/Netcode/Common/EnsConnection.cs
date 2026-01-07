@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// <summary>
 /// 服务器使用，用于简化和客户端的通信
 /// </summary>
-public class EnsConnection:SR
+public class EnsConnection:DataTransportBase
 {
     internal short ClientId;
     private KeyLibrary KeyLibrary;
@@ -28,15 +28,15 @@ public class EnsConnection:SR
 
         KeyLibrary = new KeyLibrary(Connection.SendBuffer, DeliverySource);
 
-        Send(Header.C, SendTo.Server, SendTo.To(ClientId), Delivery.Reliable, ClientIdWriter);
+        Send(Header.C, Delivery.Reliable, ClientIdWriter);
     }
     private bool ClientIdWriter(SendBuffer buffer)
     {
         return ShortSerializer.Serialize(ClientId, buffer.bytes,ref buffer.indexStart);
     }
-    internal override void Send(byte messageType, SendTo sendFrom, SendTo target, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal override void Send(byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
     {
-        KeyLibrary.OnSend(messageType,sendFrom,target,delivery,writer);
+        KeyLibrary.OnSend(messageType,delivery,writer);
     }
     internal override void Update()
     {
@@ -70,7 +70,7 @@ public class EnsConnection:SR
     {
         if (Connection==null||Connection.Cancelled) return;
         OnShutDown?.Invoke(this);
-        Send(Header.D, SendTo.Server, SendTo.To(ClientId),Delivery.Unreliable);
+        Send(Header.D,Delivery.Unreliable);
         Connection.SendBuffer.Flush();
 
         _on = false;
