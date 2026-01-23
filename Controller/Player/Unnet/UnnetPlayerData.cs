@@ -6,7 +6,7 @@ using UnityEngine;
 public class UnnetPlayerData : MonoBehaviour
 {
     public UnnetPlayerController PlayerController;
-    public TargetGraphic Anim;
+    [HideInInspector]public TargetGraphic Graphic;
 
     [HideInInspector] public float Jixing;
     [HideInInspector] public float Tengkong;
@@ -14,7 +14,9 @@ public class UnnetPlayerData : MonoBehaviour
 
     public void Awake()//由Spawner在生成时传入信息
     {
-        var att=TargetAttributes.GetGameTimeAttributes(1);
+        Graphic=Instantiate(Tool.PrefabManager.GraphicCollection[0], Vector3.zero, Quaternion.identity, transform).GetComponent<TargetGraphic>();
+
+        var att =TargetAttributes.GetGameTimeAttributes(1);
         Jixing = att.Jixing.Value;
         Tengkong = att.Tengkong.Value;
         Liantiao = att.Liantiao.Value;
@@ -22,11 +24,11 @@ public class UnnetPlayerData : MonoBehaviour
         att = null;
 
         PlayerController.Init(this);
-        Anim.Init(gameObject);
+        Graphic.Init(gameObject);
         CameraInstance.instance.Init(transform);
 
-        Anim.SetName(TargetGraphic.NullName);
-        Anim.SetBarActive(false);
+        Graphic.SetName(TargetGraphic.NullName);
+        Graphic.SetBarActive(false);
 
         Tool.SceneController.Player = gameObject;
     }

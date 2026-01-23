@@ -6,7 +6,7 @@ public class NonSkillPlayerController : MonoBehaviour
 {
     private NonSkillPlayerData playerData;
     private NonSkillPlayerControllerSync targetControllerSync;
-    private GroundDetector groundDetector => playerData.Anim.groundDetector;
+    private GroundDetector groundDetector => playerData.Graphic.groundDetector;
 
     private bool isGrounded;
 

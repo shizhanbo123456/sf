@@ -6,7 +6,7 @@ using UnityEngine;
 public partial class NonSkillPlayerData : EnsBehaviour
 {
     private NonSkillPlayerController PlayerController;
-    public TargetGraphic Anim;
+    [HideInInspector]public TargetGraphic Graphic;
 
     [HideInInspector] public float Jixing;
     [HideInInspector] public float Tengkong;
@@ -17,12 +17,14 @@ public partial class NonSkillPlayerData : EnsBehaviour
 
     public void Init(string data)//由Spawner在生成时传入信息
     {
+        Graphic=Instantiate(Tool.PrefabManager.GraphicCollection[0],Vector3.zero,Quaternion.identity,transform).GetComponent<TargetGraphic>();
+
         id = int.Parse(data);
         isLocalPlayer = FightController.localPlayerId == id;
 
         ServerDataContainer.TryGet((short)id, out var p);
         var Name = p.name;
-        Anim.SetName($"P{id}-{Name}", Color.white);
+        Graphic.SetName($"P{id}-{Name}", Color.white);
 
         var att=TargetAttributes.GetGameTimeAttributes(1);
         Jixing = att.Jixing.Value;
@@ -40,9 +42,9 @@ public partial class NonSkillPlayerData : EnsBehaviour
         }
 
 
-        Anim.Init(gameObject);
-        Anim.SetBarActive(true);
-        Anim.header.SetBarActive(false);
+        Graphic.Init(gameObject);
+        Graphic.SetBarActive(true);
+        Graphic.header.SetBarActive(false);
 
         transform.position = Tool.SceneController.Level.GetPos(0.5f,0.9f);
 

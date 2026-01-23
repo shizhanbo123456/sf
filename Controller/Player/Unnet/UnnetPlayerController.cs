@@ -7,7 +7,7 @@ public class UnnetPlayerController : MonoBehaviour
     private UnnetPlayerData playerData;
     private UnnetPlayerControllerSync targetInfoSync;
     private Rigidbody2D rb;
-    private GroundDetector groundDetector => playerData.Anim.groundDetector;
+    private GroundDetector groundDetector => playerData.Graphic.groundDetector;
 
     private bool isGrounded;
 
