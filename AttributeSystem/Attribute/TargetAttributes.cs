@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AttributeSystem.Attributes
 {
-    public class TargetAttributes
+    public static class TargetAttributes
     {
+        private static Dictionary<int,float>Factor=new Dictionary<int,float>();
         public static GameTimeAttributes GetGameTimeAttributes(int level, float healthScale = 1f)
         {
             float factor = GetFactor(level);
@@ -23,8 +25,10 @@ namespace AttributeSystem.Attributes
         }
         public static float GetFactor(int level)
         {
+            if(Factor.ContainsKey(level))return Factor[level];
             const float expGrowth = 3f;
-            return Mathf.Pow(level+100, expGrowth);//10800 86400 291600 691200 1350000  3200000
+            Factor.Add(level,Mathf.Pow(level+100, expGrowth));//10800 86400 291600 691200 1350000  3200000
+            return Factor[level];
         }
     }
 }
