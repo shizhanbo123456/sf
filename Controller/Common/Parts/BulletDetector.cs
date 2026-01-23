@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 可动态调整大小
+/// </summary>
 public class BulletDetector : MonoBehaviour
 {
     private Target target;
@@ -38,13 +41,14 @@ public class BulletDetector : MonoBehaviour
         Bullets.Clear();
         
         Vector3 playerPos = transform.position + Vector3.up*offsetY;
+        float radius = detectRadius * transform.localScale.x;
         foreach (var i in Bullet.Bullets)
         {
             if (target.Camp==i.Key) continue;
             foreach (var j in i.Value.Values)
             {
                 if (CalHit(j.transform.position, j.LastFramePos, playerPos,
-                    detectRadius * Mathf.Abs(transform.localScale.x)
+                    radius * Mathf.Abs(transform.localScale.x)
                     + j.radius * Mathf.Abs(j.transform.localScale.x)))
                 {
                     Bullets.Add(j);

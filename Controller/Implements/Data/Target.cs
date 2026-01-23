@@ -67,6 +67,8 @@ public abstract partial class Target : MonoBehaviour
             graphic.SpawnOffset * graphic.transform.localScale.y * Vector3.up;
         graphic.transform.localPosition = Vector3.zero;
 
+        if (param.ContainsKey(TargetParams.BodySize)) graphic.transform.localScale = Vector3.one * float.Parse(param[TargetParams.BodySize]);
+
         TimeLineWork = gameObject.AddComponent<TimeLineWork>();
         if (!TryGetComponent(out targetControllerSync)) Debug.LogError("Œ¥’“µΩÕ¨≤Ω");
         if (TryGetComponent(out targetDataSync)) targetDataSync.Init(this,param);

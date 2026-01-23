@@ -8,5 +8,6 @@ public enum TargetParams
     LanternRegenerationTime,
     CanFly,
     Skill,
-    HealthScale
+    HealthScale,
+    BodySize
 }

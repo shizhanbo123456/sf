@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 需要在Start之前调整大小
+/// </summary>
 [RequireComponent(typeof(BoxCollider2D))]
 public class GroundDetector : MonoBehaviour
 {
