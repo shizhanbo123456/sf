@@ -19,6 +19,7 @@ public class Tool:MonoBehaviour
     public static Notice Notice;
     public static SubInput SubInput;
     public static BulletManager BulletManager;
+    public static LevelCreatorManager LevelCreatorManager;
 
 
     public static SceneController SceneController=new SceneController();//生成/摧毁 玩家/场景

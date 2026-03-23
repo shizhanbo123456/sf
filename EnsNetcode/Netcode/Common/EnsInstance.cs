@@ -23,7 +23,7 @@ public class EnsInstance
 
     public static float KeyExistTime = 3f;//关键信息发送生效时长
     public static float KeySendInterval = 0.05f;//未确认的关键信息发送间隔
-    public static float RKeyExistTime = 5f;//对方对关键信息的忽略时长
+    public static float RKeyExistTime = 2f;//对方对关键信息的忽略时长
 
     public static int frameRate;
 

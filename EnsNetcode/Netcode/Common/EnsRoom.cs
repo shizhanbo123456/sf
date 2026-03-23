@@ -39,31 +39,32 @@ public class EnsRoom
     {
         RoomId = id;
     }
-    private static short t_connId;
     internal void Join(EnsConnection conn)
     {
         ClientConnections.Add(conn.ClientId,conn);
         conn.room = this;
-        t_connId = conn.ClientId;
-        Broadcast(conn.ClientId, Header.E, Delivery.Reliable, b =>
-        {
-            return ByteSerializer.Serialize(0x01,b.bytes,ref b.indexStart)
-                && ShortSerializer.Serialize(t_connId, b.bytes, ref b.indexStart);
-        });
+        E_EventMessageWriter.instance.b = 0x01;
+        E_EventMessageWriter.instance.connId = conn.ClientId;
+        Broadcast(conn.ClientId, Header.E, Delivery.Reliable, E_EventMessageWriter.instance);
         if (CurrentAuthorityAt == -1)
         {
             CurrentAuthorityAt = conn.ClientId;
-            conn.Send(Header.A, Delivery.Reliable, b =>
-            {
-                return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart);
-            });
+            BoolWriter.instance.target = true;
+            conn.Send(Header.A, Delivery.Reliable, BoolWriter.instance);
         }
         else
         {
-            conn.Send(Header.A, Delivery.Reliable, b =>
-            {
-                return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
-            });
+            BoolWriter.instance.target = false;
+            conn.Send(Header.A, Delivery.Reliable, BoolWriter.instance);
+        }
+    }
+    private class BoolWriter : MessageWriter
+    {
+        internal static BoolWriter instance=new();
+        internal bool target;
+        public bool Write(SendBuffer b)
+        {
+            return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
         }
     }
     internal void Exit(EnsConnection conn)
@@ -76,11 +77,20 @@ public class EnsRoom
         }
         else
         {
-            Broadcast(conn.ClientId, Header.E, Delivery.Reliable, b =>
-            {
-                return ByteSerializer.Serialize(0x02, b.bytes, ref b.indexStart)
-                    && ShortSerializer.Serialize(t_connId, b.bytes, ref b.indexStart);
-            });
+            E_EventMessageWriter.instance.b = 0x02;
+            E_EventMessageWriter.instance.connId = conn.ClientId;
+            Broadcast(conn.ClientId, Header.E, Delivery.Reliable,E_EventMessageWriter.instance);
+        }
+    }
+    private class E_EventMessageWriter:MessageWriter
+    {
+        internal static E_EventMessageWriter instance=new();
+        internal byte b;
+        internal short connId;
+        public bool Write(SendBuffer b)
+        {
+            return ByteSerializer.Serialize(this.b, b.bytes, ref b.indexStart)
+                    && ShortSerializer.Serialize(connId, b.bytes, ref b.indexStart);
         }
     }
     internal void SetAuthority(short clientId)
@@ -89,30 +99,26 @@ public class EnsRoom
         if (ClientConnections.ContainsKey(CurrentAuthorityAt))
         {
             var conn = ClientConnections[CurrentAuthorityAt];
-            conn.Send(Header.A, Delivery.Reliable, b =>
-            {
-                return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
-            });
+            BoolWriter.instance.target = false;
+            conn.Send(Header.A, Delivery.Reliable, BoolWriter.instance);
         }
         CurrentAuthorityAt= clientId;
         var c = ClientConnections[CurrentAuthorityAt];
-        c.Send(Header.A, Delivery.Reliable, b =>
-        {
-            return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart);
-        });
+        BoolWriter.instance.target = true;
+        c.Send(Header.A, Delivery.Reliable, BoolWriter.instance);
     }
 
-    internal void Broadcast(byte messageType,Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void Broadcast(byte messageType,Delivery delivery, MessageWriter writer = null)
     {
         foreach (var i in ClientConnections.Values) i.Send(messageType,delivery,writer);
     }
-    internal void Broadcast(int ignore, byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void Broadcast(int ignore, byte messageType, Delivery delivery, MessageWriter writer = null)
     {
         foreach (var i in ClientConnections.Values) 
             if (i.ClientId != ignore) 
                 i.Send(messageType, delivery, writer);
     }
-    internal void PTP(short id, byte messageType,  Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void PTP(short id, byte messageType,  Delivery delivery, MessageWriter writer = null)
     {
         if(ClientConnections.TryGetValue(id, out var conn))
         {

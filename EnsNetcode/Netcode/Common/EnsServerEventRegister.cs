@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Utils;
@@ -62,16 +63,20 @@ public class EnsServerEventRegister
             conn.room.SetAuthority(d);
         });
     }
-    private static byte[] t_bytes;
-    private static Segment t_segment;
-    static bool BodyWriter(SendBuffer b)
+    private class F_MessageWriter : MessageWriter
     {
-        if (b.bytes.Length - b.indexStart < t_segment.Length +2) return false;
-        for (int i = t_segment.StartIndex + 6; i < t_segment.StartIndex + t_segment.Length; i++)
+        internal static F_MessageWriter instance = new();
+        internal byte[] t_bytes;
+        internal Segment t_segment;
+        public bool Write(SendBuffer b)
         {
-            b.bytes[b.indexStart++] = t_bytes[i];
+            if (b.bytes.Length - b.indexStart < t_segment.Length + 2) return false;
+            for (int i = t_segment.StartIndex + 6; i < t_segment.StartIndex + t_segment.Length; i++)
+            {
+                b.bytes[b.indexStart++] = t_bytes[i];
+            }
+            return true;
         }
-        return true;
     }
     protected static void Server_F()
     {
@@ -81,40 +86,44 @@ public class EnsServerEventRegister
             byte messageType = b[s.StartIndex];
             SendTo to = SendTo.To(b[s.StartIndex + s.Length - 2], b[s.StartIndex + s.Length - 1]);
             Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex+1]);
-            t_bytes = b;
-            t_segment = new Segment(s.StartIndex,s.Length-2);
+            F_MessageWriter.instance.t_bytes = b;
+            F_MessageWriter.instance.t_segment = new Segment(s.StartIndex,s.Length-2);
             if (to == SendTo.Everyone)
             {
-                conn.room.Broadcast(messageType,delivery,BodyWriter);
+                conn.room.Broadcast(messageType,delivery,F_MessageWriter.instance);
             }
             else if (to == SendTo.ExcludeSender)
             {
-                conn.room.Broadcast(conn.ClientId,messageType,delivery, BodyWriter);
+                conn.room.Broadcast(conn.ClientId,messageType,delivery, F_MessageWriter.instance);
             }
             else if (to == SendTo.RoomOwner)
             {
-                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType,delivery, BodyWriter);
+                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType,delivery, F_MessageWriter.instance);
             }
             else if (to == SendTo.Server) { }
             else
             {
-                conn.room.PTP(to.Target, messageType,delivery, BodyWriter);
+                conn.room.PTP(to.Target, messageType,delivery, F_MessageWriter.instance);
             }
         });
     }
-    private static bool t_spawnMode;
-    private static short t_spawnCollectionId;
-    private static string t_spawnParam;
-    private static short t_spawnIdStart;
-    protected static void Server_f()
+    private class f_MessageWriter : MessageWriter
     {
-        static bool BodyWriter(SendBuffer b)
+        internal static f_MessageWriter instance=new();
+        internal bool t_spawnMode;
+        internal short t_spawnCollectionId;
+        internal string t_spawnParam;
+        internal short t_spawnIdStart;
+        public bool Write(SendBuffer b)
         {
             return BoolSerializer.Serialize(t_spawnMode, b.bytes, ref b.indexStart)
                 && ShortSerializer.Serialize(t_spawnCollectionId, b.bytes, ref b.indexStart)
                 && StringSerializer.Serialize(t_spawnParam, b.bytes, ref b.indexStart)
                 && ShortSerializer.Serialize(t_spawnIdStart, b.bytes, ref b.indexStart);
         }
+    }
+    protected static void Server_f()
+    {
         //物体Id同步
         MessageHandlerServer.Regist(Header.f,(conn, b, s) =>
         {
@@ -125,58 +134,63 @@ public class EnsServerEventRegister
 
             int indexStart = s.StartIndex+2;
             int invalidIndex = s.StartIndex + s.Length-2;
-            t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart, invalidIndex);
-            t_spawnCollectionId=ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
-            t_spawnParam= StringSerializer.Deserialize(b,ref indexStart, invalidIndex);
-            t_spawnIdStart=ShortSerializer.Deserialize(b,ref indexStart, invalidIndex);
-            if (!t_spawnMode)
+            f_MessageWriter.instance.t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart, invalidIndex);
+            f_MessageWriter.instance.t_spawnCollectionId =ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
+            f_MessageWriter.instance.t_spawnParam = StringSerializer.Deserialize(b,ref indexStart, invalidIndex);
+            f_MessageWriter.instance.t_spawnIdStart =ShortSerializer.Deserialize(b,ref indexStart, invalidIndex);
+            if (!f_MessageWriter.instance.t_spawnMode)
             {
                 //createdID+=spawnIdStart,spawnIdStart=createdID
                 short t = conn.room.CreatedId;
-                conn.room.CreatedId +=t_spawnIdStart;
-                t_spawnIdStart = t;
+                conn.room.CreatedId += f_MessageWriter.instance.t_spawnIdStart;
+                f_MessageWriter.instance.t_spawnIdStart = t;
             }
             if (to == SendTo.Everyone)
             {
-                conn.room.Broadcast(messageType, delivery, BodyWriter);
+                conn.room.Broadcast(messageType, delivery, f_MessageWriter.instance);
             }
             else if (to == SendTo.ExcludeSender)
             {
-                conn.room.Broadcast(conn.ClientId, messageType, delivery, BodyWriter);
+                conn.room.Broadcast(conn.ClientId, messageType, delivery, f_MessageWriter.instance);
             }
             else if (to == SendTo.RoomOwner)
             {
-                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType, delivery, BodyWriter);
+                conn.room.PTP(conn.room.CurrentAuthorityAt, messageType, delivery, f_MessageWriter.instance);
             }
             else if (to == SendTo.Server) { }
             else
             {
-                conn.room.PTP(to.Target, messageType,delivery, BodyWriter);
+                conn.room.PTP(to.Target, messageType,delivery, f_MessageWriter.instance);
             }
         });
     }
-    private static string t_header;
-    private static string t_content;
+    private class Q_MessageWriter : MessageWriter
+    {
+        internal static Q_MessageWriter instance = new();
+        internal string t_header;
+        internal string t_content;
+        public bool Write(SendBuffer buffer)
+        {
+            return StringSerializer.Serialize(t_header, buffer.bytes, ref buffer.indexStart)
+                    && StringSerializer.Serialize(t_content, buffer.bytes, ref buffer.indexStart);
+        }
+    }
     protected static void Server_Q()
     {
         MessageHandlerServer.Regist(Header.Q,(conn, b, s) =>
         {
             int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
-            t_header = StringSerializer.Deserialize(b, ref index, invalidIndex);
-            t_content = StringSerializer.Deserialize(b, ref index, invalidIndex);
-            string reply = EnsServerRequest.OnRecvRequest(t_header,t_content, conn);
+            Q_MessageWriter.instance.t_header = StringSerializer.Deserialize(b, ref index, invalidIndex);
+            Q_MessageWriter.instance.t_content = StringSerializer.Deserialize(b, ref index, invalidIndex);
+            string reply = EnsServerRequest.OnRecvRequest(Q_MessageWriter.instance.t_header, Q_MessageWriter.instance.t_content, conn);
             if (reply == string.Empty)
             {
-                Utils.Debug.LogError($"对{t_header}:{t_content}的响应为空");
+                Utils.Debug.LogError($"对{Q_MessageWriter.instance.t_header}:{Q_MessageWriter.instance.t_content}的响应为空");
                 return;
             }
-            t_content = reply;
-            conn.Send(Header.Q, Delivery.Reliable, buffer =>
-            {
-                return StringSerializer.Serialize(t_header, buffer.bytes, ref buffer.indexStart)
-                    && StringSerializer.Serialize(t_content, buffer.bytes, ref buffer.indexStart);
-            });
+            Q_MessageWriter.instance.t_content = reply;
+            conn.Send(Header.Q, Delivery.Reliable, Q_MessageWriter.instance);
         });
     }
 }

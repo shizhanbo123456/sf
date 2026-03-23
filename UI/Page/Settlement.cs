@@ -35,7 +35,7 @@ public class Settlement : MonoBehaviour
     public void Settle(int score1,int score2,int score3)
     {
         gameObject.SetActive(true);
-        ModeName.text = CustomLevel.ModePath;
+        ModeName.text = LevelCreator.CustomLevel.ModePath;
         Score1.text = score1.ToString();
         Score2.text = score2.ToString();
         Score3.text = score3.ToString();

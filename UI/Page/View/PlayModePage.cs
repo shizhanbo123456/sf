@@ -34,11 +34,11 @@ public class PlayModePage : BasePage
     {
         for (int i = 0; i < SkillColumn.childCount; i++)
         {
-            SkillColumn.GetChild(i).GetComponent<SkillColumn>().SetKey(PlayerSkillController.Keys[i]);
+            SkillColumn.GetChild(i).GetComponent<SkillColumn>().SetKey(LevelCreator.TargetTemplate.PlayerSkillController.Keys[i]);
         }
         foreach (var i in HostOnlyObjects) i.SetActive(EnsInstance.HasAuthority);
-        ModeName.text = CustomLevel.ModePath;
-        ModeDes.text = CustomLevel.ModeDescrpition;
+        ModeName.text = LevelCreator.CustomLevel.ModePath;
+        ModeDes.text = LevelCreator.CustomLevel.ModeDescrpition;
         Settings.gameObject.SetActive(Settings.alpha > 0.01f);
     }
     private void Awake()
@@ -58,7 +58,7 @@ public class PlayModePage : BasePage
     {
         if (SettingsOn)
         {
-            int timecount = (int)CustomLevel.FightTime;
+            int timecount = (int)LevelCreator.CustomLevel.FightTime;
             if (lastFrameTime != timecount) TimePassed.text = timecount / 60 + ":" + timecount % 60;
         }
         if (KilledSignalTimeStart < 3+Time.time)
@@ -95,7 +95,7 @@ public class PlayModePage : BasePage
     }
     public SkillColumn CreateSkillColumn(int index)
     {
-        var s = VarietyManager.GetSkill(index);
+        var s = Tool.LevelCreatorManager.GetSkill(index);
         GameObject obj = Instantiate(Tool.PrefabManager.SkillColumn, SkillColumn);
         var _base = obj.GetComponent<SkillColumn>();
         _base.SetSprite(Tool.SpriteManager.GetSprite(s.sprite));

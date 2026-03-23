@@ -5,11 +5,6 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    public enum LevelType
-    {
-        Home, Prepare, Luandou, Gongfang,
-        PVE1, PVE2, PVE3, PVE4, PVE5, PVE6, PVE7
-    }
     [Header("Scaler")]
     [SerializeField]private float size=10;
     [SerializeField]private Vector2 offset = Vector2.zero;

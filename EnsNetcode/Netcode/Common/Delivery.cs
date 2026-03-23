@@ -11,7 +11,10 @@ public class DeliverySource
     private int reliableSource = 1;
     private int orderWiseSource = 201;
     private DeliverySource() { }
-    private static readonly ObjectPool<DeliverySource> pool=new ObjectPool<DeliverySource>(() => new DeliverySource());
+    private static readonly ObjectPool<DeliverySource> pool=new ObjectPool<DeliverySource>(
+        () => new DeliverySource(), 
+        s => { s.reliableSource = 1;s.orderWiseSource = 201; }
+        );
     public static DeliverySource Get()
     {
         var p=pool.Get();
@@ -50,6 +53,22 @@ public class DeliverySource
             Delivery.OrderWise => Orderwise,
             _ => throw new Exception("Delivery随机数产生器检测到未知类型")
         };
+    }
+    public byte Top(Delivery delivery)
+    {
+        if (delivery == Delivery.Unreliable) return Unreliable;
+        if(delivery == Delivery.Reliable)
+        {
+            int a=reliableSource+1;
+            if (a > 100) a = 1;
+            return (byte)a;
+        }
+        else
+        {
+            int b=orderWiseSource+1;
+            if (b > 227) b = 201;
+            return (byte)b;
+        }
     }
     public static Delivery ByteToDelivery(byte b)
     {

@@ -1,4 +1,5 @@
 using AttributeSystem.DataOrientedEffects;
+using LevelCreator.TargetTemplate;
 using System;
 using System.Collections.Generic;
 
@@ -7,11 +8,11 @@ namespace AttributeSystem.Effect
     public struct EffectCollection
     {
         private int adder;
-        private (EffectType, float, float)[] effects;
+        private SingleEffect[] effects;
         /// <summary>
         /// effectType,Value,Time
         /// </summary>
-        public EffectCollection(int adder,params (EffectType, float,float)[] effects)
+        public EffectCollection(int adder,SingleEffect[] effects)
         {
             this.adder = adder;
             this.effects = effects;
@@ -22,8 +23,8 @@ namespace AttributeSystem.Effect
             if(effects.Length == 0) return;
             foreach(var i in effects)
             {
-                receiver.effectController.EffectStart(adder, i.Item1);
-                AddEffect(i.Item1,i.Item2,i.Item3,receiver);
+                receiver.effectController.EffectStart(adder, i.effectType);
+                AddEffect(i.effectType,i.value,i.time,receiver);
             }
         }
         public bool IsEmpty()
@@ -63,5 +64,17 @@ namespace AttributeSystem.Effect
                 default:UnityEngine.Debug.LogError("有效果类型未注册");break;
             }
         }
+    }
+}
+public struct SingleEffect
+{
+    public EffectType effectType;
+    public float value;
+    public float time;
+    public SingleEffect(EffectType effectType,float value,float time)
+    {
+        this.effectType = effectType;
+        this.value = value;
+        this.time = time;
     }
 }

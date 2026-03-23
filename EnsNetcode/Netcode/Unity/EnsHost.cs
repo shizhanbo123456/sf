@@ -37,9 +37,9 @@ internal class EnsHost : EnsConnection
         EnsInstance.LocalClientId = ClientId;
         _on = true;
     }
-    internal override void Send(byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal override void Send(byte messageType, Delivery delivery, MessageWriter writer = null)
     {
-        Send(_buffer, messageType,DeliverySource.DeliveryToByte(delivery), writer);
+        Send(_buffer, messageType,DeliverySource.Unreliable, writer);
     }
     private void OnSend(byte[] bytes,int length)
     {

@@ -28,13 +28,19 @@ public class EnsConnection:DataTransportBase
 
         KeyLibrary = new KeyLibrary(Connection.SendBuffer, DeliverySource);
 
-        Send(Header.C, Delivery.Reliable, ClientIdWriter);
+        ClientIdWriter.instance.currentClientId = ClientId;
+        Send(Header.C, Delivery.Reliable, ClientIdWriter.instance);
     }
-    private bool ClientIdWriter(SendBuffer buffer)
+    private class ClientIdWriter : MessageWriter
     {
-        return ShortSerializer.Serialize(ClientId, buffer.bytes,ref buffer.indexStart);
+        internal static ClientIdWriter instance = new();
+        internal short currentClientId;
+        public bool Write(SendBuffer buffer)
+        {
+            return ShortSerializer.Serialize(currentClientId, buffer.bytes, ref buffer.indexStart);
+        }
     }
-    internal override void Send(byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal override void Send(byte messageType, Delivery delivery, MessageWriter writer = null)
     {
         KeyLibrary.OnSend(messageType,delivery,writer);
     }

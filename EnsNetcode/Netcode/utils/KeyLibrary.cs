@@ -22,9 +22,9 @@ internal class KeyLibrary
 
         public byte messageType;
         public byte delivery;
-        public Func<SendBuffer, bool> writer;
+        public MessageWriter writer;
 
-        public SenderKey(byte messageType,  byte delivery, Func<SendBuffer, bool> writer)
+        public SenderKey(byte messageType,  byte delivery, MessageWriter writer)
         {
             State = KeyState.TobeConfirmed;
             ToConfirmIntervalLeft = -1f;
@@ -38,7 +38,7 @@ internal class KeyLibrary
     private class OrderedSenderKey:SenderKey
     {
         internal int index;
-        public OrderedSenderKey(int index,byte messageType, byte delivery, Func<SendBuffer, bool> writer):
+        public OrderedSenderKey(int index,byte messageType, byte delivery, MessageWriter writer):
             base(messageType,delivery,writer)
         {
             this.index = index;
@@ -105,18 +105,44 @@ internal class KeyLibrary
     /// <summary>
     /// Add后自动发送，无需再发送
     /// </summary>
-    internal void OnSend(byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal void OnSend(byte messageType, Delivery delivery, MessageWriter writer = null)
     {
-        var d=deliverySource.DeliveryToByte(delivery);
-        DataTransportBase.Send(buffer, messageType, d, writer);
-        if (delivery == Delivery.Unreliable) return;
-        if(delivery== Delivery.Unreliable)
+        if (delivery == Delivery.Unreliable)
         {
-            Keys.Add(d, new SenderKey(messageType, d, writer));
+            var d = deliverySource.DeliveryToByte(delivery);
+            DataTransportBase.Send(buffer, messageType, d, writer);
+        }
+        else if(delivery== Delivery.Unreliable)
+        {
+            var d = deliverySource.Top(delivery);
+            if (Keys.ContainsKey(d))
+            {
+                d = deliverySource.DeliveryToByte(delivery);
+                DataTransportBase.Send(buffer, messageType, d, writer);
+                Debug.LogWarning("同时发送了太多关键消息，自动转为非关键传输");
+            }
+            else
+            {
+                d = deliverySource.DeliveryToByte(delivery);
+                Keys.Add(d, new SenderKey(messageType, d, writer));
+                DataTransportBase.Send(buffer, messageType, d, writer);
+            }
         }
         else
         {
-            OrderedKeys.Add(d, new OrderedSenderKey(OrderedIndexSource++,messageType,d, writer));
+            var d = deliverySource.Top(delivery);
+            if (OrderedKeys.ContainsKey(d))
+            {
+                d = deliverySource.DeliveryToByte(delivery);
+                DataTransportBase.Send(buffer, messageType, d, writer);
+                Debug.LogWarning("同时发送了太多有序关键消息，自动转为非关键传输");
+            }
+            else
+            {
+                d = deliverySource.DeliveryToByte(delivery);
+                OrderedKeys.Add(d, new OrderedSenderKey(OrderedIndexSource++, messageType, d, writer));
+                DataTransportBase.Send(buffer, messageType, d, writer);
+            }
         }
     }
     private static readonly HashSet<byte>ToRemove=new HashSet<byte>();
@@ -176,7 +202,7 @@ internal class KeyLibrary
             return;
         }
         ///////////////////////////////////////////////////////////////A收到B对A的回应
-        if (DeliverySource.IsResponse(deliveryKey))//发送者和接收者相同表示是对关键消息的回复
+        if (DeliverySource.IsResponse(deliveryKey))
         {
             skip= true;
             deliveryKey=DeliverySource.ResponseToMessage(deliveryKey);

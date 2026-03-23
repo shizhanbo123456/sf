@@ -1,5 +1,6 @@
 using AttributeSystem.Attributes;
 using AttributeSystem.Effect;
+using LevelCreator.TargetTemplate;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,8 +14,7 @@ public class Bullet : MonoBehaviour
     public bool BulletShot = false;
 
     //Detector
-    [Space]
-    public float radius = 2;
+    public const float radius = 1;
     [HideInInspector] public Vector3 LastFramePos;
     
 
@@ -29,7 +29,7 @@ public class Bullet : MonoBehaviour
     [HideInInspector]public float damageRate;
     [HideInInspector]public int liftStoicLevel;
     public EffectCollection Effects;
-    public Func<Vector3,Vector3,Vector2> hitbackForce;//BulletPos,TargetPos,Power
+    public float hitbackForce;//BulletPos,TargetPos,Power  0:5+2*rate
 
     public Action<Bullet> ReleaseBulletSystemReference;
     public Action<Bullet> ReleaseDamageableReference;
@@ -46,13 +46,12 @@ public class Bullet : MonoBehaviour
         particleController = GetComponent<BulletParticleController>();
         particleController.Stop();
     }
-    public void Init(float rate=1,int liftstoiclevel=1,EffectCollection ec=default, Func<Vector3, Vector3, Vector2>hitback=null)
+    public void Init(float rate=1,int liftstoiclevel=1,EffectCollection ec=default, float hitbackForce=0f)
     {
         damageRate= rate;
         liftStoicLevel = liftstoiclevel;
         Effects = ec;
-        if (hitback == null) hitbackForce = (b,t)=>FigureHitBackForce(5+2*rate,b,t);
-        else hitbackForce = hitback;
+        this.hitbackForce= hitbackForce==0f?5f+2f*rate:hitbackForce;
     }
     public void Shoot()
     {
@@ -132,6 +131,10 @@ public class Bullet : MonoBehaviour
         return triggerValue / (float)negativeValue - 1f;
     }
 
+    public Vector2 OnHitBack(Vector3 target)
+    {
+        return hitbackForce>0?FigureHitBackForce(hitbackForce,transform.position,target) :FigureAttractForce(transform.position,target,-hitbackForce);
+    }
     public static Vector2 FigureHitBackForce(float power,Vector3 bullet,Vector3 target)
     {
         return new Vector2((target.x > bullet.x) ? 0.3f : -0.3f, 0.5f)*power+Vector2.up*2f;

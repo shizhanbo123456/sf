@@ -27,7 +27,7 @@ internal class EnsClient:DataTransportBase
         Protocol.OnClientInitialized -= OnClientInitialized;
         KeyLibrary = new KeyLibrary(Client.SendBuffer, DeliverySource);
     }
-    internal override void Send(byte messageType, Delivery delivery, Func<SendBuffer, bool> writer = null)
+    internal override void Send(byte messageType, Delivery delivery, MessageWriter writer = null)
     {
         if (!Client.Initialized)
         {

@@ -36,37 +36,36 @@ public sealed class EnsSpawner : MonoBehaviour
         }
         throw new System.Exception("[E]无对应的物体");
     }
-
-    private static short t_id;
-    private static string t_param;
-    private static short t_indexStart;
+    private class Writer : MessageWriter
+    {
+        internal static Writer instance = new();
+        internal bool RespawnOrCreate;
+        internal short t_id;
+        internal string t_param;
+        internal short t_indexStart;
+        public bool Write(SendBuffer b)
+        {
+            return BoolSerializer.Serialize(RespawnOrCreate, b.bytes, ref b.indexStart)
+                && ShortSerializer.Serialize(t_id, b.bytes, ref b.indexStart)
+                && StringSerializer.Serialize(t_param, b.bytes, ref b.indexStart)
+                && ShortSerializer.Serialize(t_indexStart, b.bytes, ref b.indexStart);
+        }
+    }
     public void CreateServerRpc(SendTo sendto, short id,string param)
     {
-        t_id = id;
-        t_param = param;
-        t_indexStart=GetBehaviourCount(id);
-        EnsInstance.Corr.Client.Send(Header.f, Delivery.Reliable,Writer_Create);
+        Writer.instance.RespawnOrCreate = false;
+        Writer.instance.t_id = id;
+        Writer.instance.t_param = param;
+        Writer.instance.t_indexStart =GetBehaviourCount(id);
+        EnsInstance.Corr.Client.Send(Header.f, Delivery.Reliable,Writer.instance);
     }
     public void RespawnCheckServerRpc(SendTo sendto, EnsBehaviourCollection collection, string param)
     {
-        t_id = collection.CollectionId;
-        t_param = param;
-        t_indexStart = collection.Behaviors[0].ObjectId;
-        EnsInstance.Corr.Client.Send(Header.f, Delivery.Reliable, Writer_Respawn);
-    }
-    private static bool Writer_Create(SendBuffer b)
-    {
-        return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart)
-            && ShortSerializer.Serialize(t_id, b.bytes, ref b.indexStart)
-            && StringSerializer.Serialize(t_param, b.bytes, ref b.indexStart)
-            && ShortSerializer.Serialize(t_indexStart, b.bytes, ref b.indexStart);
-    }
-    private static bool Writer_Respawn(SendBuffer b)
-    {
-        return BoolSerializer.Serialize(true, b.bytes, ref b.indexStart)
-            && ShortSerializer.Serialize(t_id, b.bytes, ref b.indexStart)
-            && StringSerializer.Serialize(t_param, b.bytes, ref b.indexStart)
-            && ShortSerializer.Serialize(t_indexStart, b.bytes, ref b.indexStart);
+        Writer.instance.RespawnOrCreate = true;
+        Writer.instance.t_id = collection.CollectionId;
+        Writer.instance.t_param = param;
+        Writer.instance.t_indexStart = collection.Behaviors[0].ObjectId;
+        EnsInstance.Corr.Client.Send(Header.f, Delivery.Reliable, Writer.instance);
     }
 
     public void CreateLocal(short id,string param,short idStart)

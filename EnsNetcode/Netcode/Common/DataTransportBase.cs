@@ -10,7 +10,7 @@ public abstract class DataTransportBase//具有信息收发功能
     internal DeliverySource DeliverySource = DeliverySource.Get();
 
 
-    internal abstract void Send(byte messageType,Delivery delivery, Func<SendBuffer, bool> writer = null);
+    internal abstract void Send(byte messageType,Delivery delivery, MessageWriter writer = null);
     internal abstract void Update();
     internal abstract void FlushSendBuffer();
     internal virtual void ShutDown()
@@ -24,7 +24,7 @@ public abstract class DataTransportBase//具有信息收发功能
     internal abstract ProtocolBase GetProtocolBase();
 
 
-    internal static void Send(SendBuffer SendBuffer, byte messageType,byte delivery, Func<SendBuffer, bool> writer = null)
+    internal static void Send(SendBuffer SendBuffer, byte messageType,byte delivery, MessageWriter writer = null)
     {
         SendBuffer.RequireLength(376);
         int bytesStart = SendBuffer.indexStart;
@@ -32,7 +32,7 @@ public abstract class DataTransportBase//具有信息收发功能
         ByteSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
         if (writer != null)
         {
-            var b = writer.Invoke(SendBuffer);
+            var b = writer.Write(SendBuffer);
             if (!b)
             {
                 //无法全部写入
@@ -40,7 +40,7 @@ public abstract class DataTransportBase//具有信息收发功能
                 bytesStart = SendBuffer.indexStart;
                 ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
                 ByteSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
-                if (!writer.Invoke(SendBuffer))
+                if (!writer.Write(SendBuffer))
                 {
                     SendBuffer.Clear();
                     Debug.LogError("写入了超长数据");
@@ -179,4 +179,8 @@ public readonly struct Segment
     {
         return StartIndex + " " + Length;
     }
+}
+internal interface MessageWriter
+{
+    bool Write(SendBuffer buffer);
 }

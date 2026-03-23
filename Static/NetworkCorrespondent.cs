@@ -1,4 +1,5 @@
 using Ens.Request.Client;
+using LevelCreator.TargetTemplate;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -186,12 +187,12 @@ public partial class NetworkCorrespondent : EnsBehaviour
         if (data.Contains('_'))
         {
             var s=data.Split('_');
-            if (EnsInstance.HasAuthority) CustomLevel.TargetKilled(new TargetInfo(s[0]), new TargetInfo(s[1]));
+            if (EnsInstance.HasAuthority) LevelCreator.CustomLevel.TargetKilled(new TargetIdentify(s[0]), new TargetIdentify(s[1]));
             else Debug.LogError("击败消息发送到了非权威客户端");
         }
         else
         {
-            if (EnsInstance.HasAuthority) CustomLevel.TargetKilled(new TargetInfo(data));
+            if (EnsInstance.HasAuthority) LevelCreator.CustomLevel.TargetKilled(new TargetIdentify(data));
             else Debug.LogError("击败消息发送到了非权威客户端");
         }
     }

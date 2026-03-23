@@ -101,22 +101,26 @@ public abstract class EnsBehaviour : MonoBehaviour
     }
     public void Send(Delivery delivery, SendTo sendto)
     {
-        activeObjectId = ObjectId;
-        activeTarget= sendto;
+        Writer.instance.activeObjectId = ObjectId;
+        Writer.instance.activeTarget = sendto;
         //发送字节
-        EnsInstance.Corr.Client.Send(Header.F,delivery, Writer);
+        EnsInstance.Corr.Client.Send(Header.F,delivery, Writer.instance);
     }
-    private static short activeObjectId;
-    private static SendTo activeTarget;
-    private static bool Writer(SendBuffer b)
+    private class Writer : MessageWriter
     {
-        if (b.bytes.Length - b.indexStart < EnsTemporaryBuffer.length+4) return false;
-        ShortSerializer.Serialize(activeObjectId, b.bytes, ref b.indexStart);
-        Buffer.BlockCopy(EnsTemporaryBuffer.bytes, 0, b.bytes, b.indexStart, EnsTemporaryBuffer.length);
-        b.indexStart += EnsTemporaryBuffer.length;
-        EnsTemporaryBuffer.length = 0;
-        ShortSerializer.Serialize(activeTarget.Target, b.bytes, ref b.indexStart);
-        return true;
+        internal static Writer instance = new();
+        internal short activeObjectId;
+        internal SendTo activeTarget;
+        public bool Write(SendBuffer b)
+        {
+            if (b.bytes.Length - b.indexStart < EnsTemporaryBuffer.length + 4) return false;
+            ShortSerializer.Serialize(activeObjectId, b.bytes, ref b.indexStart);
+            Buffer.BlockCopy(EnsTemporaryBuffer.bytes, 0, b.bytes, b.indexStart, EnsTemporaryBuffer.length);
+            b.indexStart += EnsTemporaryBuffer.length;
+            EnsTemporaryBuffer.length = 0;
+            ShortSerializer.Serialize(activeTarget.Target, b.bytes, ref b.indexStart);
+            return true;
+        }
     }
     /// <summary>
     /// 传入的s的片段仅包含(byte func)[string param]部分

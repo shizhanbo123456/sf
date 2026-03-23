@@ -55,7 +55,7 @@ public partial class FightController : EnsBehaviour
         Tool.FightController = this;
     }
 
-    public bool TryLoadLevelLua()=> CustomLevel.CreateCustomLevel(customLevel.logic);
+    public bool TryLoadLevelLua()=> LevelCreator.CustomLevel.CreateCustomLevel(customLevel.logic);
 
     public void StartFight()//网络通讯器会创建玩家
     {
@@ -64,7 +64,7 @@ public partial class FightController : EnsBehaviour
         Fighting = true;
         judgeEndCdRecorder = -10;
 
-        if (EnsInstance.HasAuthority) CustomLevel.OnFightStart();
+        if (EnsInstance.HasAuthority) LevelCreator.CustomLevel.OnFightStart();
     }
     private void SettleRpc()
     {
@@ -72,7 +72,7 @@ public partial class FightController : EnsBehaviour
         if (EnsInstance.HasAuthority)
             foreach (var i in ServerDataContainer.GetAllKeys())
             {
-                CustomLevel.FigureScore(i, out int killscore, out int timescore, out int challengescore);
+                LevelCreator.CustomLevel.FigureScore(i, out int killscore, out int timescore, out int challengescore);
                 var sb = Tool.stringBuilder;
                 sb.Append(killscore).Append('_').Append(timescore).Append('_').Append(challengescore);
                 CallFuncRpc(SettleLocal, SendTo.To(i), Delivery.Reliable, sb.ToString());
@@ -90,8 +90,8 @@ public partial class FightController : EnsBehaviour
         Fighting = false;
         if (EnsInstance.HasAuthority)
         {
-            CustomLevel.ReleaseData();
-            CustomLevel.Dispose();
+            LevelCreator.CustomLevel.ReleaseData();
+            LevelCreator.CustomLevel.Dispose();
         }
     }
 
@@ -102,7 +102,7 @@ public partial class FightController : EnsBehaviour
         if (!Fighting) return;
         if (EnsInstance.HasAuthority)
         {
-            CustomLevel.Update();
+            LevelCreator.CustomLevel.Update();
             if (judgeEndCdRecorder < 1)
             {
                 judgeEndCdRecorder += Time.deltaTime;
@@ -113,7 +113,7 @@ public partial class FightController : EnsBehaviour
             bool end;
             try
             {
-                end = CustomLevel.JudgeEnd();
+                end = LevelCreator.CustomLevel.JudgeEnd();
             }
             catch
             {

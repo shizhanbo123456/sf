@@ -53,7 +53,7 @@ public class SubInput : MonoBehaviour
     {
         if (InputMode == 0)
         {
-            return Input.GetKeyDown(PlayerSkillController.Keys[index]);
+            return Input.GetKeyDown(LevelCreator.TargetTemplate.PlayerSkillController.Keys[index]);
         }
         if (SkillUseSignal[index])
         {

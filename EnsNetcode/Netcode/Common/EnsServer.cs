@@ -71,8 +71,8 @@ public class EnsServer
             }
             if (Time.time > i.hbSendTime)
             {
-                t_connection = i;
-                i.Send(Header.H,  Delivery.Unreliable, HeartBeatWriter);
+                HeartBeatMessageWriter.instance.delay=i.delay;
+                i.Send(Header.H,  Delivery.Unreliable, HeartBeatMessageWriter.instance);
                 i.hbSendTime = Time.time + EnsInstance.HeartbeatMsgInterval;
             }
             i.Update();
@@ -91,11 +91,15 @@ public class EnsServer
     {
         foreach (var i in ClientConnections.Values) i.FlushSendBuffer();
     }
-    private static EnsConnection t_connection;
-    private static bool HeartBeatWriter(SendBuffer buffer)
+    private class HeartBeatMessageWriter : MessageWriter
     {
-        return IntSerializer.Serialize((int)(Utils.Time.time * 1000), buffer.bytes, ref buffer.indexStart)
-            && IntSerializer.Serialize(t_connection.delay, buffer.bytes, ref buffer.indexStart);
+        internal static HeartBeatMessageWriter instance=new();
+        internal int delay;
+        public bool Write(SendBuffer buffer)
+        {
+            return IntSerializer.Serialize((int)(Utils.Time.time * 1000), buffer.bytes, ref buffer.indexStart)
+                && IntSerializer.Serialize(delay, buffer.bytes, ref buffer.indexStart);
+        }
     }
     public virtual void ShutDown()
     {

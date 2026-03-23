@@ -66,22 +66,26 @@ public class EnsClientEventRegister
             else Debug.LogError("[E]存在错误的事件消息");
         });
     }
-    private static int t_serverTime;
     protected static void Client_H()
     {
         MessageHandlerClient.Regist(Header.H,(b,s) =>
         {
             int index = s.StartIndex + 2;
             int invalidIndex = s.StartIndex + s.Length;
-            t_serverTime = IntSerializer.Deserialize(b, ref index, invalidIndex);
+            H_MessageWriter.instance.t_serverTime = IntSerializer.Deserialize(b, ref index, invalidIndex);
             var delay = IntSerializer.Deserialize(b, ref index, invalidIndex);
             EnsInstance.LocalClientDelay = delay;
-            EnsInstance.Corr.Client?.Send(Header.H, Delivery.Unreliable,H_Writer);
+            EnsInstance.Corr.Client?.Send(Header.H, Delivery.Unreliable,H_MessageWriter.instance);
         });
     }
-    private static bool H_Writer(SendBuffer b)
+    internal class H_MessageWriter : MessageWriter
     {
-        return IntSerializer.Serialize(t_serverTime,b.bytes,ref b.indexStart);
+        internal static H_MessageWriter instance = new();
+        internal int t_serverTime;
+        public bool Write(SendBuffer b)
+        {
+            return IntSerializer.Serialize(t_serverTime, b.bytes, ref b.indexStart);
+        }
     }
     protected static void Client_D()
     {
