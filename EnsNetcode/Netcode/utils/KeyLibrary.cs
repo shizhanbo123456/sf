@@ -124,7 +124,7 @@ internal class KeyLibrary
             else
             {
                 d = deliverySource.DeliveryToByte(delivery);
-                Keys.Add(d, new SenderKey(messageType, d, writer));
+                Keys.Add(d, new SenderKey(messageType, d, writer.Clone()));
                 DataTransportBase.Send(buffer, messageType, d, writer);
             }
         }
@@ -140,7 +140,7 @@ internal class KeyLibrary
             else
             {
                 d = deliverySource.DeliveryToByte(delivery);
-                OrderedKeys.Add(d, new OrderedSenderKey(OrderedIndexSource++, messageType, d, writer));
+                OrderedKeys.Add(d, new OrderedSenderKey(OrderedIndexSource++, messageType, d, writer.Clone()));
                 DataTransportBase.Send(buffer, messageType, d, writer);
             }
         }
@@ -159,7 +159,11 @@ internal class KeyLibrary
             foreach (var kvp in Keys)
             {
                 UpdateEvent(buffer, kvp.Value);
-                if (kvp.Value.State == SenderKey.KeyState.End) ToRemove.Add(kvp.Key);
+                if (kvp.Value.State == SenderKey.KeyState.End)
+                {
+                    ToRemove.Add(kvp.Key);
+                    kvp.Value.writer.Dispose();
+                }
             }
             foreach (var i in ToRemove) Keys.Remove(i);
             ToRemove.Clear();
@@ -178,7 +182,12 @@ internal class KeyLibrary
                 if (kvp.Value.index==index) UpdateEvent(buffer,kvp.Value);
             }
 
-            foreach (var kvp in OrderedKeys) if (kvp.Value.State == SenderKey.KeyState.End) ToRemove.Add(kvp.Key);
+            foreach (var kvp in OrderedKeys)
+                if (kvp.Value.State == SenderKey.KeyState.End)
+                {
+                    ToRemove.Add(kvp.Key);
+                    kvp.Value.writer.Dispose();
+                }
             foreach (var i in ToRemove) OrderedKeys.Remove(i);
             ToRemove.Clear();
             if (OrderedKeys.Count == 0) OrderedIndexSource = 0;

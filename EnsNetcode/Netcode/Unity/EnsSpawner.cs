@@ -39,20 +39,31 @@ public sealed class EnsSpawner : MonoBehaviour
     private class Writer : MessageWriter
     {
         internal static Writer instance = new();
+        internal short totarget;
         internal bool RespawnOrCreate;
         internal short t_id;
         internal string t_param;
         internal short t_indexStart;
         public bool Write(SendBuffer b)
         {
-            return BoolSerializer.Serialize(RespawnOrCreate, b.bytes, ref b.indexStart)
+            return ShortSerializer.Serialize(totarget, b.bytes, ref b.indexStart)
+                && BoolSerializer.Serialize(RespawnOrCreate, b.bytes, ref b.indexStart)
                 && ShortSerializer.Serialize(t_id, b.bytes, ref b.indexStart)
                 && StringSerializer.Serialize(t_param, b.bytes, ref b.indexStart)
                 && ShortSerializer.Serialize(t_indexStart, b.bytes, ref b.indexStart);
         }
+        public MessageWriter Clone()
+        {
+            return new Writer() { totarget=totarget,RespawnOrCreate=RespawnOrCreate,t_id=t_id,t_param=t_param,t_indexStart=t_indexStart};
+        }
+        public void Dispose()
+        {
+
+        }
     }
     public void CreateServerRpc(SendTo sendto, short id,string param)
     {
+        Writer.instance.totarget = sendto.Target;
         Writer.instance.RespawnOrCreate = false;
         Writer.instance.t_id = id;
         Writer.instance.t_param = param;
@@ -61,6 +72,7 @@ public sealed class EnsSpawner : MonoBehaviour
     }
     public void RespawnCheckServerRpc(SendTo sendto, EnsBehaviourCollection collection, string param)
     {
+        Writer.instance.totarget = sendto.Target;
         Writer.instance.RespawnOrCreate = true;
         Writer.instance.t_id = collection.CollectionId;
         Writer.instance.t_param = param;

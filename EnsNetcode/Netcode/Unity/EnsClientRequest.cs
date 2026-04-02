@@ -31,6 +31,14 @@ public static class EnsClientRequest
             return StringSerializer.Serialize(t_header, b.bytes, ref b.indexStart)
                 && StringSerializer.Serialize(t_content, b.bytes, ref b.indexStart);
         }
+        public MessageWriter Clone()
+        {
+            return new Q_MessageWriter() {t_header=t_header,t_content=t_content };
+        }
+        public void Dispose()
+        {
+
+        }
     }
     internal static bool SendRequest(string header,string content)
     {

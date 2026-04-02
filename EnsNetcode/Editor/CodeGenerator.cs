@@ -100,12 +100,18 @@ class RpcCodeGenerator
         // 筛选继承自目标基类（直接或间接）且是partial的类
         var targetClasses = root.DescendantNodes()
             .OfType<ClassDeclarationSyntax>()
-            .Where(c => c.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
             .Where(c =>
             {
                 string className = c.Identifier.Text;
                 string fullName = string.IsNullOrEmpty(currentNamespace) ? className : $"{currentNamespace}.{className}";
                 return targetBaseClasses.Contains(fullName);
+            })
+            .Where(c =>
+            {
+                var b = c.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
+                if (!b&& c.Identifier.Text!=nameof(EnsBehaviour)) //EnsBehaviour作为基类，本身不要求partial
+                    UnityEngine.Debug.LogWarning($"类 {c.Identifier.Text} 没有声明为partial，跳过生成代码。");
+                return b;
             })
             .ToList();
 
@@ -296,10 +302,7 @@ class RpcCodeGenerator
         codeBuilder.AppendLine("            action.Invoke(this, bytes);");
         codeBuilder.AppendLine("            return true;");
         codeBuilder.AppendLine("        }");
-        codeBuilder.AppendLine("        else");
-        codeBuilder.AppendLine("        {");
-        codeBuilder.AppendLine("            return base.InvokeFunc(bytes,s);");
-        codeBuilder.AppendLine("        }");
+        codeBuilder.AppendLine("        else return false;");
         codeBuilder.AppendLine("    }");
 
         codeBuilder.AppendLine("}");

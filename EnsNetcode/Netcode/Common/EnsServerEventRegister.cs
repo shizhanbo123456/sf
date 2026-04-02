@@ -71,11 +71,25 @@ public class EnsServerEventRegister
         public bool Write(SendBuffer b)
         {
             if (b.bytes.Length - b.indexStart < t_segment.Length + 2) return false;
-            for (int i = t_segment.StartIndex + 6; i < t_segment.StartIndex + t_segment.Length; i++)
+            for (int i = t_segment.StartIndex + 2; i < t_segment.StartIndex + t_segment.Length; i++)
             {
                 b.bytes[b.indexStart++] = t_bytes[i];
             }
             return true;
+        }
+        public MessageWriter Clone()
+        {
+            byte[] newBuffer = BytesPool.GetBuffer(t_segment.Length);
+            Buffer.BlockCopy(t_bytes,t_segment.StartIndex,newBuffer,0,t_segment.Length);
+            return new F_MessageWriter
+            {
+                t_bytes = newBuffer,
+                t_segment = new Segment(0, t_segment.Length)
+            };
+        }
+        public void Dispose()
+        {
+            BytesPool.ReturnBuffer(t_bytes);
         }
     }
     protected static void Server_F()
@@ -83,6 +97,8 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.F,(conn, b, s) =>
         {
             if (conn.room == null) return;
+            Utils.Debug.Log(s.ToString());
+            Utils.Debug.PrintBytes(b, s);
             byte messageType = b[s.StartIndex];
             SendTo to = SendTo.To(b[s.StartIndex + s.Length - 2], b[s.StartIndex + s.Length - 1]);
             Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex+1]);
@@ -121,6 +137,14 @@ public class EnsServerEventRegister
                 && StringSerializer.Serialize(t_spawnParam, b.bytes, ref b.indexStart)
                 && ShortSerializer.Serialize(t_spawnIdStart, b.bytes, ref b.indexStart);
         }
+        public MessageWriter Clone()
+        {
+            return new f_MessageWriter() { t_spawnMode=t_spawnMode,t_spawnCollectionId=t_spawnCollectionId,t_spawnParam=t_spawnParam,t_spawnIdStart=t_spawnIdStart};
+        }
+        public void Dispose()
+        {
+
+        }
     }
     protected static void Server_f()
     {
@@ -129,11 +153,11 @@ public class EnsServerEventRegister
         {
             if (conn.room == null) return;
             byte messageType = b[s.StartIndex];
-            SendTo to = SendTo.To(b[s.StartIndex + s.Length - 2], b[s.StartIndex + s.Length - 1]);
             Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex + 1]);
 
             int indexStart = s.StartIndex+2;
-            int invalidIndex = s.StartIndex + s.Length-2;
+            int invalidIndex = s.StartIndex + s.Length;
+            SendTo to =SendTo.To(ShortSerializer.Deserialize(b, ref indexStart, invalidIndex));
             f_MessageWriter.instance.t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart, invalidIndex);
             f_MessageWriter.instance.t_spawnCollectionId =ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
             f_MessageWriter.instance.t_spawnParam = StringSerializer.Deserialize(b,ref indexStart, invalidIndex);
@@ -173,6 +197,14 @@ public class EnsServerEventRegister
         {
             return StringSerializer.Serialize(t_header, buffer.bytes, ref buffer.indexStart)
                     && StringSerializer.Serialize(t_content, buffer.bytes, ref buffer.indexStart);
+        }
+        public MessageWriter Clone()
+        {
+            return new Q_MessageWriter() { t_header=t_header,t_content=t_content};
+        }
+        public void Dispose()
+        {
+
         }
     }
     protected static void Server_Q()

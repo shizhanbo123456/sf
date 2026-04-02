@@ -49,7 +49,8 @@ public class EnsServer
     {
         if (!On) return;
         if (conn.room != null) conn.room.Exit(conn);
-        ClientConnections.Remove(conn.ClientId);
+        //ClientConnections.Remove(conn.ClientId);
+        ToRemove.Add(conn.ClientId);
     }
     public void StartListening()
     {
@@ -99,6 +100,14 @@ public class EnsServer
         {
             return IntSerializer.Serialize((int)(Utils.Time.time * 1000), buffer.bytes, ref buffer.indexStart)
                 && IntSerializer.Serialize(delay, buffer.bytes, ref buffer.indexStart);
+        }
+        public MessageWriter Clone()
+        {
+            return new HeartBeatMessageWriter() { delay=delay};
+        }
+        public void Dispose()
+        {
+
         }
     }
     public virtual void ShutDown()

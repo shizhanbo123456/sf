@@ -183,4 +183,6 @@ public readonly struct Segment
 internal interface MessageWriter
 {
     bool Write(SendBuffer buffer);
+    MessageWriter Clone();
+    void Dispose();
 }

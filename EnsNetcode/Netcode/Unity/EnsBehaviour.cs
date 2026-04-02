@@ -103,6 +103,9 @@ public abstract class EnsBehaviour : MonoBehaviour
     {
         Writer.instance.activeObjectId = ObjectId;
         Writer.instance.activeTarget = sendto;
+        Writer.instance.body=BytesPool.GetBuffer(EnsTemporaryBuffer.bytes.Length);
+        Buffer.BlockCopy(EnsTemporaryBuffer.bytes, 0, Writer.instance.body, 0, EnsTemporaryBuffer.length);
+        Writer.instance.length = EnsTemporaryBuffer.length;
         //·¢ËÍ×Ö½Ú
         EnsInstance.Corr.Client.Send(Header.F,delivery, Writer.instance);
     }
@@ -111,15 +114,32 @@ public abstract class EnsBehaviour : MonoBehaviour
         internal static Writer instance = new();
         internal short activeObjectId;
         internal SendTo activeTarget;
+        internal byte[] body;
+        internal int length;
         public bool Write(SendBuffer b)
         {
-            if (b.bytes.Length - b.indexStart < EnsTemporaryBuffer.length + 4) return false;
+            if (b.bytes.Length - b.indexStart < length + 4) return false;
             ShortSerializer.Serialize(activeObjectId, b.bytes, ref b.indexStart);
-            Buffer.BlockCopy(EnsTemporaryBuffer.bytes, 0, b.bytes, b.indexStart, EnsTemporaryBuffer.length);
-            b.indexStart += EnsTemporaryBuffer.length;
-            EnsTemporaryBuffer.length = 0;
+            Buffer.BlockCopy(body, 0, b.bytes, b.indexStart,length);
+            b.indexStart += length;
             ShortSerializer.Serialize(activeTarget.Target, b.bytes, ref b.indexStart);
             return true;
+        }
+        public MessageWriter Clone()
+        {
+            byte[] newBody = BytesPool.GetBuffer(length);
+            Buffer.BlockCopy(body,0,newBody,0,length);
+            return new Writer
+            {
+                activeObjectId = activeObjectId,
+                activeTarget = activeTarget,
+                body = newBody,
+                length = length
+            };
+        }
+        public void Dispose()
+        {
+            BytesPool.ReturnBuffer(body);
         }
     }
     /// <summary>

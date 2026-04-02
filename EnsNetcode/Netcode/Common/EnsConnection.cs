@@ -35,9 +35,18 @@ public class EnsConnection:DataTransportBase
     {
         internal static ClientIdWriter instance = new();
         internal short currentClientId;
+
         public bool Write(SendBuffer buffer)
         {
             return ShortSerializer.Serialize(currentClientId, buffer.bytes, ref buffer.indexStart);
+        }
+        public MessageWriter Clone()
+        {
+            return new ClientIdWriter() { currentClientId=currentClientId};
+        }
+        public void Dispose()
+        {
+            
         }
     }
     internal override void Send(byte messageType, Delivery delivery, MessageWriter writer = null)

@@ -64,7 +64,15 @@ public class EnsRoom
         internal bool target;
         public bool Write(SendBuffer b)
         {
-            return BoolSerializer.Serialize(false, b.bytes, ref b.indexStart);
+            return BoolSerializer.Serialize(target, b.bytes, ref b.indexStart);
+        }
+        public MessageWriter Clone()
+        {
+            return new BoolWriter() { target=target};
+        }
+        public void Dispose()
+        {
+
         }
     }
     internal void Exit(EnsConnection conn)
@@ -91,6 +99,14 @@ public class EnsRoom
         {
             return ByteSerializer.Serialize(this.b, b.bytes, ref b.indexStart)
                     && ShortSerializer.Serialize(connId, b.bytes, ref b.indexStart);
+        }
+        public MessageWriter Clone()
+        {
+            return new E_EventMessageWriter() { b=b,connId=connId};
+        }
+        public void Dispose()
+        {
+
         }
     }
     internal void SetAuthority(short clientId)

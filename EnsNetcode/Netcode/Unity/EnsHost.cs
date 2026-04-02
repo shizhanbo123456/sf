@@ -39,15 +39,12 @@ internal class EnsHost : EnsConnection
     }
     internal override void Send(byte messageType, Delivery delivery, MessageWriter writer = null)
     {
-        Send(_buffer, messageType,DeliverySource.Unreliable, writer);
+        Send(_buffer, messageType,DeliverySource.DeliveryToByte(delivery), writer);
     }
     private void OnSend(byte[] bytes,int length)
     {
         var b=BytesPool.GetBuffer(length);
-        for(int i = 0; i < length; i++)
-        {
-            b[i]=bytes[i];
-        }
+        Buffer.BlockCopy(bytes,0,b,0, length);
         _client.ReceivedData.Write(b);
     }
     internal override void Update()

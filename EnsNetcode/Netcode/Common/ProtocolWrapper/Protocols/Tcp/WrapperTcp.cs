@@ -31,7 +31,7 @@ namespace ProtocolWrapper.Protocols.Tcp
                     int bytesRead = Stream.Read(buffer, 0, buffer.Length);
                     OnRecvData(buffer, bytesRead);
                 }
-                catch (Exception)
+                catch
                 {
                     
                 }
@@ -49,7 +49,7 @@ namespace ProtocolWrapper.Protocols.Tcp
                     int bytesRead = await Stream.ReadAsync(buffer, 0, buffer.Length);
                     OnRecvData(buffer, bytesRead);
                 }
-                catch (Exception)
+                catch
                 {
                     
                 }

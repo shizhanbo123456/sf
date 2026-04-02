@@ -86,6 +86,14 @@ public class EnsClientEventRegister
         {
             return IntSerializer.Serialize(t_serverTime, b.bytes, ref b.indexStart);
         }
+        public MessageWriter Clone()
+        {
+            return new H_MessageWriter() { t_serverTime=t_serverTime};
+        }
+        public void Dispose()
+        {
+
+        }
     }
     protected static void Client_D()
     {
@@ -117,7 +125,7 @@ public class EnsClientEventRegister
                 if (EnsInstance.DevelopmentDebug) Debug.LogError("未找到id为" + id + "的物体");
                 return;
             }
-            if(!obj.InvokeFunc(b, new Segment(s.StartIndex + 8, s.Length - 8)))//额外排除物体id部分
+            if(!obj.InvokeFunc(b, new Segment(s.StartIndex + 4, s.Length - 4)))//额外排除物体id部分
             {
                 Debug.LogError("检测到未注册的函数");
                 Utils.Debug.PrintBytes(b,s);
