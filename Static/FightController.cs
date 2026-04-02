@@ -21,8 +21,8 @@ public partial class FightController : EnsBehaviour
 
     public Action<string> OnModeNameChanged;
     public Action<string> OnDescriptionChanged;
-    private CustomLevelText customLevel;//只存储在房主客户端
-    public CustomLevelText SelectedMode
+    private CustomLevelInfo customLevel;//只存储在房主客户端
+    public CustomLevelInfo SelectedMode
     {
         get => customLevel;
         set
@@ -57,10 +57,15 @@ public partial class FightController : EnsBehaviour
 
     public bool TryLoadLevelLua()=> LevelCreator.CustomLevel.CreateCustomLevel(customLevel.logic);
 
-    public void StartFight()//网络通讯器会创建玩家
+    public void InitFight()
     {
+        Tool.PageManager.PageActive(PageManager.PageType.Prepare, false);
         Tool.SceneController.DestroyLevel();
         Tool.SceneController.DestroyNonSkillPlayer();
+    }
+    public void StartFight()
+    {
+        Tool.PageManager.PageActive(PageManager.PageType.PlayMode, true);
         Fighting = true;
         judgeEndCdRecorder = -10;
 
@@ -73,17 +78,14 @@ public partial class FightController : EnsBehaviour
             foreach (var i in ServerDataContainer.GetAllKeys())
             {
                 LevelCreator.CustomLevel.FigureScore(i, out int killscore, out int timescore, out int challengescore);
-                var sb = Tool.stringBuilder;
-                sb.Append(killscore).Append('_').Append(timescore).Append('_').Append(challengescore);
-                CallFuncRpc(SettleLocal, SendTo.To(i), Delivery.Reliable, sb.ToString());
+                CallFuncRpc(SettleLocal, SendTo.To(i), Delivery.Reliable, killscore,timescore,challengescore);
             }
     }
     [Rpc]
-    private void SettleLocal(string data)
+    private void SettleLocal(int killscore, int timescore,int challengescore)
     {
         StopFightLocal();
-        string[] s = data.Split('_',StringSplitOptions.RemoveEmptyEntries);
-        PlayModeController.Instance.Settle(int.Parse(s[0]), int.Parse(s[1]), int.Parse(s[2]));
+        PlayModeController.Instance.Settle(killscore,timescore,challengescore);
     }
     public void StopFightLocal()//立即停止，不结算，保留关卡
     {

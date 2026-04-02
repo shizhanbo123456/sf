@@ -1,123 +1,193 @@
-using LevelCreator.TargetTemplate;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace LevelCreator
 {
     public static class TargetBuilder
     {
-        private static TargetIdentify info;
-        private static int targetType;//Player,Ore,Lantern,Monster
-        private static int graphicType;
+        // 标准：仅存储独立参数，不存 Info；拆分 TargetIdentify 为基础字段
+        private static short _id;
+        private static int _level;
+        private static float _size;
+        private static string _label;
+        private static int _targetType;
+        private static int _graphicType;
+        private static int _controllerType;
+        private static int _skillControllerType;
+        private static int _effectControllerType;
+        private static Dictionary<TargetParams, string> _params;
 
-        private static int controllerType;//None,Player,Monster
-        private static int skillControllerType;//None,Player,Monster
-        private static int effectControllerType;//None,Default
-        private static Dictionary<TargetParams, string> Params = new();
-        public static void Init(TargetIdentify info, int targetType, int graphicType)
+        /// <summary>
+        /// 标准初始化：带 ID 标识
+        /// </summary>
+        public static void Create(short id)
         {
-            TargetBuilder.info = info;
+            Reset();
+            _id = id;
+        }
 
-            TargetBuilder.targetType = targetType;
-            TargetBuilder.graphicType = graphicType;
-        }
-        public static void LoadController(int controllertype)
+        /// <summary>
+        /// 拆分式设置（方便编辑器/脚本调用）：替换原 SetTargetIdentify，直接设置基础字段
+        /// </summary>
+        public static void SetBaseInfo(int level,float size, string label, int targetType, int graphicType)
         {
-            controllerType = controllertype;
+            _level = level;
+            _size = size;
+            _label = label;
+            _targetType = targetType;
+            _graphicType = graphicType;
         }
-        public static void LoadSkillController(int skillcontrollertype)
+
+        /// <summary>
+        /// 加载控制器
+        /// </summary>
+        public static void LoadController(int controllerType)
         {
-            skillControllerType = skillcontrollertype;
+            _controllerType = controllerType;
         }
-        public static void LoadEffectController(int effectcontrollertype)
+
+        public static void LoadSkillController(int skillControllerType)
         {
-            effectControllerType = effectcontrollertype;
+            _skillControllerType = skillControllerType;
         }
-        public static void LoadParams(Dictionary<TargetParams, string> Params)
+
+        public static void LoadEffectController(int effectControllerType)
         {
-            TargetBuilder.Params = Params;
+            _effectControllerType = effectControllerType;
         }
+
+        /// <summary>
+        /// 加载参数
+        /// </summary>
+        public static void LoadParams(Dictionary<TargetParams, string> paramsDict)
+        {
+            _params = new Dictionary<TargetParams, string>(paramsDict);
+        }
+
+        /// <summary>
+        /// 标准上传：仅此处创建 Info，直接使用拆解后的字段
+        /// </summary>
         public static void Upload()
         {
-            new TargetInfo(info, targetType, graphicType, controllerType, skillControllerType, effectControllerType, Params);
+            TargetInfo info = new TargetInfo
+            {
+                id = _id,
+                // 直接赋值拆解后的字段
+                level = _level,
+                size = _size,
+                label = _label,
+                targetType = _targetType,
+                graphicType = _graphicType,
+                controllerType = _controllerType,
+                skillControllerType = _skillControllerType,
+                effectControllerType = _effectControllerType,
+                param = _params
+            };
+
+            Tool.LevelCreatorManager.LoadInfo(info);
+        }
+
+        /// <summary>
+        /// 标准重置：包含拆解后的所有字段
+        /// </summary>
+        private static void Reset()
+        {
+            _id = 0;
+            // 重置拆解后的 TargetIdentify 字段
+            _level = 0;
+            _size = 0f;
+            _label = string.Empty;
+            // 重置原有基础字段
+            _targetType = 0;
+            _graphicType = 0;
+            _controllerType = 0;
+            _skillControllerType = 0;
+            _effectControllerType = 0;
+            _params = new Dictionary<TargetParams, string>();
         }
     }
-    public struct TargetInfo:Info
+
+    /// <summary>
+    /// 标准 Info 结构体：移除 TargetIdentify，替换为独立字段
+    /// </summary>
+    public struct TargetInfo : Info
     {
-        private TargetIdentify info;
-        private int targetType;//Player,Ore,Lantern,Monster
-        private int graphicType;
+        public short id;
+        // 原 TargetIdentify 拆解后的独立字段
+        public int level;
+        public float size;
+        public string label;
+        // 原有基础字段
+        public int targetType;
+        public int graphicType;
+        public int controllerType;
+        public int skillControllerType;
+        public int effectControllerType;
+        public Dictionary<TargetParams, string> param;
+    }
 
-        private int controllerType;//None,Player,Monster
-        private int skillControllerType;//None,Player,Monster
-        private int effectControllerType;//None,Default
-        private Dictionary<TargetParams, string> param;
-        public TargetInfo(TargetIdentify info, int targetType, int graphicType, int controllerType, int skillControllerType, int effectControllerType, Dictionary<TargetParams, string> param)
+    /// <summary>
+    /// 标准序列化器：适配拆解后的字段，移除 TargetIdentify 序列化逻辑
+    /// </summary>
+    public struct TargetInfoSerializer
+    {
+        public static bool Serialize(TargetInfo value, byte[] result, ref int indexStart)
         {
-            this.info = info;
-            this.targetType = targetType;
-            this.graphicType = graphicType;
-            this.controllerType = controllerType;
-            this.skillControllerType = skillControllerType;
-            this.effectControllerType = effectControllerType;
-            this.param = param;
+            // ID
+            if (!ShortSerializer.Serialize(value.id, result, ref indexStart)) return false;
+
+            // 原 TargetIdentify 拆解后的字段序列化（保持原有顺序和类型）
+            if (!IntSerializer.Serialize(value.level, result, ref indexStart)) return false;
+            if (!FloatSerializer.Serialize(value.size, result, ref indexStart)) return false;
+            if (!StringSerializer.Serialize(value.label, result, ref indexStart)) return false;
+
+            // 基础信息
+            if (!IntSerializer.Serialize(value.targetType, result, ref indexStart)) return false;
+            if (!IntSerializer.Serialize(value.graphicType, result, ref indexStart)) return false;
+            if (!IntSerializer.Serialize(value.controllerType, result, ref indexStart)) return false;
+            if (!IntSerializer.Serialize(value.skillControllerType, result, ref indexStart)) return false;
+            if (!IntSerializer.Serialize(value.effectControllerType, result, ref indexStart)) return false;
+
+            // 字典
+            if (!IntSerializer.Serialize(value.param.Count, result, ref indexStart)) return false;
+            foreach (var p in value.param)
+            {
+                if (!IntSerializer.Serialize((int)p.Key, result, ref indexStart)) return false;
+                if (!StringSerializer.Serialize(p.Value, result, ref indexStart)) return false;
+            }
+
+            return true;
         }
-        public void ApplyForTarget(GameObject obj)
+
+        public static TargetInfo Deserialize(byte[] data, ref int indexStart, int invalidIndex)
         {
-            bool isLocalPlayer = info.owner == EnsInstance.LocalClientId;
-            TargetGraphic graphic;
-            Target target;
-            TargetController controller = null;
-            TargetSkillController skillcontroller = null;
-            TargetEffectController effectController = null;
+            TargetInfo info = new TargetInfo();
+            // ID 反序列化
+            info.id = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
 
-            graphic = Object.Instantiate(Tool.PrefabManager.GraphicCollection[graphicType].gameObject,
-                Vector3.zero, Quaternion.identity, obj.transform).GetComponent<TargetGraphic>();
-            switch (targetType)
-            {
-                case 0: target = obj.AddComponent<PlayerData>(); break;
-                case 1: target = obj.AddComponent<Lantern>(); break;
-                case 2: target = obj.AddComponent<Ore>(); break;
-                case 3: target = obj.AddComponent<Monster>(); break;
-                default: target = null; break;
-            }
-            target.graphic = graphic;
+            // 原 TargetIdentify 拆解后的字段反序列化（移除错误的 spawnX/spawnY 逻辑）
+            info.level = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.size = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.label = StringSerializer.Deserialize(data, ref indexStart, invalidIndex);
 
-            if (isLocalPlayer)
+            // 基础信息反序列化
+            info.targetType = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.graphicType = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.controllerType = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.skillControllerType = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.effectControllerType = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+
+            // 字典反序列化
+            int count = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.param = new Dictionary<TargetParams, string>();
+            for (int i = 0; i < count; i++)
             {
-                switch (controllerType)
-                {
-                    case 0: controller = null; break;
-                    case 1: controller = obj.AddComponent<PlayerController>(); break;
-                    case 2: controller = obj.AddComponent<MonsterController>(); break;
-                    default: controller = null; break;
-                }
-                switch (skillControllerType)
-                {
-                    case 0: skillcontroller = null; break;
-                    case 1: skillcontroller = obj.AddComponent<PlayerSkillController>(); break;
-                    case 2: skillcontroller = obj.AddComponent<MonsterSkillController>(); break;
-                    default: skillcontroller = null; break;
-                }
-                switch (effectControllerType)
-                {
-                    case 0: effectController = null; break;
-                    case 1: effectController = obj.AddComponent<TargetEffectController>(); break;
-                    default: effectController = null; break;
-                }
-                target.controller = controller;
-                target.effectController = effectController;
-                target.skillController = skillcontroller;
+                TargetParams key = (TargetParams)IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                string val = StringSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                info.param[key] = val;
             }
 
-            target.Init(info, param);
-            if (isLocalPlayer)
-            {
-                if (controller) controller.Init(target, param);
-                if (skillcontroller) skillcontroller.Init(target, param);
-                if (effectController) effectController.Init(target, param);
-            }
-            graphic.Init(obj);
+            return info;
         }
     }
 }

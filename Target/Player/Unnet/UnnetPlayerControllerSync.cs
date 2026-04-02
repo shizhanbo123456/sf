@@ -7,7 +7,7 @@ public class UnnetPlayerControllerSync : MonoBehaviour,ITargetcontrollerInfo
 
     public bool FaceRight { get; set; } = true;
     public bool isGrounded { get; set; } = true;
-    public float Resistance { get; set; } = 1f;
+    public bool HitDown { get; set; } = false;
     public bool IgnoreLevitaningPlatrm { get; set; } = false;
     public bool MotionIsNull { get; set; } = true;
 

@@ -23,16 +23,19 @@ public static class BulletDamageOnceSystem
         {
             if (damagedTargets.Contains(target))
             {
+                Debug.Log(false);
                 return false;
             }
             else
             {
+                Debug.Log(true);
                 damagedTargets.Add(target);
                 return true;
             }
         }
         else
         {
+            Debug.Log(true);
             damagedTargets = _hashSetPool.Get();
             _bulletDamagedTargets.Add(bullet, damagedTargets);
             _bulletDamagedTargets[bullet].Add(target);

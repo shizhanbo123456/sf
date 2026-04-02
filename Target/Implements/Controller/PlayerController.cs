@@ -15,7 +15,7 @@ namespace LevelCreator.TargetTemplate
         public override bool OnHitBack(Bullet b)
         {
             var bo = base.OnHitBack(b);
-            if (bo) PlayModeController.Instance.DoFlick(0.3f, Color.white);
+            if (bo) PlayModeController.Instance.ShowHitEffect();
             return bo;
         }
     }

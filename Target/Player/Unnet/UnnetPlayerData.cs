@@ -15,7 +15,8 @@ public class UnnetPlayerData : MonoBehaviour
 
     public void Awake()//由Spawner在生成时传入信息
     {
-        Graphic=Instantiate(Tool.PrefabManager.GraphicCollection[0], Vector3.zero, Quaternion.identity, transform).GetComponent<TargetGraphic>();
+        Graphic=Instantiate(Tool.PrefabManager.GraphicCollection[0], transform).GetComponent<TargetGraphic>();
+        Graphic.transform.position = Vector3.zero;
 
         var att =TargetAttributes.GetGameTimeAttributes(1);
         Jixing = att.Jixing.Value;

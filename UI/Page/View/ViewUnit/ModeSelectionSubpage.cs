@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,11 +32,16 @@ public class ModeSelectionSubpage : MonoBehaviour
     private void UpdateUI()
     {
         HeaderText.text = _currentPath.Count>0?IntToPart[_currentPath[^1]]:string.Empty;
-
-        ActiveButtonsFor(nextSelectionList.Count);
-        for(int i = 0; i < nextSelectionList.Count; i++)
+        List<int> nextPath = new();
+        for (int i = 0; i < nextSelectionList.Count; i++)
         {
-            SelectionButtonsLabels[i].text=IntToPart[CustomLevelSelector.LevelInfo[nextSelectionList[i]].path[_currentPath.Count]];
+            int j=CustomLevelSelector.LevelInfo[nextSelectionList[i]].path[_currentPath.Count];
+            if (!nextPath.Contains(j)) nextPath.Add(j);
+        }
+        ActiveButtonsFor(nextPath.Count);
+        for(int i = 0; i < nextPath.Count; i++)
+        {
+            SelectionButtonsLabels[i].text=IntToPart[nextPath[i]];
         }
         BackButton.SetActive(_currentPath.Count > 0);
     }

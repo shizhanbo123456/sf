@@ -1,4 +1,4 @@
-using AttributeSystem.Effect;
+using LevelCreator.Skills;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -22,9 +22,7 @@ namespace LevelCreator.TargetTemplate
             else if (HealthDirty)
             {
                 HealthDirty = false;
-                var sb = Tool.stringBuilder;
-                sb.Append(DedicatedAttributes.Shengming.Value.Item1).Append('_').Append(DedicatedAttributes.Shengming.Value.Item2);
-                CallFuncRpc(OnSyncHealthLocal, SendTo.ExcludeSender, Delivery.Reliable, sb.ToString());
+                CallFuncRpc(OnSyncHealthLocal, SendTo.ExcludeSender, Delivery.Unreliable, DedicatedAttributes.Shengming.Value.Item1,DedicatedAttributes.Shengming.Value.Item2);
                 HealthDirtyClearCD = 0.15f;
             }
         }
@@ -37,66 +35,64 @@ namespace LevelCreator.TargetTemplate
             DedicatedAttributes.Shengming.Value = (max, present);
         }
         [Rpc]
-        private void OnSyncHealthLocal(string param)
+        private void OnSyncHealthLocal(int max,int present)
         {
-            var s = param.Split('_');
-            DedicatedAttributes.Shengming.Value = (int.Parse(s[0]), int.Parse(s[1]));
+            DedicatedAttributes.Shengming.Value = (max,present);
         }
         public void SyncGongji(int value)
         {
-            CallFuncRpc(Sgj, SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
+            CallFuncRpc(Sgj, SendTo.ExcludeSender, Delivery.Reliable,value);
             DedicatedAttributes.Gongji = value;
         }
         [Rpc]
-        private void Sgj(string data)
+        private void Sgj(int value)
         {
-            DedicatedAttributes.Gongji = int.Parse(data);
+            DedicatedAttributes.Gongji = value;
         }
         public void SyncMingzhong(int value)
         {
-            CallFuncRpc(Smz, SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
+            CallFuncRpc(Smz, SendTo.ExcludeSender, Delivery.Reliable, value);
             DedicatedAttributes.Mingzhong = value;
         }
         [Rpc]
-        private void Smz(string data)
+        private void Smz(int value)
         {
-            DedicatedAttributes.Mingzhong = int.Parse(data);
+            DedicatedAttributes.Mingzhong = value;
         }
         public void SyncBaoji(int value)
         {
-            CallFuncRpc(Sbj, SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
+            CallFuncRpc(Sbj, SendTo.ExcludeSender, Delivery.Reliable, value);
             DedicatedAttributes.Baoji = value;
         }
         [Rpc]
-        private void Sbj(string data)
+        private void Sbj(int value)
         {
-            DedicatedAttributes.Baoji = int.Parse(data);
+            DedicatedAttributes.Baoji = value;
         }
         public void SyncJiashang(int value)
         {
-            CallFuncRpc(Sjs, SendTo.ExcludeSender, Delivery.Reliable, value.ToString());
+            CallFuncRpc(Sjs, SendTo.ExcludeSender, Delivery.Reliable, value);
             DedicatedAttributes.Jiashang = value;
         }
         [Rpc]
-        private void Sjs(string data)
+        private void Sjs(int value)
         {
-            DedicatedAttributes.Jiashang = int.Parse(data);
+            DedicatedAttributes.Jiashang = value;
         }
-        public void UseSkillRpc(int index)
+
+
+
+        public void UseSkillRpc(short index)
         {
-            var sb = Tool.stringBuilder;
-            sb.Append(index).Append('_').
-                Append(target.FaceRight ? '1' : '0');
-            CallFuncRpc(UseSkillLocal, SendTo.Everyone, Delivery.Unreliable, sb.ToString());
+            CallFuncRpc(UseSkillLocal, SendTo.Everyone, Delivery.Unreliable, index,target.FaceRight);
         }
         [Rpc]
-        private void UseSkillLocal(string param)
+        private void UseSkillLocal(short index,bool faceright)
         {
-            string[] s = param.Split('_');
-            int index = int.Parse(s[0]);
-            bool faceright = s[1][0] == '1';
-            Tool.LevelCreatorManager.GetSkill(index).UseSkill(target, target.transform.position, faceright);
+            SkillExecuter.UseSkill(index,target, target.transform.position, faceright);
         }
+
+
         public void SyncEffectIconRpc(HashSet<(EffectType, int)> values)
         {
             if (values == null || values.Count == 0)
@@ -111,12 +107,14 @@ namespace LevelCreator.TargetTemplate
         {
             if (data == "null")
             {
-                target.graphic.header.ShowEffects(new List<EffectType>());
+                target.graphic.ShowEffects(new List<EffectType>());
                 return;
             }
             var list = Format.StringToList(data, int.Parse, '+');
-            target.graphic.header.ShowEffects(list.Select(i => (EffectType)i).ToList());
+            target.graphic.ShowEffects(list.Select(i => (EffectType)i).ToList());
         }
+
+
         public void DestroyRpc()
         {
             CallFuncRpc(DestroyLocal, SendTo.Everyone, Delivery.Reliable);

@@ -112,7 +112,7 @@ namespace LevelCreator.TargetTemplate
                 {
                     c.isGrounded = false;
                 }
-                if (c.Motion == null)
+                if (c.Motion.IsNull)
                 {
                     c.Resistance += Time.deltaTime;
                     if (c.Resistance > 0)
@@ -150,7 +150,7 @@ namespace LevelCreator.TargetTemplate
                 {
                     c.isGrounded = false;
                 }
-                if (c.Motion == null)
+                if (c.Motion.IsNull)
                 {
                     if (c.isGrounded) c.Resistance += Time.deltaTime;
                     if (c.Resistance > 0)
@@ -184,15 +184,13 @@ namespace LevelCreator.TargetTemplate
                     c.rb.velocity = c.Motion.Entry(c.rb.velocity);
                     c.MotionEntered = true;
                 }
-                else if (c.Motion.SpawnTime > c.Motion.WorkTime)
+                else if (c.Motion.SpawnTime > c.Motion.workTime)
                 {
                     c.rb.velocity = c.Motion.Exit(c.rb.velocity);
-                    bool active = c.Motion.ActiveAdded;
-                    c.Motion = null;
+                    c.Motion = new();
                     if (c.Resistance < 0)
                     {
-                        if (active) c.SwitchState(Rigor.Instance);
-                        else c.SwitchState(Hit.Instance);
+                        c.SwitchState(Rigor.Instance);
                     }
                     else if (c.canFly) c.SwitchState(FlyIdle.Instance);
                     else c.SwitchState(WalkIdle.Instance);
@@ -268,8 +266,8 @@ namespace LevelCreator.TargetTemplate
             currentState.Update(this);
             if (target.targetControllerSync.OnPlayerPostUpdate())
             {
-                target.targetControllerSync.SyncController(transform.position, rb.velocity, Resistance,
-                    ignoreLevitatingPlatform, OperationLock.LockedInHierechy, isGrounded, Motion == null);
+                target.targetControllerSync.SyncController(transform.position, rb.velocity, Resistance<0,
+                    ignoreLevitatingPlatform, OperationLock.LockedInHierechy, isGrounded, Motion.IsNull);
             }
         }
         private float jumpcd = -1;
@@ -298,13 +296,13 @@ namespace LevelCreator.TargetTemplate
         {
             int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
             if (Resistance < 0) hitbackResist = 0;
-            else if (Motion != null && Motion.ActiveAdded) hitbackResist = Mathf.Max(hitbackResist, Motion.StoicLevel);
+            else if (!Motion.IsNull) hitbackResist = Mathf.Max(hitbackResist, Motion.stoicLevel);
             if (b.liftStoicLevel > hitbackResist)
             {
-                if (Motion != null)
+                if (!Motion.IsNull)
                 {
                     Motion.Exit(rb.velocity);
-                    Motion = null;
+                    Motion = new();
                 }
                 target.TimeLineWork.Interrupted();
 
@@ -315,7 +313,7 @@ namespace LevelCreator.TargetTemplate
             }
             else
             {
-                if (Motion == null)
+                if (Motion.IsNull)
                 {
                     SetResistance(-0.2f, false);
                     rb.velocity = b.OnHitBack(transform.position);
@@ -328,7 +326,7 @@ namespace LevelCreator.TargetTemplate
         {
             Resistance = value;
             if (strike) hitDown = true;
-            if (Resistance < 0 && Motion == null)
+            if (Resistance < 0 && Motion.IsNull)
             {
                 if (hitDown) SwitchState(Hit.Instance);
                 else SwitchState(Rigor.Instance);
@@ -336,19 +334,17 @@ namespace LevelCreator.TargetTemplate
         }
         public void ApplyMotion(MotionBase m)
         {
-            if (m == null)
+            if (m.IsNull)
             {
                 Debug.LogError("添加了空的运动行为");
                 return;
             }
             MotionEntered = false;
-            if (Motion == null)
+            if (Motion.IsNull)
             {
-                int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
-                if (Resistance < 0) hitbackResist = 0;
-                if (m.StoicLevel >= hitbackResist) Motion = m;
+                Motion = m;
             }
-            else if (m.StoicLevel >= Motion.StoicLevel || m.ActiveAdded)
+            else
             {
                 rb.velocity = Motion.Exit(rb.velocity);
                 Motion = m;

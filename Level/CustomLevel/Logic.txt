@@ -1,0 +1,328 @@
+CustomLevel逻辑：
+
+
+>>>重要！写lua时不要忘记加"CS."命名空间<<<
+本文档是基于unity开发的游戏ShadowForest的关卡逻辑说明文档
+本游戏内的关卡逻辑全部用lua控制,相关说明如下
+
+===================================================================概述
+lua脚本内提供了若干生命周期函数，会在战斗中合适的时机调用
+
+游戏内使用模板来使lua构建buff、子弹、地形、操作、技能
+每类模板单独使用short id,例如子弹占用id:0 地形也可使用id:0
+子弹会使用buff id，作为子弹命中敌人时向被攻击者添加的buff
+操作中可以添加子操作、射击操作、移动操作、buff操作
+技能使用操作，释放技能时会执行该操作
+
+所有操作的定义都必须在InitTemplate
+
+如果某类模板系统不需要任何模板，则不要使用该模板系统，而不是注册空的模板
+
+
+===================================================================测试内容
+如果用户未向你提出明确的工作内容，请你尝试根据本文档内的lua的各种API实现以下测试内容，如果用户提出了工作内容，请无视此板块
+编写一个简单的游戏逻辑
+创建一个水平向前射击的operation
+地形只需要添加一个边框
+场景中为每个客户端生成一个玩家物体，并生成一个Monster
+每个玩家和Monster都只有一个技能就是上述的水平射击
+仅为最小可行测试，不需要任何其它内容(如积分板、选项等)
+
+===================================================================lua脚本内容
+编写的lua脚本内，必须包含：
+string ModeName//模式名称中使用'-'分隔
+string ModeDescription
+void InitTemplate(int ignore)//此参数无意义
+void FightStart(int ignore)//此参数无意义
+void Update(float time,float deltaTime)
+bool JudgeEnd(int ignore)//此参数无意义
+void TargetKilled(TargetIdentify killer,TargetIdentify killed)
+int KillScore(clientid)
+int TimeScore(clientid)
+int ModeScore(clientid)
+void ReleaseData(int ignore)
+
+模板：
+ModeName="测试模式-子模式-模式1"
+ModeDescription="测试模式描述"
+
+function InitTemplate(ignore)
+    
+end
+
+function FightStart(ignore)
+    
+end
+
+--float time：自从战斗开始时的时间
+--float deltaTime:每帧时间
+function Update(time,deltaTime)
+    
+end
+
+function JudgeEnd(ignore)
+	return false
+end
+
+--TargetIdentify killer,killed:击杀者和被击杀者信息,如果killer.camp==-1则为无击杀者意外死亡的
+function TargetKilled(killer,killed)
+    
+end
+
+--释放选项时收到的选项
+function Select(index)
+
+end
+
+--int clientid:玩家的客户端id
+function KillScore(clientid)
+	return 1000
+end
+
+--int clientid:玩家的客户端id
+function TimeScore(clientid)
+	return 2000
+end
+
+--int clientid:玩家的客户端id
+function ModeScore(clientid)
+	return 3600
+end
+
+function ReleaseData(ignore)
+    
+end
+
+
+===========================================================API
+[LuaCallCSharp]
+public struct TargetIdentify
+{
+    public int camp;
+    public int owner;//即客户端id，玩家的id为对应客户端，其它均设置为房主即可
+    public int level;
+    public string name;
+    public float size;
+    public float spawnX;
+    public float spawnY;
+    public string label;
+}
+
+[LuaCallCSharp]
+public static class LevelLogic//地图坐标中，左下角为（0，0）,右上角为（1，1）
+{
+    public static float TimeUsed;
+    public static short[] ClientIds;
+    public static int ClientCount;
+    public static short RoomOwnerId;
+    public static string NullName;//Target名字设为此值时自动隐藏
+    public static string GetName(short clientid);//获取玩家名称
+
+    public static void CreateLevel(short id,float minimapScale);//id:地形模板id
+    public static void DestroyLevel();
+    public static void CreateTarget(short templateid, string name, int camp,int owner,float spawnX,float spawnY);//出生位置为0-1时则为相对位置((0,0)在左下，(1,1)在右上)，出生位置大于1时为绝对位置pos=(spawnX,spawnY)，可能会导致单位出生在地图外
+    public static void ShowScoreboard(string columnHeader1, string columnHeader2, string rowHeader1, string rowHeader2, string rowHeader3);
+    public static void HideScoreboard();
+    public static void SetScoreboardText(int x, int y, string data);
+    public static void ShowSelection(string label, string[] messages);
+    public static void HideSelection(); 
+    public static void ShowTitle(string title);
+    public static void ShowSubtitle(string subtitle);
+}
+
+[XLua.LuaCallCSharp]
+public class ExecutionBuilder
+{
+    //子弹模板
+    //hitbackForce为0时表示使用标准击退(会根据子弹倍率自动计算)
+    //effect可使用未定义的buff id，此时程序认为该子弹无buff
+    //graphicType：0:爆炸 1:火焰 2:普通 3:刀光 4:狼形 5:骷髅
+    public static void CreateBullet(short id,int graphicType,float radius,float lifeTime,float rate,
+        int liftstoiclevel = 1,float hitbackForce = 0f,short effect = -1);
+
+    //buff效果模板
+    //EffectType
+    //{
+    //    HealthRegeneration, Burning, Speed, Slowness, JumpBoost, AgileBoost, AccuracyBoost, AttackBoost, DefenseBoost,
+    //    AgileDecrease, AccuracyDecrease, AttackDecrease, DefenseDecrease, ArmorFortity, ArmorShatter, DamageBoost, DamageDecrease,
+    //    LifeSteal, Luck, BadLuck, Freeze, Stun, Sticky, Silence, Paralysis
+    //}
+    public static void InitEffect(short id);
+    public static void AddEffect(int type, float value, float time);
+    public static void UploadEffect();
+    
+    //地形模板
+    //landscapeSize=(x*16,y*8),x和y不小于1，不大于15
+    public static void CreateLandscape(short id,byte x, byte y);
+    public static void CreatOutline(byte thickness);
+    public static void CreateSolidLand(byte point1x, byte point1y, byte point2x, byte point2y);
+    public static void CreateLevitatingPlatform(byte centerX, byte centerY, byte width);
+    public static void CreateVelocityArea(byte point1x, byte point1y, byte point2x, byte point2y, byte velocityX, byte velocityY);
+    public static void UploadLandscape();
+
+    //行为模板
+    //delay单位为ms
+    public static void InitSkillOperation(short id);
+    public static void AddSubSkillOperator(short delay, short subSkillId);//严禁循环调用，例如a调用a或a调用b再调用a。为防止此类bug，请严格遵循大id调用小id的原则，例如a调用b时，a的id必须大于b的id
+    public static void ShootBullet(short delay, short bulletInfoId, short shootActId);//shortActId使用ShootIdCalclater计算
+    public static void DoMotion(short delay, short motionActId);//motionActId使用MotionIdCalculater计算
+    public static void AddEffect(short delay, short effectId, float operationRadius);//半径：abs(r)<0.1自己，abs(r)%1000=范围，abs(r)//1000=作用目标数量(小于1000为范围内所有)，>0为队友，<0为敌方
+    public static void UploadOperation();
+
+    //技能模板
+    public static void CreateWithoutCD(short id, short iconType, short iconIndex, string name, string des, short operationtime)
+    public static void CreateWithCD(short id, short iconType, short iconIndex, string name, string des, short operationtime, short cd)
+    public static void CreateAsStorable(short id, short iconType, short iconIndex, string name, string des, short operationtime, short cd, short maxStoreTime)
+    public static void AddAction(short actionId, short delay);
+    public static void UploadSkill();
+
+    //单位模板
+    //TargetType:0 玩家   1 Lantern   2 Ore   3 Monster
+    //GraphicType:0 玩家 其它为怪物
+    //TargetController:0 无  1 玩家  2 Monster(主动靠近最近的敌人)
+    //SkillController:0 无  1 玩家  2 Monster(在攻击范围内主动释放)
+    //EffectController:0 无(不受buff影响)  1 标准(正常受到buff影响)
+    public static void CreateTarget(short id,int level, float size, string label, int targetType, int graphicType);//label可以用","分隔，筛选时视为多个label，如"Player,Attacker,Red"
+    public static void LoadController(int controllerType);
+    public static void LoadSkillController(int skillControllerType);
+    public static void LoadEffectController(int effectControllerType);
+    public static void LoadParams(Dictionary<TargetParams, string> paramsDict);
+    public static void UploadTarget();
+}
+
+[LuaCallCSharp]
+public class ShootIdCalclater
+{
+    ///子弹朝向最近敌人发射，无敌人则默认水平向前
+    /// <param name="speedFactor">0-9,speed=3+speedFactor*6</param>
+    public static int Aim(int speedFactor);
+    
+    ///子弹朝向前方发射，角度为相对于水平的角度，越大则越向上，越小则越向下
+    /// <param name="speedFactor">0-9,speed=speedFactor*4+4</param>
+    /// <param name="angleFactor">0-9,angle=angleFactor*15-60</param>
+    public static int Angle(int speedFactor,int angleFactor);
+
+    ///子弹以水平向右为0角度，角度增大会使发射方向逆时针旋转
+    /// <param name="speedFactor">0-4,speed=speedFactor*4+4</param>
+    /// <param name="angleFactor">0-19,angle=angleFactor*18</param>
+    public static int AngleNonFacing(int speedFactor, int angleFactor);
+    
+    ///子弹以朝向最近敌人为0角度(无敌人则为水平向右为0角度)，角度增大会使发射方向逆时针旋转
+    /// <param name="speedFactor">0-4</param>
+    /// <param name="angleFactor">0-19</param>
+    public static int AngleNonFacing2(int speedFactor, int angleFactor);
+
+    ///子弹跟随发射者
+    public static int Follow();
+
+    ///子弹从相对于玩家的某个位置发射，直线运动
+    ///start=playerPosition+Vector2(startx*5-25,starty*5-25),end=playerPosition+Vector2(endx*5-25,endy*5-25)
+    /// <param name="startx">1-9</param>
+    /// <param name="starty">1-9</param>
+    /// <param name="endx">1-9</param>
+    /// <param name="endy">1-9</param>
+    public static int FromTo(int startx,int starty,int endx,int endy);
+
+    ///子弹环绕玩家运动
+    /// <param name="angleOffsetFactor">0-7,半径=radiusFactor*2+2</param>
+    /// <param name="orbitSpeedFactor">0-9,旋转速度(角度/秒)=orbitSpeedFactor*15+15</param>
+    /// <param name="radiusFactor">0-9,初始角度偏移=angleOffsetFactor*45</param>
+    public static int Orbit(int angleOffsetFactor,int orbitSpeedFactor,int radiusFactor);
+
+    ///子弹环绕运动，环绕中心位置不会改变
+    ///atNearestEnemyOrSelf为true且附近有敌人时以最近敌人为中心，否则以玩家为中心
+    /// <param name="angleOffsetFactor">0-7,半径=radiusFactor*2+2</param>
+    /// <param name="orbitSpeedFactor">0-9,旋转速度(角度/秒)=orbitSpeedFactor*15+15</param>
+    /// <param name="radiusFactor">0-9,初始角度偏移=angleOffsetFactor*45</param>
+    public static int OrbitWorld(int angleOffsetFactor, int orbitSpeedFactor, int radiusFactor,bool atNearestEnemyOrSelf);
+    
+    ///子弹以抛物线运动，发射后会受到重力影响
+    /// <param name="horizontalSpeedFactor">1-9,vx=horizontalSpeedFactor*4-20</param>
+    /// <param name="verticalSpeedFactor">0-9,vy=verticalSpeedFactor*2</param>
+    public static int Projectile(int horizontalSpeedFactor, int verticalSpeedFactor);
+
+    ///不受重力影响，子弹以抛物线运动，一段时间后命中最近敌人位置(附近无敌人则为自身位置)
+    ///此类子弹的lifetime最好只比hitTime略微大一点，否则子弹命中后会不断加速，玩家难以躲避
+    /// <param name="startAngleFactor">0-7,发射角度=startAngleFactor*45</param>
+    /// <param name="startSpeedFactor">0-9,初速度=startSpeedFactor*2+2</param>
+    /// <param name="hitTimeFactor">0-9,命中时间=hitTimeFactor*0.3+1</param>
+    public static int ProjectileAim(int startAngleFactor,int startSpeedFactor,int hitTimeFactor);
+    
+    ///此类子弹发射时产生在相对于玩家的某个位置，发射后静止不动，存在时机极短的子弹(例如爆炸)可使用此类
+    /// <param name="horizontalOffset">1-9,xoffset=horizontalOffset*5-25</param>
+    /// <param name="verticalOffset">1-9,yoffset=verticalOffset*5-25</param>
+    public static int Static(int horizontalOffset,int verticalOffset);
+
+    ///此类子弹发射时产生在相对于最近敌人(附近无敌人则为玩家自身)的某个位置，发射后静止不动，存在时机极短的子弹(例如爆炸)可使用此类
+    /// <param name="horizontalOffset">1-9,xoffset=horizontalOffset*5-25</param>
+    /// <param name="verticalOffset">1-9,yoffset=verticalOffset*5-25</param>
+    public static int Static2(int horizontalOffset, int verticalOffset);
+
+    ///此类子弹发射时产生在相对于玩家的某个位置，发射后位置不动，但半径会改变
+    /// <param name="startScaleFactor">0-4,初始半径=radius*0.5f*startScaleFactor</param>
+    /// <param name="endScaleFactor">0-4,最终半径=radius*0.5f*endScaleFactor</param>
+    /// <param name="horizontalOffset">1-9,xoffset=horizontalOffset*5-25</param>
+    /// <param name="verticalOffset">1-9,yoffset=verticalOffset*5-25</param>
+    public static int StaticScaleChange(int startScaleFactor,int endScaleFactor,int horizontalOffset, int verticalOffset);
+}
+
+[LuaCallCSharp]
+public static class MotionIdCalculater
+{
+    //speed=speedFactor*6-30
+    //下文中的speedx,speedy等均使用此公式计算得到的speed
+
+    //静止不动。如果释放技能期间不能移动，可为玩家添加此类位移效果
+    public static int GetStaticId(float time, int stoicLevel);
+    //匀速直线运动
+    public static int GetDirId(float time, int stoicLevel, int speedx, int speedy);
+    //匀加速直线运动
+    public static int GetForceId(float time, int stoicLevel, int speedx, int speedy);
+    //速度由插值计算得出，需要变速或曲线移动可使用
+    public static int GetLerpId(float time, int stoicLevel, int startx, int starty, int endx, int endy);
+    //只有在被添加位移效果的一刻，速度被调整为目标值。此类位移效果的生效时间建议设置得较短，例如0.1s
+    public static int GetPluseId(float time, int stoicLevel, int speedx, int speedy);
+}
+
+===================================================================================TargetParams
+[LuaCallCSharp]
+public enum TargetParams
+{
+    RegenerationRate,
+    MonsterSkillCD,
+    LanternRegenerationTime,
+    CanFly,
+    Skill,
+    HealthScale,
+    BodySize
+}
+
+0
+仅限玩家角色信息
+float:每秒回血的比例(默认0.01)
+
+1
+仅限MonsterSkillController
+float:使用技能的cd(默认5.0)
+
+2
+仅限Lantern
+float:复活时间(默认30.0)
+
+3
+角色控制器
+int:0步行 1飞行(默认0)
+
+4
+技能控制器-通用
+技能编号的集合，形如 1/2/3/4/5/6
+最多装载6个技能
+默认无技能
+
+5
+角色信息
+int:控制单位相对于标准属性的生命值倍率(默认1)
+
+6
+单位大小
+float:单位的身体的大小(默认1)

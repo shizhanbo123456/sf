@@ -18,12 +18,19 @@ public class PrefabManager : MonoBehaviour
     [Space]
     public GameObject RoomInfoUnit;
     [Header("Level")]
-    public List<Level> Levels = new List<Level>();
+    public GameObject HomeLevel;
+    public GameObject PrepareLevel;
+    public GameObject FightLevel;
+    public List<GameObject> LevitatingPlatform = new();
+    public VelocityInArea VelocityInArea;
+    public List<GameObject> Tiles = new();
+    public Collider2D TileCollider = new();
     [Header("Player")]
     public GameObject UnnetPlayer;
     public EnsBehaviourCollection NonSkillPlayerCollection;
     public TargetHeader TargetHeader;
     [Header("Target")]
     public EnsBehaviourCollection TargetCollection;
+    public GameObject TargetMinimap;
     public List<TargetGraphic> GraphicCollection= new List<TargetGraphic>();
 }

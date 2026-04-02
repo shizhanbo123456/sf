@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace LevelCreator.TargetTemplate
 {
+    /// <summary>
+    /// 组装后初始化，初始化无依赖
+    /// </summary>
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(BulletDetector))]
     [RequireComponent(typeof(GroundDetector))]
@@ -43,7 +46,7 @@ namespace LevelCreator.TargetTemplate
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(Vector3.down * SpawnOffset + transform.position, 0.1f);
         }
-        public void Init(GameObject obj)
+        public void Init(GameObject obj,int camp=-1)
         {
             rb = obj.GetComponent<Rigidbody2D>();
             anim = GetComponent<Animator>();
@@ -51,9 +54,11 @@ namespace LevelCreator.TargetTemplate
             bulletDetector = GetComponent<BulletDetector>();
             groundDetector = GetComponent<GroundDetector>();
 
-            if (obj.TryGetComponent<Target>(out var t))
+            MinimapIcon=Instantiate(Tool.PrefabManager.TargetMinimap.gameObject,transform).GetComponent<SpriteRenderer>();
+            MinimapIcon.transform.localPosition = Vector3.zero;
+            if (camp>=0)
             {
-                MinimapIcon.color = Tool.SpriteManager.TargetToColor(t);
+                MinimapIcon.color = Tool.SpriteManager.TargetToColor(camp);
             }
             if (obj.TryGetComponent(out Icontroller))
             {
@@ -72,7 +77,7 @@ namespace LevelCreator.TargetTemplate
             if (header) return;
             if (pool == null) pool = GameObjectPool.Create(Tool.PrefabManager.TargetHeader.gameObject, o => o.SetActive(false), o => o.SetActive(true));
             header = pool.Get().GetComponent<TargetHeader>();
-            header.transform.SetParent(Tool.SceneController.Level.Canvas);
+            header.transform.SetParent(Tool.SceneController.SingleLevel.Canvas);
             headerOffset = SpawnOffset + 1;
         }
         public void SetName(string text, Color color = default)
@@ -92,7 +97,18 @@ namespace LevelCreator.TargetTemplate
         }
         public void SetBarActive(bool active)
         {
+            if (!header) InitHeader();
             header.gameObject.SetActive(active);
+        }
+        public void SetBarValue(float value)
+        {
+            if (!header) InitHeader();
+            header.SetBarValue(value);
+        }
+        public void ShowEffects(List<EffectType> effects)
+        {
+            if (!header) InitHeader();
+            header.ShowEffects(effects);
         }
         private void OnSync()
         {

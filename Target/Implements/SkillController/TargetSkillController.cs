@@ -1,3 +1,4 @@
+using LevelCreator.Skills;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace LevelCreator.TargetTemplate
     public class TargetSkillController : MonoBehaviour
     {
         protected Target target;
-        public List<SkillBaseController> Skills = new List<SkillBaseController>();
+        public List<SkillControllerBase> Skills = new List<SkillControllerBase>();
         private HashSet<int> UseSkillCommandBuffer = new HashSet<int>();
         private float TimeNeeded = 0;
 
@@ -22,10 +23,10 @@ namespace LevelCreator.TargetTemplate
 
             if (param.ContainsKey(TargetParams.Skill))
             {
-                var skillIndex = Format.StringToList(param[TargetParams.Skill], int.Parse);
+                var skillIndex = Format.StringToList(param[TargetParams.Skill], short.Parse);
                 for (int i = 0; i < skillIndex.Count; i++)
                 {
-                    CreateSkillColumn(data, skillIndex[i]);
+                    CreateSkillController(skillIndex[i]);
                 }
             }
             SkillLock = data.SkillLock.GetChain();
@@ -34,29 +35,29 @@ namespace LevelCreator.TargetTemplate
 
             Initialized = true;
         }
-        public virtual void CreateSkillColumn(Target data, int index)
+        public virtual void CreateSkillController(short index)
         {
-            Skills.Add(Tool.LevelCreatorManager.GetSkill(index).CreateSkillController(data, index, false));
+            var controller = SkillExecuter.CreateSkillController(index, target);
+            Skills.Add(controller);
         }
-        public virtual void DetroySkillColumnByIndex(int index)
+        public void ClearSkillControllers()
         {
-            if (index >= 0 && index < Skills.Count)
-            {
-                Skills[index].OnDiscard();
-                Skills.RemoveAt(index);
-            }
+            PlayModeController.Instance.DestroyAllSkillColumns();
+            Skills.Clear();
         }
         protected virtual void OnDestroy()
         {
-            foreach (var i in Skills) i.OnDiscard();
-            Skills.Clear();
+            ClearSkillControllers();
         }
         protected virtual void Update()
         {
             if (!Initialized) return;
             PreUpdate();
 
-            foreach (var i in Skills) i.Update();
+            foreach (SkillControllerBase i in Skills)
+            {
+                i.Update();
+            }
 
             if (TimeNeeded > 0)
             {
@@ -78,27 +79,31 @@ namespace LevelCreator.TargetTemplate
             }
             UseSkillCommandBuffer.Clear();
         }
-        public virtual void PreUpdate()
-        {
-
-        }
-        public bool UseSkillByOwnedIndex(int x)
+        private bool UseSkillByOwnedIndex(int x)
         {
             if (SkillLock.LockedInHierechy) return false;
             if (x >= Skills.Count) return false;
             var s = Skills[x];
             if (!s.CanUse()) return false;
-            LevelCreator.Skills.SkillBase skill = Tool.LevelCreatorManager.GetSkill(s.SkillIndex);
-            TimeNeeded = skill.TimeNeeded;
-            s.OnUse();
+            var skill = Tool.LevelCreatorManager.GetSkillInfo(s.SkillIndex);
+            TimeNeeded = skill.operationtime * 0.001f;
             target.UseSkillRpc(s.SkillIndex);
+            s.OnUse();
             return true;
         }
-        public LevelCreator.Skills.SkillBase GetSkillByOwnedIndex(int x) => 
-            (x < Skills.Count && x >= 0) ? Tool.LevelCreatorManager.GetSkill(Skills[x].SkillIndex) : null;
-        public void UseSkillBuffer(int index)
+        public bool CanUseSkill() => target.SkillLock.LockedInHierechy;
+        public virtual void PreUpdate()
         {
-            if (!UseSkillCommandBuffer.Contains(index)) UseSkillCommandBuffer.Add(index);
+
+        }
+        public void UseSkillByIndex(int index)
+        {
+            if (index < 0 && index >= Skills.Count) return;
+            if (!UseSkillCommandBuffer.Contains(Skills[index].SkillIndex)) UseSkillCommandBuffer.Add(Skills[index].SkillIndex);
+        }
+        public void UseSkillById(int id)
+        {
+            if (!UseSkillCommandBuffer.Contains(id)) UseSkillCommandBuffer.Add(id);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace LevelCreator.TargetTemplate
         }
         public MonsterType Type;*/
 
-        private BossBarController Bar;
+        private BossBar Bar;
 
         private int BloodPerM;
 

@@ -78,7 +78,7 @@ public partial class WorldTextController : EnsBehaviour
         var pos = (Vector3)info.pos+new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f));
         var obj = pool.Get(); 
         obj.transform.position = pos;
-        obj.transform.SetParent(Tool.SceneController.Level.Canvas);
+        obj.transform.SetParent(Tool.SceneController.SingleLevel.Canvas);
 
         var t = obj.transform.GetChild(1).GetComponent<Text>();
         t.text = info.text;

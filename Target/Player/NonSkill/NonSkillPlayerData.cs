@@ -18,7 +18,8 @@ public partial class NonSkillPlayerData : EnsBehaviour
 
     public void Init(string data)//由Spawner在生成时传入信息
     {
-        Graphic=Instantiate(Tool.PrefabManager.GraphicCollection[0],Vector3.zero,Quaternion.identity,transform).GetComponent<TargetGraphic>();
+        Graphic=Instantiate(Tool.PrefabManager.GraphicCollection[0],transform).GetComponent<TargetGraphic>();
+        Graphic.transform.localPosition = Vector3.zero;
 
         id = int.Parse(data);
         isLocalPlayer = FightController.localPlayerId == id;
@@ -44,10 +45,9 @@ public partial class NonSkillPlayerData : EnsBehaviour
 
 
         Graphic.Init(gameObject);
-        Graphic.SetBarActive(true);
-        Graphic.header.SetBarActive(false);
+        Graphic.SetBarActive(false);
 
-        transform.position = Tool.SceneController.Level.GetPos(0.5f,0.9f);
+        transform.position = Vector3.zero;
 
         Tool.SceneController.NonSkillPlayers.Add(id, this);
     }

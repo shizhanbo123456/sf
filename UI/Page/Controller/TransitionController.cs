@@ -114,4 +114,11 @@ public class TransitionController:Singleton<TransitionController>
             Hide();
         }
     }
+    public void ExecuteSignalOnly(bool active,string label)
+    {
+        if (active) Show();
+        else Hide();
+
+        SetLabel(label);
+    }
 }

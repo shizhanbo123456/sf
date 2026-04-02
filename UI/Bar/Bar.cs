@@ -35,27 +35,4 @@ namespace SF.UI.Bar
             Grapic.GetChild(0).GetComponent<Image>().color = c;
         }
     }
-    public class BarController
-    {
-        public Bar bar;
-        public int Value { get; private set; }
-        public int MaxValue { get; private set; }
-
-        public BarController(Bar bar)
-        {
-            this.bar=bar;
-        }
-        public void SetValue(int value, int maxValue)
-        {
-            if (bar != null) bar.SetValue(value, maxValue);
-        }
-        public void SetScale(float factor)
-        {
-            if(bar != null) bar.SetScale(factor);
-        }
-        public void SetColor(Color c)
-        {
-            if( bar != null) bar.SetColor(c);
-        }
-    }
 }

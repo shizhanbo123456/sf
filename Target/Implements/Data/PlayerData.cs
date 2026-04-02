@@ -11,7 +11,7 @@ namespace LevelCreator.TargetTemplate
         public bool isLocalPlayer => FightController.localPlayerId == Owner;
         public override bool UpdateLocally => isLocalPlayer;
 
-        public BarController bar;
+        public Bar bar;
 
         public override void Init(TargetIdentify info, Dictionary<TargetParams, string> param)
         {

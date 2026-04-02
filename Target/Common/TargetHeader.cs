@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 namespace LevelCreator.TargetTemplate
 {
+    /// <summary>
+    /// 用于管理角色头顶的标识，血条/Buff栏/名字<br/>无需初始化，只有TargetGraphic可访问
+    /// </summary>
     public class TargetHeader : MonoBehaviour
     {
         [SerializeField] private Transform Bar;

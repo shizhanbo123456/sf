@@ -15,10 +15,12 @@ namespace LevelCreator
         public static string ModePath;
         public static string ModeDescrpition;
 
+        private static LuaFunction InitTemplateFunction;
         private static LuaFunction FightStartFunction;//0
         private static LuaFunction UpdateFunction;//float float
         private static LuaFunction JudgeEndFunction;//0->bool
         private static LuaFunction TargetKilledFunction;//TargetInfo killer,TargetInfo killed
+        private static LuaFunction SelectFunction;//int
         private static LuaFunction KillScoreFunction;//0->int
         private static LuaFunction TimeScoreFunction;//0->int
         private static LuaFunction ModeScoreFunction;//0->int
@@ -51,10 +53,12 @@ namespace LevelCreator
                 ModePathParts = ModePath.Trim('-', ' ').Split('-');
                 ModeDescrpition = luaEnv.Global.Get<string>("ModeDescription");
 
+                InitTemplateFunction = luaEnv.Global.Get<LuaFunction>("InitTemplate");
                 FightStartFunction = luaEnv.Global.Get<LuaFunction>("FightStart");
                 UpdateFunction = luaEnv.Global.Get<LuaFunction>("Update");
                 JudgeEndFunction = luaEnv.Global.Get<LuaFunction>("JudgeEnd");
                 TargetKilledFunction = luaEnv.Global.Get<LuaFunction>("TargetKilled");
+                SelectFunction = luaEnv.Global.Get<LuaFunction>("Select");
                 KillScoreFunction = luaEnv.Global.Get<LuaFunction>("KillScore");
                 TimeScoreFunction = luaEnv.Global.Get<LuaFunction>("TimeScore");
                 ModeScoreFunction = luaEnv.Global.Get<LuaFunction>("ModeScore");
@@ -73,6 +77,17 @@ namespace LevelCreator
         {
             return LuaText;
         }
+        public static void OnInitTemplate()
+        {
+            try
+            {
+                InitTemplateFunction.Action(0);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
         public static void OnFightStart()
         {
             Fighting = true;
@@ -84,18 +99,18 @@ namespace LevelCreator
             }
             catch (System.Exception e)
             {
-                Debug.Log("[CustomLevel]£∫" + e.ToString());
+                Debug.LogException(e);
             }
         }
         public static void TargetKilled(TargetIdentify killed)
         {
             try
             {
-                TargetKilledFunction.Action(new TargetIdentify(), killed);
+                TargetKilledFunction.Action(new TargetIdentify() { camp=-1}, killed);
             }
             catch (System.Exception e)
             {
-                Debug.Log("[CustomLevel]£∫" + e.ToString());
+                Debug.LogException(e);
             }
         }
         public static void TargetKilled(TargetIdentify killer, TargetIdentify killed)
@@ -106,7 +121,18 @@ namespace LevelCreator
             }
             catch (System.Exception e)
             {
-                Debug.Log("[CustomLevel]£∫" + e.ToString());
+                Debug.LogException(e);
+            }
+        }
+        public static void Select(int index)
+        {
+            try
+            {
+                SelectFunction.Action(index);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
             }
         }
         public static void Update()
@@ -117,7 +143,7 @@ namespace LevelCreator
             }
             catch (System.Exception e)
             {
-                Debug.Log("[CustomLevel]£∫" + e.ToString());
+                Debug.LogException(e);
             }
         }
         public static bool JudgeEnd()
@@ -128,7 +154,7 @@ namespace LevelCreator
             }
             catch (System.Exception e)
             {
-                Debug.Log("[CustomLevel]£∫" + e.ToString());
+                Debug.LogException(e);
                 return false;
             }
         }
@@ -142,7 +168,7 @@ namespace LevelCreator
             }
             catch (System.Exception e)
             {
-                Debug.Log("[CustomLevel]£∫" + e.ToString());
+                Debug.LogException(e);
                 killScore = 111;
                 timeScore = 222;
                 challengeScore = 333;
@@ -155,9 +181,9 @@ namespace LevelCreator
             {
                 ReleaseDataFunction.Action(0);
             }
-            catch
+            catch(System.Exception e)
             {
-                Debug.LogError("[CustomLevel]πÿø® Õ∑≈“Ï≥£");
+                Debug.LogException(e);
             }
         }
         public static void Dispose()
@@ -165,7 +191,9 @@ namespace LevelCreator
             Initialized = false;
             try
             {
+                InitTemplateFunction?.Dispose();
                 FightStartFunction?.Dispose();
+                SelectFunction?.Dispose();
                 UpdateFunction?.Dispose();
                 JudgeEndFunction?.Dispose();
                 TargetKilledFunction?.Dispose();
@@ -176,7 +204,7 @@ namespace LevelCreator
             }
             catch (System.InvalidOperationException e)
             {
-                Debug.Log(e);
+                Debug.LogException(e);
             }
         }
     }

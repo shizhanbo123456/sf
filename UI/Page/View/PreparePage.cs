@@ -17,7 +17,7 @@ public class PreparePage : BasePage
     public override void Repaint()
     {
         Mode.text = controller.ModeName;
-        RoomNameInput.text = controller.ModeName;
+        //RoomNameInput.text = controller.ModeName;
         RoomNameInput.gameObject.SetActive(controller.HasAuthority);
         SelectModeButton.SetActive(controller.HasAuthority);
 

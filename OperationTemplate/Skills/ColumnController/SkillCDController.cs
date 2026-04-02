@@ -1,14 +1,16 @@
 using LevelCreator.TargetTemplate;
 using SF.UI.Skill;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillCDController : SkillBaseController
+public class SkillCDController : SkillControllerBase
 {
-    private SkillColumnController skill;
     private float cd;
     private float storeTime;
+    public override void LoadSkillColumn(SkillColumn s)
+    {
+        base.LoadSkillColumn(s);
+        s.SetLabelActive(false);
+    }
     public override void Update()
     {
         storeTime += Time.deltaTime / cd;
@@ -27,20 +29,11 @@ public class SkillCDController : SkillBaseController
         storeTime -= 1f;
         base.OnUse();
     }
-    public override void OnDiscard()
-    {
-        if (skill != null) PlayModeController.Instance.DestroySkillColumn(skill);
-    }
-    public static SkillBaseController Create(int index,Target t, float cd,bool createUI)
+    public static SkillControllerBase Create(short index,Target t, float cd)
     {
         var r = new SkillCDController();
         r.target = t;
         r.SkillIndex= index;
-        if (createUI)
-        {
-            r.skill = PlayModeController.Instance.CreateSkillColumn(index);
-            r.skill.SetLabelActive(false);
-        }
         r.cd = cd;
         r.storeTime = 1;
         return r;

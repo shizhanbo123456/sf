@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using XLua;
 
-public struct CustomLevelText
+public struct CustomLevelInfo
 {
     public int[] path;
     public string joinedPath;
@@ -15,7 +16,7 @@ public struct CustomLevelText
 }
 public static class CustomLevelSelector
 {
-    public static List<CustomLevelText> LevelInfo=new List<CustomLevelText>();
+    public static List<CustomLevelInfo> LevelInfo=new List<CustomLevelInfo>();
     public static Dictionary<int, string> IntToPart=new Dictionary<int, string>();
     public static Dictionary<string,int> PartToInt=new Dictionary<string, int>();
     private static int nextPartIndex;
@@ -31,10 +32,10 @@ public static class CustomLevelSelector
                     env.DoString(s);
                     var t=env.Global.Get<string>("ModeName");
                     var d = env.Global.Get<string>("ModeDescription");
-                    if (d.Length > 150)
+                    if (d.Length > 100)
                     {
                         Debug.LogWarning("描述超过字数上限：" + d);
-                        d = d.Substring(0, 150);
+                        d = d.Substring(0, 100);
                     }
                     string[] pathParts = t.Split('-');
                     foreach (var part in pathParts)
@@ -49,7 +50,7 @@ public static class CustomLevelSelector
                     {
                         path[i] = PartToInt[pathParts[i]];
                     }
-                    LevelInfo.Add(new CustomLevelText() { path = path, joinedPath = t, logic = s ,description=d});
+                    LevelInfo.Add(new CustomLevelInfo() { path = path, joinedPath = t, logic = s ,description=d});
                 }
             }
         }
@@ -57,6 +58,11 @@ public static class CustomLevelSelector
         {
             Debug.LogException(e);
         }
+        //Debug.Log(string.Join(' ',IntToPart.Select(kvp=>kvp.Key+"_"+kvp.Value)));
+        //Debug.Log(string.Join('\n', LevelInfo.Select(
+        //    info => (string.Join("-",info.path)+" "+info.joinedPath)
+        //    )));
+        //Debug.Log(string.Join(' ', GetNextMatchedInfoIndex(new List<int>() { }).Select(i => i.ToString())));
     }
     private static int AddPathPart(string part)
     {
@@ -66,7 +72,7 @@ public static class CustomLevelSelector
         return i;
     }
 
-    public static List<int> GetNextMatchedInfoIndex(List<int> selectedPath)//传入列表内容为part的id
+    public static List<int> GetNextMatchedInfoIndex(List<int> selectedPath)//传入列表内容为part的id，传出符合的LevelInfo的index
     {
         List<int>matchedInfoIndex= new List<int>();
         for (int i = 0; i < LevelInfo.Count; i++)
@@ -79,7 +85,7 @@ public static class CustomLevelSelector
             foreach(var i in matchedInfoIndex)
             {
                 if (LevelInfo[i].path.Length == selectedPath.Count)
-                    throw new Exception("部分节点以其它模式的非叶节点为叶节点");
+                    throw new Exception("部分模式节点以其它模式的非叶节点为叶节点");
             }
         }
         return matchedInfoIndex;
@@ -96,7 +102,7 @@ public static class CustomLevelSelector
         return true;
     }
 
-    public static CustomLevelText GetCustomLevelText(List<int>list)
+    public static CustomLevelInfo GetCustomLevelText(List<int>list)
     {
         foreach (var i in LevelInfo)
         {

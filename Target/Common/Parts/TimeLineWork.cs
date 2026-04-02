@@ -1,57 +1,67 @@
+using LevelCreator;
 using LevelCreator.TargetTemplate;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Variety.Base;
 
 public class TimeLineWork : MonoBehaviour
 {
     private Target target;
-    private SortedList<uint, (TimeLineData, ITimeLineActor)> Events =new();
-    private CircularQueue<uint> OrderMap = new();
-    private uint indexOffset = 0;
+    private List<(uint, OperationBuilder.SubSkillOperator)> suboperation =new();
+    private List<(uint, OperationBuilder.BulletShoot)> bulletShoot =new();
+    private List<(uint, OperationBuilder.MotionAction)> doMotion =new();
+    private List<(uint,OperationBuilder.EffectOperation)> addEffect =new();
     private void Awake()
     {
         target = GetComponent<Target>();
     }
     private void Update()
     {
-        if (Events.Count == 0)
-        {
-            enabled = false;
-            return;
-        }
-        indexOffset = 0;
         BulletSystemCommon.CurrentShooter = target;
-        OrderMap.Top(out var time);
-        var first = Events[time];
-        if (Time.time*1000 > time)
-        {
-            first.Item2.Act(first.Item1); 
-            Events.Remove(time);
-            OrderMap.Read(out _);
-        }
+        if(suboperation.Count>0)UpdateForList(suboperation);
+        if(bulletShoot.Count>0)UpdateForList(bulletShoot);
+        if(doMotion.Count>0)UpdateForList(doMotion);
+        if(addEffect.Count>0)UpdateForList(addEffect);
     }
-    public void AddEvent(float delay,TimeLineData data,ITimeLineActor actor)
+    public void AddEvent(float delay,OperationBuilder.SubSkillOperator actor)
+        => Insert(delay, actor, suboperation);
+    public void AddEvent(float delay, OperationBuilder.BulletShoot actor)
+        => Insert(delay, actor, bulletShoot);
+    public void AddEvent(float delay,  OperationBuilder.MotionAction actor)
+        => Insert(delay, actor, doMotion);
+    public void AddEvent(float delay, OperationBuilder.EffectOperation actor)
+        => Insert(delay, actor, addEffect);
+
+
+    private void Insert<T>(float delay,T actor, List<(uint, T)> list)
     {
-        if (OrderMap.Full())
-        {
-            Debug.LogWarning("同时添加了太多事件");
-            return;
-        }
         uint t = (uint)((delay + Time.time) * 1000);
-        while (Events.ContainsKey(t+indexOffset))
+        int index = 0;
+        while (index<list.Count && list[index].Item1 < t)
         {
-            indexOffset++;
+            index++;
         }
-        OrderMap.Write(t+indexOffset);
-        Events.Add(t+indexOffset,(data,actor));
-        enabled=true;
+        list.Insert(index,(t, actor));
+        enabled = true;
+    }
+    private void UpdateForList<T>(List<(uint, T)> list) where T : ITimelineActor
+    {
+        var first = list[0];
+        if (Time.time * 1000 > first.Item1)
+        {
+            first.Item2.Act(target);
+            list.RemoveAt(0);
+        }
     }
     public void Interrupted()
     {
-        Events.Clear();
+        suboperation.Clear();
+        bulletShoot.Clear();
+        doMotion.Clear();
+        addEffect.Clear();
     }
+}
+public interface ITimelineActor
+{
+    void Act(Target t);
 }

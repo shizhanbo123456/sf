@@ -80,7 +80,7 @@ namespace LevelCreator.TargetTemplate
         }
         protected virtual void InitNameAndBar()
         {
-            graphic.SetName(Name, Tool.SpriteManager.TargetToColor(this));
+            graphic.SetName(Name, Tool.SpriteManager.TargetToColor(Camp));
         }
         protected virtual void RegistSyncAttributes()
         {
@@ -98,7 +98,7 @@ namespace LevelCreator.TargetTemplate
             FloatingAttributes.Baoji.OnValueChanged += v => targetDataSync.SyncBaoji(v);
             FloatingAttributes.Jiashang.OnValueChanged += v => targetDataSync.SyncJiashang(v);
 
-            DedicatedAttributes.Shengming.OnValueChanged += v => graphic.header.SetBarValue(v.Item2 / (float)v.Item1);
+            DedicatedAttributes.Shengming.OnValueChanged += v => graphic.SetBarValue(v.Item2 / (float)v.Item1);
         }
 
         protected virtual void RegistOnCreated()
@@ -196,7 +196,7 @@ namespace LevelCreator.TargetTemplate
             targetDataSync.DestroyRpc();
         }
 
-        public void UseSkillRpc(int index) => targetDataSync.UseSkillRpc(index);
+        public void UseSkillRpc(short index) => targetDataSync.UseSkillRpc(index);
         public void SyncEffectIconRpc(HashSet<(EffectType, int)> values) => targetDataSync.SyncEffectIconRpc(values);
         public void Interrupt() => TimeLineWork.Interrupted();
     }

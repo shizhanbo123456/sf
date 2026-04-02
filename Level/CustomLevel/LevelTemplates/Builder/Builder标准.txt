@@ -1,0 +1,31 @@
+保持命名空间不变，不要重复编写已有类型(如IntSerializer,int,GameController等)
+
+static class xxxBuilder
+必须提供方法：
+Create(short id)初始化，并录入id标识
+Upload()将信息上传。
+
+可选方法：
+各类向Builder提供信息的方法，例如EffectBuilder的AddEffect(int type,float value,float time)。
+传入信息后，数据暂时存储在Builder的静态字段。点击Upload时，调用Tool.LevelCreatorManager.LoadInfo<T>(T info)where T:info
+
+
+struct xxxInfo:Info
+创建后，存储xxxBuilder内的所有参数。
+
+
+struct xxxSerializer
+用于LevelCreator将xxxInfo传输到其它客户端。
+固定包含两个方法：
+public struct xxxInfoSerializer
+{
+    public static bool Serialize(xxx value, byte[] result, ref int indexStart)//将value序列化后从indexStart写入result，返回值表示缓冲区空间是否足够
+    public static xxx Deserialize(byte[] data, ref int indexStart,int invalidIndex)//下标移动到invalidIndex后会报错，如果确认无需界定范围可传入int最大值
+}
+辅助工具：提供了常见常规类型的序列化器，例如：
+public struct [type]Serializer
+{
+    public static bool Serialize([type] value, byte[] result, ref int indexStart)//将value序列化后从indexStart写入result，返回值表示缓冲区空间是否足够
+    public static [type] Deserialize(byte[] data, ref int indexStart,int invalidIndex)//下标移动到invalidIndex后会报错，如果确认无需界定范围可传入int最大值
+}
+其中，使用时需要将type替换为需要的基础类型，包括bool,byte,char,double,float,int,long,sbyte,short,string,uint,ulong,ushort

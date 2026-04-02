@@ -1,30 +1,45 @@
 using SF.UI.Bar;
 using SF.UI.Skill;
+using System.Collections.Generic;
 
 public class PlayModeController : Singleton<PlayModeController>
 {
+    public string modeName;
+    public string modeDescription;
+    private PlayModePage _page;
     public PlayModePage page
     {
         get
         {
-            if (Tool.PageManager.Pages.TryGetValue(PageManager.PageType.PlayMode, out var value))
+            if (_page==null&&Tool.PageManager.Pages.TryGetValue(PageManager.PageType.PlayMode, out var value))
             {
                 if (value == null) return null;
-                return value.gameObject.activeSelf ? value as PlayModePage : null;
+                _page= value.gameObject.activeSelf ? value as PlayModePage : null;
             }
-            return null;
+            return _page;
         }
     }
     public void Repaint()
     {
         Tool.PageManager.PageRepaint(PageManager.PageType.PlayMode);
     }
+    public PlayModeController()
+    {
+        Tool.FightController.OnModeNameChanged += s => { modeName = s;Repaint(); };
+        Tool.FightController.OnDescriptionChanged += s => { modeDescription = s;Repaint(); };
+    }
 
-    public void SetScoreboardActive(bool active)
+    public void ShowScoreboard(string[] horizontalHeaders, string[]verticalHeaders)
     {
         var p = page;
         if (!p) return;
-        p.Scoreboard.gameObject.SetActive(active);
+        p.Scoreboard.ShowPanel(horizontalHeaders, verticalHeaders);
+    }
+    public void HideScoreboard()
+    {
+        var p = page;
+        if (!p) return;
+        p.Scoreboard.HidePanel();
     }
     public void SetScoreboardText(int x, int y, string data)
     {
@@ -32,67 +47,91 @@ public class PlayModeController : Singleton<PlayModeController>
         if (!p) return;
         p.Scoreboard.SetText(x, y, data);
     }
-    public BarController CreateBar()
+    public Bar CreateBar()
     {
         var p = page;
-        var b= p != null?p.CreateBar():null;
-        return new BarController(b);
+        if (p == null) return null;
+        return page.BarPanel.CreateBar();
     }
-    public void DestroyBar(BarController bar)
+    public void DestroyBar(Bar bar)
     {
         if(bar == null) return;
         var p = page;
-        if (bar != null && bar.bar != null)
-        {
-            if(p!=null)p.DestroyBar(bar.bar);
-            else UnityEngine.Object.Destroy(bar.bar);
-        }
+        if (p == null) return;
+        p.BarPanel.DestroyBar(bar);
     }
-    public SkillColumnController CreateSkillColumn(int index)
+    public SkillColumn CreateSkillColumn(short index)
     {
         var p = page;
-        var c = p == null ? null : p.CreateSkillColumn(index);
-        return new SkillColumnController(c);
+        if (p == null) return null;
+        return p.CreateSkillColumn(index);
     }
-    public void DestroySkillColumn(SkillColumnController column)
-    {
-        if (column == null) return;
-        var p = page;
-        if (column!=null&&column.column != null)
-        {
-            if(p!=null)p.DestroySkillColumn(column.column);
-            else UnityEngine.Object.Destroy(column.column);
-        }
-    }
-    public BossBarController CreateBossBar()
+    public void DestroyAllSkillColumns()
     {
         var p = page;
-        var b = p != null ? p.CreateBossBar() : null;
-        return new BossBarController(b);
+        if (p == null) return;
+        p.DestroyAllSkillColumns();
     }
-    public void DestroyBossBar(BossBarController bar)
+    public BossBar CreateBossBar()
+    {
+        var p = page;
+        if (p == null) return null;
+        return p.BarPanel.CreateBossBar();
+    }
+    public void DestroyBossBar(BossBar bar)
     {
         if (bar == null) return;
         var p = page;
-        if (bar!=null&&bar.bar != null)
-        {
-            if (p != null) p.DestroyBossBar(bar.bar);
-            else UnityEngine.Object.Destroy(bar.bar.gameObject);
-        }
+        if (p == null) return;
+        p.BarPanel.DestroyBossBar(bar);
     }
+
+    public void ShowSelection(string label, string[] message)
+    {
+        var p = page;
+        if (p == null) return;
+        p.SelectionPanel.ShowPanel(OnSelect,label,message);
+    }
+    public void HideSelection()
+    {
+        var p = page;
+        if (p == null) return;
+        p.SelectionPanel.HidePanel();
+    }
+    public void OnSelect(int x)
+    {
+        Tool.NetworkCorrespondent.SelectRpc(x);
+    }
+
 
     public void ShowKilledSignal()
     {
         var p = page;
         if (p == null) return;
-        p.ShowKilledSignal();
+        p.EffectPanel.ShowKilledSign();
     }
-    public void DoFlick(float time,UnityEngine.Color color)
+    public void ShowHitEffect()
     {
         var p = page;
         if (p == null) return;
-        p.DoFlick(time,color);
+        p.EffectPanel.OnHit();
     }
+
+    public void ShowTitle(string title)
+    {
+        var p = page;
+        if (p == null) return;
+        p.EffectPanel.ShowTitle(title);
+    }
+    public void ShowSubtitle(string subtitle)
+    {
+
+        var p = page;
+        if (p == null) return;
+        p.EffectPanel.ShowSubTitle(subtitle);
+    }
+
+
     public void Settle(int killscore,int timescore,int challengescore)
     {
         var p = page;

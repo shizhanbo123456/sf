@@ -35,9 +35,9 @@ public class SpriteManager : MonoBehaviour
         }
         return null;
     }
-    public Color TargetToColor(Target t,ColorType type=ColorType.Name)
+    public Color TargetToColor(int camp,ColorType type=ColorType.Name)
     {
-        return GetByIndex(t.Camp,type);
+        return GetByIndex(camp,type);
     }
     private Color GetByIndex(int index,ColorType t)
     {

@@ -2,7 +2,6 @@ using LevelCreator.TargetTemplate;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Variety.Template;
 
 public enum EffectType
 {
@@ -928,7 +927,7 @@ namespace AttributeSystem.DataOrientedEffects
                     {
                         var t = key.GetReceiver();
                         t.Interrupt();
-                        t.ApplyMotion(new MotionStatic(0.3f, false, 0));
+                        t.ApplyMotion(new(MotionIdCalculater.GetStaticId(0.3f,0)));
                         var p = Effects[key];
                         Temp.Add(key,new Paralysis() { interval = p.interval, endTime = p.endTime, nextUpdateTime = Time.time + 1 });
                     }

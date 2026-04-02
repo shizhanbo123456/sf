@@ -27,13 +27,13 @@ namespace LevelCreator.TargetTemplate
             if (skillIndex >= Skills.Count) skillIndex = 0;
             if (target.GetNearestEnemy(20f))
             {
-                var b = UseSkillByOwnedIndex(skillIndex);
-                if (!b)
+                if(!CanUseSkill())
                 {
                     useSkillCD = 0.2f;
                 }
                 else
                 {
+                    UseSkillByIndex(skillIndex);
                     useSkillCD = interval;
                 }
             }

@@ -61,7 +61,7 @@ public class Bullet : MonoBehaviour
         SpriteManager.ColorType ct = liftStoicLevel == 2 ||!Effects.IsEmpty()?
             SpriteManager.ColorType.BulletSpecial:
             SpriteManager.ColorType.BulletCommon;
-        particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter,ct));
+        particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter.Camp,ct));
         particleController.Play();
 
         UpdateDetectors();

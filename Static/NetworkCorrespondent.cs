@@ -62,14 +62,14 @@ public partial class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyPlayer();
         Tool.PageManager.PageActive(PageManager.PageType.Home, false);
         Tool.PageManager.PageActive(PageManager.PageType.Prepare,true);
-        Tool.SceneController.CreateLevel(1);
+        Tool.SceneController.CreateLevel(SceneController.LevelType.Prepare);
 
         var player = new ServerDataContainer.PlayerDataContainer(
             EnsInstance.LocalClientId,
             PlayerInfo.Name
             );
+        Debug.Log("111");
         CallFuncRpc(RecvData, SendTo.RoomOwner, Delivery.Reliable, player.ToString());
-        Tool.FightController.SelectedMode = Tool.FightController.SelectedMode;
     }
 
     //接收到新增客户端的信息
@@ -122,35 +122,66 @@ public partial class NetworkCorrespondent : EnsBehaviour
     #endregion
 
 
-    public void SetScoreboardActiveRpc(bool active)
+    public void ShowScoreboardRpc(string columnHeader1,string columnHeader2,string rowHeader1,string rowHeader2,string rowHeader3)
     {
-        CallFuncRpc(SetScoreboardActiveLocal, SendTo.Everyone, Delivery.Reliable,active ? "1" : "0");
+        var sb = Tool.stringBuilder;
+        sb.Clear();
+        sb.Append(columnHeader1).Append('/').Append(columnHeader2).Append("/");
+        sb.Append(rowHeader1).Append('/').Append(rowHeader2).Append('/').Append(rowHeader3);
+        CallFuncRpc(ShowScoreboardLocal, SendTo.Everyone, Delivery.Reliable,sb.ToString());
     }
     [Rpc]
-    private void SetScoreboardActiveLocal(string data)
+    private void ShowScoreboardLocal(string content)
     {
-        PlayModeController.Instance.SetScoreboardActive(data == "1");
+        var s=content.Split('/',System.StringSplitOptions.RemoveEmptyEntries);
+        string[] columns = new string[] { s[0], s[1] };
+        string[] rows = new string[] { s[2], s[3], s[4] };
+        PlayModeController.Instance.ShowScoreboard(columns,rows);
+    }
+    public void HideScoreboardRpc()
+    {
+        CallFuncRpc(HideScoreboardLocal, SendTo.Everyone, Delivery.Reliable);
+    }
+    [Rpc]
+    private void HideScoreboardLocal()
+    {
+        PlayModeController.Instance.HideScoreboard();
     }
     public void SetScoreboardTextRpc(int x, int y, string data)
     {
-        var sb=Tool.stringBuilder;
-        sb.Append(x).Append('_').Append(y).Append('_').Append(data);
-        CallFuncRpc(SetScoreboardTextLocal, SendTo.Everyone, Delivery.Reliable, sb.ToString());
+        CallFuncRpc(SetScoreboardTextLocal, SendTo.Everyone, Delivery.Reliable,x,y,data);
     }
     [Rpc]
-    private void SetScoreboardTextLocal(string data)
+    private void SetScoreboardTextLocal(int x,int y,string data)
     {
-        string[] s = data.Split('_');
-        PlayModeController.Instance.SetScoreboardText(int.Parse(s[0]), int.Parse(s[1]), s[2]);
+        PlayModeController.Instance.SetScoreboardText(x,y,data);
     }
-    public void CreateLevelRpc(int type)
+    public void ShowTitleRpc(string msg)
     {
-        CallFuncRpc(CreateLevelLocal, SendTo.Everyone, Delivery.Reliable, type.ToString());
+        CallFuncRpc(ShowTitleLocal, SendTo.Everyone, Delivery.Reliable,msg);
+    }
+    private void ShowTitleLocal(string msg)
+    {
+        PlayModeController.Instance.ShowTitle(msg);
+    }
+    public void ShowSubtitleRpc(string msg)
+    {
+        CallFuncRpc(ShowSubtitleLocal, SendTo.Everyone, Delivery.Reliable, msg);
+    }
+    private void ShowSubtitleLocal(string msg)
+    {
+        PlayModeController.Instance.ShowSubtitle(msg);
+    }
+    public void CreateLevelRpc(short id,float minimapScale)
+    {
+        CallFuncRpc(CreateLevelLocal, SendTo.Everyone, Delivery.Reliable, id,minimapScale);
     }
     [Rpc]
-    private void CreateLevelLocal(string data)
+    private void CreateLevelLocal(short id,float minimapScale)
     {
-        Tool.SceneController.CreateLevel(int.Parse(data));
+        Tool.SceneController.CreateLevel(SceneController.LevelType.Fight);
+        Tool.SceneController.Level.Init(Tool.LevelCreatorManager.GetLandscapeInfo(id));
+        MinimapCamera.cameraScaleFactor=minimapScale;
     }
     public void DestroyLevelRpc()
     {
@@ -160,6 +191,35 @@ public partial class NetworkCorrespondent : EnsBehaviour
     private void DestroyLevelLocal()
     {
         Tool.SceneController.DestroyLevel();
+    }
+    public void ShowSelectionRpc(string label,string[] messages)
+    {
+        string message = Format.ListToString(messages, t => t);
+        CallFuncRpc(ShowSelectionLocal, SendTo.Everyone, Delivery.Reliable, label, message);
+    }
+    [Rpc]
+    private void ShowSelectionLocal(string label,string message)
+    {
+        var messages=Format.StringToArray(message,t=>t);
+        PlayModeController.Instance.ShowSelection(label, messages);
+    }
+    public void HideSelectionRpc()
+    {
+        CallFuncRpc(HideSelectionLocal, SendTo.Everyone, Delivery.Reliable);
+    }
+    [Rpc]
+    private void HideSelectionLocal()
+    {
+        PlayModeController.Instance.HideSelection();
+    }
+    public void SelectRpc(int index)
+    {
+        CallFuncRpc(SelectLocal,SendTo.RoomOwner,Delivery.Reliable, index);
+    }
+    [Rpc]
+    private void SelectLocal(int index)
+    {
+        LevelCreator.CustomLevel.Select(index);
     }
 
     public void TargetKilledRpc(Target killer,Target killed)
@@ -203,16 +263,32 @@ public partial class NetworkCorrespondent : EnsBehaviour
     {
         if (Tool.FightController.TryLoadLevelLua())
         {
-            CallFuncRpc(ControllerStartFight, SendTo.Everyone, Delivery.OrderWise);
+            CallFuncRpc(ControllerInitFight, SendTo.Everyone, Delivery.Reliable);
+            Tool.LevelCreatorManager.SyncInfo(() =>
+            {
+                CallFuncRpc(ControllerStartFight, SendTo.Everyone, Delivery.Reliable);
+            });
         }
+        else
+        {
+            Tool.Notice.ShowMesg("关卡逻辑加载失败");
+        }
+    }
+    [Rpc]
+    private void ControllerInitFight()
+    {
+        TransitionController.Instance.ExecuteSignalOnly(true, "正在同步信息");
+        Tool.FightController.InitFight();
     }
     [Rpc]
     private void ControllerStartFight()
     {
+        TransitionController.Instance.ExecuteSignalOnly(false,string.Empty);
         Tool.FightController.StartFight();
-        Tool.PageManager.PageActive(PageManager.PageType.Prepare, false);
-        Tool.PageManager.PageActive(PageManager.PageType.PlayMode, true);
     }
+
+
+
     public void BackToPrepare()
     {
         CallFuncRpc(RecvBackToPrepare, SendTo.Everyone,Delivery.Reliable);
@@ -227,7 +303,7 @@ public partial class NetworkCorrespondent : EnsBehaviour
         Tool.SceneController.DestroyAllTargetsLocal();
         Tool.SceneController.DestroyLevel();
 
-        Tool.SceneController.CreateLevel(1);
+        Tool.SceneController.CreateLevel(SceneController.LevelType.Prepare);
         Tool.PageManager.PageActive(PageManager.PageType.PlayMode,false);
         Tool.PageManager.PageActive(PageManager.PageType.Prepare, true);
     }
@@ -264,7 +340,7 @@ public partial class NetworkCorrespondent : EnsBehaviour
         Tool.PageManager.PageActive(PageManager.PageType.Prepare, false);
         Tool.PageManager.PageActive(PageManager.PageType.PlayMode, false);
         Tool.PageManager.PageActive(PageManager.PageType.Home, true);
-        Tool.SceneController.CreateLevel(0);
+        Tool.SceneController.CreateLevel(SceneController.LevelType.Home);
         Tool.SceneController.CreateUnnetPlayer();
 
         restarting = false;

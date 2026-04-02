@@ -43,14 +43,13 @@ namespace LevelCreator.TargetTemplate
             Bullets.Clear();
 
             Vector3 playerPos = transform.position + Vector3.up * offsetY;
-            float radius = detectRadius * transform.localScale.x;
             foreach (var i in Bullet.Bullets)
             {
                 if (target.Camp == i.Key) continue;
                 foreach (var j in i.Value.Values)
                 {
                     if (CalHit(j.transform.position, j.LastFramePos, playerPos,
-                        radius * Mathf.Abs(transform.localScale.x)
+                        detectRadius * Mathf.Abs(transform.localScale.x)
                         + Bullet.radius * Mathf.Abs(j.transform.localScale.x)))
                     {
                         Bullets.Add(j);

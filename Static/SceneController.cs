@@ -8,11 +8,12 @@ public class SceneController//联机状态下的生成由FightController控制
     public void InitScene()
     {
         DestroyLevel();
-        CreateLevel(0);
+        CreateLevel(LevelType.Home);
         CreateUnnetPlayer();
     }
 
     [HideInInspector]public GameObject Player;
+    [HideInInspector] public SingleLevel SingleLevel;
     [HideInInspector]public Level Level;
     
     public Dictionary<int,NonSkillPlayerData> NonSkillPlayers = new Dictionary<int,NonSkillPlayerData>();//仅仅用于存储
@@ -53,7 +54,7 @@ public class SceneController//联机状态下的生成由FightController控制
 
     public void CreateUnnetPlayer()
     {
-        Object.Instantiate(Tool.PrefabManager.UnnetPlayer);
+        Object.Instantiate(Tool.PrefabManager.UnnetPlayer,Vector3.zero,Quaternion.identity);
     }
     public void DestroyPlayer()
     {
@@ -74,12 +75,26 @@ public class SceneController//联机状态下的生成由FightController控制
             }
         }
     }
-    public void CreateLevel(int index)
+    public enum LevelType
     {
-        Level = Object.Instantiate(Tool.PrefabManager.Levels[index].gameObject).GetComponent<Level>();
+        Home,Prepare,Fight
+    }
+    public void CreateLevel(LevelType type)
+    {
+        SingleLevel = Object.Instantiate(type switch
+        {
+            LevelType.Home => Tool.PrefabManager.HomeLevel,
+            LevelType.Prepare => Tool.PrefabManager.PrepareLevel,
+            LevelType.Fight => Tool.PrefabManager.FightLevel,
+            _ => null
+        }).GetComponent<SingleLevel>();
+        if (type == LevelType.Fight)
+        {
+            Level=SingleLevel.GetComponent<Level>();
+        }
     }
     public void DestroyLevel() 
     {
-        if (Level != null) Object.Destroy(Level.gameObject);
+        if (SingleLevel != null) Object.Destroy(SingleLevel.gameObject);
     }
 }

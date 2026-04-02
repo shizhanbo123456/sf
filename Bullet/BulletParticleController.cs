@@ -5,7 +5,7 @@ using UnityEngine;
 public class BulletParticleController : MonoBehaviour
 {
     public List<ParticleSystem> particleSystems = new List<ParticleSystem>();
-    public List<ParticleSystem> particleSystemsActiveOnly = new List<ParticleSystem>();
+    public List<SpriteRenderer>spriteRenderers = new List<SpriteRenderer>();
 
     public void Play()
     {
@@ -13,19 +13,10 @@ public class BulletParticleController : MonoBehaviour
         {
             i.Play();
         }
-        foreach (var i in particleSystemsActiveOnly)
-        {
-            i.Play();
-        }
     }
     public void Stop()
     {
         foreach (var i in particleSystems)
-        {
-            i.Stop();
-            i.Clear();
-        }
-        foreach (var i in particleSystemsActiveOnly)
         {
             i.Stop();
             i.Clear();
@@ -40,6 +31,10 @@ public class BulletParticleController : MonoBehaviour
                 var main = particleSystem.main;
                 main.startColor = targetColor;
             }
+        }
+        foreach(var spriteRenderer in spriteRenderers)
+        {
+            spriteRenderer.color = targetColor;
         }
     }
 }
