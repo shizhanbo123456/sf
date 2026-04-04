@@ -7,8 +7,28 @@ namespace LevelCreator.TargetTemplate
 {
     public class TargetEffectController : MonoBehaviour
     {
+        public struct EffectIdentity
+        {
+            private static readonly byte[] buffer = new byte[4];
+            public static int Encode(EffectType type,int adderId)
+            {
+                buffer[0] = (byte)type;
+                int idstart = 1;
+                ShortSerializer.Serialize((short)adderId, buffer,ref idstart);
+                idstart = 0;
+                return IntSerializer.Deserialize(buffer,ref idstart,4);
+            }
+            public static void Decode(int code,out EffectType type,out int adderId)
+            {
+                int idstart = 0;
+                IntSerializer.Serialize(code, buffer, ref idstart);
+                type = (EffectType)buffer[0];
+                idstart = 1;
+                adderId = ShortSerializer.Deserialize(buffer, ref idstart, 3);
+            }
+        }
         private Target target;
-        private HashSet<(EffectType, int)> Effects = new();
+        private HashSet<int> Effects = new();
 
         public void Init(Target t, Dictionary<TargetParams, string> param)
         {
@@ -28,13 +48,15 @@ namespace LevelCreator.TargetTemplate
         }
         public void EffectStart(int adder, EffectType type)
         {
-            if (Effects.Contains((type, adder))) return;
-            Effects.Add((type, adder));
+            int id = EffectIdentity.Encode(type, adder);
+            if (Effects.Contains(id)) return;
+            Effects.Add(id);
         }
         public void EffectEnd(int adder, EffectType type)
         {
-            if (!Effects.Contains((type, adder))) return;
-            Effects.Remove((type, adder));
+            int id = EffectIdentity.Encode(type, adder);
+            if (!Effects.Contains(id)) return;
+            Effects.Remove(id);
             enabled = true;
         }
         private void SyncEffects()

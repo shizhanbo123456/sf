@@ -24,7 +24,7 @@ namespace LevelCreator.TargetTemplate
         }
         private static GameObjectPool pool;
 
-        [SerializeField] private bool SetState = true;
+        [SerializeField] private bool SetState = false;
         private static readonly Vector3 R = new Vector3(1, 1, 1);
         private static readonly Vector3 L = new Vector3(-1, 1, 1);
 
@@ -32,7 +32,7 @@ namespace LevelCreator.TargetTemplate
         private ITargetcontrollerInfo Icontroller;
         private Rigidbody2D rb;
 
-        public SpriteRenderer MinimapIcon;
+        private SpriteRenderer minimapIcon;
 
         [HideInInspector] public BulletDetector bulletDetector;
         [HideInInspector] public GroundDetector groundDetector;
@@ -54,15 +54,15 @@ namespace LevelCreator.TargetTemplate
             bulletDetector = GetComponent<BulletDetector>();
             groundDetector = GetComponent<GroundDetector>();
 
-            MinimapIcon=Instantiate(Tool.PrefabManager.TargetMinimap.gameObject,transform).GetComponent<SpriteRenderer>();
-            MinimapIcon.transform.localPosition = Vector3.zero;
+            minimapIcon=Instantiate(Tool.PrefabManager.TargetMinimap.gameObject,transform).GetComponent<SpriteRenderer>();
+            minimapIcon.transform.localPosition = Vector3.zero;
             if (camp>=0)
             {
-                MinimapIcon.color = Tool.SpriteManager.TargetToColor(camp);
+                minimapIcon.color = Tool.SpriteManager.TargetToColor(camp);
             }
             if (obj.TryGetComponent(out Icontroller))
             {
-                Icontroller.OnPostSyncRpc += OnSync;
+                Icontroller.OnPostSync += OnSync;
             }
             else
             {
@@ -114,11 +114,11 @@ namespace LevelCreator.TargetTemplate
         {
             if (!Initialized) return;
 
-            if (Icontroller.FaceRight) transform.localScale = R;
+            if (Icontroller.Info.faceRight) transform.localScale = R;
             else transform.localScale = L;
 
             if (!SetState) return;
-            if (Icontroller.isGrounded)
+            if (Icontroller.Info.isGrounded)
             {
                 if (rb.velocity.x < 0.001f && rb.velocity.x > -0.001f)
                 {

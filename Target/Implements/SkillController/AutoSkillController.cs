@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace LevelCreator.TargetTemplate
 {
-    public class MonsterSkillController : TargetSkillController
+    public class AutoSkillController : TargetSkillController
     {
         private int skillIndex;
         private float interval;
@@ -25,7 +25,7 @@ namespace LevelCreator.TargetTemplate
         {
             if (Skills.Count == 0) return;
             if (skillIndex >= Skills.Count) skillIndex = 0;
-            if (target.GetNearestEnemy(20f))
+            if (target.GetNearestEnemy(20f,true))
             {
                 if(!CanUseSkill())
                 {

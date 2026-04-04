@@ -20,6 +20,8 @@ public static class FileManager
             TransitionController.Instance.SetLabel("正在加载关卡逻辑");
             await CustomLevelLoader.LoadAsync();
             CustomLevelSelector.ProcessData();
+
+            await TemplateLoader.LoadAsync();
         });
         try
         {

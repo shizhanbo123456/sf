@@ -38,7 +38,7 @@ namespace LevelCreator.TargetTemplate
 
         [HideInInspector] public TimeLineWork TimeLineWork;
 
-        public bool FaceRight => targetControllerSync.FaceRight;
+        public bool FaceRight => targetControllerSync.Info.faceRight;
         public Vector3 Front => FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
         public virtual int Shengming
         {
@@ -68,8 +68,6 @@ namespace LevelCreator.TargetTemplate
             transform.position = Tool.SceneController.Level.GetPos(info.spawnX, info.spawnY) +
                 graphic.SpawnOffset * graphic.transform.localScale.y * Vector3.up;
             graphic.transform.localPosition = Vector3.zero;
-
-            if (param.ContainsKey(TargetParams.BodySize)) graphic.transform.localScale = Vector3.one * float.Parse(param[TargetParams.BodySize]);
 
             TimeLineWork = gameObject.AddComponent<TimeLineWork>();
             if (!TryGetComponent(out targetControllerSync)) Debug.LogError("Î´ÕÒµ½Í¬²½");
@@ -142,7 +140,9 @@ namespace LevelCreator.TargetTemplate
             if (!b.CanDamage.Invoke(this, b)) return false;
 
             int d = b.FigureDamage(FloatingAttributes, out bool hit, out bool strike);
-            ShowDamageText(d, hit, strike);
+            if(!hit)Tool.WorldTextController.ShowMissRpc((short)ObjectId);
+            else if(!strike)Tool.WorldTextController.ShowDamageRpc((short)ObjectId, d);
+            else Tool.WorldTextController.ShowStrikeDamageRpc((short)ObjectId, d);
 
             if (hit)
             {
@@ -159,12 +159,6 @@ namespace LevelCreator.TargetTemplate
                 }
             }
             return true;
-        }
-        protected void ShowDamageText(int value, bool hit, bool strike)
-        {
-            if (!hit) Tool.WorldTextController.ShowTextRpc("miss", transform.position, TextColor.Blue);
-            else if (!strike) Tool.WorldTextController.ShowTextRpc('-' + value.ToString(), transform.position, TextColor.Orange);
-            else Tool.WorldTextController.ShowTextRpc('-' + value.ToString(), transform.position, TextColor.Red);
         }
         protected virtual void OnHitBack(Bullet b)
         {
@@ -197,7 +191,7 @@ namespace LevelCreator.TargetTemplate
         }
 
         public void UseSkillRpc(short index) => targetDataSync.UseSkillRpc(index);
-        public void SyncEffectIconRpc(HashSet<(EffectType, int)> values) => targetDataSync.SyncEffectIconRpc(values);
+        public void SyncEffectIconRpc(HashSet<int> values) => targetDataSync.SyncEffectIconRpc(values);
         public void Interrupt() => TimeLineWork.Interrupted();
     }
 }

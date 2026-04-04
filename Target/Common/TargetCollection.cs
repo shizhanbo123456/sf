@@ -25,10 +25,9 @@ namespace LevelCreator.TargetTemplate
 
             switch (i.targetType)
             {
-                case 0: target = obj.AddComponent<PlayerData>(); break;
-                case 1: target = obj.AddComponent<Lantern>(); break;
-                case 2: target = obj.AddComponent<Ore>(); break;
-                case 3: target = obj.AddComponent<Monster>(); break;
+                case 0: target = obj.AddComponent<SingleTarget>(); break;
+                case 1: target = obj.AddComponent<PlayerData>(); break;
+                case 2: target = obj.AddComponent<BossTarget>(); break;
                 default: target = null; break;
             }
             target.graphic = graphic;
@@ -39,14 +38,14 @@ namespace LevelCreator.TargetTemplate
                 {
                     case 0: controller = null; break;
                     case 1: controller = obj.AddComponent<PlayerController>(); break;
-                    case 2: controller = obj.AddComponent<MonsterController>(); break;
+                    case 2: controller = obj.AddComponent<AutoController>(); break;
                     default: controller = null; break;
                 }
                 switch (i.skillControllerType)
                 {
                     case 0: skillcontroller = null; break;
                     case 1: skillcontroller = obj.AddComponent<PlayerSkillController>(); break;
-                    case 2: skillcontroller = obj.AddComponent<MonsterSkillController>(); break;
+                    case 2: skillcontroller = obj.AddComponent<AutoSkillController>(); break;
                     default: skillcontroller = null; break;
                 }
                 switch (i.effectControllerType)

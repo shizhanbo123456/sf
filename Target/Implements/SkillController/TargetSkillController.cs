@@ -1,4 +1,5 @@
 using LevelCreator.Skills;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,11 +24,8 @@ namespace LevelCreator.TargetTemplate
 
             if (param.ContainsKey(TargetParams.Skill))
             {
-                var skillIndex = Format.StringToList(param[TargetParams.Skill], short.Parse);
-                for (int i = 0; i < skillIndex.Count; i++)
-                {
-                    CreateSkillController(skillIndex[i]);
-                }
+                var skillIndex = Format.StringToArray(param[TargetParams.Skill], short.Parse);
+                CreateSkillControllers(skillIndex);
             }
             SkillLock = data.SkillLock.GetChain();
 
@@ -35,10 +33,13 @@ namespace LevelCreator.TargetTemplate
 
             Initialized = true;
         }
-        public virtual void CreateSkillController(short index)
+        public virtual void CreateSkillControllers(short[] ids)
         {
-            var controller = SkillExecuter.CreateSkillController(index, target);
-            Skills.Add(controller);
+            foreach(var i in ids)
+            {
+                var controller = SkillExecuter.CreateSkillController(i, target);
+                Skills.Add(controller);
+            }
         }
         public void ClearSkillControllers()
         {
@@ -91,15 +92,18 @@ namespace LevelCreator.TargetTemplate
             s.OnUse();
             return true;
         }
-        public bool CanUseSkill() => target.SkillLock.LockedInHierechy;
+        public bool CanUseSkill() => !target.SkillLock.LockedInHierechy;
         public virtual void PreUpdate()
         {
 
         }
         public void UseSkillByIndex(int index)
         {
-            if (index < 0 && index >= Skills.Count) return;
-            if (!UseSkillCommandBuffer.Contains(Skills[index].SkillIndex)) UseSkillCommandBuffer.Add(Skills[index].SkillIndex);
+            if (index < 0 || index >= Skills.Count) return;
+            if (!UseSkillCommandBuffer.Contains(index))
+            {
+                UseSkillCommandBuffer.Add(index);
+            }
         }
         public void UseSkillById(int id)
         {

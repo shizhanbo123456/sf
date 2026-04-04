@@ -1,4 +1,5 @@
 using LevelCreator.Skills;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace LevelCreator.TargetTemplate
     {
         private Target target;
         public DedicateSyncAttributes DedicatedAttributes;
+        public List<EffectType> EffectTypes=new();
+
         public void Init(Target target, Dictionary<TargetParams, string> param)
         {
             this.target = target;
@@ -93,25 +96,45 @@ namespace LevelCreator.TargetTemplate
         }
 
 
-        public void SyncEffectIconRpc(HashSet<(EffectType, int)> values)
+        public void SyncEffectIconRpc(HashSet<int> values)
         {
             if (values == null || values.Count == 0)
             {
-                CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable, "null");
+                CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable, null);
                 return;
             }
-            CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable, Format.ListToString(values, t => ((int)t.Item1).ToString(), '+'));
+
+            // 每个效果 1 字节
+            byte[] bytes = new byte[values.Count];
+            int i = 0;
+
+            foreach (var item in values)
+            {
+                TargetEffectController.EffectIdentity.Decode(item, out EffectType type, out _);
+                bytes[i++] = (byte)type;
+            }
+
+            string data = Convert.ToBase64String(bytes);
+
+            CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable, data);
         }
         [Rpc]
         private void SyncEffectIconLocal(string data)
         {
-            if (data == "null")
+            // 空数据
+            if (string.IsNullOrEmpty(data))
             {
-                target.graphic.ShowEffects(new List<EffectType>());
+                EffectTypes.Clear();
+                target.graphic.ShowEffects(EffectTypes);
                 return;
             }
-            var list = Format.StringToList(data, int.Parse, '+');
-            target.graphic.ShowEffects(list.Select(i => (EffectType)i).ToList());
+
+            // 字符串 → 还原回字节数组
+            byte[] bytes = Convert.FromBase64String(data);
+            EffectTypes.Clear();
+            foreach (var i in bytes) EffectTypes.Add((EffectType)i);
+
+            target.graphic.ShowEffects(EffectTypes);
         }
 
 

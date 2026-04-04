@@ -162,13 +162,6 @@ public class EffectPanel : MonoBehaviour
         }
     }
 
-    // 【重载】你原方法参数是Color，我保留兼容
-    public void RemoveAlternatingColor(Color color)
-    {
-        int index = alternatingColors.IndexOf(color);
-        RemoveAlternatingColor(index);
-    }
-
     #region 核心协程
 
     /// <summary>

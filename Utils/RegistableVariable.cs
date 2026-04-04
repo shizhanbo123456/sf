@@ -33,4 +33,8 @@ public class RegistableVariable<T>
         return v;
     }
     public static void Release(RegistableVariable<T> v)=>pool.Release(v);
+    public override string ToString()
+    {
+        return value.ToString();
+    }
 }

@@ -7,22 +7,9 @@ using UnityEngine;
 
 namespace LevelCreator.TargetTemplate
 {
-    public class Monster : Target
+    public class BossTarget : Target
     {
         private const int LayerMax = 100;
-
-        /*
-        public enum MonsterType
-        {
-            焚世炎羊,
-            业火炎灵,刺魂霜灵,
-            星核仲裁者,深渊畸变者, 
-            圣辉制裁者, 终焉收割者, 
-            秘影法皇, 魔导先知, 圣焰先锋,
-            绯影武姬,血刃妖镰,烬灭炮手,
-            狂鬃,黑角,永夜,金冠,战宗
-        }
-        public MonsterType Type;*/
 
         private BossBar Bar;
 
@@ -69,12 +56,6 @@ namespace LevelCreator.TargetTemplate
             {
                 PlayModeController.Instance.DestroyBossBar(Bar);
             }
-        }
-        protected override bool DamageByBullet(Bullet b)
-        {
-            if (!base.DamageByBullet(b)) return false;
-            if (Shengming <= 1) targetDataSync.DestroyRpc();
-            return true;
         }
     }
 }

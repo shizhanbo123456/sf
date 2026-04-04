@@ -14,7 +14,7 @@ namespace SF.UI.Skill
         [SerializeField] protected Text StoredTime;
         [SerializeField] protected GameObject StoredTimeObject;
         private bool labelActive;
-        public void SetKey(KeyCode key)//直接在View设置
+        public void SetKey(KeyCode key)
         {
             Key.text = key.ToString();
         }

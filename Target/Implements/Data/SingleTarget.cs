@@ -5,7 +5,7 @@ using Variety.Base;
 
 namespace LevelCreator.TargetTemplate
 {
-    public class Ore : Target
+    public class SingleTarget : Target
     {
         public override void Init(TargetIdentify info, Dictionary<TargetParams, string> param)
         {
@@ -19,13 +19,6 @@ namespace LevelCreator.TargetTemplate
                 RegistSyncAttributes();
             }
             InitNameAndBar();
-        }
-        protected override bool DamageByBullet(Bullet b)
-        {
-            if (!base.DamageByBullet(b)) return false;
-
-            targetDataSync.DestroyRpc();
-            return true;
         }
     }
 }

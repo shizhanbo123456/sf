@@ -6,24 +6,30 @@ using UnityEngine;
 
 public class SkillPanel : MonoBehaviour
 {
-    [NonSerialized]public List<SkillColumn> Columns=new();
+    private List<SkillColumn> Columns=new();
     [SerializeField] private List<Transform> PCRoots = new();
     [SerializeField] private List<Transform> MobileRoots = new();
-    public SkillColumn CreateSkillColumn(short index)
+    public List<SkillColumn> CreateSkillColumns(short[] ids)
     {
-        var s = Tool.LevelCreatorManager.GetSkillInfo(index);
-        GameObject obj = Instantiate(Tool.PrefabManager.SkillColumn);
-        var _base = obj.GetComponent<SkillColumn>();
-        Columns.Add(_base);
-        _base.SetSprite(Tool.SpriteManager.GetSprite(s.sprite));
+        foreach (short id in ids)
+        {
+            var s = Tool.LevelCreatorManager.GetSkillInfo(id);
+            GameObject obj = Instantiate(Tool.PrefabManager.SkillColumn);
+            var _base = obj.GetComponent<SkillColumn>();
+            Columns.Add(_base);
+            _base.SetSprite(Tool.SpriteManager.GetSprite(s.sprite));
+            _base.SetAvailableTime(1);
+        }
         Replace();
-        return _base;
-    }
-    public void DestroySkillColumn(SkillColumn column)
-    {
-        if (column == null) return;
-        Destroy(column.gameObject);
-        Replace();
+        if (Tool.TargetPlatform.Windows == Tool.Instance.Platform)
+        {
+            for (int index = 0; index < Columns.Count; index++)
+            {
+                SkillColumn i = Columns[index];
+                i.SetKey(LevelCreator.TargetTemplate.PlayerSkillController.Keys[index]);
+            }
+        }
+        return Columns;
     }
     public void DestroyAllSkillColumns()
     {

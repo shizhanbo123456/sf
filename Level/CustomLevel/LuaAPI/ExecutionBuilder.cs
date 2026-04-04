@@ -1,9 +1,40 @@
 using LevelCreator;
 using System.Collections.Generic;
+using XLua;
 
 [XLua.LuaCallCSharp]
 public class ExecutionBuilder
 {
+    //加载其它模板数据集
+    public static void LoadTemplate(string templateName)
+    {
+        if (TemplateLoader.LevelInfoMap.TryGetValue(templateName, out var levelInfoMap))
+        {
+            using(LuaEnv env = new())
+            {
+                try
+                {
+                    env.DoString(levelInfoMap);
+                    LuaFunction loadTemplates = env.Global.Get<LuaFunction>("LoadTemplates");
+                    loadTemplates.Action(0);
+                    loadTemplates.Dispose();
+                }
+                catch 
+                {
+                    UnityEngine.Debug.LogError($"{templateName}加载失败");
+                }
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("未找到模板数据集："+templateName);
+        }
+    }
+
+    //子弹模板
+    //hitbackForce为0时表示使用标准击退(会根据子弹倍率自动计算)
+    //effect可使用未定义的buff id，此时程序认为该子弹无buff
+    //graphicType：0:爆炸 1:火焰 2:普通 3:刀光 4:狼形 5:骷髅
     public static void CreateBullet(short id,int graphicType,float radius,float lifeTime,float rate,
         int liftstoiclevel = 1,float hitbackForce = 0f,short effect = -1)
     {
@@ -12,11 +43,19 @@ public class ExecutionBuilder
         BulletBuilder.Upload();
     }
 
-
+    //buff效果模板
+    //EffectType
+    //{
+    //    HealthRegeneration, Burning, Speed, Slowness, JumpBoost, AgileBoost, AccuracyBoost, AttackBoost, DefenseBoost,
+    //    AgileDecrease, AccuracyDecrease, AttackDecrease, DefenseDecrease, ArmorFortity, ArmorShatter, DamageBoost, DamageDecrease,
+    //    LifeSteal, Luck, BadLuck, Freeze, Stun, Sticky, Silence, Paralysis
+    //}
     public static void InitEffect(short id)=>EffectBuilder.Create(id);
     public static void AddEffect(int type, float value, float time)=>EffectBuilder.AddEffect(type, value, time);
-    public static void UploadEffect()=>EffectBuilder.Upload(); 
-    
+    public static void UploadEffect()=>EffectBuilder.Upload();
+
+    //地形模板
+    //landscapeSize=(x*16,y*8),x和y不小于1，不大于15
     public static void CreateLandscape(short id,byte x, byte y)
     {
         LandscapeBuilder.Create(id);
@@ -33,6 +72,8 @@ public class ExecutionBuilder
     public static void UploadLandscape() => LandscapeBuilder.Upload();
 
 
+    //行为模板
+    //delay单位为ms
     public static void InitSkillOperation(short id)=>OperationBuilder.Create(id);
     public static void AddSubSkillOperator(short delay, short subSkillId)=>OperationBuilder.AddSubSkillOperator(delay, subSkillId);
     public static void ShootBullet(short delay, short bulletInfoId, short shootActId)=>OperationBuilder.ShootBullet(delay,bulletInfoId, shootActId);
@@ -40,6 +81,7 @@ public class ExecutionBuilder
     public static void AddEffect(short delay, short effectId, float operationRadius)=>OperationBuilder.AddEffect(delay, effectId, operationRadius);
     public static void UploadOperation()=>OperationBuilder.Upload();
 
+    //技能模板
     public static void CreateWithoutCD(short id, short iconType, short iconIndex, string name, string des, short operationtime)=>
         SkillBuilder.Create(id,iconType,iconIndex,name,des,operationtime);
     public static void CreateWithCD(short id, short iconType, short iconIndex, string name, string des, short operationtime, short cd)=>
@@ -49,6 +91,12 @@ public class ExecutionBuilder
     public static void AddAction(short actionId, short delay)=>SkillBuilder.AddAction(actionId, delay);
     public static void UploadSkill()=>SkillBuilder.Upload();
 
+    //单位模板
+    //TargetType:0 Single   1 Player   2 Boss
+    //GraphicType:0 玩家 其它为怪物
+    //TargetController:0 无  1 Player  2 Auto(主动靠近最近的敌人)
+    //SkillController:0 无  1 Player  2 Auto(在攻击范围内主动释放)
+    //EffectController:0 无(不受buff影响)  1 标准(正常受到buff影响)
     public static void CreateTarget(short id,int level, float size, string label, int targetType, int graphicType)
     {
         TargetBuilder.Create(id);

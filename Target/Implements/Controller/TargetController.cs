@@ -266,7 +266,7 @@ namespace LevelCreator.TargetTemplate
             currentState.Update(this);
             if (target.targetControllerSync.OnPlayerPostUpdate())
             {
-                target.targetControllerSync.SyncController(transform.position, rb.velocity, Resistance<0,
+                target.targetControllerSync.SyncController(transform.position, rb.velocity,
                     ignoreLevitatingPlatform, OperationLock.LockedInHierechy, isGrounded, Motion.IsNull);
             }
         }

@@ -33,7 +33,7 @@ public class PlayModeController : Singleton<PlayModeController>
     {
         var p = page;
         if (!p) return;
-        p.Scoreboard.ShowPanel(horizontalHeaders, verticalHeaders);
+        p.Scoreboard.ShowPanel(verticalHeaders, horizontalHeaders);
     }
     public void HideScoreboard()
     {
@@ -60,11 +60,11 @@ public class PlayModeController : Singleton<PlayModeController>
         if (p == null) return;
         p.BarPanel.DestroyBar(bar);
     }
-    public SkillColumn CreateSkillColumn(short index)
+    public List<SkillColumn> CreateSkillColumns(short[] index)
     {
         var p = page;
         if (p == null) return null;
-        return p.CreateSkillColumn(index);
+        return p.CreateSkillColumns(index);
     }
     public void DestroyAllSkillColumns()
     {

@@ -119,7 +119,16 @@ public class Bullet : MonoBehaviour
         }
 
         damage *= (attacker.Jiashang - defenser.Jianshang.Value) / 100f + 1;
-        damage *= UnityEngine.Random.value * 0.4f + 0.8f;
+        if (damage <= 1) return 1;
+        return (int)damage;
+    }
+    public static int FigureDamage(DedicateSyncAttributes attacker, GameTimeAttributes defenser, float damageRate, bool strike)
+    {
+        float damage = 2 * damageRate * attacker.Gongji / Mathf.Max(attacker.Gongji + defenser.Fangyu.Value, 1) * attacker.Gongji;
+
+        if (strike) damage *= 2;
+
+        damage *= (attacker.Jiashang - defenser.Jianshang.Value) / 100f + 1;
         if (damage <= 1) return 1;
         return (int)damage;
     }

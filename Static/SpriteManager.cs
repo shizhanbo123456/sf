@@ -29,10 +29,11 @@ public class SpriteManager : MonoBehaviour
     {
         switch (v.x)
         {
-            case 1:return SkillPackageA[v.y];
-            case 2:return SkillPackageB[v.y];
-            case 3:return SkillPackageC[v.y];
+            case 0:return SkillPackageA[v.y];
+            case 1:return SkillPackageB[v.y];
+            case 2:return SkillPackageC[v.y];
         }
+        Debug.LogError("未找到图片："+v);
         return null;
     }
     public Color TargetToColor(int camp,ColorType type=ColorType.Name)

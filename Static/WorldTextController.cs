@@ -5,39 +5,10 @@ using UnityEngine.UI;
 
 public partial class WorldTextController : EnsBehaviour
 {
-    private struct TextInfo
-    {
-        public string text;
-        public Vector2 pos;
-        public TextColor color;
-        public TextInfo(string text,Vector2 pos,TextColor color)
-        {
-            this.text = text;
-            this.pos = pos;
-            this.color = color;
-        }
-        public override string ToString()
-        {
-            var sb= Tool.stringBuilder;
-            sb.Append(text).Append('_').
-                Append(pos.x.ToString("F1")).Append('_').
-                Append(pos.y.ToString("F2")).Append('_').
-                Append((int)color);
-            return sb.ToString();
-        }
-        public TextInfo(string data)
-        {
-            var s = data.Split('_');
-            text= s[0];
-            pos = new Vector2(float.Parse(s[1]), float.Parse(s[2]));
-            color=(TextColor)int.Parse(s[3]);
-        }
-    }
     public enum TextColor
     {
         Orange, Green, Blue, Red, Purple, Pink
     }
-    private List<TextInfo>TextInfos = new List<TextInfo>(100);
 
     [SerializeField] private GameObject TextPrefab;
     [SerializeField] private TextColor Reference;
@@ -51,49 +22,91 @@ public partial class WorldTextController : EnsBehaviour
     private List<float> DestroyTimes = new List<float>();
 
 
+    private int messageLeftForCurrentFrame = 0;
+
+
     private void Awake()
     {
         Tool.WorldTextController = this;
         pool = GameObjectPool.Create(TextPrefab,o=>o.SetActive(false),o=>o.SetActive(true));
     }
-    public void ShowTextRpc(string text,Vector2 pos,TextColor color)
+    public void ShowMissRpc(short defenser)
     {
-        TextInfos.Add(new TextInfo(text, pos, color));
-    }
-    public override void ManagedUpdate()
-    {
-        int i = countPerFrame;
-        for(i=Mathf.Min(TextInfos.Count-1,i); i >= 0; i--)
-        {
-            var s = TextInfos[i].ToString();
-            CallFuncRpc(ShowTextLocal, SendTo.ExcludeSender,Delivery.Unreliable,s);
-            ShowTextLocal(s);
-            TextInfos.RemoveAt(i);
-        }
+        if (messageLeftForCurrentFrame == 0) return;
+        messageLeftForCurrentFrame--;
+        var t = Tool.SceneController.GetTarget(defenser);
+        if (t == null) return;
+        ShowText("miss", TextColor.Blue, t.transform.position);
+        CallFuncRpc(ShowMissLocal, SendTo.ExcludeSender, Delivery.Unreliable,defenser);
     }
     [Rpc]
-    public void ShowTextLocal(string data)
+    private void ShowMissLocal(short defenser)
     {
-        var info=new TextInfo(data);
-        var pos = (Vector3)info.pos+new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f));
-        var obj = pool.Get(); 
+        var t = Tool.SceneController.GetTarget(defenser);
+        if (t == null) return;
+        if (!Visiable(t.transform.position)) return;
+        ShowText("miss", TextColor.Blue, t.transform.position);
+    }
+    public void ShowDamageRpc(short defenser,int value)
+    {
+        if (messageLeftForCurrentFrame == 0) return;
+        messageLeftForCurrentFrame--;
+        var t = Tool.SceneController.GetTarget(defenser);
+        if (t == null) return;
+        ShowText(value.ToString(), TextColor.Orange, t.transform.position);
+        CallFuncRpc(ShowDamageLocal,SendTo.ExcludeSender,Delivery.Unreliable,defenser,value);
+    }
+    [Rpc]
+    private void ShowDamageLocal(short defenser, int value)
+    {
+        var t = Tool.SceneController.GetTarget(defenser);
+        if (t == null) return;
+        if (!Visiable(t.transform.position)) return;
+        ShowText(value.ToString(), TextColor.Orange, t.transform.position);
+    }
+    public void ShowStrikeDamageRpc(short defenser, int value)
+    {
+        if (messageLeftForCurrentFrame == 0) return;
+        messageLeftForCurrentFrame--;
+        var t = Tool.SceneController.GetTarget(defenser);
+        if (t == null) return;
+        ShowText(value.ToString(), TextColor.Red, t.transform.position);
+        CallFuncRpc(ShowStrikeDamageLocal, SendTo.ExcludeSender, Delivery.Unreliable, defenser, value);
+    }
+    [Rpc]
+    private void ShowStrikeDamageLocal(short defenser, int value)
+    {
+        var t = Tool.SceneController.GetTarget(defenser);
+        if (t == null) return;
+        if (!Visiable(t.transform.position)) return;
+        ShowText(value.ToString(), TextColor.Red, t.transform.position);
+    }
+    private void ShowText(string msg,TextColor color,Vector3 pos)
+    {
+        var obj = pool.Get();
+        pos +=new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f));
         obj.transform.position = pos;
         obj.transform.SetParent(Tool.SceneController.SingleLevel.Canvas);
 
         var t = obj.transform.GetChild(1).GetComponent<Text>();
-        t.text = info.text;
-        t.color = TextColors[(int)info.color];
-        obj.GetComponent<Text>().text=info.text;
-        obj.transform.GetChild(0).GetComponent<Text>().text=info.text;
+        t.text = msg;
+        t.color = TextColors[(int)color];
+        obj.GetComponent<Text>().text = msg;
+        obj.transform.GetChild(0).GetComponent<Text>().text = msg;
 
         Texts.Add(obj.transform);
         DestroyTimes.Add(Time.time + existTime);
     }
+    private bool Visiable(Vector3 pos)
+    {
+        var p=CameraInstance.instance.transform.position - pos;
+        return Mathf.Abs(p.y)<7&&Mathf.Abs(p.x)<20;
+    }
     private void Update()
     {
-        for(int i= Texts.Count - 1; i >= 0; i--)
+        for (int i = Texts.Count - 1; i >= 0; i--)
         {
-            if (Time.time < DestroyTimes[i])Texts[i].position+=Vector3.up*Time.deltaTime;
+            if (Time.time < DestroyTimes[i]) Texts[i].position += Vector3.up * Time.deltaTime;
             else
             {
                 pool.Return(Texts[i].gameObject);
@@ -101,5 +114,6 @@ public partial class WorldTextController : EnsBehaviour
                 DestroyTimes.RemoveAt(i);
             }
         }
+        messageLeftForCurrentFrame = 5;
     }
 }

@@ -97,8 +97,6 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.F,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            Utils.Debug.Log(s.ToString());
-            Utils.Debug.PrintBytes(b, s);
             byte messageType = b[s.StartIndex];
             SendTo to = SendTo.To(b[s.StartIndex + s.Length - 2], b[s.StartIndex + s.Length - 1]);
             Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex+1]);

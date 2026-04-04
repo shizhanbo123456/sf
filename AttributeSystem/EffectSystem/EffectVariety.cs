@@ -7,7 +7,12 @@ public enum EffectType
 {
     HealthRegeneration, Burning, Speed, Slowness, JumpBoost, AgileBoost, AccuracyBoost, AttackBoost, DefenseBoost,
     AgileDecrease, AccuracyDecrease, AttackDecrease, DefenseDecrease, ArmorFortity, ArmorShatter, DamageBoost, DamageDecrease,
-    LifeSteal, Luck, BadLuck, Freeze, Stun, Sticky, Silence, Paralysis
+    LifeSteal, Luck, BadLuck, 
+    Freeze, 
+    Stun, 
+    Sticky, 
+    Silence, 
+    Paralysis
 }
 
 namespace AttributeSystem.DataOrientedEffects

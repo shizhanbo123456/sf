@@ -68,7 +68,6 @@ public partial class NetworkCorrespondent : EnsBehaviour
             EnsInstance.LocalClientId,
             PlayerInfo.Name
             );
-        Debug.Log("111");
         CallFuncRpc(RecvData, SendTo.RoomOwner, Delivery.Reliable, player.ToString());
     }
 
@@ -160,6 +159,7 @@ public partial class NetworkCorrespondent : EnsBehaviour
     {
         CallFuncRpc(ShowTitleLocal, SendTo.Everyone, Delivery.Reliable,msg);
     }
+    [Rpc]
     private void ShowTitleLocal(string msg)
     {
         PlayModeController.Instance.ShowTitle(msg);
@@ -168,6 +168,7 @@ public partial class NetworkCorrespondent : EnsBehaviour
     {
         CallFuncRpc(ShowSubtitleLocal, SendTo.Everyone, Delivery.Reliable, msg);
     }
+    [Rpc]
     private void ShowSubtitleLocal(string msg)
     {
         PlayModeController.Instance.ShowSubtitle(msg);

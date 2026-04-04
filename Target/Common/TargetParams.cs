@@ -1,3 +1,4 @@
+using System;
 using XLua;
 
 [LuaCallCSharp]
@@ -5,9 +6,9 @@ public enum TargetParams
 {
     RegenerationRate,
     MonsterSkillCD,
-    LanternRegenerationTime,
+    [Obsolete]LanternRegenerationTime,
     CanFly,
     Skill,
     HealthScale,
-    BodySize
+    [Obsolete]BodySize
 }

@@ -6,7 +6,7 @@ using XLua;
 //创建关卡时需要手动创建关卡地形、创建玩家、敌人等
 //退出关卡时会自动销毁地形和所有物体
 [LuaCallCSharp]
-public class LevelLogic//CustomLevelAPIManifest
+public class LevelLogic//地图坐标中，左下角为（0，0）,右上角为（1，1）
 {
     public static float TimeUsed => CustomLevel.FightTime;
     public static short[] ClientIds => ServerDataContainer.GetAllKeys();

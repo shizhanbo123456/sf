@@ -10,15 +10,10 @@ namespace LevelCreator.TargetTemplate
     /// </summary>
     public partial class TargetControllerSync : EnsBehaviour, ITargetcontrollerInfo
     {
-        public Action OnPostSyncRpc { get; set; }
+        public Action OnPostSync { get; set; }
 
         [HideInInspector] public GameTimeAttributes DedicatedAttributes;
-
-        public bool FaceRight { get; set; } = true;
-        public bool isGrounded { get; set; } = true;
-        public bool HitDown { get; set; } = false;
-        public bool IgnoreLevitaningPlatrm { get; set; } = false;
-        public bool MotionIsNull { get; set; } = true;
+        public TargetTransformInfo Info { get; set; } = TargetTransformInfo.Create();
 
         private const float sqrDist = 0.01f;
         private const float sqrVelocity = 1f;
@@ -32,13 +27,14 @@ namespace LevelCreator.TargetTemplate
         {
             nomEnabled = false;
             rb = GetComponent<Rigidbody2D>();
-            OnPostSyncRpc += SetLayer;
+            OnPostSync += SetLayer;
             lastSyncPosition = transform.position;
         }
         public void SetLayer()
         {
             if (!colliderGameObject) colliderGameObject = GetComponentInChildren<Collider2D>().gameObject;
-            if (!MotionIsNull || IgnoreLevitaningPlatrm || !isGrounded) colliderGameObject.layer = Tool.Settings.FallingTargetLayer;
+            if (!Info.motionIsNull || Info.ignoreLevitatingPlatform || !Info.isGrounded)
+                colliderGameObject.layer = Tool.Settings.FallingTargetLayer;
             else colliderGameObject.layer = Tool.Settings.TargetLayer;
         }
 
@@ -71,22 +67,20 @@ namespace LevelCreator.TargetTemplate
             }
             return false;
         }
-        private enum StateFlags
+        
+        public void SyncController(Vector3 pos, Vector2 velocity, bool hitdown, bool ignoreLevitatingPlatform, bool isGrounded, bool motionIsNull)
         {
-            IgnorLevitatingPlatform=1,
-            MoveLock=2,
-            IsGrounded=4,
-            MotionIsNull=8,
-            HitDown=16
-        }
-        public void SyncController(Vector3 pos, Vector2 velocity, bool hitdown, bool ignoreLevitatingPlatform, bool moveLock, bool isGrounded, bool motionIsNull)
-        {
-            StateFlags flags = 0;
-            if(ignoreLevitatingPlatform)flags|=StateFlags.IsGrounded;
-            if(moveLock)flags|=StateFlags.MoveLock;
-            if (isGrounded) flags |= StateFlags.IsGrounded;
-            if(motionIsNull) flags |= StateFlags.MotionIsNull;
-            if(hitdown)flags|=StateFlags.HitDown;
+            var info = Info;
+            info.isGrounded = isGrounded;
+            info.hitDown= hitdown;
+            info.ignoreLevitatingPlatform = ignoreLevitatingPlatform;
+            info.motionIsNull= motionIsNull;
+            if (!hitdown)
+            {
+                if (rb.velocity.x > 0.01f) info.faceRight = true;
+                else if (rb.velocity.x < -0.01f) info.faceRight = false;
+            }
+            Info = info;
 
             var sb = Tool.stringBuilder;
 
@@ -97,40 +91,21 @@ namespace LevelCreator.TargetTemplate
             sb.Append((int)(pos.x * 10)).Append('_').
                 Append((int)(pos.y * 10)).Append('_').
                 Append((int)(velocity.x * 10)).Append('_').
-                Append((int)(velocity.y * 10)).Append('_').
-                Append((int)flags);
-            CallFuncRpc(SyncControllerRpc, SendTo.ExcludeSender, Delivery.Unreliable, sb.ToString());
+                Append((int)(velocity.y * 10)).Append('_');
+            CallFuncRpc(SyncControllerRpc, SendTo.ExcludeSender, Delivery.Unreliable, sb.ToString(),(int)Info.ToFlags());
 
-            HitDown = hitdown;
-            IgnoreLevitaningPlatrm = ignoreLevitatingPlatform;
-            if (!moveLock)
-            {
-                if (rb.velocity.x > 0.01f) FaceRight = true;
-                else if (rb.velocity.x < -0.01f) FaceRight = false;
-            }
-            this.isGrounded = isGrounded;
-            OnPostSyncRpc?.Invoke();
+            OnPostSync?.Invoke();
         }
         [Rpc]
-        private void SyncControllerRpc(string data)
+        private void SyncControllerRpc(string data,int flags)
         {
             string[] s = data.Split('_');
             transform.position = new Vector3(int.Parse(s[0])*0.1f, int.Parse(s[1])*0.1f, 0);
             rb.velocity = new Vector2(int.Parse(s[2])*0.1f, int.Parse(s[3])*0.1f);
 
-            StateFlags flags = (StateFlags)int.Parse(s[4]);
+            Info = new TargetTransformInfo(flags);
 
-            IgnoreLevitaningPlatrm = flags.HasFlag(StateFlags.IgnorLevitatingPlatform);
-            if (flags.HasFlag(StateFlags.MoveLock))
-            {
-                if (rb.velocity.x > 0.01f) FaceRight = true;
-                else if (rb.velocity.x < -0.01f) FaceRight = false;
-            }
-            isGrounded = flags.HasFlag(StateFlags.IsGrounded);
-            MotionIsNull = flags.HasFlag(StateFlags.MotionIsNull);
-            HitDown=flags.HasFlag(StateFlags.HitDown);
-
-            OnPostSyncRpc?.Invoke();
+            OnPostSync?.Invoke();
         }
     }
 }

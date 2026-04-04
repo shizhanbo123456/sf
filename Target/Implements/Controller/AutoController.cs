@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace LevelCreator.TargetTemplate
 {
-    public class MonsterController : TargetController
+    public class AutoController : TargetController
     {
         private enum MonsterState
         {
