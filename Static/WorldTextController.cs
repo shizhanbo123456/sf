@@ -15,7 +15,6 @@ public partial class WorldTextController : EnsBehaviour
     [SerializeField]private List<Color> TextColors = new List<Color>();
     [Space]
     [SerializeField] private float existTime = 0.5f;
-    [SerializeField] private int countPerFrame = 5;
     private GameObjectPool pool;
 
     private List<Transform> Texts = new List<Transform>();
