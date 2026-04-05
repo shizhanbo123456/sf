@@ -62,9 +62,9 @@ public class EnsCorrespondent :MonoBehaviour
 
         EnsInstance.DevelopmentDebug = DevelopmentDebug;
 
-        EnsInstance.KeyExistTime = KeyExistTime;
-        EnsInstance.KeySendInterval = KeySendInterval;
-        EnsInstance.RKeyExistTime = RKeyExistTime;
+        EnsInstance.ReliableKeyExistTime = KeyExistTime;
+        EnsInstance.UnconfirmedKeySendInterval = KeySendInterval;
+        EnsInstance.ReceiverKeyExistTime = RKeyExistTime;
 
         EnsInstance.DisconnectThreshold = DisconnectThreshold;
         EnsInstance.HeartbeatMsgInterval = HeartbeatMsgInterval;

@@ -24,12 +24,12 @@ public abstract class DataTransportBase//具有信息收发功能
     internal abstract ProtocolBase GetProtocolBase();
 
 
-    internal static void Send(SendBuffer SendBuffer, byte messageType,byte delivery, MessageWriter writer = null)
+    internal static void Send(SendBuffer SendBuffer, byte messageType,ushort delivery, MessageWriter writer = null)
     {
         SendBuffer.RequireLength(376);
         int bytesStart = SendBuffer.indexStart;
         ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
-        ByteSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
+        UshortSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
         if (writer != null)
         {
             var b = writer.Write(SendBuffer);
@@ -39,7 +39,7 @@ public abstract class DataTransportBase//具有信息收发功能
                 SendBuffer.Flush();
                 bytesStart = SendBuffer.indexStart;
                 ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
-                ByteSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
+                UshortSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
                 if (!writer.Write(SendBuffer))
                 {
                     SendBuffer.Clear();
@@ -185,4 +185,16 @@ internal interface MessageWriter
     bool Write(SendBuffer buffer);
     MessageWriter Clone();
     void Dispose();
+}
+public struct MessageReader
+{
+    public const int BodyOffset = 3;
+    public static byte Header(byte[] data, Segment s) => data[s.StartIndex];
+    public static ushort Delivery(byte[] data, Segment s)
+    {
+        int indexStart = s.StartIndex + 1;
+        return UshortSerializer.Deserialize(data, ref indexStart, s.StartIndex + 3);
+    }
+    public static int BodyIndexStart(Segment s) => s.StartIndex+3;
+    public static int BodyIndexInvalid(Segment s) => s.StartIndex+s.Length;
 }

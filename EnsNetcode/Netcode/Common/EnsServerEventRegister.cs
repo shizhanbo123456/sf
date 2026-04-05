@@ -38,8 +38,8 @@ public class EnsServerEventRegister
     {
         MessageHandlerServer.Regist(Header.H,(conn, b, s) =>
         {
-            int index = s.StartIndex + 2;
-            int invalidIndex = s.StartIndex + s.Length;
+            int index = MessageReader.BodyIndexStart(s);
+            int invalidIndex=MessageReader.BodyIndexInvalid(s);
             var d = IntSerializer.Deserialize(b, ref index, invalidIndex);
             conn.delay = ((int)(Utils.Time.time * 1000) - d) / 2;
         });
@@ -57,8 +57,8 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.A,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            int index = s.StartIndex + 2;
-            int invalidIndex = s.StartIndex + s.Length;
+            int index = MessageReader.BodyIndexStart(s);
+            int invalidIndex = MessageReader.BodyIndexInvalid(s);
             var d = ShortSerializer.Deserialize(b, ref index, invalidIndex);
             conn.room.SetAuthority(d);
         });
@@ -70,11 +70,10 @@ public class EnsServerEventRegister
         internal Segment t_segment;
         public bool Write(SendBuffer b)
         {
-            if (b.bytes.Length - b.indexStart < t_segment.Length + 2) return false;
-            for (int i = t_segment.StartIndex + 2; i < t_segment.StartIndex + t_segment.Length; i++)
-            {
-                b.bytes[b.indexStart++] = t_bytes[i];
-            }
+            if (b.bytes.Length - b.indexStart < t_segment.Length + MessageReader.BodyOffset) return false;
+            int length = t_segment.Length - MessageReader.BodyOffset;
+            Buffer.BlockCopy(t_bytes, t_segment.StartIndex + MessageReader.BodyOffset, b.bytes, b.indexStart, length);
+            b.indexStart += length;
             return true;
         }
         public MessageWriter Clone()
@@ -97,9 +96,9 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.F,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            byte messageType = b[s.StartIndex];
+            byte messageType = MessageReader.Header(b, s);
             SendTo to = SendTo.To(b[s.StartIndex + s.Length - 2], b[s.StartIndex + s.Length - 1]);
-            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex+1]);
+            Delivery delivery = DeliverySource.IdToDelivery(MessageReader.Delivery(b,s));
             F_MessageWriter.instance.t_bytes = b;
             F_MessageWriter.instance.t_segment = new Segment(s.StartIndex,s.Length-2);
             if (to == SendTo.Everyone)
@@ -150,11 +149,11 @@ public class EnsServerEventRegister
         MessageHandlerServer.Regist(Header.f,(conn, b, s) =>
         {
             if (conn.room == null) return;
-            byte messageType = b[s.StartIndex];
-            Delivery delivery = DeliverySource.ByteToDelivery(b[s.StartIndex + 1]);
+            byte messageType = MessageReader.Header(b, s);
+            Delivery delivery = DeliverySource.IdToDelivery(MessageReader.Delivery(b,s));
 
-            int indexStart = s.StartIndex+2;
-            int invalidIndex = s.StartIndex + s.Length;
+            int indexStart = MessageReader.BodyIndexStart(s);
+            int invalidIndex = MessageReader.BodyIndexInvalid(s);
             SendTo to =SendTo.To(ShortSerializer.Deserialize(b, ref indexStart, invalidIndex));
             f_MessageWriter.instance.t_spawnMode = BoolSerializer.Deserialize(b, ref indexStart, invalidIndex);
             f_MessageWriter.instance.t_spawnCollectionId =ShortSerializer.Deserialize(b, ref indexStart, invalidIndex);
@@ -209,8 +208,8 @@ public class EnsServerEventRegister
     {
         MessageHandlerServer.Regist(Header.Q,(conn, b, s) =>
         {
-            int index = s.StartIndex + 2;
-            int invalidIndex = s.StartIndex + s.Length;
+            int index = MessageReader.BodyIndexStart(s);
+            int invalidIndex = MessageReader.BodyIndexInvalid(s);
             Q_MessageWriter.instance.t_header = StringSerializer.Deserialize(b, ref index, invalidIndex);
             Q_MessageWriter.instance.t_content = StringSerializer.Deserialize(b, ref index, invalidIndex);
             string reply = EnsServerRequest.OnRecvRequest(Q_MessageWriter.instance.t_header, Q_MessageWriter.instance.t_content, conn);

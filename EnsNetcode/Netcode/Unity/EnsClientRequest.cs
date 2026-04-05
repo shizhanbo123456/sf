@@ -48,7 +48,7 @@ public static class EnsClientRequest
         Q_MessageWriter.Instance.t_header = header;
         Q_MessageWriter.Instance.t_content = content;
         EnsInstance.Corr.Client.Send(Header.Q, Delivery.Reliable, Q_MessageWriter.Instance);
-        ActiveRequestHeader.Add(header, Time.time + EnsInstance.KeyExistTime + 1);
+        ActiveRequestHeader.Add(header, Time.time + EnsInstance.ReliableKeyExistTime + 1);
         return true;
     }
     internal static void RecvReply(string header,string content)

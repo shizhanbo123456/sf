@@ -1,6 +1,7 @@
 每次会把下列各语句合并，并用*分隔，一起发送
 
-(x messageSeparator)(1 messageHeader)(1 delivery)[body](2 messageLength)(x messageSeparator)
+(byte messageHeader)(ushort delivery)[body](2byte messageLength)
+messageLength有特殊编码
 messageType和messageLength都必定不包含Separator
 
 

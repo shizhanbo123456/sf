@@ -3,99 +3,93 @@ using Utils;
 
 public class DeliverySource
 {
-    //Unreliable 0
-    //Reliable 1-100 resp=101-200 +100
-    //Orderwise 201-227 resp=228-254 +27
+    //Unreliable id=0
+    //Strive id=1-20000
+    //Reliable id=20001-30000 resp=30001-40000
+    //Orderwise id=40001-50000 resp=50001-60000
     public static readonly byte Unreliable = 0;
 
-    private int reliableSource = 1;
-    private int orderWiseSource = 201;
+    private int striveSource;
+    private int reliableSource;
+    private int orderWiseSource;
     private DeliverySource() { }
     private static readonly ObjectPool<DeliverySource> pool=new ObjectPool<DeliverySource>(
-        () => new DeliverySource(), 
-        s => { s.reliableSource = 1;s.orderWiseSource = 201; }
-        );
+        () => new DeliverySource());
     public static DeliverySource Get()
     {
-        var p=pool.Get();
-        p.reliableSource = 1;
-        p.orderWiseSource = 201;
-        return p;
+        var s=pool.Get();
+        s.striveSource = 1;
+        s.reliableSource = 20001;
+        s.orderWiseSource = 40001;
+        return s;
     }
-    public static void Return(DeliverySource d)
+    public static void Return(DeliverySource d)=> pool.Return(d);
+    private ushort Strive
     {
-        pool.Return(d);
+        get
+        {
+            striveSource++;
+            if (striveSource > 20000) striveSource = 1;
+            return (ushort)striveSource;
+        }
     }
-    private byte Reliable
+    private ushort Reliable
     {
         get
         {
             reliableSource++;
-            if (reliableSource > 100) reliableSource = 1;
-            return (byte)reliableSource;
+            if (reliableSource > 30000) reliableSource = 20001;
+            return (ushort)reliableSource;
         }
     }
-    private byte Orderwise
+    private ushort Orderwise
     {
         get
         {
             orderWiseSource++;
-            if (orderWiseSource > 227) orderWiseSource = 201;
-            return (byte)orderWiseSource;
+            if (orderWiseSource > 50000) orderWiseSource = 40001;
+            return (ushort)orderWiseSource;
         }
     }
-    public byte DeliveryToByte(Delivery delivery)
+    public ushort DeliveryToId(Delivery delivery)
     {
         return delivery switch
         {
             Delivery.Unreliable => Unreliable,
+            Delivery.Strive=>Strive,
             Delivery.Reliable => Reliable,
             Delivery.OrderWise => Orderwise,
             _ => throw new Exception("Delivery随机数产生器检测到未知类型")
         };
     }
-    public byte Top(Delivery delivery)
-    {
-        if (delivery == Delivery.Unreliable) return Unreliable;
-        if(delivery == Delivery.Reliable)
-        {
-            int a=reliableSource+1;
-            if (a > 100) a = 1;
-            return (byte)a;
-        }
-        else
-        {
-            int b=orderWiseSource+1;
-            if (b > 227) b = 201;
-            return (byte)b;
-        }
-    }
-    public static Delivery ByteToDelivery(byte b)
+    public static Delivery IdToDelivery(ushort b)
     {
         if (b == 0) return Delivery.Unreliable;
-        else if (b >= 1 && b <= 200) return Delivery.Reliable;
+        else if (b >= 1 && b <= 20000) return Delivery.Strive;
+        else if (b >= 20001 && b <= 40000) return Delivery.Reliable;
         else return Delivery.OrderWise;
     }
-    public static bool IsResponse(byte b)
+    public static bool IsResponse(ushort b)
     {
-        return (b >= 101 && b <= 200) || (b >= 228 && b <= 254);
+        return (b >= 30001 && b <= 40000) || (b >= 50001 && b <= 60000);
     }
-    public static byte MessageToResponse(byte b)
+    public static ushort MessageToResponse(ushort b)
     {
-        if (b >= 1 && b <= 100) return (byte)(b + 100);
-        else if (b >= 201 && b <= 227) return (byte)(b + 27);
-        else throw new Exception("Delivery随机数产生器检测到未知类型");
+        if (b >= 20001 && b <= 30000) return (ushort)(b + 10000);
+        else if (b >= 40001 && b <= 50000) return (ushort)(b + 10000);
+        else throw new Exception($"{b}无对应回复");
     }
-    public static byte ResponseToMessage(byte b)
+    public static ushort ResponseToMessage(ushort b)
     {
-        if (b >= 101 && b <= 200) return (byte)(b - 100);
-        else if (b >= 228 && b <= 254) return (byte)(b - 27);
-        else throw new Exception("Delivery随机数产生器检测到未知类型");
+        if (b >= 30001 && b <= 40000) return (ushort)(b - 10000);
+        else if (b >= 50001 && b <= 60000) return (ushort)(b - 10000);
+        else throw new Exception($"{b}无对应原消息");
     }
 }
 public enum Delivery
 {
     Unreliable,
+    Strive,
     Reliable,
     OrderWise
 }

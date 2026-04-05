@@ -21,7 +21,7 @@ public static class MessageHandlerServer
     }
     public static void Invoke(EnsConnection conn, byte[] src,Segment segment)
     {
-        byte header = src[segment.StartIndex];
+        byte header = MessageReader.Header(src,segment);
         if (!Events.ContainsKey(header))
         {
             Debug.Log("Î´×¢²áÏûÏ¢Í·£º" + header);

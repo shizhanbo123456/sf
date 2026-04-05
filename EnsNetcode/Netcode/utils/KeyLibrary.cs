@@ -1,68 +1,118 @@
-﻿using ProtocolWrapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Utils;
 
-/// <summary>
-/// Add OnReceive Update Clear
-/// </summary>
 internal class KeyLibrary
 {
-    //A发送，B收到消息后返回的校验消息中，Header不变，发送者为A，接收者为A，DeliveryType不变，body省略，length为6
+    //A发送，B收到消息后返回的校验消息中，Header不变，DeliveryId不变，body省略
 
-    private class SenderKey
+    //Unreliable:发送一次，不等待回应
+    //Strive:发送指定数量次，不等待回应，接收方会忽略因重发重复的消息
+    //Reliable:发送多次，直至收到回复或超时，接收方会忽略因重发重复的消息
+    //OrderWise:发送多次，直至收到回复或超时，接收方会忽略因重发重复的消息。只会发送储存的未确认的最早记录的此类消息，收到回复或超时后才会发送下一个
+
+    public enum KeyState
     {
-        public enum KeyState
+        TobeConfirmed, ConfirmedExisting, End
+    }
+    private class StriveKey
+    {
+        private static ObjectPool<StriveKey> Pool = new(() => new());
+
+        public float NextSendTime;
+        public int SendCountLeft;
+
+        public byte messageType;
+        public ushort delivery;
+        public MessageWriter writer;
+
+        private StriveKey() { }
+        public static StriveKey Get(byte messageType, ushort delivery, MessageWriter writer)
         {
-            TobeConfirmed, ConfirmedExisting, End
+            var k = Pool.Get();
+            k.NextSendTime = EnsInstance.StriveKeySendInterval+Time.time;
+            k.SendCountLeft = EnsInstance.StriveKeyResendCount;
+
+            k.messageType = messageType;
+            k.delivery = delivery;
+            k.writer = writer;
+
+            return k;
         }
+        public static void Return(StriveKey key)
+        {
+            Pool.Return(key);
+        }
+    }
+    private class ReliableKey
+    {
+        private static ObjectPool<ReliableKey> Pool = new(() => new());
+
         public KeyState State;
         public float ToConfirmIntervalLeft;
         public float ConfirmedExistingSource;
 
         public byte messageType;
-        public byte delivery;
+        public ushort delivery;
         public MessageWriter writer;
 
-        public SenderKey(byte messageType,  byte delivery, MessageWriter writer)
+        protected ReliableKey() { }
+        public static ReliableKey Get(byte messageType,  ushort delivery, MessageWriter writer)
         {
-            State = KeyState.TobeConfirmed;
-            ToConfirmIntervalLeft = -1f;
-            ConfirmedExistingSource = EnsInstance.KeyExistTime + Time.time;
+            var k = Pool.Get();
+            k.State = KeyState.TobeConfirmed;
+            k.ToConfirmIntervalLeft  = Time.time + EnsInstance.UnconfirmedKeySendInterval;
+            k.ConfirmedExistingSource = EnsInstance.ReliableKeyExistTime + Time.time;
 
-            this.messageType = messageType;
-            this.delivery = delivery;
-            this.writer = writer;
+            k.messageType = messageType;
+            k.delivery = delivery;
+            k.writer = writer;
+
+            return k;
+        }
+        public static void Return(ReliableKey key)
+        {
+            Pool.Return(key);
         }
     }
-    private class OrderedSenderKey:SenderKey
+    private class OrderwiseKey
     {
-        internal int index;
-        public OrderedSenderKey(int index,byte messageType, byte delivery, MessageWriter writer):
-            base(messageType,delivery,writer)
+        private static ObjectPool<OrderwiseKey> Pool = new(() => new());
+
+        public int OrderwiseIndex;
+
+        public KeyState State;
+        public float ToConfirmIntervalLeft;
+        public float ConfirmedExistingSource;
+
+        public byte messageType;
+        public ushort delivery;
+        public MessageWriter writer;
+        protected OrderwiseKey():base() { }
+        public static OrderwiseKey Get(int orderwiseIndex,byte messageType, ushort delivery, MessageWriter writer)
         {
-            this.index = index;
+            var k = Pool.Get();
+            k.OrderwiseIndex= orderwiseIndex;
+
+            k.State = KeyState.TobeConfirmed;
+            k.ToConfirmIntervalLeft = Time.time + EnsInstance.UnconfirmedKeySendInterval;
+            k.ConfirmedExistingSource = EnsInstance.ReliableKeyExistTime + Time.time;
+
+            k.messageType = messageType;
+            k.delivery = delivery;
+            k.writer = writer;
+
+            return k;
+        }
+        public static void Return(OrderwiseKey key)
+        {
+            Pool.Return(key);
         }
     }
-    private class ReceiverKey
-    {
-        public float EndTime;
-
-        public byte[] bytes;
-        public Segment segment;
-
-        public ReceiverKey(byte[] src,Segment segment)
-        {
-            EndTime = EnsInstance.RKeyExistTime + Time.time;
-
-            bytes = src;
-            this.segment = segment;
-        }
-    }
-
-    private Dictionary<byte,SenderKey> Keys = new();
-    private Dictionary<byte, OrderedSenderKey> OrderedKeys = new();
-    private Dictionary<byte, ReceiverKey> RecvKeys = new();
+    private Dictionary<ushort, StriveKey> StriveKeys = new();
+    private Dictionary<ushort,ReliableKey> ReliableKeys = new();
+    private Dictionary<ushort,OrderwiseKey> OrderedKeys = new();
+    private Dictionary<ushort, float> RespKeys = new();//value=EndTime
     private int OrderedIndexSource = 0;
 
     private readonly SendBuffer buffer;
@@ -74,175 +124,202 @@ internal class KeyLibrary
         this.deliverySource = deliverySource;
     }
 
-    private static void UpdateEvent(SendBuffer buffer,SenderKey k)
-    {
-        switch (k.State)
-        {
-            case SenderKey.KeyState.TobeConfirmed:
-                {
-                    if (Time.time>k.ConfirmedExistingSource)
-                    {
-                        k.State = SenderKey.KeyState.End;
-                        Utils.Debug.LogError($"信息未得到确认：type={k.messageType},delivery={k.delivery}");
-                    }
-
-                    if (Time.time>k.ToConfirmIntervalLeft)
-                    {
-                        k.ToConfirmIntervalLeft=Time.time+EnsInstance.KeySendInterval;
-
-                        DataTransportBase.Send(buffer, k.messageType, k.delivery, k.writer);
-                    }
-                    break;
-                }
-            case SenderKey.KeyState.ConfirmedExisting:
-                {
-                    if (Time.time>k.ConfirmedExistingSource) k.State = SenderKey.KeyState.End;
-                    break;
-                }
-        }
-    }
-
     /// <summary>
     /// Add后自动发送，无需再发送
     /// </summary>
     internal void OnSend(byte messageType, Delivery delivery, MessageWriter writer = null)
     {
+        var d = deliverySource.DeliveryToId(delivery);
+        DataTransportBase.Send(buffer, messageType, d, writer);
         if (delivery == Delivery.Unreliable)
         {
-            var d = deliverySource.DeliveryToByte(delivery);
-            DataTransportBase.Send(buffer, messageType, d, writer);
         }
-        else if(delivery== Delivery.Unreliable)
+        else if (delivery == Delivery.Strive)
         {
-            var d = deliverySource.Top(delivery);
-            if (Keys.ContainsKey(d))
-            {
-                d = deliverySource.DeliveryToByte(delivery);
-                DataTransportBase.Send(buffer, messageType, d, writer);
-                Debug.LogWarning("同时发送了太多关键消息，自动转为非关键传输");
-            }
-            else
-            {
-                d = deliverySource.DeliveryToByte(delivery);
-                Keys.Add(d, new SenderKey(messageType, d, writer.Clone()));
-                DataTransportBase.Send(buffer, messageType, d, writer);
-            }
+            StriveKeys.Add(d, StriveKey.Get(messageType, d, writer.Clone()));
+        }
+        else if(delivery== Delivery.Reliable)
+        {
+            ReliableKeys.Add(d, ReliableKey.Get(messageType, d, writer.Clone()));
         }
         else
         {
-            var d = deliverySource.Top(delivery);
-            if (OrderedKeys.ContainsKey(d))
-            {
-                d = deliverySource.DeliveryToByte(delivery);
-                DataTransportBase.Send(buffer, messageType, d, writer);
-                Debug.LogWarning("同时发送了太多有序关键消息，自动转为非关键传输");
-            }
-            else
-            {
-                d = deliverySource.DeliveryToByte(delivery);
-                OrderedKeys.Add(d, new OrderedSenderKey(OrderedIndexSource++, messageType, d, writer.Clone()));
-                DataTransportBase.Send(buffer, messageType, d, writer);
-            }
+            OrderedKeys.Add(d, OrderwiseKey.Get(OrderedIndexSource++, messageType, d, writer.Clone()));
         }
     }
-    private static readonly HashSet<byte>ToRemove=new HashSet<byte>();
+    private static readonly HashSet<ushort>t_ToRemove=new();
     internal void Update()
     {
-        if (RecvKeys.Count > 0)
+        if (RespKeys.Count > 0)
         {
-            foreach (var kvp in RecvKeys) if (kvp.Value.EndTime > Time.time) ToRemove.Add(kvp.Key);
-            foreach (var i in ToRemove) RecvKeys.Remove(i);
-            ToRemove.Clear();
+            foreach (var kvp in RespKeys) if (kvp.Value < Time.time) t_ToRemove.Add(kvp.Key);
+            foreach (var i in t_ToRemove) RespKeys.Remove(i, out var k);
+            t_ToRemove.Clear();
         }
-        if (Keys.Count > 0)
+        if (StriveKeys.Count > 0)
         {
-            foreach (var kvp in Keys)
+            foreach (var kvp in StriveKeys)
             {
-                UpdateEvent(buffer, kvp.Value);
-                if (kvp.Value.State == SenderKey.KeyState.End)
+                if (Time.time > kvp.Value.NextSendTime)
                 {
-                    ToRemove.Add(kvp.Key);
+                    DataTransportBase.Send(buffer, kvp.Value.messageType, kvp.Value.delivery, kvp.Value.writer);
+                    kvp.Value.NextSendTime = Time.time + EnsInstance.StriveKeySendInterval;
+                    kvp.Value.SendCountLeft-=1;
+                    if (kvp.Value.SendCountLeft == 0)
+                    {
+                        t_ToRemove.Add(kvp.Key);
+                        kvp.Value.writer.Dispose();
+                    }
+                }
+            }
+            foreach (var i in t_ToRemove)
+            {
+                StriveKeys.Remove(i,out var k);
+                StriveKey.Return(k);
+            }
+            t_ToRemove.Clear();
+        }
+        if (ReliableKeys.Count > 0)
+        {
+            foreach (var kvp in ReliableKeys)
+            {
+                var k = kvp.Value;
+                if (k.State == KeyState.TobeConfirmed)
+                {
+                    if (Time.time > k.ConfirmedExistingSource)
+                    {
+                        k.State = KeyState.End;
+                        Utils.Debug.LogError($"信息未得到确认：type={k.messageType},delivery={k.delivery}");
+                    }
+
+                    if (Time.time > k.ToConfirmIntervalLeft)
+                    {
+                        k.ToConfirmIntervalLeft = Time.time + EnsInstance.UnconfirmedKeySendInterval;
+
+                        DataTransportBase.Send(buffer, k.messageType, k.delivery, k.writer);
+                    }
+                }
+                else if (k.State == KeyState.ConfirmedExisting)
+                {
+                    if (Time.time > k.ConfirmedExistingSource) k.State = KeyState.End;
+                }
+                if (kvp.Value.State == KeyState.End)
+                {
+                    t_ToRemove.Add(kvp.Key);
                     kvp.Value.writer.Dispose();
                 }
             }
-            foreach (var i in ToRemove) Keys.Remove(i);
-            ToRemove.Clear();
+            foreach (var i in t_ToRemove)
+            {
+                ReliableKeys.Remove(i,out var k);
+                ReliableKey.Return(k);
+            }
+            t_ToRemove.Clear();
         }
         if (OrderedKeys.Count > 0)
         {
-            int index = int.MaxValue;
+            ushort index = ushort.MaxValue;
             foreach (var kvp in OrderedKeys)
             {
-                if (kvp.Value.State == SenderKey.KeyState.ConfirmedExisting) UpdateEvent(buffer, kvp.Value);
-                else if (kvp.Value.State == SenderKey.KeyState.TobeConfirmed) index = kvp.Value.index;
+                if (kvp.Value.State == KeyState.ConfirmedExisting)
+                {
+                    if (Time.time > kvp.Value.ConfirmedExistingSource) 
+                        kvp.Value.State = KeyState.End;
+                }
+                else if (kvp.Value.State == KeyState.TobeConfirmed)
+                {
+                    if (index==ushort.MaxValue||kvp.Value.OrderwiseIndex < OrderedKeys[index].OrderwiseIndex) index = kvp.Key;
+                }
             }
-            if(index!=int.MaxValue)
-            foreach (var kvp in OrderedKeys)
+            if(index!=ushort.MaxValue)
             {
-                if (kvp.Value.index==index) UpdateEvent(buffer,kvp.Value);
+                var k = OrderedKeys[index];
+                if (Time.time > k.ConfirmedExistingSource)
+                {
+                    k.State = KeyState.End;
+                    Utils.Debug.LogError($"信息未得到确认：type={k.messageType},delivery={k.delivery}");
+                }
+
+                if (Time.time > k.ToConfirmIntervalLeft)
+                {
+                    k.ToConfirmIntervalLeft = Time.time + EnsInstance.UnconfirmedKeySendInterval;
+
+                    DataTransportBase.Send(buffer, k.messageType, k.delivery, k.writer);
+                }
             }
 
             foreach (var kvp in OrderedKeys)
-                if (kvp.Value.State == SenderKey.KeyState.End)
+                if (kvp.Value.State == KeyState.End)
                 {
-                    ToRemove.Add(kvp.Key);
+                    t_ToRemove.Add(kvp.Key);
                     kvp.Value.writer.Dispose();
                 }
-            foreach (var i in ToRemove) OrderedKeys.Remove(i);
-            ToRemove.Clear();
+            foreach (var i in t_ToRemove)
+            {
+                OrderedKeys.Remove(i,out var k);
+                OrderwiseKey.Return(k);
+            }
+            t_ToRemove.Clear();
             if (OrderedKeys.Count == 0) OrderedIndexSource = 0;
         }
     }
     internal void Clear()
     {
-        Keys.Clear();
+        foreach (var v in StriveKeys.Values) { v.writer.Dispose(); StriveKey.Return(v); }
+        foreach (var v in ReliableKeys.Values) { v.writer.Dispose(); ReliableKey.Return(v); }
+        foreach (var v in OrderedKeys.Values) { v.writer.Dispose(); OrderwiseKey.Return(v); }
+
+        StriveKeys.Clear();
+        ReliableKeys.Clear();
         OrderedKeys.Clear();
-        RecvKeys.Clear();
+        RespKeys.Clear();
     }
     /// <summary>
     /// 处理所有关键消息
     /// </summary>
     internal void OnRecvData(byte[] src,Segment segment, out bool skip)
     {
-        var deliveryKey = src[segment.StartIndex + 1];
-        if (deliveryKey == 0)
+        int startIndex = segment.StartIndex+1;
+        ushort deliveryKey = UshortSerializer.Deserialize(src, ref startIndex, startIndex + 2);
+        Delivery deliveryType = DeliverySource.IdToDelivery(deliveryKey);
+        if (deliveryType==Delivery.Unreliable)
         {
             skip = false;
-            return;
         }
         ///////////////////////////////////////////////////////////////A收到B对A的回应
-        if (DeliverySource.IsResponse(deliveryKey))
+        else if (DeliverySource.IsResponse(deliveryKey))
         {
             skip= true;
             deliveryKey=DeliverySource.ResponseToMessage(deliveryKey);
-            if (Keys.ContainsKey(deliveryKey))
+            if (ReliableKeys.ContainsKey(deliveryKey))
             {
-                if (Keys[deliveryKey].State == SenderKey.KeyState.TobeConfirmed)
+                if (ReliableKeys[deliveryKey].State == KeyState.TobeConfirmed)
                 {
-                    Keys[deliveryKey].State = SenderKey.KeyState.ConfirmedExisting;
+                    ReliableKeys[deliveryKey].State = KeyState.ConfirmedExisting;
                 }
             }
             else if (OrderedKeys.ContainsKey(deliveryKey))
             {
-                if (OrderedKeys[deliveryKey].State == SenderKey.KeyState.TobeConfirmed)
+                if (OrderedKeys[deliveryKey].State == KeyState.TobeConfirmed)
                 {
-                    OrderedKeys[deliveryKey].State = SenderKey.KeyState.ConfirmedExisting;
+                    OrderedKeys[deliveryKey].State = KeyState.ConfirmedExisting;
                 }
             }
         }
         //非本地//////////////////////////////////////////////////////////////////B收到A的关键消息
         else
         {
-            if (!RecvKeys.ContainsKey(deliveryKey))
+            if (!RespKeys.ContainsKey(deliveryKey))
             {
                 skip = false;
-                RecvKeys.Add(deliveryKey,new ReceiverKey(src, segment));
+                RespKeys.Add(deliveryKey, EnsInstance.ReceiverKeyExistTime + Time.time);
             }
             else
             {
                 skip = true;
             }
-            DataTransportBase.Send(buffer, src[segment.StartIndex], DeliverySource.MessageToResponse(deliveryKey));
+            if(deliveryType != Delivery.Strive)
+                DataTransportBase.Send(buffer, src[segment.StartIndex], DeliverySource.MessageToResponse(deliveryKey));
         }
     }
 }
