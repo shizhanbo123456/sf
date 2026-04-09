@@ -24,12 +24,13 @@ public class PrefabManager : MonoBehaviour
     public GameObject FightLevel;
     [Space]
     public List<GameObject> Tiles = new();
-    //public GameObject SolidLandGraphic;//Tiles[15]
     public GameObject LevitatingPlatform;
     public GameObject BrokenPlatform;
     public GameObject Wind;
     public GameObject Spike;
     public GameObject Trampoline;
+    public GameObject CheckPoint;
+    public GameObject SelectablePoint;
 
     public GameObject TileCollider;
     public GameObject PlatformCollider;
@@ -52,6 +53,14 @@ public class PrefabManager : MonoBehaviour
         t => t.SetActive(false));
     public ObjectPool<GameObject> TrampolinePool = new(
         () => Instantiate(Tool.PrefabManager.Trampoline),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+    public ObjectPool<GameObject> CheckPointPool = new(
+        () => Instantiate(Tool.PrefabManager.CheckPoint),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+    public ObjectPool<GameObject> SelectablePointPool = new(
+        () => Instantiate(Tool.PrefabManager.SelectablePoint),
         t => t.SetActive(true),
         t => t.SetActive(false));
 

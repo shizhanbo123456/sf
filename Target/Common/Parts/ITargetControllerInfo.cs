@@ -10,7 +10,7 @@ public struct TargetTransformInfo
 {
     public bool faceRight;
     public bool isGrounded;
-    public bool hitDown;
+    public bool operationLock;
     public bool ignoreLevitatingPlatform;
     public bool motionIsNull;
     public enum StateFlags
@@ -25,7 +25,7 @@ public struct TargetTransformInfo
     {
         faceRight = true,
         isGrounded = true,
-        hitDown = false,
+        operationLock = false,
         ignoreLevitatingPlatform = false,
         motionIsNull = true
     };
@@ -33,7 +33,7 @@ public struct TargetTransformInfo
     {
         faceRight= faceright;
         isGrounded= isgrouded;
-        hitDown= hitdown;
+        operationLock= hitdown;
         ignoreLevitatingPlatform= ignorelevitatingplatform;
         motionIsNull= motionisnull;
     }
@@ -42,7 +42,7 @@ public struct TargetTransformInfo
         StateFlags flags = (StateFlags)id;
         faceRight = flags.HasFlag(StateFlags.FaceRight);
         isGrounded = flags.HasFlag(StateFlags.IsGrounded);
-        hitDown = flags.HasFlag(StateFlags.HitDown);
+        operationLock = flags.HasFlag(StateFlags.HitDown);
         ignoreLevitatingPlatform = flags.HasFlag(StateFlags.IgnorLevitatingPlatform);
         motionIsNull = flags.HasFlag(StateFlags.MotionIsNull);
     }
@@ -50,7 +50,7 @@ public struct TargetTransformInfo
     {
         faceRight=flags.HasFlag(StateFlags.FaceRight);
         isGrounded=flags.HasFlag(StateFlags.IsGrounded);
-        hitDown=flags.HasFlag(StateFlags.HitDown);
+        operationLock=flags.HasFlag(StateFlags.HitDown);
         ignoreLevitatingPlatform = flags.HasFlag(StateFlags.IgnorLevitatingPlatform);
         motionIsNull=flags.HasFlag(StateFlags.MotionIsNull);
     }
@@ -59,7 +59,7 @@ public struct TargetTransformInfo
         StateFlags flag = 0;
         if (faceRight) flag |= StateFlags.FaceRight;
         if (isGrounded) flag |= StateFlags.IsGrounded;
-        if (hitDown) flag |= StateFlags.HitDown;
+        if (operationLock) flag |= StateFlags.HitDown;
         if (ignoreLevitatingPlatform) flag |= StateFlags.IgnorLevitatingPlatform;
         if (motionIsNull) flag |= StateFlags.MotionIsNull;
         return flag;
@@ -69,7 +69,7 @@ public struct TargetTransformInfo
     {
         return faceRight == info.faceRight &&
                 isGrounded == info.isGrounded &&
-                hitDown == info.hitDown &&
+                operationLock == info.operationLock &&
                 ignoreLevitatingPlatform == info.ignoreLevitatingPlatform &&
                 motionIsNull == info.motionIsNull;
     }

@@ -92,7 +92,7 @@ public partial class WorldTextController : EnsBehaviour
     private void ShowText(string msg,TextColor color,Vector3 pos)
     {
         var obj = pool.Get();
-        pos +=new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f));
+        pos +=new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
         obj.transform.position = pos;
         obj.transform.SetParent(Tool.SceneController.SingleLevel.Canvas);
 

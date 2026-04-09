@@ -9,6 +9,9 @@ using UnityEngine.UI;
 public class PlayModePage : BasePage
 {
     private static PlayModeController controller=>PlayModeController.Instance;
+
+    public Transform ClickableScenePanel;
+    [Space]
     public BarPanel BarPanel;
     public SkillPanel SkillPanel;
     public Scoreboard Scoreboard;

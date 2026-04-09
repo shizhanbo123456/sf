@@ -267,7 +267,7 @@ namespace LevelCreator.TargetTemplate
             if (target.targetControllerSync.OnPlayerPostUpdate())
             {
                 target.targetControllerSync.SyncController(transform.position, rb.velocity,
-                    ignoreLevitatingPlatform, OperationLock.LockedInHierechy, isGrounded, Motion.IsNull);
+                    OperationLock.LockedInHierechy, ignoreLevitatingPlatform, isGrounded, Motion.IsNull);
             }
         }
         private float jumpcd = -1;

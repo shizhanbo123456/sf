@@ -68,14 +68,14 @@ namespace LevelCreator.TargetTemplate
             return false;
         }
         
-        public void SyncController(Vector3 pos, Vector2 velocity, bool hitdown, bool ignoreLevitatingPlatform, bool isGrounded, bool motionIsNull)
+        public void SyncController(Vector3 pos, Vector2 velocity, bool operationLock, bool ignoreLevitatingPlatform, bool isGrounded, bool motionIsNull)
         {
             var info = Info;
             info.isGrounded = isGrounded;
-            info.hitDown= hitdown;
+            info.operationLock= operationLock;
             info.ignoreLevitatingPlatform = ignoreLevitatingPlatform;
             info.motionIsNull= motionIsNull;
-            if (!hitdown)
+            if (!operationLock)
             {
                 if (rb.velocity.x > 0.01f) info.faceRight = true;
                 else if (rb.velocity.x < -0.01f) info.faceRight = false;

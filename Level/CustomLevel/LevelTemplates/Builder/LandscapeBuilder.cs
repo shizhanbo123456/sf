@@ -17,6 +17,8 @@ namespace LevelCreator
         private static List<BrokenPlatform> _brokenPlatforms;
         private static List<Trampoline> _trampolines;
         private static List<Spike> _spikes;
+        private static List<CheckPoint> _checkPoints; // 新增
+        private static List<SelectablePoint> _selectablePoints; // 新增
 
         public struct SolidLand
         {
@@ -65,6 +67,28 @@ namespace LevelCreator
             public byte point2Y;
             public int damage;
         }
+
+        // ===================== 新增结构体 =====================
+        /// <summary>
+        /// 存档点
+        /// </summary>
+        public struct CheckPoint
+        {
+            public byte x;
+            public byte y;
+            public byte id;
+        }
+
+        /// <summary>
+        /// 可选点位
+        /// </summary>
+        public struct SelectablePoint
+        {
+            public byte x;
+            public byte y;
+            public byte id;
+        }
+        // ======================================================
 
         /// <summary>
         /// 标准初始化：Create(short id)
@@ -176,6 +200,34 @@ namespace LevelCreator
             });
         }
 
+        // ===================== 新增创建方法 =====================
+        /// <summary>
+        /// 添加存档点
+        /// </summary>
+        public static void CreateCheckPoint(byte x, byte y, byte id)
+        {
+            _checkPoints.Add(new CheckPoint
+            {
+                x = x,
+                y = y,
+                id = id
+            });
+        }
+
+        /// <summary>
+        /// 添加可选点位
+        /// </summary>
+        public static void CreateSelectablePoint(byte x, byte y, byte id)
+        {
+            _selectablePoints.Add(new SelectablePoint
+            {
+                x = x,
+                y = y,
+                id = id
+            });
+        }
+        // ========================================================
+
         /// <summary>
         /// 标准上传：仅此处创建 LandscapeInfo
         /// </summary>
@@ -191,7 +243,9 @@ namespace LevelCreator
                 windAreas = _velocityAreas,
                 brokenPlatforms = _brokenPlatforms,
                 trampolines = _trampolines,
-                spikes = _spikes
+                spikes = _spikes,
+                checkPoints = _checkPoints,         // 新增
+                selectablePoints = _selectablePoints // 新增
             };
             Tool.LevelCreatorManager.LoadInfo(info);
         }
@@ -210,6 +264,8 @@ namespace LevelCreator
             _brokenPlatforms = new List<BrokenPlatform>();
             _trampolines = new List<Trampoline>();
             _spikes = new List<Spike>();
+            _checkPoints = new List<CheckPoint>(); // 新增
+            _selectablePoints = new List<SelectablePoint>(); // 新增
         }
     }
 
@@ -227,6 +283,8 @@ namespace LevelCreator
         public List<LandscapeBuilder.BrokenPlatform> brokenPlatforms;
         public List<LandscapeBuilder.Trampoline> trampolines;
         public List<LandscapeBuilder.Spike> spikes;
+        public List<LandscapeBuilder.CheckPoint> checkPoints; // 新增
+        public List<LandscapeBuilder.SelectablePoint> selectablePoints; // 新增
     }
 
     /// <summary>
@@ -300,6 +358,26 @@ namespace LevelCreator
                 if (!ByteSerializer.Serialize(item.point2Y, result, ref indexStart)) return false;
                 if (!IntSerializer.Serialize(item.damage, result, ref indexStart)) return false;
             }
+
+            // ===================== 新增序列化 =====================
+            // 存档点
+            if (!IntSerializer.Serialize(value.checkPoints.Count, result, ref indexStart)) return false;
+            foreach (var item in value.checkPoints)
+            {
+                if (!ByteSerializer.Serialize(item.x, result, ref indexStart)) return false;
+                if (!ByteSerializer.Serialize(item.y, result, ref indexStart)) return false;
+                if (!ByteSerializer.Serialize(item.id, result, ref indexStart)) return false;
+            }
+
+            // 可选点位
+            if (!IntSerializer.Serialize(value.selectablePoints.Count, result, ref indexStart)) return false;
+            foreach (var item in value.selectablePoints)
+            {
+                if (!ByteSerializer.Serialize(item.x, result, ref indexStart)) return false;
+                if (!ByteSerializer.Serialize(item.y, result, ref indexStart)) return false;
+                if (!ByteSerializer.Serialize(item.id, result, ref indexStart)) return false;
+            }
+            // ======================================================
 
             return true;
         }
@@ -389,6 +467,30 @@ namespace LevelCreator
                 item.point2Y = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 item.damage = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 info.spikes.Add(item);
+            }
+
+            // 存档点
+            int checkPointCount = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.checkPoints = new List<LandscapeBuilder.CheckPoint>();
+            for (int i = 0; i < checkPointCount; i++)
+            {
+                var item = new LandscapeBuilder.CheckPoint();
+                item.x = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.y = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.id = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                info.checkPoints.Add(item);
+            }
+
+            // 可选点位
+            int selectablePointCount = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.selectablePoints = new List<LandscapeBuilder.SelectablePoint>();
+            for (int i = 0; i < selectablePointCount; i++)
+            {
+                var item = new LandscapeBuilder.SelectablePoint();
+                item.x = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.y = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.id = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                info.selectablePoints.Add(item);
             }
 
             return info;

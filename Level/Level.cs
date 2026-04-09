@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class Level : SingleLevel
 {
@@ -14,7 +15,9 @@ public class Level : SingleLevel
     private Vector2Int landscapeSize => new Vector2Int(16 * info.sizeX, 8 * info.sizeY);
 
 
-    public Transform TileRoot;
+    private static Transform TileRoot;
+    private static Transform Traps;
+    private static List<ObjectPool<Transform>> TilePools=new();
 
     //可交互的物体
     //破损平台塌陷，value=破损平台的index
@@ -111,6 +114,23 @@ public class Level : SingleLevel
     public void Init(LandscapeInfo info)
     {
         this.info = info;
+
+        if (TileRoot == null)
+        {
+            TileRoot = new GameObject("TileRoot").transform;
+            foreach(var i in Tool.PrefabManager.Tiles)
+            {
+                var obj = i;
+                TilePools.Add(new(() =>
+                {
+                    return Instantiate(obj, TileRoot).transform;
+                },t=>t.gameObject.SetActive(true)
+                ,t=>t.gameObject.SetActive(false)
+                ));
+            }
+        }
+        if (Traps == null) Traps = new GameObject("Traps").transform;
+
         DrawLandscape();
     }
     private void DrawLandscape()
@@ -436,7 +456,9 @@ public class Level : SingleLevel
             if (y == map.Length - 1) up = false;
         }
         int index = (up ? 1 : 0) + (left ? 2 : 0) + (down ? 4 : 0) + (right ? 8 : 0);
-        Instantiate(Tool.PrefabManager.Tiles[index], new Vector3(x+0.5f,y+0.5f),Quaternion.identity,TileRoot);
+
+        var obj = TilePools[index].Get();
+        obj.position = new Vector3(x + 0.5f, y + 0.5f);
     }
 
 
@@ -444,7 +466,7 @@ public class Level : SingleLevel
     private void FixedUpdate()
     {
         bool spikeDamage = Time.time > nextSpikeDamageTime;
-        if (spikeDamage) nextSpikeDamageTime = Time.time + 1f;
+        if (spikeDamage) nextSpikeDamageTime = Time.time + 0.5f;
 
         var size = landscapeSize;
         foreach (var t in Tool.SceneController.FlattenTargets.Values)
@@ -572,7 +594,12 @@ public class Level : SingleLevel
     private void TouchSpike(Target t, int x, int y)
     {
         var pos = new Vector2Int(x, y);
-        t.Damaged(null,info.spikes[InteractableTargetInfoMap[pos]].damage);
+        t.rb.velocity = Vector2.zero;
+        if (t.UpdateLocally)
+        {
+            t.Damaged(null, info.spikes[InteractableTargetInfoMap[pos]].damage);
+            t.controller.SetResistance(-0.1f, false);
+        }
     }
 
     public Vector3 GetPos(float x,float y)
