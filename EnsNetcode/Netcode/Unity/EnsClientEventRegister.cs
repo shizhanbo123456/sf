@@ -82,6 +82,11 @@ public class EnsClientEventRegister
     {
         internal static H_MessageWriter instance = new();
         internal int t_serverTime;
+
+        public int GetLength()
+        {
+            return sizeof(int);
+        }
         public bool Write(SendBuffer b)
         {
             return IntSerializer.Serialize(t_serverTime, b.bytes, ref b.indexStart);

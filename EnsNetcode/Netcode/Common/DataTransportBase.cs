@@ -24,9 +24,15 @@ public abstract class DataTransportBase//具有信息收发功能
     internal abstract ProtocolBase GetProtocolBase();
 
 
-    internal static void Send(SendBuffer SendBuffer, byte messageType,ushort delivery, MessageWriter writer = null)
+    internal static void Send(SendBuffer SendBuffer, byte messageType,ushort delivery, MessageWriter writer=null)
     {
-        SendBuffer.RequireLength(376);
+        int writerLength = writer!=null?writer.GetLength():0;
+        if (writerLength > 1400)
+        {
+            Debug.LogError("写入了超长数据");
+            return;
+        }
+        SendBuffer.RequireLength(writerLength+5);
         int bytesStart = SendBuffer.indexStart;
         ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
         UshortSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
@@ -35,17 +41,7 @@ public abstract class DataTransportBase//具有信息收发功能
             var b = writer.Write(SendBuffer);
             if (!b)
             {
-                //无法全部写入
-                SendBuffer.Flush();
-                bytesStart = SendBuffer.indexStart;
-                ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
-                UshortSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
-                if (!writer.Write(SendBuffer))
-                {
-                    SendBuffer.Clear();
-                    Debug.LogError("写入了超长数据");
-                    return;
-                }
+                Debug.LogError($"writer:{writer.GetType()}长度计算错误");
             }
         }
         int length = SendBuffer.indexStart - bytesStart;
@@ -53,6 +49,12 @@ public abstract class DataTransportBase//具有信息收发功能
         SendBuffer.bytes[SendBuffer.indexStart++] = a1;
         SendBuffer.bytes[SendBuffer.indexStart++] = a2;
         SendBuffer.AddSeparator();
+#if UNITY_EDITOR
+        if (length - 3 != writerLength)
+        {
+            Debug.LogError($"writer:{writer.GetType()}长度计算错误,理论{writerLength}，实际{length-3}");
+        }
+#endif
     }
 
 
@@ -182,6 +184,7 @@ public readonly struct Segment
 }
 internal interface MessageWriter
 {
+    int GetLength();
     bool Write(SendBuffer buffer);
     MessageWriter Clone();
     void Dispose();

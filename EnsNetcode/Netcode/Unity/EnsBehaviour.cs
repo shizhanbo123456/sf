@@ -116,6 +116,11 @@ public abstract class EnsBehaviour : MonoBehaviour
         internal SendTo activeTarget;
         internal byte[] body;
         internal int length;
+
+        public int GetLength()
+        {
+            return sizeof(short) + length + sizeof(short);
+        }
         public bool Write(SendBuffer b)
         {
             if (b.bytes.Length - b.indexStart < length + 4) return false;

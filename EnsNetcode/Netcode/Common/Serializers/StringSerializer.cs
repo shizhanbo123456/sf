@@ -89,4 +89,5 @@ public struct StringSerializer
 
         return result;
     }
+    public static int GetLength(string msg)=>Encoding.UTF8.GetByteCount(msg)+4;
 }

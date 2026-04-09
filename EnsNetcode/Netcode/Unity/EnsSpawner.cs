@@ -44,6 +44,11 @@ public sealed class EnsSpawner : MonoBehaviour
         internal short t_id;
         internal string t_param;
         internal short t_indexStart;
+
+        public int GetLength()
+        {
+            return 2 + 1 + 2 + StringSerializer.GetLength(t_param) + 2;
+        }
         public bool Write(SendBuffer b)
         {
             return ShortSerializer.Serialize(totarget, b.bytes, ref b.indexStart)

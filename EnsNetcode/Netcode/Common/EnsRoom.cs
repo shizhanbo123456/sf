@@ -62,6 +62,11 @@ public class EnsRoom
     {
         internal static BoolWriter instance=new();
         internal bool target;
+
+        public int GetLength()
+        {
+            return sizeof(bool);
+        }
         public bool Write(SendBuffer b)
         {
             return BoolSerializer.Serialize(target, b.bytes, ref b.indexStart);
@@ -95,6 +100,11 @@ public class EnsRoom
         internal static E_EventMessageWriter instance=new();
         internal byte b;
         internal short connId;
+
+        public int GetLength()
+        {
+            return sizeof(byte) + sizeof(short);
+        }
         public bool Write(SendBuffer b)
         {
             return ByteSerializer.Serialize(this.b, b.bytes, ref b.indexStart)

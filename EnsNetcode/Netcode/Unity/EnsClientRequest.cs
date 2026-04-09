@@ -26,6 +26,11 @@ public static class EnsClientRequest
         internal static Q_MessageWriter Instance = new();
         internal string t_header;
         internal string t_content;
+
+        public int GetLength()
+        {
+            return StringSerializer.GetLength(t_header) + StringSerializer.GetLength(t_content);
+        }
         public bool Write(SendBuffer b)
         {
             return StringSerializer.Serialize(t_header, b.bytes, ref b.indexStart)

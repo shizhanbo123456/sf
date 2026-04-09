@@ -35,7 +35,10 @@ public class EnsConnection:DataTransportBase
     {
         internal static ClientIdWriter instance = new();
         internal short currentClientId;
-
+        public int GetLength()
+        {
+            return sizeof(short); // µÈ¼Û return 2;
+        }
         public bool Write(SendBuffer buffer)
         {
             return ShortSerializer.Serialize(currentClientId, buffer.bytes, ref buffer.indexStart);

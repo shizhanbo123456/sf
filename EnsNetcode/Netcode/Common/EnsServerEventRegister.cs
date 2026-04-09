@@ -68,6 +68,11 @@ public class EnsServerEventRegister
         internal static F_MessageWriter instance = new();
         internal byte[] t_bytes;
         internal Segment t_segment;
+
+        public int GetLength()
+        {
+            return t_segment.Length - MessageReader.BodyOffset;
+        }
         public bool Write(SendBuffer b)
         {
             if (b.bytes.Length - b.indexStart < t_segment.Length + MessageReader.BodyOffset) return false;
@@ -127,6 +132,11 @@ public class EnsServerEventRegister
         internal short t_spawnCollectionId;
         internal string t_spawnParam;
         internal short t_spawnIdStart;
+
+        public int GetLength()
+        {
+            return 1 + 2 + StringSerializer.GetLength(t_spawnParam) + 2;
+        }
         public bool Write(SendBuffer b)
         {
             return BoolSerializer.Serialize(t_spawnMode, b.bytes, ref b.indexStart)
@@ -190,6 +200,11 @@ public class EnsServerEventRegister
         internal static Q_MessageWriter instance = new();
         internal string t_header;
         internal string t_content;
+
+        public int GetLength()
+        {
+            return StringSerializer.GetLength(t_header) + StringSerializer.GetLength(t_content);
+        }
         public bool Write(SendBuffer buffer)
         {
             return StringSerializer.Serialize(t_header, buffer.bytes, ref buffer.indexStart)

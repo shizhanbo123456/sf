@@ -96,6 +96,11 @@ public class EnsServer
     {
         internal static HeartBeatMessageWriter instance=new();
         internal int delay;
+
+        public int GetLength()
+        {
+            return sizeof(int) * 2;
+        }
         public bool Write(SendBuffer buffer)
         {
             return IntSerializer.Serialize((int)(Utils.Time.time * 1000), buffer.bytes, ref buffer.indexStart)

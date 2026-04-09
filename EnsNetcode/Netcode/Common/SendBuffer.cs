@@ -26,7 +26,6 @@ internal class SendBuffer:Disposable
     internal void AddSeparator()
     {
         int indexEnd = indexStart + EndSeparatorLength;
-        if (indexEnd > MaxLength) indexEnd = MaxLength;
         while (indexStart < indexEnd)
         {
             bytes[indexStart++] = Separator;
