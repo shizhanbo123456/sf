@@ -27,7 +27,16 @@ public partial class WorldTextController : EnsBehaviour
     private void Awake()
     {
         Tool.WorldTextController = this;
-        pool = GameObjectPool.Create(TextPrefab,o=>o.SetActive(false),o=>o.SetActive(true));
+        pool = GameObjectPool.Create(TextPrefab,
+            o=>
+            { 
+                o.SetActive(false); 
+                o.transform.SetParent(transform);
+            }, 
+            o => 
+            { 
+                o.SetActive(true); 
+            });
     }
     public void ShowMissRpc(short defenser)
     {
