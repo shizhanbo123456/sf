@@ -23,7 +23,7 @@ public class LevelLogic//地图坐标中，左下角为（0，0）,右上角为（1，1）
         return "未知玩家";
     }
 
-    public static void CreateLevel(short id,float minimapScale)=>Tool.NetworkCorrespondent.CreateLevelRpc(id,minimapScale);
+    public static void CreateLevel(ushort id,float minimapScale)=>Tool.NetworkCorrespondent.CreateLevelRpc(id,minimapScale);
     public static void DestroyLevel() => Tool.NetworkCorrespondent.DestroyLevelRpc();
     public static void CreateTarget(short templateid, string name, int camp,int owner,float spawnX,float spawnY)
     {

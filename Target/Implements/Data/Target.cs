@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Variety.Base;
-using static WorldTextController;
 
 namespace LevelCreator.TargetTemplate
 {
@@ -37,6 +36,7 @@ namespace LevelCreator.TargetTemplate
         [HideInInspector] public TargetSkillController skillController;
 
         [HideInInspector] public TimeLineWork TimeLineWork;
+        [HideInInspector] public Rigidbody2D rb;
 
         public bool FaceRight => targetControllerSync.Info.faceRight;
         public Vector3 Front => FaceRight ? new Vector3(1, 0) : new Vector3(-1, 0);
@@ -70,6 +70,7 @@ namespace LevelCreator.TargetTemplate
             graphic.transform.localPosition = Vector3.zero;
 
             TimeLineWork = gameObject.AddComponent<TimeLineWork>();
+            rb = GetComponent<Rigidbody2D>();
             if (!TryGetComponent(out targetControllerSync)) Debug.LogError("未找到同步");
             if (TryGetComponent(out targetDataSync)) targetDataSync.Init(this, param);
             else Debug.LogError("未找到信息同步");
@@ -160,6 +161,16 @@ namespace LevelCreator.TargetTemplate
             }
             return true;
         }
+        public virtual void Damaged(Target target,int value)
+        {
+            Tool.WorldTextController.ShowDamageRpc((short)ObjectId, value);
+            Shengming -= value;
+            if (Shengming <= 0)
+            {
+                Shengming = 0;
+                OnKilled(target);
+            }
+        }
         protected virtual void OnHitBack(Bullet b)
         {
             if (controller != null) controller.OnHitBack(b);
@@ -190,7 +201,7 @@ namespace LevelCreator.TargetTemplate
             targetDataSync.DestroyRpc();
         }
 
-        public void UseSkillRpc(short index) => targetDataSync.UseSkillRpc(index);
+        public void UseSkillRpc(ushort index) => targetDataSync.UseSkillRpc(index);
         public void SyncEffectIconRpc(HashSet<int> values) => targetDataSync.SyncEffectIconRpc(values);
         public void Interrupt() => TimeLineWork.Interrupted();
     }

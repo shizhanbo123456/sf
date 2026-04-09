@@ -6,7 +6,7 @@ namespace LevelCreator.Executer
 {
     public struct OperationExecuter
     {
-        public static void Execute(short id, short delay, Target target)
+        public static void Execute(ushort id, ushort delay, Target target)
         {
             var info=Tool.LevelCreatorManager.GetOperationInfo(id);
 

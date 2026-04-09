@@ -9,7 +9,7 @@ namespace LevelCreator
     public static class SkillBuilder
     {
         // 核心标识（所有Create必传）
-        private static short _id;
+        private static ushort _id;
         // 新增图标参数
         private static short _iconType;
         private static short _iconIndex;
@@ -20,14 +20,14 @@ namespace LevelCreator
         private static short _cd;
         private static short _maxStoreTime;
         // 动作列表（可0/1/多次添加）
-        private static List<short> _actionIds;
-        private static List<short> _actionDelays;
+        private static List<ushort> _actionIds;
+        private static List<ushort> _actionDelays;
 
         // --------------- 所有Create方法 均包含 id + iconType + iconIndex ---------------
         /// <summary>
         /// 创建技能（基础：id + 图标参数 + 名称 + 描述）
         /// </summary>
-        public static void Create(short id, short iconType, short iconIndex, string name, string des,short operationtime)
+        public static void Create(ushort id, short iconType, short iconIndex, string name, string des,short operationtime)
         {
             Reset();
             _id = id;
@@ -43,7 +43,7 @@ namespace LevelCreator
         /// <summary>
         /// 创建技能（id + 图标参数 + 名称 + 描述 + CD）
         /// </summary>
-        public static void Create(short id, short iconType, short iconIndex, string name, string des, short operationtime, short cd)
+        public static void Create(ushort id, short iconType, short iconIndex, string name, string des, short operationtime, short cd)
         {
             Reset();
             _id = id;
@@ -59,7 +59,7 @@ namespace LevelCreator
         /// <summary>
         /// 创建技能（完整：id + 图标参数 + 名称 + 描述 + CD + 最大存储时间）
         /// </summary>
-        public static void Create(short id, short iconType, short iconIndex, string name, string des, short operationtime, short cd, short maxStoreTime)
+        public static void Create(ushort id, short iconType, short iconIndex, string name, string des, short operationtime, short cd, short maxStoreTime)
         {
             Reset();
             _id = id;
@@ -73,7 +73,7 @@ namespace LevelCreator
         }
 
         // --------------- 添加动作（可0/1/多次调用）---------------
-        public static void AddAction(short actionId, short delay)
+        public static void AddAction(ushort actionId, ushort delay)
         {
             _actionIds.Add(actionId);
             _actionDelays.Add(delay);
@@ -112,15 +112,15 @@ namespace LevelCreator
             _cd = 0;
             _maxStoreTime = 0;
             // 初始化空列表，永远不为null
-            _actionIds = new List<short>();
-            _actionDelays = new List<short>();
+            _actionIds = new List<ushort>();
+            _actionDelays = new List<ushort>();
         }
     }
 
     // --------------- 标准 Info 结构体 ---------------
     public struct SkillInfo : Info
     {
-        public short id;
+        public ushort id;
         public short iconType;
         public short iconIndex;
         public string name;
@@ -128,8 +128,8 @@ namespace LevelCreator
         public short operationtime;
         public short cd;
         public short maxStoreTime;
-        public List<short> actionIds;
-        public List<short> actionDelays;
+        public List<ushort> actionIds;
+        public List<ushort> actionDelays;
         public Vector2Int sprite => new(iconType, iconIndex);
     }
 
@@ -139,7 +139,7 @@ namespace LevelCreator
         public static bool Serialize(SkillInfo value, byte[] result, ref int indexStart)
         {
             // ID
-            if (!ShortSerializer.Serialize(value.id, result, ref indexStart)) return false;
+            if (!UshortSerializer.Serialize(value.id, result, ref indexStart)) return false;
             // 图标参数
             if (!ShortSerializer.Serialize(value.iconType, result, ref indexStart)) return false;
             if (!ShortSerializer.Serialize(value.iconIndex, result, ref indexStart)) return false;
@@ -154,8 +154,8 @@ namespace LevelCreator
             if (!IntSerializer.Serialize(value.actionIds.Count, result, ref indexStart)) return false;
             for (int i = 0; i < value.actionIds.Count; i++)
             {
-                if (!ShortSerializer.Serialize(value.actionIds[i], result, ref indexStart)) return false;
-                if (!ShortSerializer.Serialize(value.actionDelays[i], result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(value.actionIds[i], result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(value.actionDelays[i], result, ref indexStart)) return false;
             }
             return true;
         }
@@ -164,7 +164,7 @@ namespace LevelCreator
         {
             SkillInfo info = new SkillInfo();
             // ID
-            info.id = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.id = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
             // 图标参数
             info.iconType = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
             info.iconIndex = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
@@ -177,12 +177,12 @@ namespace LevelCreator
             info.maxStoreTime = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
             // 动作列表
             int count = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
-            info.actionIds = new List<short>();
-            info.actionDelays = new List<short>();
+            info.actionIds = new List<ushort>();
+            info.actionDelays = new List<ushort>();
             for (int i = 0; i < count; i++)
             {
-                short actionId = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
-                short delay = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                ushort actionId = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                ushort delay = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 info.actionIds.Add(actionId);
                 info.actionDelays.Add(delay);
             }

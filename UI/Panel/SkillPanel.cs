@@ -9,9 +9,9 @@ public class SkillPanel : MonoBehaviour
     private List<SkillColumn> Columns=new();
     [SerializeField] private List<Transform> PCRoots = new();
     [SerializeField] private List<Transform> MobileRoots = new();
-    public List<SkillColumn> CreateSkillColumns(short[] ids)
+    public List<SkillColumn> CreateSkillColumns(ushort[] ids)
     {
-        foreach (short id in ids)
+        foreach (ushort id in ids)
         {
             var s = Tool.LevelCreatorManager.GetSkillInfo(id);
             GameObject obj = Instantiate(Tool.PrefabManager.SkillColumn);

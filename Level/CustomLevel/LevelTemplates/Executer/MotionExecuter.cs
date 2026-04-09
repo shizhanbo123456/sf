@@ -6,7 +6,7 @@ namespace LevelCreator.Executer
 {
     public struct MotionExecuter
     {
-        public static void Execute(short id, Target receiver)
+        public static void Execute(ushort id, Target receiver)
         {
             receiver.ApplyMotion(new MotionBase(id));
         }

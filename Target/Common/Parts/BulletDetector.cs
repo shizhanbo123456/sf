@@ -13,7 +13,7 @@ namespace LevelCreator.TargetTemplate
         private BoxCollider2D _collider;
 
         // 世界空间下的矩形参数（自动适配负缩放）
-        private Vector2 BoxCenter => (Vector2)transform.position;
+        private Vector2 BoxCenter => (Vector2)(transform.position+Vector3.up*_collider.offset.y);
         private float HalfWidth => Mathf.Abs(_collider.size.x * transform.localScale.x) * 0.5f;
         private float HalfHeight => Mathf.Abs(_collider.size.y * transform.localScale.y) * 0.5f;
 

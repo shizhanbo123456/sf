@@ -24,7 +24,7 @@ namespace LevelCreator.TargetTemplate
 
             if (param.ContainsKey(TargetParams.Skill))
             {
-                var skillIndex = Format.StringToArray(param[TargetParams.Skill], short.Parse);
+                var skillIndex = Format.StringToArray(param[TargetParams.Skill], ushort.Parse);
                 CreateSkillControllers(skillIndex);
             }
             SkillLock = data.SkillLock.GetChain();
@@ -33,7 +33,7 @@ namespace LevelCreator.TargetTemplate
 
             Initialized = true;
         }
-        public virtual void CreateSkillControllers(short[] ids)
+        public virtual void CreateSkillControllers(ushort[] ids)
         {
             foreach(var i in ids)
             {

@@ -4,7 +4,7 @@ using SF.UI.Skill;
 
 public abstract class SkillControllerBase
 {
-    public short SkillIndex { get; protected set; }
+    public ushort SkillIndex { get; protected set; }
     protected SkillColumn skill;
     protected Target target;
     public virtual void LoadSkillColumn(SkillColumn s)

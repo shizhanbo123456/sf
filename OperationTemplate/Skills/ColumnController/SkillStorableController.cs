@@ -24,7 +24,7 @@ public class SkillStorableController : SkillControllerBase
         storeTime -= 1f;
         base.OnUse();
     }
-    public static SkillControllerBase Create(short index, Target t, int maxStoreTime, float cd)
+    public static SkillControllerBase Create(ushort index, Target t, int maxStoreTime, float cd)
     {
         var r = new SkillStorableController();
         r.target = t;

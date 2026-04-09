@@ -33,6 +33,7 @@ public class BulletManager:MonoBehaviour
     public Bullet GetBullet(int index)
     {
         b= BulletPools[index].Get().GetComponent<Bullet>();
+        //b.transform.position = new(b.transform.position.x, b.transform.position.y, 0);
         b.bulletType = index;
         b.transform.localScale=Vector3.one;
         b.transform.parent = null;
@@ -42,6 +43,7 @@ public class BulletManager:MonoBehaviour
     public void ReturnBullet(Bullet bullet)
     {
         BulletPools[bullet.bulletType].Return(bullet.gameObject);
+        //bullet.transform.position = new(bullet.transform.position.x, bullet.transform.position.y, -100000);
         bullet.transform.parent = BulletPools[bullet.bulletType].transform;
         //Debug.Log("¹é»¹£º" + bullet.bulletType);
     }

@@ -3,28 +3,29 @@ using LevelCreator.TargetTemplate;
 
 namespace LevelCreator.BulletShootTemplate
 {
-    //id=14000-14799,初始角度=百位*45，初始速度=十位*2+2，命中时间=个位*0.3+1
     public class ProjectileAim : ShootActBase
     {
-        public override short minId => 14000;
-        public override short maxId => 14799;
-        public override void Act(Target shooter, BulletInfo info, short id)
+        public static ModSpace3 mod = new(15, 10, 20);//3000
+        public override ushort minId => 32000;
+        public override ushort maxId => (ushort)(minId + mod.TotalSize - 1);
+        public override void Act(Target shooter, BulletInfo info, ushort id)
         {
             if (id < minId || id > maxId) throw new System.Exception("id越界，id=" + id);
-            int tid = id - minId;
-            int timeFactor = tid % 10;
-            tid /= 10;
-            int speedFactor= tid % 10;
-            tid /= 10;
-            int angleFactor = tid % 10;
-            UnityEngine.Vector3 vstart=BulletSystemCommon.AngleToVector(angleFactor * 45)*(speedFactor*2+2);
+
+            mod.Decode(id - minId, out var v1, out var v2, out var v3);
+
+            Execute(shooter, info, v1 + 1, v2 * 36, v3*0.5f+0.5f);
+        }
+        public void Execute(Target shooter, BulletInfo info, float speed,float angle,float hitTime)
+        {
+            UnityEngine.Vector3 vstart = BulletSystemCommon.AngleToVector(angle) * speed;
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
             var t = shooter.GetNearestEnemy();
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
             BulletProjectileAimSystem.RegistObject(b, info.radius, info.lifeTime, shooter.transform.position,
-                vstart,t?t.transform.position:shooter.transform.position,timeFactor*0.3f+1);
+                vstart, t ? t.transform.position : shooter.transform.position, hitTime);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
         }

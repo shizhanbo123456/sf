@@ -3,23 +3,27 @@ using LevelCreator.TargetTemplate;
 
 namespace LevelCreator.BulletShootTemplate
 {
-    //id=13010-13099.水平初速度=十位*4-20,垂直初速度=个位*2
     public class Projectile : ShootActBase
     {
-        public override short minId => 13010;
-        public override short maxId => 13099;
-        public override void Act(Target shooter, BulletInfo info, short id)
+        public static ModSpace2 mod = new(25, 20);//500
+        public override ushort minId => 31000;
+        public override ushort maxId => (ushort)(minId + mod.TotalSize - 1);
+        public override void Act(Target shooter, BulletInfo info, ushort id)
         {
             if (id < minId || id > maxId) throw new System.Exception("id越界，id=" + id);
-            int vertical = id % 10;
-            id /= 10;
-            int horizontal = id % 10;
+
+            mod.Decode(id - minId, out var v1, out var v2);
+
+            Execute(shooter, info, v1*4-48, v2 * 2);
+        }
+        public void Execute(Target shooter, BulletInfo info, float offsetX,float offsetY)
+        {
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
             var t = shooter.GetNearestEnemy();
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
-            BulletProjectileSystem.RegistObject(b, info.radius, info.lifeTime, shooter.transform.position,new UnityEngine.Vector3(horizontal*4-20,vertical*2));
+            BulletProjectileSystem.RegistObject(b, info.radius, info.lifeTime, shooter.transform.position, new UnityEngine.Vector3(offsetX,offsetY));
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
         }

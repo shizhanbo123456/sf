@@ -85,12 +85,12 @@ namespace LevelCreator.TargetTemplate
 
 
 
-        public void UseSkillRpc(short index)
+        public void UseSkillRpc(ushort index)
         {
             CallFuncRpc(UseSkillLocal, SendTo.Everyone, Delivery.Unreliable, index,target.FaceRight);
         }
         [Rpc]
-        private void UseSkillLocal(short index,bool faceright)
+        private void UseSkillLocal(ushort index,bool faceright)
         {
             SkillExecuter.UseSkill(index,target, target.transform.position, faceright);
         }
@@ -100,7 +100,7 @@ namespace LevelCreator.TargetTemplate
         {
             if (values == null || values.Count == 0)
             {
-                CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable, null);
+                CallFuncRpc(SyncEffectIconLocal, SendTo.Everyone, Delivery.Unreliable, "null");
                 return;
             }
 
@@ -122,7 +122,7 @@ namespace LevelCreator.TargetTemplate
         private void SyncEffectIconLocal(string data)
         {
             // 空数据
-            if (string.IsNullOrEmpty(data))
+            if (data=="null")
             {
                 EffectTypes.Clear();
                 target.graphic.ShowEffects(EffectTypes);

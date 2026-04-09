@@ -179,10 +179,13 @@ public class ExecutionBuilder
     public static void CreatOutline(byte thickness);
     public static void CreateSolidLand(byte point1x, byte point1y, byte point2x, byte point2y);
     public static void CreateLevitatingPlatform(byte centerX, byte centerY, byte width);
-    public static void CreateVelocityArea(byte point1x, byte point1y, byte point2x, byte point2y, byte velocityX, byte velocityY);
+    public static void CreateBrokenPlatform(byte centerX, byte centerY, byte width);
+    public static void CreateFanWindArea(byte point1x, byte point1y, byte point2x, byte point2y, byte velocity);
+    public static void CreateTrampoline(byte leftX, byte leftY, byte width, byte velocity);
+    public static void CreateSpike(byte point1X, byte point1Y, byte point2X, byte point2Y, int damage);//会自动辨认哪些位置下方是地面，并只在那些位置生成
     public static void UploadLandscape();
 
-    //行为模板
+    //操作模板
     //delay单位为ms
     public static void InitSkillOperation(short id);
     public static void AddSubSkillOperator(short delay, short subSkillId);//严禁循环调用，例如a调用a或a调用b再调用a。为防止此类bug，请严格遵循大id调用小id的原则，例如a调用b时，a的id必须大于b的id

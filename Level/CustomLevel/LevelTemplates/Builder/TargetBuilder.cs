@@ -6,7 +6,7 @@ namespace LevelCreator
     public static class TargetBuilder
     {
         // 标准：仅存储独立参数，不存 Info；拆分 TargetIdentify 为基础字段
-        private static short _id;
+        private static ushort _id;
         private static int _level;
         private static float _size;
         private static string _label;
@@ -20,7 +20,7 @@ namespace LevelCreator
         /// <summary>
         /// 标准初始化：带 ID 标识
         /// </summary>
-        public static void Create(short id)
+        public static void Create(ushort id)
         {
             Reset();
             _id = id;
@@ -112,7 +112,7 @@ namespace LevelCreator
     /// </summary>
     public struct TargetInfo : Info
     {
-        public short id;
+        public ushort id;
         // 原 TargetIdentify 拆解后的独立字段
         public int level;
         public float size;
@@ -134,7 +134,7 @@ namespace LevelCreator
         public static bool Serialize(TargetInfo value, byte[] result, ref int indexStart)
         {
             // ID
-            if (!ShortSerializer.Serialize(value.id, result, ref indexStart)) return false;
+            if (!UshortSerializer.Serialize(value.id, result, ref indexStart)) return false;
 
             // 原 TargetIdentify 拆解后的字段序列化（保持原有顺序和类型）
             if (!IntSerializer.Serialize(value.level, result, ref indexStart)) return false;
@@ -163,7 +163,7 @@ namespace LevelCreator
         {
             TargetInfo info = new TargetInfo();
             // ID 反序列化
-            info.id = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.id = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
 
             // 原 TargetIdentify 拆解后的字段反序列化（移除错误的 spawnX/spawnY 逻辑）
             info.level = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);

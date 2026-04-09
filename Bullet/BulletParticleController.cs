@@ -13,6 +13,10 @@ public class BulletParticleController : MonoBehaviour
         {
             i.Play();
         }
+        foreach(var i in spriteRenderers)
+        {
+            i.gameObject.SetActive(true);
+        }
     }
     public void Stop()
     {
@@ -20,6 +24,10 @@ public class BulletParticleController : MonoBehaviour
         {
             i.Stop();
             i.Clear();
+        }
+        foreach (var i in spriteRenderers)
+        {
+            i.gameObject.SetActive(false);
         }
     }
     public void ChangeColor(Color targetColor)

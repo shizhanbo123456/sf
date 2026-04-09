@@ -51,7 +51,7 @@ public class PlayModePage : BasePage
     }
 
     
-    public List<SkillColumn> CreateSkillColumns(short[] ids)
+    public List<SkillColumn> CreateSkillColumns(ushort[] ids)
     {
         var columns= SkillPanel.CreateSkillColumns(ids);
         for (int i = 0; i < ids.Length; i++)

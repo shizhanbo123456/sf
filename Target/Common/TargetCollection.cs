@@ -7,7 +7,7 @@ namespace LevelCreator.TargetTemplate
         protected override void Init(string data)
         {
             string[] s = data.Split('/',System.StringSplitOptions.RemoveEmptyEntries);
-            var creater = Tool.LevelCreatorManager.GetTargetInfo(short.Parse(s[0]));
+            var creater = Tool.LevelCreatorManager.GetTargetInfo(ushort.Parse(s[0]));
             var identify = new TargetIdentify(int.Parse(s[1]), int.Parse(s[2]), creater.level, s[3], creater.size, float.Parse(s[4]), float.Parse(s[5]), creater.label);
             ApplyForTarget(creater,identify, gameObject);
         }

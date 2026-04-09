@@ -22,7 +22,6 @@ namespace LevelCreator.TargetTemplate
                 return boxCollider.edgeRadius - (boxCollider.offset.y - boxCollider.size.y / 2f) * transform.localScale.y;
             }
         }
-        private static GameObjectPool pool;
 
         [SerializeField] private bool SetState = false;
         private static readonly Vector3 R = new Vector3(1, 1, 1);
@@ -36,7 +35,7 @@ namespace LevelCreator.TargetTemplate
 
         [HideInInspector] public BulletDetector bulletDetector;
         [HideInInspector] public GroundDetector groundDetector;
-        private BoxCollider2D boxCollider;
+        [HideInInspector]public BoxCollider2D boxCollider;
 
         [HideInInspector] public TargetHeader header;
 
@@ -54,7 +53,9 @@ namespace LevelCreator.TargetTemplate
             bulletDetector = GetComponent<BulletDetector>();
             groundDetector = GetComponent<GroundDetector>();
 
-            minimapIcon=Instantiate(Tool.PrefabManager.TargetMinimap.gameObject,transform).GetComponent<SpriteRenderer>();
+            if (boxCollider == null) boxCollider = GetComponent<BoxCollider2D>();
+
+            minimapIcon =Instantiate(Tool.PrefabManager.TargetMinimap.gameObject,transform).GetComponent<SpriteRenderer>();
             minimapIcon.transform.localPosition = Vector3.zero;
             if (camp>=0)
             {
@@ -75,8 +76,7 @@ namespace LevelCreator.TargetTemplate
         private void InitHeader()
         {
             if (header) return;
-            if (pool == null) pool = GameObjectPool.Create(Tool.PrefabManager.TargetHeader.gameObject, o => o.SetActive(false), o => o.SetActive(true));
-            header = pool.Get().GetComponent<TargetHeader>();
+            header = Instantiate(Tool.PrefabManager.TargetHeader.gameObject).GetComponent<TargetHeader>();
             header.transform.SetParent(Tool.SceneController.SingleLevel.Canvas);
             headerOffset = SpawnOffset + 1;
         }
@@ -122,36 +122,28 @@ namespace LevelCreator.TargetTemplate
             {
                 if (rb.velocity.x < 0.001f && rb.velocity.x > -0.001f)
                 {
-                    anim.SetInteger("state", 0);
+                    anim.SetInteger("State", 0);
                 }
                 else
                 {
-                    anim.SetInteger("state", 1);
+                    anim.SetInteger("State", 1);
                 }
             }
             else
             {
                 if (rb.velocity.y > 0.01f)
                 {
-                    anim.SetInteger("state", 2);
+                    anim.SetInteger("State", 2);
                 }
                 else
                 {
-                    anim.SetInteger("state", 3);
+                    anim.SetInteger("State", 3);
                 }
             }
         }
         private void Update()
         {
             if (header) header.transform.position = transform.position + Vector3.up * headerOffset;
-        }
-        private void OnDestroy()
-        {
-            if (header)
-            {
-                pool.Return(header.gameObject);
-                header = null;
-            }
         }
     }
 }

@@ -3,15 +3,18 @@ using LevelCreator.TargetTemplate;
 
 namespace LevelCreator.BulletShootTemplate
 {
-    //id=900
     public class Follow : ShootActBase
     {
-        public override short minId => 900;
-        public override short maxId => 900;
-        public override void Act(Target shooter, BulletInfo info, short id)
+        public override ushort minId => 2999;//1
+        public override ushort maxId => minId;
+        public override void Act(Target shooter, BulletInfo info, ushort id)
         {
             if (id < minId || id > maxId) throw new System.Exception("id越界，id=" + id);
-            int trueid = id - minId;
+
+            Execute(shooter, info);
+        }
+        public void Execute(Target shooter, BulletInfo info)
+        {
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
             var t = shooter.GetNearestEnemy();

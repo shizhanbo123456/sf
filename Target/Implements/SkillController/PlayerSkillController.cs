@@ -8,7 +8,7 @@ namespace LevelCreator.TargetTemplate
     public class PlayerSkillController : TargetSkillController
     {
         public static List<KeyCode> Keys = new List<KeyCode>() { KeyCode.J, KeyCode.U, KeyCode.I, KeyCode.O, KeyCode.L, KeyCode.H };
-        public override void CreateSkillControllers(short[] ids)
+        public override void CreateSkillControllers(ushort[] ids)
         {
             var columns = PlayModeController.Instance.CreateSkillColumns(ids);
             for (int i = 0; i < columns.Count; i++)

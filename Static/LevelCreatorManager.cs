@@ -14,12 +14,12 @@ namespace LevelCreator
             Tool.LevelCreatorManager = this;
         }
 
-        private Dictionary<short, BulletInfo> BulletInfoCollection = new();
-        private Dictionary<short, EffectInfo> EffectInfoCollection = new();
-        private Dictionary<short, LandscapeInfo> LandscapeInfoCollection = new();
-        private Dictionary<short, OperationInfo> OperationInfoCollection = new();
-        private Dictionary<short, SkillInfo> SkillInfoCollection = new();
-        private Dictionary<short, TargetInfo> TargetInfoCollection = new();
+        private Dictionary<ushort, BulletInfo> BulletInfoCollection = new();
+        private Dictionary<ushort, EffectInfo> EffectInfoCollection = new();
+        private Dictionary<ushort, LandscapeInfo> LandscapeInfoCollection = new();
+        private Dictionary<ushort, OperationInfo> OperationInfoCollection = new();
+        private Dictionary<ushort, SkillInfo> SkillInfoCollection = new();
+        private Dictionary<ushort, TargetInfo> TargetInfoCollection = new();
 
         public void LoadInfo(BulletInfo info)=> BulletInfoCollection.Add(info.id, info);
         public void LoadInfo(EffectInfo info)=> EffectInfoCollection.Add(info.id, info);
@@ -106,12 +106,12 @@ namespace LevelCreator
         }
 
 
-        public BulletInfo GetBulletInfo(short id) => BulletInfoCollection[id];
-        public EffectInfo GetEffectInfo(short id) => EffectInfoCollection.ContainsKey(id)?EffectInfoCollection[id]:new(id,null);
-        public LandscapeInfo GetLandscapeInfo(short id) => LandscapeInfoCollection[id];
-        public OperationInfo GetOperationInfo(short id) => OperationInfoCollection[id];
-        public SkillInfo GetSkillInfo(short id) => SkillInfoCollection[id];
-        public TargetInfo GetTargetInfo(short id) => TargetInfoCollection[id];
+        public BulletInfo GetBulletInfo(ushort id) => BulletInfoCollection[id];
+        public EffectInfo GetEffectInfo(ushort id) => EffectInfoCollection.ContainsKey(id)?EffectInfoCollection[id]:new(id,null);
+        public LandscapeInfo GetLandscapeInfo(ushort id) => LandscapeInfoCollection[id];
+        public OperationInfo GetOperationInfo(ushort id) => OperationInfoCollection[id];
+        public SkillInfo GetSkillInfo(ushort id) => SkillInfoCollection[id];
+        public TargetInfo GetTargetInfo(ushort id) => TargetInfoCollection[id];
     }
     public interface Info
     {

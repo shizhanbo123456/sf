@@ -21,7 +21,7 @@ namespace LevelCreator.Executer
             new LevelCreator.BulletShootTemplate.Static2(),
             new LevelCreator.BulletShootTemplate.StaticScaleChange(),
         };
-        public static void ExecuteBulletShootAct(Target shooter, BulletInfo info, short id)
+        public static void ExecuteBulletShootAct(Target shooter, BulletInfo info, ushort id)
         {
             foreach (var i in ShootActs)
             {

@@ -10,7 +10,7 @@ namespace LevelCreator
         /// <summary>
         /// 初始化并录入ID标识
         /// </summary>
-        public static void Create(short id)
+        public static void Create(ushort id)
         {
             _effects.Clear();
             _info = new EffectInfo(id, _effects);
@@ -38,10 +38,10 @@ namespace LevelCreator
     /// </summary>
     public struct EffectInfo : Info
     {
-        public short id;
+        public ushort id;
         public List<SingleEffect> effects;
 
-        public EffectInfo(short id, List<SingleEffect> effects)
+        public EffectInfo(ushort id, List<SingleEffect> effects)
         {
             this.id = id;
             this.effects = effects;
@@ -59,7 +59,7 @@ namespace LevelCreator
         public static bool Serialize(EffectInfo value, byte[] result, ref int indexStart)
         {
             // 序列化ID
-            if (!ShortSerializer.Serialize(value.id, result, ref indexStart))
+            if (!UshortSerializer.Serialize(value.id, result, ref indexStart))
                 return false;
 
             // 序列化效果数量
@@ -89,7 +89,7 @@ namespace LevelCreator
         public static EffectInfo Deserialize(byte[] data, ref int indexStart, int invalidIndex)
         {
             // 读取ID
-            short id = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            ushort id = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
 
             // 读取效果数量
             int count = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);

@@ -13,7 +13,7 @@ namespace LevelCreator.Skills
     /// </summary>
     public struct SkillExecuter
     {
-        public static SkillControllerBase CreateSkillController(short id,Target t)
+        public static SkillControllerBase CreateSkillController(ushort id,Target t)
         {
             var info=Tool.LevelCreatorManager.GetSkillInfo(id);
             if (info.cd == 0)
@@ -29,11 +29,11 @@ namespace LevelCreator.Skills
                 return SkillStorableController.Create(id, t, info.maxStoreTime, info.cd*0.001f);
             }
         }
-        public static bool CanUse(short id, Target Target)
+        public static bool CanUse(ushort id, Target Target)
         {
             return true;
         }
-        public static void UseSkill(short id, Target Target, Vector3 pos, bool faceright)
+        public static void UseSkill(ushort id, Target Target, Vector3 pos, bool faceright)
         {
             var info = Tool.LevelCreatorManager.GetSkillInfo(id);
 
@@ -41,8 +41,8 @@ namespace LevelCreator.Skills
 
             for (int index = 0; index < info.actionDelays.Count; index++)
             {
-                short delay = info.actionDelays[index];
-                short action = info.actionIds[index];
+                ushort delay = info.actionDelays[index];
+                ushort action = info.actionIds[index];
 
                 OperationExecuter.Execute(action, delay, Target);
             }

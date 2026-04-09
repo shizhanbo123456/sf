@@ -29,7 +29,7 @@ public class SkillCDController : SkillControllerBase
         storeTime -= 1f;
         base.OnUse();
     }
-    public static SkillControllerBase Create(short index,Target t, float cd)
+    public static SkillControllerBase Create(ushort index,Target t, float cd)
     {
         var r = new SkillCDController();
         r.target = t;

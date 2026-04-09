@@ -60,7 +60,7 @@ public class PlayModeController : Singleton<PlayModeController>
         if (p == null) return;
         p.BarPanel.DestroyBar(bar);
     }
-    public List<SkillColumn> CreateSkillColumns(short[] index)
+    public List<SkillColumn> CreateSkillColumns(ushort[] index)
     {
         var p = page;
         if (p == null) return null;

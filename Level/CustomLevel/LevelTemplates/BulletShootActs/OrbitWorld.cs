@@ -3,28 +3,28 @@ using LevelCreator.TargetTemplate;
 
 namespace LevelCreator.BulletShootTemplate
 {
-    //id=11000-11799和12000-12799,a=id个位,b=id十位,c=id百位,半径=a*2+2,旋转速度(角度/秒)=b*15+15,初始偏移=c*45，千位=0时在自身位置，=1时在最近敌人位置
     public class OrbitWorld : ShootActBase
     {
-        public override short minId => 11000;
-        public override short maxId => 11799;
-        public override void Act(Target shooter, BulletInfo info, short id)
+        public static ModSpace4 mod = new(10, 10, 40,2);//8000
+        public override ushort minId => 22500;
+        public override ushort maxId => (ushort)(minId + mod.TotalSize - 1);
+        public override void Act(Target shooter, BulletInfo info, ushort id)
         {
             if (id < minId || id > maxId) throw new System.Exception("id越界，id=" + id);
-            int _a = id % 10;
-            id /= 10;
-            int _b = id % 10;
-            id /= 10;
-            int _c = id % 10;
-            id /= 10;
-            bool self = id % 10 == 1;
+
+            mod.Decode(id - minId, out var v1, out var v2, out var v3, out var v4);
+
+            Execute(shooter, info, v1 + 1, v2 * 30, v3 * 9,v4==0);
+        }
+        public void Execute(Target shooter, BulletInfo info, float orbitRadius, float degreePerSec, float angleOffset,bool self)
+        {
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
             var t = shooter.GetNearestEnemy();
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
-            BulletOrbitWorldSystem.RegistObject(b, info.radius, info.lifeTime, _a * 2 + 2, _b * 15 + 15, _c * 45,
-                (!self&&t)?t.transform.position:shooter.transform.position);
+            BulletOrbitWorldSystem.RegistObject(b, info.radius, info.lifeTime,orbitRadius, degreePerSec,angleOffset,
+                (!self && t) ? t.transform.position : shooter.transform.position);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
         }

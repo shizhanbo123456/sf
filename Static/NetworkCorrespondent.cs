@@ -173,12 +173,12 @@ public partial class NetworkCorrespondent : EnsBehaviour
     {
         PlayModeController.Instance.ShowSubtitle(msg);
     }
-    public void CreateLevelRpc(short id,float minimapScale)
+    public void CreateLevelRpc(ushort id,float minimapScale)
     {
         CallFuncRpc(CreateLevelLocal, SendTo.Everyone, Delivery.Reliable, id,minimapScale);
     }
     [Rpc]
-    private void CreateLevelLocal(short id,float minimapScale)
+    private void CreateLevelLocal(ushort id,float minimapScale)
     {
         Tool.SceneController.CreateLevel(SceneController.LevelType.Fight);
         Tool.SceneController.Level.Init(Tool.LevelCreatorManager.GetLandscapeInfo(id));

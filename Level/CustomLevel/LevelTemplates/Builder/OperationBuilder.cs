@@ -12,7 +12,7 @@ namespace LevelCreator
     public static class OperationBuilder
     {
         // 基础ID参数
-        private static short _skillOpId;
+        private static ushort _skillOpId;
 
         // 列表参数：初始化时直接创建空列表，确保永远不为null
         private static List<SubSkillOperator> _subSkillOperators;
@@ -23,8 +23,8 @@ namespace LevelCreator
         // 内部子结构（仅构建器使用）
         public struct SubSkillOperator:ITimelineActor
         {
-            public short delay;
-            public short subSkillId;
+            public ushort delay;
+            public ushort subSkillId;
 
             public void Act(Target t)
             {
@@ -34,9 +34,9 @@ namespace LevelCreator
 
         public struct BulletShoot : ITimelineActor
         {
-            public short delay;
-            public short bulletInfoId;
-            public short shootActId;
+            public ushort delay;
+            public ushort bulletInfoId;
+            public ushort shootActId;
 
             public void Act(Target t)
             {
@@ -46,8 +46,8 @@ namespace LevelCreator
 
         public struct MotionAction : ITimelineActor
         {
-            public short delay;
-            public short motionActId;
+            public ushort delay;
+            public ushort motionActId;
 
             public void Act(Target t)
             {
@@ -57,8 +57,8 @@ namespace LevelCreator
 
         public struct EffectOperation : ITimelineActor
         {
-            public short delay;
-            public short effectId;
+            public ushort delay;
+            public ushort effectId;
             public float operationRadius;
 
             private static UnityEngine.Vector3 pos;
@@ -101,7 +101,7 @@ namespace LevelCreator
         /// <summary>
         /// 标准初始化：自动创建空列表，杜绝null
         /// </summary>
-        public static void Create(short id)
+        public static void Create(ushort id)
         {
             Reset();
             _skillOpId = id;
@@ -110,7 +110,7 @@ namespace LevelCreator
         /// <summary>
         /// 添加子技能操作（支持0/1/多次调用）
         /// </summary>
-        public static void AddSubSkillOperator(short delay, short subSkillId)
+        public static void AddSubSkillOperator(ushort delay, ushort subSkillId)
         {
             _subSkillOperators.Add(new SubSkillOperator
             {
@@ -122,7 +122,7 @@ namespace LevelCreator
         /// <summary>
         /// 添加子弹发射（支持0/1/多次调用）
         /// </summary>
-        public static void ShootBullet(short delay, short bulletInfoId, short shootActId)
+        public static void ShootBullet(ushort delay, ushort bulletInfoId, ushort shootActId)
         {
             _bulletShoots.Add(new BulletShoot
             {
@@ -135,7 +135,7 @@ namespace LevelCreator
         /// <summary>
         /// 添加动作执行（支持0/1/多次调用）
         /// </summary>
-        public static void DoMotion(short delay, short motionActId)
+        public static void DoMotion(ushort delay, ushort motionActId)
         {
             _motionActions.Add(new MotionAction
             {
@@ -148,7 +148,7 @@ namespace LevelCreator
         /// 添加效果操作（支持0/1/多次调用）<br/>
         /// abs(r)<0.1自己，abs(r)%1000=范围，abs(r)//1000=作用目标数量(小于1000为所有)，>0为队友，<0为敌方
         /// </summary>
-        public static void AddEffect(short delay, short effectId, float operationRadius)
+        public static void AddEffect(ushort delay, ushort effectId, float operationRadius)
         {
             _effectOperations.Add(new EffectOperation
             {
@@ -193,7 +193,7 @@ namespace LevelCreator
     /// </summary>
     public struct OperationInfo : Info
     {
-        public short id;
+        public ushort id;
         public List<OperationBuilder.SubSkillOperator> subSkillOperators;
         public List<OperationBuilder.BulletShoot> bulletShoots;
         public List<OperationBuilder.MotionAction> motionActions;
@@ -208,7 +208,7 @@ namespace LevelCreator
         public static bool Serialize(OperationInfo value, byte[] result, ref int indexStart)
         {
             // 主ID
-            if (!ShortSerializer.Serialize(value.id, result, ref indexStart))
+            if (!UshortSerializer.Serialize(value.id, result, ref indexStart))
                 return false;
 
             // 子技能列表（空列表Count=0，正常序列化）
@@ -216,8 +216,8 @@ namespace LevelCreator
                 return false;
             foreach (var item in value.subSkillOperators)
             {
-                if (!ShortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
-                if (!ShortSerializer.Serialize(item.subSkillId, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.subSkillId, result, ref indexStart)) return false;
             }
 
             // 子弹发射列表
@@ -225,9 +225,9 @@ namespace LevelCreator
                 return false;
             foreach (var item in value.bulletShoots)
             {
-                if (!ShortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
-                if (!ShortSerializer.Serialize(item.bulletInfoId, result, ref indexStart)) return false;
-                if (!ShortSerializer.Serialize(item.shootActId, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.bulletInfoId, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.shootActId, result, ref indexStart)) return false;
             }
 
             // 动作列表
@@ -235,8 +235,8 @@ namespace LevelCreator
                 return false;
             foreach (var item in value.motionActions)
             {
-                if (!ShortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
-                if (!ShortSerializer.Serialize(item.motionActId, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.motionActId, result, ref indexStart)) return false;
             }
 
             // 效果列表
@@ -244,8 +244,8 @@ namespace LevelCreator
                 return false;
             foreach (var item in value.effectOperations)
             {
-                if (!ShortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
-                if (!ShortSerializer.Serialize(item.effectId, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.delay, result, ref indexStart)) return false;
+                if (!UshortSerializer.Serialize(item.effectId, result, ref indexStart)) return false;
                 if (!FloatSerializer.Serialize(item.operationRadius, result, ref indexStart)) return false;
             }
 
@@ -257,7 +257,7 @@ namespace LevelCreator
             OperationInfo info = new OperationInfo();
 
             // 主ID
-            info.id = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.id = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
 
             // 子技能（Count=0时不进入循环，完美兼容）
             short subSkillCount = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
@@ -265,8 +265,8 @@ namespace LevelCreator
             for (int i = 0; i < subSkillCount; i++)
             {
                 var item = new OperationBuilder.SubSkillOperator();
-                item.delay = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
-                item.subSkillId = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.delay = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.subSkillId = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 info.subSkillOperators.Add(item);
             }
 
@@ -276,9 +276,9 @@ namespace LevelCreator
             for (int i = 0; i < bulletCount; i++)
             {
                 var item = new OperationBuilder.BulletShoot();
-                item.delay = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
-                item.bulletInfoId = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
-                item.shootActId = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.delay = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.bulletInfoId = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.shootActId = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 info.bulletShoots.Add(item);
             }
 
@@ -288,8 +288,8 @@ namespace LevelCreator
             for (int i = 0; i < motionCount; i++)
             {
                 var item = new OperationBuilder.MotionAction();
-                item.delay = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
-                item.motionActId = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.delay = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.motionActId = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 info.motionActions.Add(item);
             }
 
@@ -299,8 +299,8 @@ namespace LevelCreator
             for (int i = 0; i < effectCount; i++)
             {
                 var item = new OperationBuilder.EffectOperation();
-                item.delay = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
-                item.effectId = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.delay = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                item.effectId = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 item.operationRadius = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 info.effectOperations.Add(item);
             }

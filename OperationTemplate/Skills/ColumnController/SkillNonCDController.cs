@@ -8,7 +8,7 @@ public class SkillNonCDController : SkillControllerBase
         base.LoadSkillColumn(s);
         s.SetLabelActive(false);
     }
-    public static SkillControllerBase Create(short index,Target t)
+    public static SkillControllerBase Create(ushort index,Target t)
     {
         var r = new SkillNonCDController();
         r.target = t;

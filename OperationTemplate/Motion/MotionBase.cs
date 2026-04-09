@@ -8,15 +8,15 @@ namespace Variety.Base
     {
         private static readonly Dictionary<int, float> SpeedMap = new()
         {
-            {1,-24 },
-            {2,-18 },
-            {3,-12 },
-            {4,-6 },
-            {5,0 },
-            {6,6 },
-            {7,12 },
-            {8,18 },
-            {9,24 },
+            {0,-24 },
+            {1,-18 },
+            {2,-12 },
+            {3,-6 },
+            {4,0 },
+            {5,6 },
+            {6,12 },
+            {7,18 },
+            {8,24 },
         };
 
         public bool IsNull => Time.time > workTime + startTime;
@@ -34,44 +34,53 @@ namespace Variety.Base
             get { return Time.time - startTime; }
         }
 
-        public MotionBase(int id)
+        public MotionBase(ushort id)
         {
             startTime = Time.time;
-            int a = id % 10;
-            id /= 10;
-            int b = id % 10;
-            id /= 10;
-            workTime = a * 0.1f + b;
-            a = id % 10;
-            id /= 10;
-            stoicLevel = a;
-            a = id % 10;
-            id /= 10;
-            type = a;
-            if (id > 0)
+            MotionIdCalculater.mod.Decode(id, out var timeFactor, out var stoicLevel, out int code);
+            workTime = timeFactor * 0.2f + 0.2f;
+            this.stoicLevel = stoicLevel;
+            if (code == 0)
             {
-                ly= id % 10;
-                id /= 10;
-                lx= id % 10;
-                id /= 10;
-                if(id > 0)
-                {
-                    hy= id % 10;
-                    id /= 10;
-                    hx= id % 10;
-                }
-                else
-                {
-                    hx = 0;
-                    hy = 0;
-                }
+                type = 0;
+                lx = 0;
+                ly = 0;
+                hx = 0;
+                hy = 0;
+            }
+            else if (code <= 81)
+            {
+                type = 1;
+                code -= 1;
+                MotionIdCalculater.speedV2Mod.Decode(code, out lx, out ly);
+                hx = 0;
+                hy = 0;
+            }
+            else if (code <= 162)
+            {
+                type = 2;
+                code -= 82;
+                MotionIdCalculater.speedV2Mod.Decode(code, out lx, out ly);
+                hx = 0;
+                hy = 0;
+            }
+            else if (code <= 787)
+            {
+                type = 3;
+                code -= 163;
+                MotionIdCalculater.speedV4Mod.Decode(code, out lx, out ly,out hx,out hy);
+            }
+            else if (code <= 868)
+            {
+                type = 4;
+                code -= 788;
+                MotionIdCalculater.speedV2Mod.Decode(code, out lx, out ly);
+                hx = 0;
+                hy = 0;
             }
             else
             {
-                lx = 0; 
-                ly = 0;
-                hx = 0; 
-                hy = 0;
+                throw new System.Exception("Id´íÎó"+id);
             }
         }
 

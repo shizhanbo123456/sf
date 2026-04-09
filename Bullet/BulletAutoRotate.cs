@@ -17,9 +17,9 @@ public class BulletAutoRotate : MonoBehaviour
     private void Update()
     {
         var p=transform.position-lastPos;
-        if (p.x > 0.1f || p.x < 0.1f || p.y > 0.1f|| p.y < 0.1f)
+        if (p.x > 0.1f || p.x < -0.1f || p.y > 0.1f|| p.y < -0.1f)
         {
-            lastPos = p;
+            lastPos = transform.position;
             float angle = Mathf.Atan(p.y / p.x)*Mathf.Rad2Deg;
             if (p.x > 0)
             {
@@ -28,7 +28,7 @@ public class BulletAutoRotate : MonoBehaviour
             }
             else
             {
-                transform.localScale = scale;
+                transform.localScale = iscale;
                 transform.rotation = Quaternion.Euler(0, 0, -angle);
             }
         }

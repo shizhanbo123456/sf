@@ -2,6 +2,7 @@ using LevelCreator.TargetTemplate;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class PrefabManager : MonoBehaviour
 {
@@ -21,10 +22,47 @@ public class PrefabManager : MonoBehaviour
     public GameObject HomeLevel;
     public GameObject PrepareLevel;
     public GameObject FightLevel;
-    public List<GameObject> LevitatingPlatform = new();
-    public VelocityInArea VelocityInArea;
+    [Space]
     public List<GameObject> Tiles = new();
-    public Collider2D TileCollider = new();
+    //public GameObject SolidLandGraphic;//Tiles[15]
+    public GameObject LevitatingPlatform;
+    public GameObject BrokenPlatform;
+    public GameObject Wind;
+    public GameObject Spike;
+    public GameObject Trampoline;
+
+    public GameObject TileCollider;
+    public GameObject PlatformCollider;
+
+    public ObjectPool<GameObject> LevitatingPlatformPool = new(
+        () => Instantiate(Tool.PrefabManager.LevitatingPlatform),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+    public ObjectPool<GameObject> BrokenPlatformPool = new(
+        () => Instantiate(Tool.PrefabManager.BrokenPlatform),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+    public ObjectPool<GameObject> WindPool = new(
+        () => Instantiate(Tool.PrefabManager.Wind),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+    public ObjectPool<GameObject> SpikePool = new(
+        () => Instantiate(Tool.PrefabManager.Spike),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+    public ObjectPool<GameObject> TrampolinePool = new(
+        () => Instantiate(Tool.PrefabManager.Trampoline),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+
+    public ObjectPool<GameObject> TileColliderPool = new(
+        () => Instantiate(Tool.PrefabManager.TileCollider),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
+    public ObjectPool<GameObject> PlatformColliderPool = new(
+        () => Instantiate(Tool.PrefabManager.PlatformCollider),
+        t => t.SetActive(true),
+        t => t.SetActive(false));
     [Header("Player")]
     public GameObject UnnetPlayer;
     public EnsBehaviourCollection NonSkillPlayerCollection;
