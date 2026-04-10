@@ -14,7 +14,7 @@ namespace ProtocolWrapper.Protocols.Udp
         public new void Init(string ip,int port)
         {
             ipAddress=IPAddress.Parse(ip);
-            Init(new UdpClient(port), new IPEndPoint(ipAddress, port));
+            Init(new UdpClient(), new IPEndPoint(ipAddress, port));
             Initialized = true;
             Protocol.OnClientInitialized?.Invoke();
 

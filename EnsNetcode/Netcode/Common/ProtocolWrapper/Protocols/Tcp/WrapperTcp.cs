@@ -65,7 +65,7 @@ namespace ProtocolWrapper.Protocols.Tcp
             ReceiveBuffer.Write(data);
         }
 
-        public override void Send(byte[] bytes,int indexStart)
+        public override void Send(byte[] bytes,int length)
         {
             if (!Initialized)
             {
@@ -80,7 +80,7 @@ namespace ProtocolWrapper.Protocols.Tcp
 
             try
             {
-                Stream.Write(bytes, 0, indexStart);
+                Stream.Write(bytes, 0, length);
             }
             catch (Exception)
             {

@@ -19,7 +19,7 @@ namespace ProtocolWrapper.Protocols.Udp
         }
         
 
-        public override void Send(byte[] bytes, int indexStart)
+        public override void Send(byte[] bytes, int length)
         {
             if (!Initialized)
             {
@@ -33,7 +33,7 @@ namespace ProtocolWrapper.Protocols.Udp
             }
             try
             {
-                Client.Send(SendBuffer.bytes, SendBuffer.indexStart,ep);
+                Client.Send(bytes, length,ep);
             }
             catch (Exception)
             {
