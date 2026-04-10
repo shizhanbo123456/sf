@@ -20,7 +20,9 @@ namespace LevelCreator
         private static LuaFunction UpdateFunction;//float float
         private static LuaFunction JudgeEndFunction;//0->bool
         private static LuaFunction TargetKilledFunction;//TargetInfo killer,TargetInfo killed
-        private static LuaFunction SelectFunction;//int
+        private static LuaFunction SelectFunction;//int selector,int selection
+        private static LuaFunction EnterCheckPointFunction;//int targetId,int checkPointId
+        private static LuaFunction SelectablePointClickedFunction;//int clientId,int checkPointId
         private static LuaFunction KillScoreFunction;//0->int
         private static LuaFunction TimeScoreFunction;//0->int
         private static LuaFunction ModeScoreFunction;//0->int
@@ -59,6 +61,8 @@ namespace LevelCreator
                 JudgeEndFunction = luaEnv.Global.Get<LuaFunction>("JudgeEnd");
                 TargetKilledFunction = luaEnv.Global.Get<LuaFunction>("TargetKilled");
                 SelectFunction = luaEnv.Global.Get<LuaFunction>("Select");
+                EnterCheckPointFunction = luaEnv.Global.Get<LuaFunction>("EnterCheckPoint");
+                SelectablePointClickedFunction = luaEnv.Global.Get<LuaFunction>("SelctablePointClicked");
                 KillScoreFunction = luaEnv.Global.Get<LuaFunction>("KillScore");
                 TimeScoreFunction = luaEnv.Global.Get<LuaFunction>("TimeScore");
                 ModeScoreFunction = luaEnv.Global.Get<LuaFunction>("ModeScore");
@@ -124,11 +128,33 @@ namespace LevelCreator
                 Debug.LogException(e);
             }
         }
-        public static void Select(int index)
+        public static void Select(int clientId,int index)
         {
             try
             {
-                SelectFunction.Action(index);
+                SelectFunction.Action(clientId,index);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+        public static void EnterCheckPoint(int targetId,int index)
+        {
+            try
+            {
+                EnterCheckPointFunction.Action(targetId,index);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+        public static void SelectablePointClicked(int clientId,int index)
+        {
+            try
+            {
+                SelectablePointClickedFunction.Action(clientId,index);
             }
             catch (System.Exception e)
             {
@@ -193,10 +219,12 @@ namespace LevelCreator
             {
                 InitTemplateFunction?.Dispose();
                 FightStartFunction?.Dispose();
-                SelectFunction?.Dispose();
                 UpdateFunction?.Dispose();
                 JudgeEndFunction?.Dispose();
                 TargetKilledFunction?.Dispose();
+                SelectFunction?.Dispose();
+                EnterCheckPointFunction?.Dispose();
+                SelectablePointClickedFunction?.Dispose();
                 KillScoreFunction?.Dispose();
                 TimeScoreFunction?.Dispose();
                 ModeScoreFunction?.Dispose();

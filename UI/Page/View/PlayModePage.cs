@@ -11,6 +11,8 @@ public class PlayModePage : BasePage
     private static PlayModeController controller=>PlayModeController.Instance;
 
     public Transform ClickableScenePanel;
+    private List<Button> ClickablePointButtons = new();
+    [SerializeField] private Button ClickableTemplate;
     [Space]
     public BarPanel BarPanel;
     public SkillPanel SkillPanel;
@@ -36,9 +38,11 @@ public class PlayModePage : BasePage
         ModeDes.text = controller.modeDescription;
         Settings.gameObject.SetActive(SettingsOn);
     }
-    private void Awake()
+    private void OnEnable()
     {
+        ClickableTemplate.transform.position = new Vector3(10000, -10000, 100);
         foreach (var i in SkillInfos) i.gameObject.SetActive(false);
+        foreach (var i in ClickablePointButtons) i.transform.position = new Vector3(10000, -10000,100);
     }
     private void Update()
     {
@@ -52,7 +56,24 @@ public class PlayModePage : BasePage
             }
         }
     }
-
+    public List<Button> ClickablePointActiveFor(int count,Action<int>_event)
+    {
+        while (ClickablePointButtons.Count < count)
+        {
+            var b=Instantiate(ClickableTemplate.gameObject.gameObject, ClickableTemplate.transform.parent).GetComponent<Button>();
+            int j = ClickablePointButtons.Count;
+            b.onClick.AddListener(()=>_event.Invoke(j));
+            ClickablePointButtons.Add(b);
+        }
+        if (ClickablePointButtons.Count > count)
+        {
+            for(int i = count; i < ClickablePointButtons.Count; i++)
+            {
+                ClickablePointButtons[i].transform.position = new Vector3(1000, -1000, 100);
+            }
+        }
+        return ClickablePointButtons;
+    }
     
     public List<SkillColumn> CreateSkillColumns(ushort[] ids)
     {

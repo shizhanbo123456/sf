@@ -1,5 +1,6 @@
 using SF.UI.Bar;
 using SF.UI.Skill;
+using System;
 using System.Collections.Generic;
 
 public class PlayModeController : Singleton<PlayModeController>
@@ -27,6 +28,12 @@ public class PlayModeController : Singleton<PlayModeController>
     {
         Tool.FightController.OnModeNameChanged += s => { modeName = s;Repaint(); };
         Tool.FightController.OnDescriptionChanged += s => { modeDescription = s;Repaint(); };
+    }
+    public List<UnityEngine.UI.Button> ClickablePointActiveFor(int count, Action<int> _event)
+    {
+        var p = page;
+        if (!p) return null;
+        return p.ClickablePointActiveFor(count, _event);
     }
 
     public void ShowScoreboard(string[] horizontalHeaders, string[]verticalHeaders)

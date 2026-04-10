@@ -9,7 +9,7 @@ using UnityEngine.Pool;
 public class Level : SingleLevel
 {
     public static byte[][] map;
-    // 0空气 1实心地面 2平台 3破损平台 4风场 5跳台 6地刺
+    // 0空气 1实心地面 2平台 3破损平台 4风场 5跳台 6地刺 7检查点 8选择点
 
     private LandscapeInfo info;
     private Vector2Int landscapeSize => new Vector2Int(16 * info.sizeX, 8 * info.sizeY);
@@ -34,6 +34,8 @@ public class Level : SingleLevel
     private List<GameObject> WindAreas = new();
     private List<Animator> Trampolines = new();
     private List<GameObject> Spikes = new();
+    private List<GameObject> CheckPoints = new();
+    private List<GameObject> SelectablePoints = new();
 
     private List<BoxCollider2D> SolidLandColliders = new();
     private List<BoxCollider2D> LevitatingPlatformColliders = new();
@@ -163,7 +165,7 @@ public class Level : SingleLevel
                     BrokenPlatforms.Add(obj);
                     obj.transform.position = new Vector3(xpos, ypos);
                     InteractableTargetIndexMap.Add(new(xpos, ypos), BrokenPlatforms.Count - 1);
-                }/*
+                }/*//风整块渲染
                 else if (map[ypos][xpos] == 0x04)
                 {
                     var obj = Tool.PrefabManager.WindPool.Get();
@@ -184,6 +186,20 @@ public class Level : SingleLevel
                     Spikes.Add(obj);
                     obj.transform.position = new Vector3(xpos, ypos);
                     InteractableTargetIndexMap.Add(new(xpos, ypos), Spikes.Count - 1);
+                }
+                else if (map[ypos][xpos] == 0x07)
+                {
+                    var obj = Tool.PrefabManager.CheckPointPool.Get();
+                    CheckPoints.Add(obj);
+                    obj.transform.position = new Vector3(xpos, ypos);
+                    InteractableTargetIndexMap.Add(new(xpos, ypos), CheckPoints.Count - 1);
+                }
+                else if (map[ypos][xpos] == 0x08)
+                {
+                    var obj = Tool.PrefabManager.SelectablePointPool.Get();
+                    SelectablePoints.Add(obj);
+                    obj.transform.position = new Vector3(xpos, ypos);
+                    InteractableTargetIndexMap.Add(new(xpos, ypos), SelectablePoints.Count - 1);
                 }
             }
         }
@@ -298,6 +314,20 @@ public class Level : SingleLevel
                     }
                 }
             }
+            count++;
+        }
+        count = 0;
+        foreach (var i in info.checkPoints)
+        {
+            map[i.y][i.x] = 0x07;
+            InteractableTargetIndexMap.Add(new(i.x,i.y), count);
+            count++;
+        }
+        count = 0;
+        foreach (var i in info.selectablePoints)
+        {
+            map[i.y][i.x] = 0x08;
+            InteractableTargetIndexMap.Add(new(i.x, i.y), count);
             count++;
         }
     }
@@ -530,7 +560,34 @@ public class Level : SingleLevel
                     }
                 }
             }
+            //检查点
+            if (EnsInstance.HasAuthority)
+            {
+                for (int x = p1.x; x <= p2.x; x++)
+                {
+                    for (int y = p1.y; y <= p2.y; y++)
+                    {
+                        if (map[y][x] == 0x07)
+                        {
+                            InCheckPointAreaBuffer.Add((t.ObjectId, InteractableTargetInfoMap[new(x, y)]));
+                        }
+                    }
+                }
+            }
         }
+        //选择点
+        if (SelectablePoints.Count > 0)
+        {
+            var main = Camera.main;
+            var buttons = PlayModeController.Instance.ClickablePointActiveFor(SelectablePoints.Count, SelectablePointClicked);
+            for (int i = 0; i < SelectablePoints.Count; i++)
+            {
+                GameObject p = SelectablePoints[i];
+                var pos = main.WorldToScreenPoint(p.transform.position);
+                buttons[i].transform.position = pos;
+            }
+        }
+        if(EnsInstance.HasAuthority)InCheckPointPostCheck();
 
         if (RestructBrokenPlatformOfId.Count > 0)
         {
@@ -558,6 +615,8 @@ public class Level : SingleLevel
         }
     }
     private static Dictionary<int,Vector2Int> RestructBrokenPlatformOfId=new();
+    private static HashSet<(int,int)> InCheckPointArea=new();
+    private static HashSet<(int, int)> InCheckPointAreaBuffer = new();
     private void CalculateTargetOverlapArea(Target t,out Vector2Int point1,out Vector2Int point2)
     {
         var c = t.graphic.boxCollider;
@@ -600,6 +659,21 @@ public class Level : SingleLevel
             t.Damaged(null, info.spikes[InteractableTargetInfoMap[pos]].damage);
             t.controller.SetResistance(-0.1f, false);
         }
+    }
+    private void InCheckPointPostCheck()
+    {
+        foreach(var i in InCheckPointAreaBuffer)
+        {
+            if (!InCheckPointArea.Contains(i)) CustomLevel.EnterCheckPoint(i.Item1, i.Item2);
+        }
+
+        InCheckPointArea.Clear();
+        foreach (var i in InCheckPointAreaBuffer) InCheckPointArea.Add(i);
+        InCheckPointAreaBuffer.Clear();
+    }
+    private void SelectablePointClicked(int x)
+    {
+        Tool.NetworkCorrespondent.SelectablePointClickedRpc(x);
     }
 
     public Vector3 GetPos(float x,float y)

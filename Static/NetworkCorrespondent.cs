@@ -215,12 +215,21 @@ public partial class NetworkCorrespondent : EnsBehaviour
     }
     public void SelectRpc(int index)
     {
-        CallFuncRpc(SelectLocal,SendTo.RoomOwner,Delivery.Reliable, index);
+        CallFuncRpc(SelectLocal,SendTo.RoomOwner,Delivery.Reliable, EnsInstance.LocalClientId,index);
     }
     [Rpc]
-    private void SelectLocal(int index)
+    private void SelectLocal(short clientId,int index)
     {
-        LevelCreator.CustomLevel.Select(index);
+        LevelCreator.CustomLevel.Select(clientId,index);
+    }
+    public void SelectablePointClickedRpc(int index)
+    {
+        CallFuncRpc(SelectablePointClickedLocal, SendTo.RoomOwner, Delivery.Reliable,EnsInstance.LocalClientId,index);
+    }
+    [Rpc]
+    private void SelectablePointClickedLocal(short clientId, int index)
+    {
+        LevelCreator.CustomLevel.Select(clientId, index);
     }
 
     public void TargetKilledRpc(Target killer,Target killed)
