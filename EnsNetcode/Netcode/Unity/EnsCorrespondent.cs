@@ -21,7 +21,7 @@ public class EnsCorrespondent :MonoBehaviour
     [Tooltip("In which way the client would receive data multithreading or asynchronous")]
     public ProtocolWrapper.ConcurrentType recvMode;
     [Tooltip("Which protocol would be used, make sure it uses the same protocol as the server")]
-    public ProtocolWrapper.ProtocolType protocolType;
+    public ProtocolWrapper.ProtocolType defaultProtocol;
 
     [Space]
     [Tooltip("How long the local key will exist, it includes sending and ignoring response")]
@@ -43,7 +43,7 @@ public class EnsCorrespondent :MonoBehaviour
     /// <summary>
     /// 发送心跳检测消息的间隔
     /// </summary>
-    [Tooltip("The interval to send heartbeat message, it's also used to confirm the delay between client and server")]
+    [Tooltip("The interval to send heartbeat message")]
     public float HeartbeatMsgInterval = 0.2f;
 
 
@@ -60,6 +60,17 @@ public class EnsCorrespondent :MonoBehaviour
     {
         EnsInstance.Corr = this;
 
+        if(TryGetComponent<Ens.DefaultProtocol.ProtocolBase>(out var component))
+        {
+            Debug.Log($"Use transport:{component.GetType()}");
+            ProtocolWrapper.Protocol.GetClientFunc = component.GetProtocolBase;
+            ProtocolWrapper.Protocol.GetListenerFunc=component.GetListener;
+        }
+        else
+        {
+            Debug.Log($"Use default transport:{defaultProtocol}");
+        }
+
         EnsInstance.DevelopmentDebug = DevelopmentDebug;
 
         EnsInstance.ReliableKeyExistTime = KeyExistTime;
@@ -70,7 +81,7 @@ public class EnsCorrespondent :MonoBehaviour
         EnsInstance.HeartbeatMsgInterval = HeartbeatMsgInterval;
 
         ProtocolWrapper.Protocol.mode = recvMode;
-        ProtocolWrapper.Protocol.type = protocolType;
+        ProtocolWrapper.Protocol.defaultProtocol = defaultProtocol;
 
         EnsClientEventRegister.RegistUnity();
 

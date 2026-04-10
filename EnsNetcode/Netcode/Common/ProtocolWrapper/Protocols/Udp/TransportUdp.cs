@@ -1,38 +1,38 @@
 using System;
 using System.Net;
 
-namespace ProtocolWrapper.Protocols.Tcp
+namespace ProtocolWrapper.Protocols.Udp
 {
-    internal class ModuleTcp
+    internal class TransportUdp
     {
-        public static ProtocolBase GetProtocolBase(string ip, int port)
+        internal static ProtocolBase GetProtocolBase(string ip, int port)
         {
-            ClientTcp tcp = null;
+            ClientUdp udp;
             try
             {
-                tcp = new ClientTcp();
-                tcp.Init(ip, port);
+                udp = new ClientUdp();
+                udp.Init(ip, port);
             }
             catch (Exception e)
             {
                 Utils.Debug.LogError(e.ToString());
                 return null;
             }
-            return tcp;
+            return udp;
         }
-        public static ListenerBase GetListener(IPAddress ip, int port)
+        internal static ListenerBase GetListener(IPAddress ip, int port)
         {
-            ListenerTcp tcp;
+            ListenerUdp udp;
             try
             {
-                tcp = new ListenerTcp(ip, port);
+                udp = new ListenerUdp(ip, port);
             }
             catch (Exception e)
             {
                 Utils.Debug.LogError(e.ToString());
                 return null;
             }
-            return tcp;
+            return udp;
         }
     }
 }

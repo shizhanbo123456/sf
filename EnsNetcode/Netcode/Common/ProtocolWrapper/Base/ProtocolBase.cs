@@ -4,11 +4,11 @@ using Utils;
 
 namespace ProtocolWrapper
 {
-    internal abstract class ProtocolBase : Disposable
+    public abstract class ProtocolBase : Disposable
     {
         public string IP;
         public int Port;
-        public SendBuffer SendBuffer;
+        internal SendBuffer SendBuffer;
         /// <summary>
         /// 取出后无需放回字节数组池，均为临时数组
         /// </summary>

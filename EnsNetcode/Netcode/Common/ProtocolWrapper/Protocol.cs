@@ -24,7 +24,9 @@ namespace ProtocolWrapper
         internal static Action OnClientInitialized;
 
         public static ConcurrentType mode=ConcurrentType.Multithreading;
-        public static ProtocolType type;
+        public static ProtocolType defaultProtocol;
+        public static Func<string, int, ProtocolBase> GetClientFunc;
+        public static Func<IPAddress, int, ListenerBase> GetListenerFunc;
 
 
         /// <summary>
@@ -32,10 +34,14 @@ namespace ProtocolWrapper
         /// </summary>
         internal static ProtocolBase GetClient(string ip,int port)
         {
-            switch (type)
+            if(GetClientFunc!=null)
             {
-                case ProtocolType.TCP: return ModuleTcp.GetProtocolBase(ip,port);
-                case ProtocolType.UDP: return ModuleUdp.GetProtocolBase(ip, port);
+                return GetClientFunc(ip, port);
+            }
+            switch (defaultProtocol)
+            {
+                case ProtocolType.TCP: return TransportTcp.GetProtocolBase(ip,port);
+                case ProtocolType.UDP: return TransportUdp.GetProtocolBase(ip, port);
             }
             Utils.Debug.LogError("未注册的协议");
             return null;
@@ -45,10 +51,14 @@ namespace ProtocolWrapper
         /// </summary>
         internal static ListenerBase GetListener(IPAddress ip,int port)
         {
-            switch (type)
+            if (GetListenerFunc != null)
             {
-                case ProtocolType.TCP: return ModuleTcp.GetListener(ip, port);
-                case ProtocolType.UDP: return ModuleUdp.GetListener(ip, port);
+                return GetListenerFunc(ip,port);
+            }
+            switch (defaultProtocol)
+            {
+                case ProtocolType.TCP: return TransportTcp.GetListener(ip, port);
+                case ProtocolType.UDP: return TransportUdp.GetListener(ip, port);
             }
             Utils.Debug.LogError("未注册的协议");
             return null;

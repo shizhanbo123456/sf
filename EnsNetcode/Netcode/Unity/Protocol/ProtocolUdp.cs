@@ -1,11 +1,12 @@
+using ProtocolWrapper.Protocols.Udp;
 using System;
 using System.Net;
 
-namespace ProtocolWrapper.Protocols.Udp
+namespace Ens.DefaultProtocol
 {
-    internal class ModuleUdp
+    public class ProtocolUdp : ProtocolBase
     {
-        public static ProtocolBase GetProtocolBase(string ip, int port)
+        public override ProtocolWrapper.ProtocolBase GetProtocolBase(string ip, int port)
         {
             ClientUdp udp;
             try
@@ -20,7 +21,7 @@ namespace ProtocolWrapper.Protocols.Udp
             }
             return udp;
         }
-        public static ListenerBase GetListener(IPAddress ip, int port)
+        public override ProtocolWrapper.ListenerBase GetListener(IPAddress ip, int port)
         {
             ListenerUdp udp;
             try

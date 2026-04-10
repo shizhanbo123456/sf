@@ -4,7 +4,7 @@ using System.Net;
 
 namespace ProtocolWrapper
 {
-    internal abstract class ListenerBase:Disposable
+    public abstract class ListenerBase:Disposable
     {
         protected IPAddress IP;
         protected int Port;

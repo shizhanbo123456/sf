@@ -18,7 +18,7 @@ public class DedicateServerProgram
     {
         EnsInstance.DisconnectThreshold = DisconnectThreshold;
         EnsInstance.HeartbeatMsgInterval = HeartbeatMsgInterval;
-        ProtocolWrapper.Protocol.type = ProtocolType;
+        ProtocolWrapper.Protocol.defaultProtocol = ProtocolType;
         IPAddress ip = string.IsNullOrEmpty(IP) ? IPAddress.Any : IPAddress.Parse(IP);
         EnsRoomManager.PrintRoomData = PrintRoomData;
 
