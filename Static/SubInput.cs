@@ -43,9 +43,18 @@ public class SubInput : MonoBehaviour
         return dir_tem;
     }
 
+    private float LastJumpTimeRecord=-100;
     public bool JumpSignal()
     {
-        if (InputMode == 0) return Input.GetKeyDown(KeyCode.K);
+        var b= (InputMode == 0)? Input.GetKeyDown(KeyCode.K) : (Jump.GetState()==2);
+        if (b)
+        {
+            if(Time.time-LastJumpTimeRecord>0.3f)
+            {
+                LastJumpTimeRecord = Time.time;
+                return true;
+            }
+        }
         return false;
     }
     public bool FallSignal()
