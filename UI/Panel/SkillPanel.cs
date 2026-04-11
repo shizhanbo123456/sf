@@ -21,7 +21,7 @@ public class SkillPanel : MonoBehaviour
             _base.SetAvailableTime(1);
         }
         Replace();
-        if (Tool.TargetPlatform.Windows == Tool.Instance.Platform)
+        if (Tool.TargetPlatform.PC == Tool.Instance.Platform)
         {
             for (int index = 0; index < Columns.Count; index++)
             {
@@ -51,7 +51,7 @@ public class SkillPanel : MonoBehaviour
     }
     private Transform GetRoot(int index)
     {
-        if (Tool.TargetPlatform.Windows == Tool.Instance.Platform)
+        if (Tool.TargetPlatform.PC == Tool.Instance.Platform)
         {
             return PCRoots[index];
         }

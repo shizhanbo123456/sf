@@ -20,6 +20,7 @@ public class PageManager : MonoBehaviour
         {PageType.Transition,false },
     };
     [Space]
+    public GameObject Minimap;
     public Canvas DynamicCanvas;
     public Canvas StaticCanvas;
     public Text Version;
@@ -32,6 +33,7 @@ public class PageManager : MonoBehaviour
     {
         Tool.PageManager = this;
         Version.text = "v" + Application.version;
+        Minimap.SetActive(false);
 
         PageMap = new Dictionary<PageType, GameObject>()
         {
@@ -59,6 +61,7 @@ public class PageManager : MonoBehaviour
             CreatePage(type);
         }
         Pages[type].gameObject.SetActive(active);
+        if(type==PageType.PlayMode)Minimap.SetActive(active);
     }
     public void PageRepaint(PageType type)
     {

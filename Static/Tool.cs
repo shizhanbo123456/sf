@@ -26,14 +26,14 @@ public class Tool:MonoBehaviour
     public static SceneController SceneController=new SceneController();//生成/摧毁 玩家/场景
 
 
-
+    public Canvas WorldCanvas;
+    [Space]
     public GameObject WindowsUI;
-    public GameObject AndroidUI;
     [Space]
     public string ServerIP = "127.0.0.1";
     public enum TargetPlatform
     {
-        Windows,Android
+        PC,Mobile
     }
     public TargetPlatform Platform;
 
@@ -49,7 +49,7 @@ public class Tool:MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        if (Platform == TargetPlatform.Windows)
+        if (Platform == TargetPlatform.PC)
         {
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;

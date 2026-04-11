@@ -77,7 +77,7 @@ namespace LevelCreator.TargetTemplate
         {
             if (header) return;
             header = Instantiate(Tool.PrefabManager.TargetHeader.gameObject).GetComponent<TargetHeader>();
-            header.transform.SetParent(Tool.SceneController.SingleLevel.Canvas);
+            header.transform.SetParent(Tool.Instance.WorldCanvas.transform);
             headerOffset = SpawnOffset + 1;
         }
         public void SetName(string text, Color color = default)
@@ -144,6 +144,10 @@ namespace LevelCreator.TargetTemplate
         private void Update()
         {
             if (header) header.transform.position = transform.position + Vector3.up * headerOffset;
+        }
+        private void OnDestroy()
+        {
+            if (header!=null&&header.gameObject!=null) Destroy(header.gameObject);
         }
     }
 }

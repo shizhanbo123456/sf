@@ -5,6 +5,7 @@ using static Tool;
 
 public class SubInput : MonoBehaviour
 {
+    [SerializeField] private GameObject InputUI;
     [SerializeField] private ButtonStateable Left;
     [SerializeField] private ButtonStateable Right;
     [SerializeField] private ButtonStateable Jump;
@@ -22,6 +23,10 @@ public class SubInput : MonoBehaviour
     private void Awake()
     {
         Tool.SubInput = this;
+    }
+    private void Start()
+    {
+        InputUI.SetActive(Tool.Instance.Platform == Tool.TargetPlatform.Mobile);
     }
 
     private float time_tem=-10f;
