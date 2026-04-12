@@ -19,13 +19,15 @@ internal class EnsClient:DataTransportBase
         Protocol.OnClientInitialized += OnClientInitialized;
 
         Client = Protocol.GetClient(ip,port);
+        if(KeyLibrary == null) KeyLibrary = new KeyLibrary(Client.SendBuffer, DeliverySource);
 
         _on = true;
     }
     private void OnClientInitialized()
     {
         Protocol.OnClientInitialized -= OnClientInitialized;
-        KeyLibrary = new KeyLibrary(Client.SendBuffer, DeliverySource);
+        //处理GetClient中立即初始化完成的情况，此时Client还未赋值，导致KeyLibrary未实例化
+        if (Client!=null)KeyLibrary = new KeyLibrary(Client.SendBuffer, DeliverySource);
     }
     internal override void Send(byte messageType, Delivery delivery, MessageWriter writer = null)
     {

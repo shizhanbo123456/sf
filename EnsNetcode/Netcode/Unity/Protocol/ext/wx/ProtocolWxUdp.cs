@@ -3,11 +3,16 @@ using ProtocolWrapper.Protocols.WeChatUdp;
 using System;
 using System.Net;
 using UnityEngine;
+using WeChatWASM;
 
 namespace Ens.DefaultProtocol
 {
     public class ProtocolWxUdp : ProtocolBase
     {
+        private void Start()
+        {
+            WX.InitSDK(_=>Debug.Log("初始化完成"));
+        }
         public override ProtocolWrapper.ProtocolBase GetProtocolBase(string ip, int port)
         {
             ClientWeChatUdp client;
