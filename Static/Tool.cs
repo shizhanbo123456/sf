@@ -76,84 +76,93 @@ public class Tool:MonoBehaviour
 
         FileManager.WriteData();
     }
+    public static bool DedicateServerMode;
     public static string GetIP()
     {
-        /*
-        string ipv4 = "";
         try
         {
-            if (Instance.Platform == TargetPlatform.Windows)
+            /*
+            string ipv4 = "";
+            try
             {
-                foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+                if (Instance.Platform == TargetPlatform.Windows)
                 {
-                    NetworkInterfaceType type1 = NetworkInterfaceType.Wireless80211;
-                    NetworkInterfaceType type2 = NetworkInterfaceType.Ethernet;
-                    if ((item.NetworkInterfaceType == type1 || item.NetworkInterfaceType == type2) && item.OperationalStatus == OperationalStatus.Up)
+                    foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
                     {
-                        foreach (var ip in item.GetIPProperties().UnicastAddresses)
+                        NetworkInterfaceType type1 = NetworkInterfaceType.Wireless80211;
+                        NetworkInterfaceType type2 = NetworkInterfaceType.Ethernet;
+                        if ((item.NetworkInterfaceType == type1 || item.NetworkInterfaceType == type2) && item.OperationalStatus == OperationalStatus.Up)
                         {
-                            if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                                ipv4 = ip.Address.ToString();
+                            foreach (var ip in item.GetIPProperties().UnicastAddresses)
+                            {
+                                if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                                    ipv4 = ip.Address.ToString();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ipv4 = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName())
+                        .AddressList.First(f => f.ToString()[1] > '0').ToString();
+                }
+            }
+            catch
+            {
+                ipv4 = "0.0.0.0";
+            }
+            return ipv4;*/
+            List<string> candidateIPs = new List<string>(); // 候选IP列表（私有网段）
+            List<string> hotspotPriorityIPs = new List<string>(); // 热点优先网段IP
+
+            foreach (NetworkInterface networkInterface in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                // 仅处理活跃的、非回环的网络接口
+                if (networkInterface.OperationalStatus != OperationalStatus.Up ||
+                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+                    continue;
+
+                // 遍历接口的所有单播IPv4地址
+                foreach (UnicastIPAddressInformation unicastIP in networkInterface.GetIPProperties().UnicastAddresses)
+                {
+                    if (unicastIP.Address.AddressFamily != AddressFamily.InterNetwork ||
+                        IPAddress.IsLoopback(unicastIP.Address))
+                        continue;
+
+                    string ip = unicastIP.Address.ToString();
+                    // 仅保留私有网段IP（局域网有效）
+                    if (IsPrivateIP(unicastIP.Address))
+                    {
+                        candidateIPs.Add(ip);
+                        // 标记热点常见网段IP（优先选择）
+                        if (IsHotspotCommonSubnet(unicastIP.Address))
+                        {
+                            hotspotPriorityIPs.Add(ip);
                         }
                     }
                 }
             }
-            else
+
+            // 优先返回热点常见网段IP（如果有）
+            if (hotspotPriorityIPs.Count > 0)
             {
-                ipv4 = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName())
-                    .AddressList.First(f => f.ToString()[1] > '0').ToString();
+                return hotspotPriorityIPs[0]; // 取第一个热点网段IP
             }
-        }
-        catch
-        {
-            ipv4 = "0.0.0.0";
-        }
-        return ipv4;*/
-        List<string> candidateIPs = new List<string>(); // 候选IP列表（私有网段）
-        List<string> hotspotPriorityIPs = new List<string>(); // 热点优先网段IP
 
-        foreach (NetworkInterface networkInterface in NetworkInterface.GetAllNetworkInterfaces())
-        {
-            // 仅处理活跃的、非回环的网络接口
-            if (networkInterface.OperationalStatus != OperationalStatus.Up ||
-                networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
-                continue;
-
-            // 遍历接口的所有单播IPv4地址
-            foreach (UnicastIPAddressInformation unicastIP in networkInterface.GetIPProperties().UnicastAddresses)
+            // 若无热点网段IP，返回其他私有网段IP（如果有）
+            if (candidateIPs.Count > 0)
             {
-                if (unicastIP.Address.AddressFamily != AddressFamily.InterNetwork ||
-                    IPAddress.IsLoopback(unicastIP.Address))
-                    continue;
-
-                string ip = unicastIP.Address.ToString();
-                // 仅保留私有网段IP（局域网有效）
-                if (IsPrivateIP(unicastIP.Address))
-                {
-                    candidateIPs.Add(ip);
-                    // 标记热点常见网段IP（优先选择）
-                    if (IsHotspotCommonSubnet(unicastIP.Address))
-                    {
-                        hotspotPriorityIPs.Add(ip);
-                    }
-                }
+                return candidateIPs[0]; // 取第一个有效私有IP
             }
-        }
 
-        // 优先返回热点常见网段IP（如果有）
-        if (hotspotPriorityIPs.Count > 0)
+            // 无可用局域网IP
+            return "127.0.0.1";
+        }
+        catch(Exception ex)
         {
-            return hotspotPriorityIPs[0]; // 取第一个热点网段IP
+            Debug.Log("获取IP出错："+ex.ToString());
+            return "error";
         }
-
-        // 若无热点网段IP，返回其他私有网段IP（如果有）
-        if (candidateIPs.Count > 0)
-        {
-            return candidateIPs[0]; // 取第一个有效私有IP
-        }
-
-        // 无可用局域网IP
-        return "127.0.0.1";
     }
     private static bool IsPrivateIP(IPAddress ip)
     {

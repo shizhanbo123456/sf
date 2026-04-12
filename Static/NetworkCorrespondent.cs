@@ -31,18 +31,28 @@ public partial class NetworkCorrespondent : EnsBehaviour
         //连接后向主机发送新增玩家信息
         EnsInstance.OnJoinRoom += () =>
         {
+            Debug.Log("加入了房间" + EnsInstance.PresentRoomId);
             SendData();
         };
         EnsInstance.OnCreateRoom +=()=>
         {
-            Dictionary<string, string> info = new Dictionary<string, string>()
-            {
-                { "Name","房间名称"},
-                { "State","匹配中"},
-                { "IP",EnsInstance.PresentRoomId==EnsRoomManager.roomIdStart?Tool.GetIP():EnsInstance.PresentRoomId.ToString()},
-            };
-            SetInfo.SendRequest(info);
+            Debug.Log("创建了房间" + EnsInstance.PresentRoomId);
             SendData();
+            try
+            {
+                string ip = Tool.DedicateServerMode ? EnsInstance.PresentRoomId.ToString() : Tool.GetIP();
+                Dictionary<string, string> info = new Dictionary<string, string>()
+                {
+                    { "Name","房间名称"},
+                    { "State","匹配中"},
+                    { "IP",ip},
+                };
+                SetInfo.SendRequest(info);
+            }
+            catch(System.Exception e)
+            {
+                Debug.LogError("设置房间信息请求失败: " + e.Message);
+            }
         };
 
         EnsInstance.OnAuthorityChanged += () => { Debug.Log("权限设置为："+EnsInstance.HasAuthority); };
@@ -68,6 +78,7 @@ public partial class NetworkCorrespondent : EnsBehaviour
             EnsInstance.LocalClientId,
             PlayerInfo.Name
             );
+        Debug.Log("发送了玩家数据");
         CallFuncRpc(RecvData, SendTo.RoomOwner, Delivery.Reliable, player.ToString());
     }
 
