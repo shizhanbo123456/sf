@@ -33,7 +33,6 @@ namespace ProtocolWrapper.Protocols.Udp
             }
             try
             {
-                Utils.Debug.Log(length.ToString());
                 Client.Send(bytes, length,ep);
             }
             catch (Exception)

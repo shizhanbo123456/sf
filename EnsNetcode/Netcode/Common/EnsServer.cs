@@ -9,7 +9,7 @@ public class EnsServer
     internal static EnsServer Instance;
 
     internal Dictionary<int, EnsConnection> ClientConnections;
-    private static List<int>ToRemove= new List<int>();
+    private static CircularQueue<int>ToRemove= new CircularQueue<int>(10);
     internal EnsRoomManager RoomManager;
     internal ListenerBase Listener;
 
@@ -48,7 +48,7 @@ public class EnsServer
         if (!On) return;
         if (conn.room != null) conn.room.Exit(conn);
         //ClientConnections.Remove(conn.ClientId);
-        ToRemove.Add(conn.ClientId);
+        ToRemove.Write(conn.ClientId);
     }
     public void StartListening()
     {
@@ -65,7 +65,7 @@ public class EnsServer
             var i=kvp.Value;
             if (Time.time > i.hbRecvTime)
             {
-                ToRemove.Add(kvp.Key);
+                ToRemove.Write(kvp.Key);
                 continue;
             }
             if (Time.time > i.hbSendTime)
@@ -78,12 +78,12 @@ public class EnsServer
         }
         if (ToRemove.Count > 0)
         {
-            foreach (var i in ToRemove)
+            while(ToRemove.Read(out var connectionIndex))
             {
-                ClientConnections[i].ShutDown();
-                ClientConnections.Remove(i);
+                if (!ClientConnections.ContainsKey(connectionIndex)) continue;
+                ClientConnections[connectionIndex].ShutDown();
+                ClientConnections.Remove(connectionIndex);
             }
-            ToRemove.Clear();
         }
     }
     internal void FlushSendBuffer()

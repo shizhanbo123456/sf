@@ -1,98 +1,93 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Utils;
+﻿using System;
 
-/// <summary>
-/// 可以有效防止同时进行读取和写入
-/// </summary>
 public class CircularQueue<T>
 {
-    private T[] x;
-    private int size = 300;
-
-    private int r;
-    public int ReadIndex
-    {
-        get
-        {
-            return r;
-        }
-        set
-        {
-            r = value;
-            if (r >= size) r %= size;
-        }
-    }
-    private int w;
-    public int WriteIndex
-    {
-        get { return w; }
-        set
-        {
-            w = value;
-            if (w >= size) w %= size;
-        }
-    }
+    private T[] _array;
+    private int _capacity;
+    private int _readIndex;
+    // 写索引
+    private int _writeIndex;
     public int Count { get; private set; }
 
-    public CircularQueue()
+    // 默认容量
+    private const int DefaultCapacity = 300;
+    // 扩容倍数
+    private const int GrowFactor = 2;
+
+    public int ReadIndex => _readIndex;
+    public int WriteIndex => _writeIndex;
+    // 获取当前队列总容量
+    public int Capacity => _capacity;
+
+
+    public CircularQueue() : this(DefaultCapacity) { }
+
+    public CircularQueue(int capacity)
     {
-        x = new T[size];
+        if (capacity <= 0)
+        {
+            throw new System.Exception("capacity must be greater than 0");
+        }
+        _capacity = capacity;
+        _array = new T[_capacity];
+        _readIndex = 0;
+        _writeIndex = 0;
+        Count = 0;
     }
-    public CircularQueue(int size)
-    {
-        this.size= size;
-        x = new T[size];
-    }
-    //返回值表示是否有效
-    public bool Write(T data)
+
+
+
+    public void Write(T data)
     {
         if (Full())
         {
-            Debug.LogError("数据溢出");
-            return false;
+            GrowCapacity();
         }
-        else
-        {
-            x[w] = data;
-            WriteIndex += 1;
-            Count++;
-            return true;
-        }
+
+        _array[_writeIndex] = data;
+        _writeIndex = (_writeIndex + 1) % _capacity;
+        Count++;
     }
-    public bool Read(out T data,bool removeAfterRead=true)//返回表示是否为有效数据
+
+    /// <summary>
+    /// 读取数据，removeAfterRead=true 表示读取后移除元素
+    /// </summary>
+    public bool Read(out T data, bool removeAfterRead = true)
     {
         if (Empty())
         {
             data = default;
             return false;
         }
-        else
+
+        data = _array[_readIndex];
+        if (removeAfterRead)
         {
-            data = x[r];
-            if (removeAfterRead)
-            {
-                x[r] = default;
-                ReadIndex += 1;
-                Count--;
-            }
-            return true;
+            // 清空元素
+            _array[_readIndex] = default;
+            // 读索引自增并取模
+            _readIndex = (_readIndex + 1) % _capacity;
+            Count--;
         }
+        return true;
     }
+
+    /// <summary>
+    /// 移除队首元素
+    /// </summary>
     public bool RemoveNext()
     {
-        if (Empty())
-        {
-            return false;
-        }
-        else
-        {
-            x[r] = default;
-            ReadIndex += 1;
-            Count--;
-            return true;
-        }
+        if (Empty()) return false;
+
+        _array[_readIndex] = default;
+        _readIndex = (_readIndex + 1) % _capacity;
+        Count--;
+        return true;
     }
+
+    /// <summary>
+    /// 获取队首元素（不移除）
+    /// </summary>
     public bool Top(out T data)
     {
         if (Empty())
@@ -100,28 +95,56 @@ public class CircularQueue<T>
             data = default;
             return false;
         }
-        else
+        data = _array[_readIndex];
+        return true;
+    }
+
+    public bool Empty() => Count == 0;
+    public bool Full() => Count == _capacity;
+
+
+    /// <summary>
+    /// 扩容：创建新数组，复制原有数据，重置索引
+    /// </summary>
+    private void GrowCapacity()
+    {
+        // 计算新容量
+        int newCapacity = _capacity * GrowFactor;
+        T[] newArray = new T[newCapacity];
+
+        // 复制环形队列数据到新数组（连续排列）
+        if (Count > 0)
         {
-            data = x[r];
-            return true;
+            if (_readIndex < _writeIndex)
+            {
+                // 连续存储：直接复制
+                System.Array.Copy(_array, _readIndex, newArray, 0, Count);
+            }
+            else
+            {
+                // 环形分段存储：分两段复制
+                int firstPartLength = _capacity - _readIndex;
+                System.Array.Copy(_array, _readIndex, newArray, 0, firstPartLength);
+                System.Array.Copy(_array, 0, newArray, firstPartLength, _writeIndex);
+            }
         }
+
+        // 更新数组、容量、索引
+        _array = newArray;
+        _capacity = newCapacity;
+        _readIndex = 0;
+        _writeIndex = Count;
     }
-    public bool Empty()
-    {
-        return Count == 0;
-    }
-    public bool Full()
-    {
-        return Count == size;
-    }
+
     public T this[int index]
     {
         get
         {
-            if (index >= Count) throw new System.IndexOutOfRangeException();
-            int i = index + r;
-            if (i >= size) i = i % size;
-            return x[i];
+            if (index < 0 || index >= Count)
+                throw new System.IndexOutOfRangeException();
+
+            int actualIndex = (_readIndex + index) % _capacity;
+            return _array[actualIndex];
         }
     }
 }
