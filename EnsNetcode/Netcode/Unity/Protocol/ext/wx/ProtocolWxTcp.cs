@@ -6,11 +6,11 @@ using WeChatWASM;
 
 namespace Ens.DefaultProtocol
 {
-    public class ProtocolWxUdp : ProtocolBase
+    public class ProtocolWxTcp : ProtocolBase
     {
         private void Start()
         {
-            WX.InitSDK(_=>Debug.Log("初始化完成"));
+            WX.InitSDK(_ => Debug.Log("初始化完成"));
         }
         public override ProtocolWrapper.ProtocolBase GetProtocolBase(string ip, int port)
         {
@@ -27,7 +27,7 @@ namespace Ens.DefaultProtocol
             }
             return client;
         }
-        public override ProtocolWrapper.ListenerBase GetListener(IPAddress ip, int port)=>
-            throw new NotImplementedException("不支持Udp服务器");
+        public override ProtocolWrapper.ListenerBase GetListener(IPAddress ip, int port) =>
+            throw new NotImplementedException("不支持Tcp服务器");
     }
 }

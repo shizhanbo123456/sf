@@ -42,7 +42,7 @@ namespace ProtocolWrapper.Protocols.Udp
         }
         protected override void ReleaseUnmanagedMenory()
         {
-            Client.Dispose();
+            Client?.Dispose();
             base.ReleaseUnmanagedMenory();
         }
         protected override void ReleaseManagedMenory()
