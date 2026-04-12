@@ -40,8 +40,11 @@ public class EnsServerEventRegister
         {
             int index = MessageReader.BodyIndexStart(s);
             int invalidIndex=MessageReader.BodyIndexInvalid(s);
-            var d = IntSerializer.Deserialize(b, ref index, invalidIndex);
-            conn.delay = ((int)(Utils.Time.time * 1000) - d) / 2;
+            if (invalidIndex - index >= 4)
+            {
+                var d = IntSerializer.Deserialize(b, ref index, invalidIndex);
+                conn.delay = ((int)(Utils.Time.time * 1000) - d) / 2;
+            }
         });
     }
     protected static void Server_D()

@@ -11,6 +11,8 @@ internal class EnsClient:DataTransportBase
 
     private ProtocolBase Client;
 
+    private float heartbeatSendTime;
+
     protected bool _on;
 
     protected EnsClient(){ }
@@ -44,6 +46,11 @@ internal class EnsClient:DataTransportBase
         {
             EnsInstance.Corr.ShutDown();
             return;
+        }
+        if (Time.time>hbSendTime)
+        {
+            hbSendTime= Time.time+EnsInstance.HeartbeatMsgInterval;
+            Send(Header.H, Delivery.Unreliable);
         }
         if (!Client.Initialized) return;
         var buffer = Client.ReceiveBuffer;
