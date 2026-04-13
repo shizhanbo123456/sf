@@ -30,7 +30,7 @@ public class Notice : MonoBehaviour
         var cg=n.GetComponent<CanvasGroup>();
         if(!cg)cg=n.AddComponent<CanvasGroup>();
         Units.Add(cg);
-        Units[Units.Count-1].GetComponentInChildren<Text>().text = message;
+        Units[Units.Count-1].GetComponent<Text>().text = message;
         SpawnTime.Add(0);
     }
     private void Update()
