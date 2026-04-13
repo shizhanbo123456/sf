@@ -1,14 +1,14 @@
-
-
 # EnsNetcode 轻量级游戏网络框架
 
-**适用范围**：基于 EnsNetcode 实现的局域网 / 远程分房间联机游戏项目
+简易实现的局域网 / 远程分房间联机，以代码生成实现高性能、低 GC 的游戏逻辑网络同步与远程函数调用
 
-**核心定位**：自研轻量级 Unity 游戏网络框架，支持局域网 / 远程联机无缝切换，以代码生成实现高性能、低 GC 的游戏逻辑网络同步与远程函数调用
+支持运行平台、协议替换。代码内已内置了微信小游戏平台的适配代码，支持房间持有信息
+
+内置客户端和服务器延迟计算、时间同步、局域网广播工具、信息校验重传工具、序列化工具
 
 ------
 
-## 框架总览
+## 概述
 
 ###  核心定位
 
@@ -34,44 +34,138 @@ EnsNetcode 是专为 Unity 打造的轻量级游戏网络框架，核心实现**
 
 ------
 
-## 二、核心模块详解
+## 最小可行项目搭建
 
-###  全局入口：EnsInstance
+### 场景搭建
+
+场景中新建一个空物体，挂载EnsSpawner和EnsCorrespondent组件。EnsCorrespondent在Inspector面板中有各种配置，按照实际需求进行调整，最小可行项目直接使用默认即可。
+
+### 脚本
+
+所有需要有网络行为的脚本都需要继承自EnsBehaviour组件，并且标记为partial。未标记partial将无法生成代码
+
+### 管理器
+
+对于创建后不会被销毁的各类管理器，直接将网络行为脚本放入场景，自动初始化时会自动分配网络标识。请确保在非管理器脚本创建之前按照固定的顺序加载管理器脚本，否则不同的客户端标识会错误。
+
+### 网络物体
+
+创建一个网络行为集合脚本，继承自EnsBehaviourCollection，可以重写Init和Respawn方法，在创建/检查存在时会在完成初始化后调用，方便自定义脚本初始化。创建一个预制体，或使用现有预制体，在根物体上添加你的网络集合。将物体中所有的网络脚本拖拽到Collection的Behaviours列表。之后将预制体放入EnsSpawner的预制体列表中。
+
+### 开启联机模式
+
+主机端：在Start之后，调用EnsInstance.Corr.StartHost()，开启Host模式。完成连接后会调用OnServerConnect事件，之后调用CreateRoom请求，创建房间后会调用OnCreateRoom事件。
+
+客户端：在Start之后，调用EnsInstance.Corr.StartClient()，开启Client模式。完成连接后会调用OnServerConnect事件，同时其它客户端会调用OnClientEnter请求，之后调用JoinRoom请求，创建房间后会调用OnJoinRoom事件。
+
+### 运行时创建网络物体
+
+调用EnsInstance.EnsSpawner.CreateServerRpc/RespawnCheckServerRpc，Create会创建新的网络物体并自动分配网络标识，Respawn需要调用方传入网络物体，其它所有房间内客户端会检查物体是否存在，不存在则创建并同步网络标识。
+
+### 运行时调用远程函数
+
+被调用函数需要加[Rpc]标记，无命名要求。参数支持非泛型类型，内置支持0-4个参数，若需要更多参数则在EnsBehaviour中新增对应方法。对于参数T，需要有对应的TSerializer，在生成代码时实现T和bytes的转换。调用实例如下：
+
+```c#
+public void ShowScoreboardRpc(T param)
+{
+    CallFuncRpc(ShowScoreboardLocal, SendTo.Everyone, Delivery.Reliable,param);
+}
+[Rpc]
+private void ShowScoreboardLocal(T param)
+{
+	
+}
+```
+
+c#内置类型和unity常用类型的序列化器，插件内已提供。对于自定义的序列化器，需要包含如下的方法：
+
+```
+public struct TSerializer
+{
+	//返回值表示缓冲区是否有足够的空间
+    public static bool Serialize(T value, byte[] result, ref int indexStart);
+    
+    //index越过invalidIndex时，无法从缓冲区提取出足够的byte来还原T，会报错
+    public static T Deserialize(byte[] data, ref int indexStart,int invalidIndex);
+}
+```
+
+### 代码生成
+
+运行前，需要点击菜单的Ens - Generate Code，会在Scripts/EnsNetcode/Gen中创建生成的代码。若未生成代码即运行会导致无法调用远程函数，导致报错
+
+### 远程服务器
+
+将Netcode下除了Unity以外的文件夹的所有代码移至服务器项目，项目中需要创建EnsDedicateServer，初始化并循环调用即可实现服务器。
+
+------
+
+
+
+## 核心模块
+
+###  EnsInstance
 
 #### 核心功能
 
-框架**唯一全局访问点**，所有核心模块均通过它调用，统一管理全局网络状态、配置、事件回调与异常处理。
+EnsInstance是框架**唯一全局访问点**，所有字段均为static，核心模块均通过它调用，统一管理全局网络状态、配置、事件回调与异常处理。
 
-#### 核心能力
+#### 参数配置
 
-1. 提供 `EnsCorrespondent`、`EnsSpawner` 等核心模块的全局访问入口
-2. 存储全局状态：本地客户端 ID、当前房间 ID、房主权限、网络延迟等
-3. 管理全局配置：心跳间隔、断开连接阈值、消息有效期
-4. 统一注册 / 触发房间操作、网络连接、错误 / 超时事件回调
+```c#
+short LocalClientId = -1;//当前客户端id
+int PresentRoomId = 0;//当前所在房间id
+bool HasAuthority = false;//是否有房主权限
+int LocalClientDelay=20;//客户端相对于服务器的延迟(ms)
 
-#### 访问规范
+bool DevelopmentDebug;//日志中输出更多内容
 
-```csharp
-// 标准访问方式（所有核心模块必须通过此方式调用）
-EnsInstance.Instance.Correspondent  // 获取网络通信模块
-EnsInstance.Instance.Spawner        // 获取网络物体生成模块
+float DisconnectThreshold = 3f;// 上次接收心跳检测时间超过此阈值会认为断开了连接
+float HeartbeatMsgInterval = 0.2f;// 发送心跳检测消息的间隔
+
+float ReliableKeyExistTime = 3f;//关键信息发送生效时长
+float UnconfirmedKeySendInterval = 0.05f;//未确认的关键信息发送间隔
+float ReceiverKeyExistTime = 2f;//对方对关键信息的忽略时长
+float StriveKeySendInterval = 0.05f;
+int StriveKeyResendCount = 3;//尽力传输的
+
+int frameRate;//帧率，需要在Loop中开启
+```
+
+#### 连接事件
+
+```c#
+public static Action OnConnectionRejected;//连接失败/被拒绝
+public static Action OnServerConnect;//本地连接到了Server
+public static Action OnServerDisconnect;//本地和Server断开连接
+public static Action<short> OnClientEnter;//有新用户连接到服务器时触发(新用户自身不调用)
+public static Action<short> OnClientExit;//有用户与服务器断开时调用(断开的用户自身不调用)
+public static Action OnAuthorityChanged;
+```
+
+#### 房间请求事件
+
+通过请求，能够创建房间/加入房间/离开房间/设置房间规则/设置房间信息/获取房间规则/获取房间信息。对应的超时事件报错事件不在此处赘述
+
+```
+Action OnCreateRoom
+Action SetRuleSucceed
+Action OnJoinRoom
+Action<Dictionary<int,string>> OnGetRule
+Action OnExitRoom
+Action<int, List<int>> OnGetRoomList
+Action SetInfoSucceed
+Action<Dictionary<int, string>> OnGetInfo
 ```
 
 ------
 
-### 网络通信核心：EnsCorrespondent
+### EnsCorrespondent
 
 #### 核心功能
 
-框架底层通信核心，负责网络模式管理、连接建立 / 断开、数据收发调度、心跳检测、超时判断。
-
-#### 核心能力
-
-1. 支持三种网络模式：无网络 / 客户端 / 主机（Host，同时作为服务端 + 客户端）
-2. 统一管理局域网 / 远程联机连接逻辑，核心代码复用
-3. 调度数据收发，配合传输层实现有序 / 无序可靠传输
-4. 应用退出时自动释放连接，避免资源泄漏
-5. 心跳检测与自动断开机制，保障连接稳定性
+客户端网络状态管理，Instpector中可配置参数，初始化和更新各模块。
 
 #### 核心方法
 
@@ -81,29 +175,21 @@ EnsInstance.Instance.Spawner        // 获取网络物体生成模块
 
 ------
 
-### 网络物体生成：EnsSpawner
+### EnsSpawner
 
 #### 核心功能
 
-负责所有网络同步物体的**创建、重生、销毁**管理，统一调度物体实例化逻辑。
+负责所有网络同步物体的**创建、检查**管理，统一调度物体实例化逻辑。
 
 #### 核心能力
 
 1. 管理网络物体预制体集合，分配唯一标识
-2. 提供服务端 RPC 生成、本地实例化两套标准流程
-3. 支持物体重生检查，不存在则自动创建
-4. 配合 EnsBehaviour 完成物体 ID 分配与注册
-
-#### 访问方式
-
-```csharp
-// 必须通过全局入口调用
-EnsInstance.Instance.Spawner.CreateServerRpc(...);
-```
+2. 物体创建
+3. 物体检查，不存在则自动创建
 
 ------
 
-###  网络物体基类：EnsBehaviour
+###  EnsBehaviour
 
 #### 核心功能
 
@@ -112,36 +198,9 @@ EnsInstance.Instance.Spawner.CreateServerRpc(...);
 #### 核心特性
 
 1. **泛型方法兼容**：代码生成前使用泛型方法通过编译，生成代码后自动替换为对应参数类型的方法
-2. **低延迟更新**：推荐使用 `ManagedUpdate` 实现同步逻辑
+2. **低延迟更新**：推荐使用 `ManagedUpdate` 实现同步逻辑，在刷新发送缓冲区前一刻进行更新来降低延迟
 3. **RPC 基础封装**：提供远程函数调用底层支持，配合代码生成自动实现
 4. **生命周期管理**：自动分配唯一 ID、注册到网络管理器、销毁时自动注销
-
-#### 关键更新方法（必看）
-
-- `ManagedUpdate()`：
-
-  框架推荐的同步更新方法
-
-  - 执行时机：在**当前帧网络数据发送前一刻**执行
-  - 核心优势：最大化减少与其他客户端的同步延迟，保障多端状态一致性
-
-- **`FixedManagedUpdate()`**：固定时间步的网络同步更新，按需使用
-
-------
-
-###  示例脚本：NetworkCorrespondent
-
-#### 重要说明
-
-**NetworkCorrespondent 不是框架核心模块**，仅作为**使用示例**存在。
-
-作用：标准化展示**如何基于框架实现远程函数调用**，供业务层开发参考。
-
-#### 参考价值
-
-1. 学习远程函数（RPC）的定义、调用、接收标准写法
-2. 参考有序 / 无序传输、可靠传输的选择方式
-3. 业务层开发远程调用时，可直接参照此脚本格式编写
 
 ------
 
@@ -155,30 +214,25 @@ EnsInstance.Instance.Spawner.CreateServerRpc(...);
 
 1. 基于 EnsBehaviour 中的泛型方法，自动生成对应参数类型的实体方法
 2. 自动生成 RPC 调用、序列化 / 反序列化代码，无需手动编写
-3. 保障编译安全，简化网络层开发
 4. 开发者无需修改生成代码，仅需关注业务逻辑
 
 ------
 
-## 核心特性
+## 开发流程
+
+### 远程函数调用
+
+暂不支持调用静态函数，调用带泛型的函数。需要为需要远程调用的函数添加[Rpc]标记
 
 ###  双模式联机：局域网 / 远程分房间
 
-1. **便捷切换**：无需修改业务逻辑，仅修改连接配置即可切换模式
-2. **逻辑复用**：通信、同步、RPC、物体生成等核心逻辑完全复用
-3. **分房间机制**：远程联机支持房间管理，多房间互不干扰。
-4. **局域网房间**：局域网模式相当于只有一个房间，因此**局域网模式下也需要和远程联机一样连接后加入房间**
+1. **便捷切换**：无需修改业务逻辑，仅修改连接配置即可切换模式。通信、同步、RPC、物体生成等核心逻辑完全复用
+3. **分房间机制**：分房间联机时，向所有人发送消息时也只会在房间内广播。
+4. **局域网房间**：**局域网模式下也需要和远程联机一样连接后加入房间**，而不能向有些框架那样局域网直接连接目标Host
 
-###  Roslyn 语义分析 + 动态代码生成
+###  信息校验重传
 
-1. 编译时进行代码语义分析，自动检测网络物体、RPC 方法
-2. 动态生成序列化、RPC 调用、参数传递代码
-3. 开发阶段仅需编写业务代码，底层网络代码自动生成
-4. 无反射、无装箱拆箱，性能接近手写底层代码
-
-###  传输层特性
-
-框架应用层实现三种高性能传输方式，远程调用可自由选择：
+框架应用层实现四种高性能传输方式，远程调用可自由选择：
 
 1.**不可靠传输**：不进行数据校验，传输速度最快
 
@@ -190,104 +244,30 @@ EnsInstance.Instance.Spawner.CreateServerRpc(...);
 
 调用远程函数时，可自由指定使用的传输模式
 
-###  低 GC 性能优
+###  平台、协议扩展
 
-1. 最小化缓冲区复制操作，数据直接写入发送缓冲区
-2. 复用内存对象，避免频繁分配与释放
-3. 适配 Unity 性能要求，适合移动端 / 小游戏平台
+插件本身相当于将游戏逻辑和字节流的转换，连接GamePlay和消息传输模块。因而它支持用任意通信协议，替换底层传输方式，也支持特殊平台适配（如微信小游戏等平台）。内置了TCP和UDP协议，可在EnsCorrespondent中配置。
 
-###  高扩展性
+插件本身**不包含任何异步、多线程代码**，已有的异步、多线程代码只集中在可替换的消息传输模块的TCP、UDP样例。
 
-1. **协议拓展**：支持自定义通信协议，替换底层传输方式
-2. **平台适配**：支持特殊平台适配（如微信小游戏等轻量平台）
-3. **模块化设计**：核心逻辑解耦，可单独替换通信、生成、同步模块
+如果需要自定义消息传输模块，则需要将对应的工厂模式组件挂载在EnsCorrespondent下。开发参考微信小游戏平台的适配。
+
+**由于插件内置了信息传输、校验模块，因而更推荐使用不可靠传输**，使用可靠传输时，会产生重复的消息校验，导致性能和网络不必要的消耗。
 
 ------
 
-## 四、标准开发规范
+## FAQ
 
-### 模块访问规范
+### 局域网模式下，客户端连接后未能检测到客户端加入房间
 
-**所有核心模块必须通过 EnsInstance 全局入口访问**，禁止直接实例化：
+为了减少局域网和远程联机的差异，即使在局域网模式下，也需要加入房间。不仅能减少两种模式的差异，也可以让局域网内有多个房间。模块内提供了广播功能，可以进行局域网房间广播。
 
-```csharp
-// 正确写法
-EnsInstance.Instance.Correspondent.StartHost();
-EnsInstance.Instance.Spawner.CreateLocal(...);
+### 不使用消息校验，使用TCP协议，可以稳定传输吗
 
-// 错误写法（禁止使用）
-var correspondent = new EnsCorrespondent();
-```
+不可以且不推荐。实际测试中，TCP协议并不能实现完全可靠的传输，不能达到作为游戏的通信协议的要求。而且TCP会对所有信息进行校验，无法区分重要消息和不重要消息，延迟也会相应的更高。推荐使用UDP协议，对玩家位置等不重要消息不进行校验，而玩家数据等重要消息需要进行校验。
 
-###  网络物体开发规范
+## 未来功能拓展计划
 
-1. 同步物体必须继承 `EnsBehaviour`
-2. 同步逻辑推荐写在 `ManagedUpdate()` 中（低延迟要求)
-4. 物体生成必须通过 `EnsInstance.Instance.Spawner` 调用
+实现服务器权威的计算。现在只能使用客户端权威或是傀儡客户端来计算。后续计划借助代码生成来自动生成需要在服务器上运行的代码。
 
-### 远程函数调用（RPC）规范
-
-1. 参照 `NetworkCorrespondent` 示例脚本编写
-2. 调用时指定传输类型：有序 / 无序、可靠 / 非可靠
-3. 泛型方法仅用于预编译，最终执行自动生成的实体方法
-
-###  代码生成规范
-
-1. 无需手动修改 `Assets/Scripts/EnsNetcode/Gen` 下的代码
-2. 重新生成代码时，旧文件会自动覆盖
-3. 生成异常时，优先检查子类是否为partial
-
-------
-
-## 核心工作流程
-
-###  框架初始化流
-
-1. 创建物体，挂载 EnsCorrespondent、EnsSpawner 组件
-3. 配置全局网络配置心跳、超时、传输模式，配置网络物体
-4. 等待启动主机 / 客户端连接
-
-###  网络物体同步流程
-
-1. 物体继承 EnsBehaviour，实现 ManagedUpdate
-2. 主机通过 Spawner 发送生成 RPC
-3. 所有客户端接收指令，本地实例化物体
-4. 每帧：执行 ManagedUpdate → 发送网络数据 → 低延迟同步
-
-###  远程函数调用流程
-
-1. 业务层调用 RPC 方法（参照示例）
-2. 框架自动序列化参数，选择传输模式
-3. 发送到服务端 → 广播到目标客户端
-4. 客户端接收 → 反序列化 → 执行本地方法
-
-------
-
-## 注意事项
-
-1. **模块访问**：EnsCorrespondent、EnsSpawner 通过 EnsInstance 访问
-2. **更新方法**：网络物体同步逻辑优先使用 ManagedUpdate，降低跨端延迟
-3. **代码生成**：EnsBehaviour 泛型方法仅用于预编译，最终执行生成后的方法
-4. **生成路径**：自动生成代码固定在 Assets/Scripts/EnsNetcode/Gen，无需手动修改
-5. **传输选择**：根据业务需求选择不可靠 / 尽力交付 / 可靠 / 有序可靠传输
-7. **双模式复用**：局域网 / 远程联机核心逻辑完全复用，客户端仅修改IP配置。
-
-------
-
-## 扩展开发指南
-
-1. **网络物体**：继承 EnsBehaviour，标记为partial，通过Rpc标记记录目标方法，CallFuncRpc远程调用，实现 ManagedUpdate 方法进行更新
-3. **自定义传输协议**：基于框架底层接口ProtocolWrapper，拓展通信协议，或适配特殊平台的信息传输API，适配微信小游戏、原生 APP 等特殊平台
-5. **性能调优**：调整心跳间隔、消息有效期、缓冲区大小，平衡延迟与稳定性
-
-------
-
-## 术语说明
-
-|     术语      |                      含义                      |
-| :-----------: | :--------------------------------------------: |
-|      RPC      |         远程过程调用，跨客户端执行函数         |
-|   Authority   | 房主权限，局域网为Host，远程联机为创建房间的人 |
-| ManagedUpdate |             框架低延迟同步更新方法             |
-|  不可靠传输   |              消息发送后不等待确认              |
-|   可靠传输    |               消息发送后等待确认               |
+现在需要将Action缓存才能实现运行时调用无GC。后续计划将动态代码生成改为织入IL指令表，完全消除远程函数调用的GC。
