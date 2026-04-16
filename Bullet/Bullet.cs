@@ -58,7 +58,7 @@ public class Bullet : MonoBehaviour
         if (ReleaseBulletSystemReference == null) Debug.LogError("δ�ڹ켣ϵͳע��");
         Shooter = BulletSystemCommon.CurrentShooter;
 
-        SpriteManager.ColorType ct = liftStoicLevel == 2 ||!Effects.IsEmpty()?
+        SpriteManager.ColorType ct = liftStoicLevel == 1 ||!Effects.IsEmpty()?
             SpriteManager.ColorType.BulletSpecial:
             SpriteManager.ColorType.BulletCommon;
         particleController.ChangeColor(Tool.SpriteManager.TargetToColor(Shooter.Camp,ct));

@@ -17,7 +17,7 @@ public class SkillPanel : MonoBehaviour
             GameObject obj = Instantiate(Tool.PrefabManager.SkillColumn);
             var _base = obj.GetComponent<SkillColumn>();
             Columns.Add(_base);
-            _base.SetSprite(Tool.SpriteManager.GetSprite(s.sprite));
+            _base.SetSprite(Tool.SpriteManager.GetSprite(s.icon));
             _base.SetAvailableTime(1);
         }
         Replace();

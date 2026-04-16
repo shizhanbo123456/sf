@@ -932,7 +932,7 @@ namespace AttributeSystem.DataOrientedEffects
                     {
                         var t = key.GetReceiver();
                         t.Interrupt();
-                        t.ApplyMotion(new(MotionIdCalculater.GetStaticId(0.3f,0)));
+                        t.ApplyMotion(new(MotionIdCalculator.GetStaticId(0.3f,0)));
                         var p = Effects[key];
                         Temp.Add(key,new Paralysis() { interval = p.interval, endTime = p.endTime, nextUpdateTime = Time.time + 1 });
                     }

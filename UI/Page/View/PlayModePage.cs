@@ -83,7 +83,7 @@ public class PlayModePage : BasePage
             var info = Tool.LevelCreatorManager.GetSkillInfo(ids[i]);
             SkillInfos[i].gameObject.SetActive(true);
             SkillInfos[i].GetChild(0).GetComponent<Text>().text = info.name;
-            SkillInfos[i].GetChild(1).GetComponent<Image>().sprite = Tool.SpriteManager.GetSprite(info.sprite);
+            SkillInfos[i].GetChild(1).GetComponent<Image>().sprite = Tool.SpriteManager.GetSprite(info.icon);
             SkillInfos[i].GetChild(2).GetComponent<Text>().text = info.des;
         }
         return columns;
