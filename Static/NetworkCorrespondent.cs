@@ -243,6 +243,68 @@ public partial class NetworkCorrespondent : EnsBehaviour
         LevelCreator.CustomLevel.Select(clientId, index);
     }
 
+
+    public void TeleportCommandRpc(Dictionary<int,Target> targets, float x, float y)
+    {
+        CallFuncRpc(TeleportCommandLocal, SendTo.Everyone, Delivery.Strive, Format.ListToString(targets, t =>t.Key.ToString()), x, y);
+    }
+    private void TeleportCommandLocal(string msg, float x, float y)
+    {
+        var id = Format.StringToArray(msg, int.Parse);
+        foreach (var i in id)
+        {
+            if (Tool.SceneController.FlattenTargets.TryGetValue(i, out var target))
+                target.transform.position = new UnityEngine.Vector3(x, y);
+        }
+    }
+    public void AddEffectCommandRpc(Dictionary<int, Target> targets, ushort id)
+    {
+        CallFuncRpc(AddEffectCommandLocal, SendTo.Everyone, Delivery.Strive, Format.ListToString(targets, t => t.Key.ToString()), id);
+    }
+    private void AddEffectCommandLocal(string msg, ushort id)
+    {
+        var idArray = Format.StringToArray(msg, int.Parse);
+        foreach (var i in idArray)
+        {
+            if (Tool.SceneController.FlattenTargets.TryGetValue(i, out var target))
+            {
+                if (!target.UpdateLocally) continue;
+                target.ApplyEffect(new AttributeSystem.Effect.EffectCollection(Target.LuaEffectId, Tool.LevelCreatorManager.GetEffectInfo(id).effects?.ToArray()));
+            }
+        }
+    }
+    public void DoOperationCommandRpc(Dictionary<int, Target> targets, ushort id)
+    {
+        CallFuncRpc(DoOperationCommandLocal, SendTo.Everyone, Delivery.Strive, Format.ListToString(targets, t => t.Key.ToString()), id);
+    }
+    private void DoOperationCommandLocal(string msg, ushort id)
+    {
+        var idArray = Format.StringToArray(msg, int.Parse);
+        foreach (var i in idArray)
+        {
+            if (Tool.SceneController.FlattenTargets.TryGetValue(i, out var target))
+            {
+                LevelCreator.Executer.OperationExecuter.Execute(id, 0, target);
+            }
+        }
+    }
+    public void DamageCommandRpc(Dictionary<int, Target> targets, int value)
+    {
+        CallFuncRpc(DamageCommandLocal, SendTo.Everyone, Delivery.Strive, Format.ListToString(targets, t => t.Key.ToString()), value);
+    }
+    private void DamageCommandLocal(string msg, int value)
+    {
+        var idArray = Format.StringToArray(msg, int.Parse);
+        foreach (var i in idArray)
+        {
+            if (Tool.SceneController.FlattenTargets.TryGetValue(i, out var target))
+            {
+                if (!target.UpdateLocally) continue;
+                target.Damaged(null, value);
+            }
+        }
+    }
+
     public void TargetKilledRpc(Target killer,Target killed)
     {
         if (killed == null)
