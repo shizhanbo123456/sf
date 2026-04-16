@@ -113,6 +113,18 @@ public class Level : SingleLevel
             Vector2 areaSize = new Vector2(xmax - xmin + 1, ymax - ymin + 1);
             Gizmos.DrawWireCube(center, areaSize);
         }
+
+        Gizmos.color = Color.white;
+        foreach(var checkPoint in info.checkPoints)
+        {
+            Gizmos.DrawWireCube(new Vector3(checkPoint.x+0.5f, checkPoint.y+0.5f, 0), Vector3.one);
+        }
+
+        Gizmos.color = Color.gray;
+        foreach (var selectablePoint in info.selectablePoints)
+        {
+            Gizmos.DrawWireCube(new Vector3(selectablePoint.x + 0.5f, selectablePoint.y + 0.5f, 0), Vector3.one);
+        }
     }
     public void Init(LandscapeInfo info)
     {
@@ -332,14 +344,14 @@ public class Level : SingleLevel
         foreach (var i in info.checkPoints)
         {
             map[i.y][i.x] = 0x07;
-            InteractableTargetIndexMap.Add(new(i.x,i.y), count);
+            InteractableTargetInfoMap.Add(new(i.x,i.y), count);
             count++;
         }
         count = 0;
         foreach (var i in info.selectablePoints)
         {
             map[i.y][i.x] = 0x08;
-            InteractableTargetIndexMap.Add(new(i.x, i.y), count);
+            InteractableTargetInfoMap.Add(new(i.x, i.y), count);
             count++;
         }
     }
@@ -581,7 +593,7 @@ public class Level : SingleLevel
                     {
                         if (map[y][x] == 0x07)
                         {
-                            InCheckPointAreaBuffer.Add((t.ObjectId, InteractableTargetInfoMap[new(x, y)]));
+                            InCheckPointAreaBuffer.Add((t.ObjectId, info.checkPoints[InteractableTargetInfoMap[new(x, y)]].id));
                         }
                     }
                 }
@@ -595,7 +607,7 @@ public class Level : SingleLevel
             for (int i = 0; i < SelectablePoints.Count; i++)
             {
                 GameObject p = SelectablePoints[i];
-                var pos = main.WorldToScreenPoint(p.transform.position);
+                var pos = main.WorldToScreenPoint(p.transform.position+Vector3.up*1.5f);
                 buttons[i].transform.position = pos;
             }
         }
@@ -654,6 +666,7 @@ public class Level : SingleLevel
     private void TrampolineJump(Target t, int x,int y)
     {
         var pos = new Vector2Int(x, y);
+        if (t.controller != null && t.UpdateLocally) t.controller.SetResistance(0.01f, false);
         Trampolines[InteractableTargetIndexMap[pos]].SetTrigger("Anim");//跳板动画
         t.rb.velocity = new(t.rb.velocity.x, info.trampolines[InteractableTargetInfoMap[pos]].velocity);
     }
@@ -676,7 +689,10 @@ public class Level : SingleLevel
     {
         foreach(var i in InCheckPointAreaBuffer)
         {
-            if (!InCheckPointArea.Contains(i)) CustomLevel.EnterCheckPoint(i.Item1, i.Item2);
+            if (!InCheckPointArea.Contains(i))
+            {
+                CustomLevel.EnterCheckPoint(i.Item1, i.Item2);
+            }
         }
 
         InCheckPointArea.Clear();
@@ -685,7 +701,7 @@ public class Level : SingleLevel
     }
     private void SelectablePointClicked(int x)
     {
-        Tool.NetworkCorrespondent.SelectablePointClickedRpc(x);
+        Tool.NetworkCorrespondent.SelectablePointClickedRpc(info.selectablePoints[x].id);
     }
 
     public Vector3 GetPos(float x,float y)
@@ -705,6 +721,7 @@ public class Level : SingleLevel
 
     private void OnDestroy()
     {
+        PlayModeController.Instance.ClickablePointActiveFor(0, SelectablePointClicked);
         RestructBrokenPlatformOfId.Clear();
 
         foreach (var i in LevitatingPlatforms)if(i) Tool.PrefabManager.LevitatingPlatformPool.Release(i);

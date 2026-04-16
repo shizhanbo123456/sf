@@ -23,6 +23,7 @@ public class SelectionPanel:MonoBehaviour
     }
     public void ShowPanel(Action<int>onConfirm,string label, string[] selections)
     {
+        Debug.Log("显示选择面板");
         gameObject.SetActive(true);
         selected = -1;
         SelectionLabel.text = label;
@@ -40,7 +41,7 @@ public class SelectionPanel:MonoBehaviour
             if (i < selections.Length)
             {
                 Selections[i].gameObject.SetActive(true);
-                Selections[i].transform.GetChild(0).GetComponent<Text>().text = selections[i];
+                Selections[i].transform.GetComponent<Text>().text = selections[i];
             }
             else
             {

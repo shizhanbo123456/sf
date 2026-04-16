@@ -76,6 +76,10 @@ public class ExecutionBuilder
         LandscapeBuilder.CreateTrampoline(leftX,leftY,width,velocity);
     public static void CreateSpike(byte point1X, byte point1Y, byte point2X, byte point2Y, int damage)=>
         LandscapeBuilder.CreateSpike(point1X,point1Y,point2X,point2Y, damage);//会自动辨认哪些位置下方是地面，并只在那些位置生成
+    public static void CreateCheckPoint(byte x, byte y, byte id)=>
+        LandscapeBuilder.CreateCheckPoint(x, y, id);
+    public static void CreateSelectablePoint(byte x, byte y, byte id)=>
+        LandscapeBuilder.CreateSelectablePoint(x, y, id);
     public static void UploadLandscape() => LandscapeBuilder.Upload();
 
 

@@ -60,6 +60,8 @@ public class ExecutionBuilder
     public static void CreateFanWindArea(byte point1x, byte point1y, byte point2x, byte point2y, byte velocity);
     public static void CreateTrampoline(byte leftX, byte leftY, byte width, byte velocity);
     public static void CreateSpike(byte point1X, byte point1Y, byte point2X, byte point2Y, int damage);;//会自动辨认哪些位置下方是地面，并只在那些位置生成
+    public static void CreateCheckPoint(byte x, byte y, byte id);//玩家靠近触发回调函数
+    public static void CreateSelectablePoint(byte x, byte y, byte id);//玩家在屏幕上点击触发回调函数
     public static void UploadLandscape();
 
 

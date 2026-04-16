@@ -62,7 +62,7 @@ namespace LevelCreator
                 TargetKilledFunction = luaEnv.Global.Get<LuaFunction>("TargetKilled");
                 SelectFunction = luaEnv.Global.Get<LuaFunction>("Select");
                 EnterCheckPointFunction = luaEnv.Global.Get<LuaFunction>("EnterCheckPoint");
-                SelectablePointClickedFunction = luaEnv.Global.Get<LuaFunction>("SelctablePointClicked");
+                SelectablePointClickedFunction = luaEnv.Global.Get<LuaFunction>("SelectablePointClicked");
                 KillScoreFunction = luaEnv.Global.Get<LuaFunction>("KillScore");
                 TimeScoreFunction = luaEnv.Global.Get<LuaFunction>("TimeScore");
                 ModeScoreFunction = luaEnv.Global.Get<LuaFunction>("ModeScore");

@@ -240,7 +240,7 @@ public partial class NetworkCorrespondent : EnsBehaviour
     [Rpc]
     private void SelectablePointClickedLocal(short clientId, int index)
     {
-        LevelCreator.CustomLevel.Select(clientId, index);
+        LevelCreator.CustomLevel.SelectablePointClicked(clientId, index);
     }
 
 
