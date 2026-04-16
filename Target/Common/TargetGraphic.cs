@@ -141,6 +141,16 @@ namespace LevelCreator.TargetTemplate
                 }
             }
         }
+        public void SetAsInvisiable()
+        {
+            if (TryGetComponent(out SpriteRenderer sr)) Destroy(sr);
+            for(int i=0;i<transform.childCount;i++)
+            {
+                Destroy(transform.GetChild(i));
+            }
+            if (!header) InitHeader();
+            header.gameObject.SetActive(false);
+        }
         private void Update()
         {
             if (header) header.transform.position = transform.position + Vector3.up * headerOffset;

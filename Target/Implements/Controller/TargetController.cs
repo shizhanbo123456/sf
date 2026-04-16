@@ -181,12 +181,12 @@ namespace LevelCreator.TargetTemplate
             {
                 if (!c.MotionEntered)
                 {
-                    c.rb.velocity = c.Motion.Entry(c.rb.velocity);
+                    c.rb.velocity = c.Motion.Entry(c.rb.velocity, c.target.FaceRight);
                     c.MotionEntered = true;
                 }
                 else if (c.Motion.SpawnTime > c.Motion.workTime)
                 {
-                    c.rb.velocity = c.Motion.Exit(c.rb.velocity);
+                    c.rb.velocity = c.Motion.Exit(c.rb.velocity, c.target.FaceRight);
                     c.Motion = new();
                     if (c.Resistance < 0)
                     {
@@ -197,7 +197,7 @@ namespace LevelCreator.TargetTemplate
                 }
                 else
                 {
-                    c.rb.velocity = c.Motion.GetVelocity(c.rb.velocity);
+                    c.rb.velocity = c.Motion.GetVelocity(c.rb.velocity,c.target.FaceRight);
                 }
             }
             public override void Exit(TargetController controller)
@@ -297,11 +297,11 @@ namespace LevelCreator.TargetTemplate
             int hitbackResist = target.FloatingAttributes.Kangjitui.Value;
             if (Resistance < 0) hitbackResist = 0;
             else if (!Motion.IsNull) hitbackResist = Mathf.Max(hitbackResist, Motion.stoicLevel);
-            if (b.liftStoicLevel > hitbackResist)
+            if (b.liftStoicLevel >= hitbackResist)
             {
                 if (!Motion.IsNull)
                 {
-                    Motion.Exit(rb.velocity);
+                    Motion.Exit(rb.velocity, target.FaceRight);
                     Motion = new();
                 }
                 target.TimeLineWork.Interrupted();
@@ -346,7 +346,7 @@ namespace LevelCreator.TargetTemplate
             }
             else
             {
-                rb.velocity = Motion.Exit(rb.velocity);
+                rb.velocity = Motion.Exit(rb.velocity, target.FaceRight);
                 Motion = m;
             }
             SwitchState(InMotion.Instance);

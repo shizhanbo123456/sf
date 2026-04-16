@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace LevelCreator.TargetTemplate
 {
-    public class PlayerData : Target
+    public class PlayerTarget : Target
     {
         public bool isLocalPlayer => FightController.localPlayerId == Owner;
         public override bool UpdateLocally => isLocalPlayer;
@@ -20,6 +20,8 @@ namespace LevelCreator.TargetTemplate
             {
                 float healthRate = param.ContainsKey(TargetParams.HealthScale) ? float.Parse(param[TargetParams.HealthScale]) : 1;
                 BaseAttributes = TargetAttributes.GetGameTimeAttributes(Level, healthRate);
+                if (param.TryGetValue(TargetParams.DefaultResistance, out string str) && int.TryParse(str, out int resistance))
+                    BaseAttributes.Kangjitui.Value = resistance;
                 FloatingAttributes = BaseAttributes.Clone();
                 float reg = 0.01f;
                 if (param.ContainsKey(TargetParams.RegenerationRate)) reg = float.Parse(param[TargetParams.RegenerationRate]);

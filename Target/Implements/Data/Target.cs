@@ -13,7 +13,7 @@ namespace LevelCreator.TargetTemplate
     public abstract partial class Target : MonoBehaviour
     {
         public const int RegenerationAdderId = -10000;
-        public const int SceneEffectId = -10001;
+        public const int LuaEffectId = -10001;
 
         public int ObjectId => targetDataSync.ObjectId % 10000;
 

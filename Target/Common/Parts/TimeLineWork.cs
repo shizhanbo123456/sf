@@ -46,11 +46,15 @@ public class TimeLineWork : MonoBehaviour
     }
     private void UpdateForList<T>(List<(uint, T)> list) where T : ITimelineActor
     {
-        var first = list[0];
-        if (Time.time * 1000 > first.Item1)
+        while (list.Count > 0)
         {
-            first.Item2.Act(target);
-            list.RemoveAt(0);
+            var current = list[0];
+            if (Time.time * 1000 > current.Item1)
+            {
+                current.Item2.Act(target);
+                list.RemoveAt(0);
+            }
+            else break;
         }
     }
     public void Interrupted()

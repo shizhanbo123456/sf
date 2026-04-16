@@ -12,7 +12,7 @@ namespace LevelCreator.TargetTemplate
         public override void Init(Target data, Dictionary<TargetParams, string> param)
         {
             base.Init(data, param);
-            if (param.ContainsKey(TargetParams.MonsterSkillCD)) interval = float.Parse(param[TargetParams.MonsterSkillCD]);
+            if (param.ContainsKey(TargetParams.AutoSkillCD)) interval = float.Parse(param[TargetParams.AutoSkillCD]);
             else interval = 5f;
         }
         protected override void Update()
