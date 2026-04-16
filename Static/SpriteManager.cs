@@ -10,9 +10,7 @@ public class SpriteManager : MonoBehaviour
     {
         Tool.SpriteManager = this;
     }
-    public List<Sprite>SkillPackageA=new List<Sprite>();
-    public List<Sprite>SkillPackageB=new List<Sprite>();
-    public List<Sprite>SkillPackageC=new List<Sprite>();
+    public List<Sprite>SkillIcons=new List<Sprite>();
     [Space]
     [SerializeField] private EffectType effects;
     public List<Sprite> EffectIcons;
@@ -25,16 +23,9 @@ public class SpriteManager : MonoBehaviour
     {
         Name,BulletCommon,BulletSpecial
     }
-    public Sprite GetSprite(Vector2Int v)
+    public Sprite GetSprite(int id)
     {
-        switch (v.x)
-        {
-            case 0:return SkillPackageA[v.y];
-            case 1:return SkillPackageB[v.y];
-            case 2:return SkillPackageC[v.y];
-        }
-        Debug.LogError("未找到图片："+v);
-        return null;
+        return SkillIcons[id];
     }
     public Color TargetToColor(int camp,ColorType type=ColorType.Name)
     {
