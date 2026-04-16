@@ -17,6 +17,7 @@ public class Level : SingleLevel
 
     private static Transform TileRoot;
     private static Transform Traps;
+    private static Transform Colliders;
     private static List<ObjectPool<Transform>> TilePools=new();
 
     //可交互的物体
@@ -132,6 +133,7 @@ public class Level : SingleLevel
             }
         }
         if (Traps == null) Traps = new GameObject("Traps").transform;
+        if (Colliders == null) Colliders = new GameObject("Colliders").transform;
 
         DrawLandscape();
     }
@@ -156,12 +158,14 @@ public class Level : SingleLevel
                 else if (map[ypos][xpos] == 0x02)
                 {
                     var obj = Tool.PrefabManager.LevitatingPlatformPool.Get();
+                    obj.transform.SetParent(Traps);
                     LevitatingPlatforms.Add(obj);
                     obj.transform.position = new Vector3(xpos, ypos);
                 }
                 else if (map[ypos][xpos] == 0x03)
                 {
                     var obj = Tool.PrefabManager.BrokenPlatformPool.Get();
+                    obj.transform.SetParent(Traps);
                     BrokenPlatforms.Add(obj);
                     obj.transform.position = new Vector3(xpos, ypos);
                     InteractableTargetIndexMap.Add(new(xpos, ypos), BrokenPlatforms.Count - 1);
@@ -176,6 +180,7 @@ public class Level : SingleLevel
                 else if (map[ypos][xpos] == 0x05)
                 {
                     var obj = Tool.PrefabManager.TrampolinePool.Get();
+                    obj.transform.SetParent(Traps);
                     Trampolines.Add(obj.GetComponent<Animator>());
                     obj.transform.position = new Vector3(xpos, ypos);
                     InteractableTargetIndexMap.Add(new(xpos, ypos), Trampolines.Count - 1);
@@ -183,6 +188,7 @@ public class Level : SingleLevel
                 else if (map[ypos][xpos] == 0x06)
                 {
                     var obj = Tool.PrefabManager.SpikePool.Get();
+                    obj.transform.SetParent(Traps);
                     Spikes.Add(obj);
                     obj.transform.position = new Vector3(xpos, ypos);
                     InteractableTargetIndexMap.Add(new(xpos, ypos), Spikes.Count - 1);
@@ -190,6 +196,7 @@ public class Level : SingleLevel
                 else if (map[ypos][xpos] == 0x07)
                 {
                     var obj = Tool.PrefabManager.CheckPointPool.Get();
+                    obj.transform.SetParent(Traps);
                     CheckPoints.Add(obj);
                     obj.transform.position = new Vector3(xpos, ypos);
                     InteractableTargetIndexMap.Add(new(xpos, ypos), CheckPoints.Count - 1);
@@ -197,6 +204,7 @@ public class Level : SingleLevel
                 else if (map[ypos][xpos] == 0x08)
                 {
                     var obj = Tool.PrefabManager.SelectablePointPool.Get();
+                    obj.transform.SetParent(Traps);
                     SelectablePoints.Add(obj);
                     obj.transform.position = new Vector3(xpos, ypos);
                     InteractableTargetIndexMap.Add(new(xpos, ypos), SelectablePoints.Count - 1);
@@ -206,6 +214,7 @@ public class Level : SingleLevel
         foreach(var i in info.windAreas)
         {
             var obj = Tool.PrefabManager.WindPool.Get();
+            obj.transform.SetParent(Traps);
             WindAreas.Add(obj);
             obj.transform.position = new Vector3((i.point1X + i.point2X) * 0.5f + 0.5f, (i.point1Y + i.point2Y) * 0.5f + 0.5f);
             obj.transform.localScale = new Vector3(i.point2X - i.point1X + 1, i.point2Y - i.point1Y + 1,1);
@@ -222,6 +231,7 @@ public class Level : SingleLevel
         foreach (var i in info.solidLands)
         {
             var collider=Tool.PrefabManager.TileColliderPool.Get().GetComponent<BoxCollider2D>();
+            collider.transform.SetParent(Colliders);
             collider.transform.position = new Vector3((i.point1X + i.point2X) * 0.5f+0.5f, (i.point1Y + i.point2Y) * 0.5f+0.5f);
             collider.size = new Vector2(Mathf.Abs(i.point1X - i.point2X) + 1, Mathf.Abs(i.point1Y - i.point2Y) + 1);
             SolidLandColliders.Add(collider);
@@ -229,14 +239,16 @@ public class Level : SingleLevel
         foreach (var i in info.levitatingPlatforms)
         {
             var collider = Tool.PrefabManager.PlatformColliderPool.Get().GetComponent<BoxCollider2D>();
-            collider.transform.position = new Vector3(i.leftX+i.width * 0.5f, i.leftY+ 0.9f);
+            collider.transform.SetParent(Colliders);
+            collider.transform.position = new Vector3(i.leftX+i.width * 0.5f, i.leftY+ 0.7f);
             collider.size = new Vector2(i.width, collider.size.y);
             LevitatingPlatformColliders.Add(collider);
         }
         foreach (var i in info.brokenPlatforms)
         {
             var collider = Tool.PrefabManager.PlatformColliderPool.Get().GetComponent<BoxCollider2D>();
-            collider.transform.position = new Vector3(i.leftX + i.width * 0.5f, i.leftY + 0.9f);
+            collider.transform.SetParent(Colliders);
+            collider.transform.position = new Vector3(i.leftX + i.width * 0.5f, i.leftY + 0.7f);
             collider.size = new Vector2(i.width, collider.size.y);
             BrokenPlatformColliders.Add(collider);
         }
@@ -510,14 +522,14 @@ public class Level : SingleLevel
             }
             p2 = new(p2.x - 1, p2.y - 1);
             //破损平台
-            if (p1.y != 0&&t.rb.velocity.y<-5)
+            if (p1.y != 0&&t.rb.velocity.y<-10)
             {
                 for (int x = p1.x; x <= p2.x; x++)
                 {
                     int y = p1.y;
-                    if (map[y-1][x] == 0x03)
+                    if (map[y][x] == 0x03)
                     {
-                        BreakPlatformAtPos(x, y - 1);
+                        BreakPlatformAtPos(x, y);
                         break;
                     }
                 }
