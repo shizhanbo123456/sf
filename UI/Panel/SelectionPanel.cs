@@ -20,10 +20,13 @@ public class SelectionPanel:MonoBehaviour
     private void OnSelect(int x)
     {
         selected = x;
+        for (int i = 0; i < Selections.Count; i++)
+        {
+            Selections[i].targetGraphic.color = x == i ? Color.yellow : Color.gray;
+        }
     }
     public void ShowPanel(Action<int>onConfirm,string label, string[] selections)
     {
-        Debug.Log("显示选择面板");
         gameObject.SetActive(true);
         selected = -1;
         SelectionLabel.text = label;
@@ -48,6 +51,7 @@ public class SelectionPanel:MonoBehaviour
                 Selections[i].gameObject.SetActive(false);
             }
         }
+        OnSelect(0);
     }
     public void HidePanel()
     {
