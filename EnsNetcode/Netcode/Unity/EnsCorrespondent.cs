@@ -31,6 +31,11 @@ public class EnsCorrespondent :MonoBehaviour
     [Tooltip("How long will you ignore key messages after confirmed")]
     public float RKeyExistTime = 5f;//返回的关键信息忽略时长
 
+    [Tooltip("The interval of strive keys to send")]
+    public float StriveKeySendInterval = 0.01f;
+    [Tooltip("How many times to resend strive keys")]
+    public int StriveKeyResendCount = 3;
+
     [Space]
     public bool DevelopmentDebug = true;
 
@@ -79,6 +84,8 @@ public class EnsCorrespondent :MonoBehaviour
 
         EnsInstance.DisconnectThreshold = DisconnectThreshold;
         EnsInstance.HeartbeatMsgInterval = HeartbeatMsgInterval;
+        EnsInstance.StriveKeySendInterval = StriveKeySendInterval;
+        EnsInstance.StriveKeyResendCount = StriveKeyResendCount;
 
         ProtocolWrapper.Protocol.mode = recvMode;
         ProtocolWrapper.Protocol.defaultProtocol = defaultProtocol;

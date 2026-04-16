@@ -24,7 +24,7 @@ public class EnsInstance
     public static float ReliableKeyExistTime = 3f;//关键信息发送生效时长
     public static float UnconfirmedKeySendInterval = 0.05f;//未确认的关键信息发送间隔
     public static float ReceiverKeyExistTime = 2f;//对方对关键信息的忽略时长
-    public static float StriveKeySendInterval = 0.05f;
+    public static float StriveKeySendInterval = 0.01f;
     public static int StriveKeyResendCount = 3;
 
     public static int frameRate;
