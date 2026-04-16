@@ -1,4 +1,5 @@
 using System;
+
 namespace LevelCreator
 {
     /// <summary>
@@ -12,8 +13,8 @@ namespace LevelCreator
         private static float _radius;
         private static float _lifeTime;
         private static float _rate;
-        private static int _liftstoiclevel;
-        private static float _hitbackForce;
+        private static byte _liftStoiclevel;
+        private static float _hitBackForce;
         private static ushort _effect;
 
         /// <summary>
@@ -33,16 +34,16 @@ namespace LevelCreator
             float radius,
             float lifeTime,
             float rate,
-            int liftstoiclevel = 1,
+            byte liftstoiclevel = 1,
             float hitbackForce = 0f,
-            ushort effect=0)
+            ushort effect = 0)
         {
-            _graphicType=graphicType;
+            _graphicType = graphicType;
             _radius = radius;
             _lifeTime = lifeTime;
             _rate = rate;
-            _liftstoiclevel = liftstoiclevel;
-            _hitbackForce = hitbackForce;
+            _liftStoiclevel = liftstoiclevel;
+            _hitBackForce = hitbackForce;
             _effect = effect;
         }
 
@@ -57,8 +58,8 @@ namespace LevelCreator
                 _radius,
                 _lifeTime,
                 _rate,
-                _liftstoiclevel,
-                _hitbackForce,
+                _liftStoiclevel,
+                _hitBackForce,
                 _effect
             );
             Tool.LevelCreatorManager.LoadInfo(info);
@@ -74,8 +75,8 @@ namespace LevelCreator
             _radius = 0f;
             _lifeTime = 0f;
             _rate = 0f;
-            _liftstoiclevel = 0;
-            _hitbackForce = 0f;
+            _liftStoiclevel = 0;
+            _hitBackForce = 0f;
             _effect = 0;
         }
     }
@@ -90,19 +91,19 @@ namespace LevelCreator
         public float radius;
         public float lifeTime;
         public float rate;
-        public int liftstoiclevel;
-        public float hitbackForce;
+        public byte liftStoicLevel;
+        public float hitBackForce;
         public ushort effect;
 
-        public BulletInfo(ushort id, int graphicType, float radius, float lifeTime, float rate, int liftstoiclevel, float hitbackForce,ushort effect)
+        public BulletInfo(ushort id, int graphicType, float radius, float lifeTime, float rate, byte liftStoicLevel, float hitBackForce, ushort effect)
         {
             this.id = id;
             this.graphicType = graphicType;
             this.radius = radius;
             this.lifeTime = lifeTime;
             this.rate = rate;
-            this.liftstoiclevel = liftstoiclevel;
-            this.hitbackForce = hitbackForce;
+            this.liftStoicLevel = liftStoicLevel;
+            this.hitBackForce = hitBackForce;
             this.effect = effect;
         }
     }
@@ -119,8 +120,8 @@ namespace LevelCreator
             if (!FloatSerializer.Serialize(value.radius, result, ref indexStart)) return false;
             if (!FloatSerializer.Serialize(value.lifeTime, result, ref indexStart)) return false;
             if (!FloatSerializer.Serialize(value.rate, result, ref indexStart)) return false;
-            if (!IntSerializer.Serialize(value.liftstoiclevel, result, ref indexStart)) return false;
-            if (!FloatSerializer.Serialize(value.hitbackForce, result, ref indexStart)) return false;
+            if (!ByteSerializer.Serialize(value.liftStoicLevel, result, ref indexStart)) return false;
+            if (!FloatSerializer.Serialize(value.hitBackForce, result, ref indexStart)) return false;
             if (!UshortSerializer.Serialize(value.effect, result, ref indexStart)) return false;
             return true;
         }
@@ -133,8 +134,8 @@ namespace LevelCreator
             info.radius = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
             info.lifeTime = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
             info.rate = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
-            info.liftstoiclevel = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
-            info.hitbackForce = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.liftStoicLevel = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.hitBackForce = FloatSerializer.Deserialize(data, ref indexStart, invalidIndex);
             info.effect = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
             return info;
         }

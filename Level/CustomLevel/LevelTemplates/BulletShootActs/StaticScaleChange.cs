@@ -22,7 +22,7 @@ namespace LevelCreator.BulletShootTemplate
             var b = GetBullet(info.graphicType);
             var t = shooter.GetNearestEnemy();
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
-            b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
+            b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletStaticScaleChangeSystem.RegistObject(b, info.radius * startRadiusFactor, info.radius * endRadiusFactor, info.lifeTime,
                 shooter.transform.position + new UnityEngine.Vector3(offsetX, offsetY));
             BulletDamageOnceSystem.Regist(b);

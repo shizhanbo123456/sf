@@ -11,8 +11,7 @@ namespace LevelCreator
         // 核心标识（所有Create必传）
         private static ushort _id;
         // 新增图标参数
-        private static short _iconType;
-        private static short _iconIndex;
+        private static short _icon;
         // 基础参数
         private static string _name;
         private static string _des;
@@ -27,12 +26,11 @@ namespace LevelCreator
         /// <summary>
         /// 创建技能（基础：id + 图标参数 + 名称 + 描述）
         /// </summary>
-        public static void Create(ushort id, short iconType, short iconIndex, string name, string des,short operationtime)
+        public static void Create(ushort id, short icon, string name, string des,short operationtime)
         {
             Reset();
             _id = id;
-            _iconType = iconType;
-            _iconIndex = iconIndex;
+            _icon = icon;
             _name = name;
             _des = des;
             _operationTime = operationtime;
@@ -43,12 +41,11 @@ namespace LevelCreator
         /// <summary>
         /// 创建技能（id + 图标参数 + 名称 + 描述 + CD）
         /// </summary>
-        public static void Create(ushort id, short iconType, short iconIndex, string name, string des, short operationtime, short cd)
+        public static void Create(ushort id, short icon, string name, string des, short operationtime, short cd)
         {
             Reset();
             _id = id;
-            _iconType = iconType;
-            _iconIndex = iconIndex;
+            _icon = icon;
             _name = name;
             _des = des;
             _operationTime = operationtime;
@@ -59,12 +56,11 @@ namespace LevelCreator
         /// <summary>
         /// 创建技能（完整：id + 图标参数 + 名称 + 描述 + CD + 最大存储时间）
         /// </summary>
-        public static void Create(ushort id, short iconType, short iconIndex, string name, string des, short operationtime, short cd, short maxStoreTime)
+        public static void Create(ushort id, short icon, string name, string des, short operationtime, short cd, short maxStoreTime)
         {
             Reset();
             _id = id;
-            _iconType = iconType;
-            _iconIndex = iconIndex;
+            _icon = icon;
             _name = name;
             _des = des;
             _operationTime = operationtime;
@@ -86,8 +82,7 @@ namespace LevelCreator
             SkillInfo info = new SkillInfo
             {
                 id = _id,
-                iconType = _iconType,
-                iconIndex = _iconIndex,
+                icon = _icon,
                 name = _name,
                 des = _des,
                 cd = _cd,
@@ -104,8 +99,7 @@ namespace LevelCreator
         private static void Reset()
         {
             _id = 0;
-            _iconType = 0;
-            _iconIndex = 0;
+            _icon = 0;
             _name = string.Empty;
             _des = string.Empty;
             _operationTime = 0;
@@ -121,8 +115,7 @@ namespace LevelCreator
     public struct SkillInfo : Info
     {
         public ushort id;
-        public short iconType;
-        public short iconIndex;
+        public short icon;
         public string name;
         public string des;
         public short operationtime;
@@ -130,7 +123,6 @@ namespace LevelCreator
         public short maxStoreTime;
         public List<ushort> actionIds;
         public List<ushort> actionDelays;
-        public Vector2Int sprite => new(iconType, iconIndex);
     }
 
     // --------------- 标准序列化器 ---------------
@@ -141,8 +133,7 @@ namespace LevelCreator
             // ID
             if (!UshortSerializer.Serialize(value.id, result, ref indexStart)) return false;
             // 图标参数
-            if (!ShortSerializer.Serialize(value.iconType, result, ref indexStart)) return false;
-            if (!ShortSerializer.Serialize(value.iconIndex, result, ref indexStart)) return false;
+            if (!ShortSerializer.Serialize(value.icon, result, ref indexStart)) return false;
             // 字符串
             if (!StringSerializer.Serialize(value.name, result, ref indexStart)) return false;
             if (!StringSerializer.Serialize(value.des, result, ref indexStart)) return false;
@@ -166,8 +157,7 @@ namespace LevelCreator
             // ID
             info.id = UshortSerializer.Deserialize(data, ref indexStart, invalidIndex);
             // 图标参数
-            info.iconType = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
-            info.iconIndex = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
+            info.icon = ShortSerializer.Deserialize(data, ref indexStart, invalidIndex);
             // 字符串
             info.name = StringSerializer.Deserialize(data, ref indexStart, invalidIndex);
             info.des = StringSerializer.Deserialize(data, ref indexStart, invalidIndex);

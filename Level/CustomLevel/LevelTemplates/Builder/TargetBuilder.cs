@@ -15,7 +15,7 @@ namespace LevelCreator
         private static int _controllerType;
         private static int _skillControllerType;
         private static int _effectControllerType;
-        private static Dictionary<TargetParams, string> _params;
+        private static Dictionary<byte, string> _params;
 
         /// <summary>
         /// 标准初始化：带 ID 标识
@@ -59,9 +59,10 @@ namespace LevelCreator
         /// <summary>
         /// 加载参数
         /// </summary>
-        public static void LoadParams(Dictionary<TargetParams, string> paramsDict)
+        public static void AddParam(byte paramIndex,string paramValue)
         {
-            _params = new Dictionary<TargetParams, string>(paramsDict);
+            if(_params==null)_params = new();
+            _params.Add(paramIndex, paramValue);
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace LevelCreator
                 controllerType = _controllerType,
                 skillControllerType = _skillControllerType,
                 effectControllerType = _effectControllerType,
-                param = _params
+                param = _params != null ? _params : new()
             };
 
             Tool.LevelCreatorManager.LoadInfo(info);
@@ -103,7 +104,7 @@ namespace LevelCreator
             _controllerType = 0;
             _skillControllerType = 0;
             _effectControllerType = 0;
-            _params = new Dictionary<TargetParams, string>();
+            _params = new();
         }
     }
 
@@ -113,17 +114,15 @@ namespace LevelCreator
     public struct TargetInfo : Info
     {
         public ushort id;
-        // 原 TargetIdentify 拆解后的独立字段
         public int level;
         public float size;
         public string label;
-        // 原有基础字段
         public int targetType;
         public int graphicType;
         public int controllerType;
         public int skillControllerType;
         public int effectControllerType;
-        public Dictionary<TargetParams, string> param;
+        public Dictionary<byte, string> param;
     }
 
     /// <summary>
@@ -152,7 +151,7 @@ namespace LevelCreator
             if (!IntSerializer.Serialize(value.param.Count, result, ref indexStart)) return false;
             foreach (var p in value.param)
             {
-                if (!IntSerializer.Serialize((int)p.Key, result, ref indexStart)) return false;
+                if (!ByteSerializer.Serialize(p.Key, result, ref indexStart)) return false;
                 if (!StringSerializer.Serialize(p.Value, result, ref indexStart)) return false;
             }
 
@@ -179,10 +178,10 @@ namespace LevelCreator
 
             // 字典反序列化
             int count = IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
-            info.param = new Dictionary<TargetParams, string>();
+            info.param = new();
             for (int i = 0; i < count; i++)
             {
-                TargetParams key = (TargetParams)IntSerializer.Deserialize(data, ref indexStart, invalidIndex);
+                byte key = ByteSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 string val = StringSerializer.Deserialize(data, ref indexStart, invalidIndex);
                 info.param[key] = val;
             }

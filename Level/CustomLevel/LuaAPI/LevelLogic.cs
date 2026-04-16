@@ -25,18 +25,18 @@ public class LevelLogic//地图坐标中，左下角为（0，0）,右上角为（1，1）
 
     public static void CreateLevel(ushort id,float minimapScale)=>Tool.NetworkCorrespondent.CreateLevelRpc(id,minimapScale);
     public static void DestroyLevel() => Tool.NetworkCorrespondent.DestroyLevelRpc();
-    public static void CreateTarget(short templateid, string name, int camp,int owner,float spawnX,float spawnY)
+    public static void CreateTarget(ushort templateId, string name, int camp,int owner,float spawnX,float spawnY)
     {
         var sb = Tool.stringBuilder;
         sb.Clear();
-        sb.Append(templateid).Append('/');
+        sb.Append(templateId).Append('/');
         sb.Append(camp).Append('/');
         sb.Append(owner).Append('/');
         sb.Append(name).Append('/');
         sb.Append(spawnX).Append('/');
         sb.Append(spawnY);
         EnsInstance.EnsSpawner.CreateServerRpc(SendTo.Everyone, Tool.PrefabManager.TargetCollection.CollectionId,sb.ToString());
-    }
+    }//camp为0/1/2分别表示红/绿/蓝队
     public static void ShowScoreboard(string columnHeader1, string columnHeader2, string rowHeader1, string rowHeader2, string rowHeader3) 
         =>Tool.NetworkCorrespondent.ShowScoreboardRpc(columnHeader1, columnHeader2, rowHeader1, rowHeader2,rowHeader3);
     public static void HideScoreboard() => Tool.NetworkCorrespondent.HideScoreboardRpc();

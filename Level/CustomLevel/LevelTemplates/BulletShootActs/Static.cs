@@ -22,7 +22,7 @@ namespace LevelCreator.BulletShootTemplate
             var b = GetBullet(info.graphicType);
             var t = shooter.GetNearestEnemy();
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
-            b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
+            b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletStaticSystem.RegistObject(b, info.radius, info.lifeTime, shooter.transform.position + new UnityEngine.Vector3(offsetX,offsetY));
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
@@ -48,7 +48,7 @@ namespace LevelCreator.BulletShootTemplate
             var t = shooter.GetNearestEnemy();
             UnityEngine.Vector3 pos = t ? t.transform.position : shooter.transform.position;
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
-            b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
+            b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletStaticSystem.RegistObject(b, info.radius, info.lifeTime, pos + new UnityEngine.Vector3(offsetX, offsetY));
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();

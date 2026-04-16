@@ -21,7 +21,7 @@ namespace LevelCreator.BulletShootTemplate
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
-            b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
+            b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletAngleSystem.RegistObject(b, info.radius, info.lifeTime, speed,angle);
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();

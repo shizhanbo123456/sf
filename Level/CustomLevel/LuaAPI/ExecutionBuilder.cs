@@ -32,14 +32,15 @@ public class ExecutionBuilder
     }
 
     //子弹模板
-    //hitbackForce为0时表示使用标准击退(会根据子弹倍率自动计算)
+    //hitBackForce为0时表示使用标准击退(会根据子弹倍率自动计算)
     //effect可使用未定义的buff id，此时程序认为该子弹无buff
     //graphicType：0:爆炸 1:火焰 2:普通 3:刀光 4:狼形 5:骷髅
+    //liftStoicLevel只能为0/1，0表示不破霸体(一般的攻击都是这个)，1表示破霸体(强力/特殊的攻击)
     public static void CreateBullet(ushort id,int graphicType,float radius,float lifeTime,float rate,
-        int liftstoiclevel = 1,float hitbackForce = 0f,ushort effect = 0)
+        byte liftStoiclevel = 0,float hitBackForce = 0f,ushort effect = 0)
     {
         BulletBuilder.Create(id);
-        BulletBuilder.SetBulletParam(graphicType,radius, lifeTime, rate, liftstoiclevel, hitbackForce, effect);
+        BulletBuilder.SetBulletParam(graphicType,radius, lifeTime, rate, liftStoiclevel, hitBackForce, effect);
         BulletBuilder.Upload();
     }
 
@@ -47,7 +48,7 @@ public class ExecutionBuilder
     //EffectType
     //{
     //    HealthRegeneration, Burning, Speed, Slowness, JumpBoost, AgileBoost, AccuracyBoost, AttackBoost, DefenseBoost,
-    //    AgileDecrease, AccuracyDecrease, AttackDecrease, DefenseDecrease, ArmorFortity, ArmorShatter, DamageBoost, DamageDecrease,
+    //    AgileDecrease, AccuracyDecrease, AttackDecrease, DefenseDecrease, ArmorFortify, ArmorShatter, DamageBoost, DamageDecrease,
     //    LifeSteal, Luck, BadLuck, Freeze, Stun, Sticky, Silence, Paralysis
     //}
     public static void InitEffect(ushort id)=>EffectBuilder.Create(id);
@@ -55,13 +56,13 @@ public class ExecutionBuilder
     public static void UploadEffect()=>EffectBuilder.Upload();
 
     //地形模板
-    //landscapeSize=(x*16,y*8),x和y不小于1，不大于15
+    //landscapeSize=(x*16,y*8),x和y不小于1，不大于15，通常1-3之间就够常规地形，不要太大
     public static void CreateLandscape(ushort id,byte x, byte y)
     {
         LandscapeBuilder.Create(id);
-        LandscapeBuilder.SetSize(x, y)  ;
+        LandscapeBuilder.SetSize(x, y);
     }
-    public static void CreatOutline(byte thickness)=>
+    public static void CreateOutline(byte thickness)=>
         LandscapeBuilder.CreateOutline(thickness);
     public static void CreateSolidLand(byte point1x, byte point1y, byte point2x, byte point2y) =>
         LandscapeBuilder.CreateSolidLand(point1x, point1y, point2x, point2y);
@@ -88,17 +89,17 @@ public class ExecutionBuilder
     public static void UploadOperation()=>OperationBuilder.Upload();
 
     //技能模板
-    public static void CreateWithoutCD(ushort id, short iconType, short iconIndex, string name, string des, short operationtime)=>
-        SkillBuilder.Create(id,iconType,iconIndex,name,des,operationtime);
-    public static void CreateWithCD(ushort id, short iconType, short iconIndex, string name, string des, short operationtime, short cd)=>
-        SkillBuilder.Create(id, iconType,iconIndex,name,des, operationtime, cd);
-    public static void CreateAsStorable(ushort id, short iconType, short iconIndex, string name, string des, short operationtime, short cd, short maxStoreTime)=>
-        SkillBuilder.Create(id,iconType,iconIndex,name,des,operationtime, cd,maxStoreTime);
+    public static void CreateWithoutCD(ushort id, short icon, string name, string des, short operationtime)=>
+        SkillBuilder.Create(id,icon,name,des,operationtime);
+    public static void CreateWithCD(ushort id, short icon, string name, string des, short operationtime, short cd)=>
+        SkillBuilder.Create(id, icon,name,des, operationtime, cd);
+    public static void CreateAsStorable(ushort id, short icon, string name, string des, short operationtime, short cd, short maxStoreTime)=>
+        SkillBuilder.Create(id,icon,name,des,operationtime, cd,maxStoreTime);
     public static void AddAction(ushort actionId, ushort delay)=>SkillBuilder.AddAction(actionId, delay);
     public static void UploadSkill()=>SkillBuilder.Upload();
 
     //单位模板
-    //TargetType:0 Single   1 Player   2 Boss
+    //TargetType:0 Single   1 Player(拥有者屏幕上会显示玩家血条，死亡会有提示)   2 Boss(所有玩家都能看到血条)
     //GraphicType:0 玩家 其它为怪物
     //TargetController:0 无  1 Player  2 Auto(主动靠近最近的敌人)
     //SkillController:0 无  1 Player  2 Auto(在攻击范围内主动释放)
@@ -111,6 +112,32 @@ public class ExecutionBuilder
     public static void LoadController(int controllerType)=>TargetBuilder.LoadController(controllerType);
     public static void LoadSkillController(int skillControllerType)=>TargetBuilder.LoadSkillController(skillControllerType);
     public static void LoadEffectController(int effectControllerType)=>TargetBuilder.LoadEffectController(effectControllerType);
-    public static void LoadParams(Dictionary<TargetParams, string> paramsDict)=>TargetBuilder.LoadParams(paramsDict);
+    /* 通过Param对有需要的情况细致调整单位
+    0
+    仅限TargetType=Player
+    float:每秒回血的比例(默认0.01)
+
+    1
+    仅限SkillController=Auto
+    float:使用技能的cd(默认5.0)
+
+    2
+    int:默认霸体等级，0为无霸体，1为霸体，2为完全霸体(默认为0)
+
+    3
+    int:0步行 1飞行(默认0)
+
+    4
+    技能编号的集合，形如 1/2/3/4/5/6
+    最多装载6个技能
+    默认无技能
+
+    5
+    float:控制单位相对于标准属性的生命值倍率(默认1)
+
+    6
+    int:可见性，1为可见，0为隐身(默认1)
+    */
+    public static void AddParam(byte key,string value)=>TargetBuilder.AddParam(key,value);
     public static void UploadTarget()=>TargetBuilder.Upload();
 }

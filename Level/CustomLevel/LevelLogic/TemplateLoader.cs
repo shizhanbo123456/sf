@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -86,7 +87,11 @@ public static class TemplateLoader
         }
 
         // 获取所有.lua文件（递归查找子目录，如需仅一级目录则去掉SearchOption.AllDirectories）
-        string[] luaFilePaths = Directory.GetFiles(CustomLevelDirPath, "*.lua", SearchOption.AllDirectories);
+        string[] luaFilePaths = Directory.EnumerateFiles(CustomLevelDirPath, "*.*", SearchOption.AllDirectories)
+            .Where(file =>
+            file.EndsWith(".lua", StringComparison.OrdinalIgnoreCase) ||
+            file.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+            .ToArray();// = Directory.GetFiles(CustomLevelDirPath, "*.lua", SearchOption.AllDirectories);
 
         // 异步读取每个文件（避免阻塞主线程）
         foreach (string filePath in luaFilePaths)

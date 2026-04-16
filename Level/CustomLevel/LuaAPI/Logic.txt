@@ -1,0 +1,121 @@
+CustomLevel逻辑：
+
+
+>>>重要！写lua时不要忘记加"CS."命名空间<<<
+本文档是基于unity开发的游戏ShadowForest的关卡逻辑说明文档
+本游戏内的关卡逻辑全部用lua控制,相关说明如下
+
+===================================================================概述
+lua脚本内提供了若干生命周期函数，会在战斗中合适的时机调用
+
+游戏内使用模板来使lua构建buff、子弹、地形、操作、技能
+每类模板单独使用short id,例如子弹占用id:0 地形也可使用id:0
+子弹会使用buff id，作为子弹命中敌人时向被攻击者添加的buff
+操作中可以添加子操作、射击操作、移动操作、buff操作
+技能使用操作，释放技能时会执行该操作
+
+所有模板的定义都必须在InitTemplate
+可以将模板的定义放入模板数据集中，并在InitTemplate调用来实现数据按文件分离和复用
+
+特别的规范：模板数据集中的id为300以上，根据实际要求分配。1-255为特定关卡使用
+
+===================================================================设计参考
+地形中每一块的尺寸为1m*1m
+角色大小为1m*1m
+角色跳跃高度在无buff的情况下，3格为极限高度，2格可轻松跳上去
+子弹半径建议不要小于0.3，否则太小无法看见
+
+===================================================================lua关卡控制器内容
+编写的lua脚本内模板如下，必须包含以下提到两个string和函数，其它模式内用来计算的内容无要求：
+
+--模式名称中使用'-'分隔，允许多级
+ModeName="模式名称-子模式名称"
+ModeDescription="模式描述"
+
+function InitTemplate(ignore)
+    
+end
+
+function FightStart(ignore)
+    
+end
+
+--float time：自从战斗开始时的时间
+--float deltaTime:每帧时间
+function Update(time,deltaTime)
+    
+end
+
+function JudgeEnd(ignore)
+	return false
+end
+
+--TargetIdentify killer,killed:击杀者和被击杀者信息,如果killer.camp==-1则为无击杀者意外死亡的
+function TargetKilled(killer,killed)
+    
+end
+
+--int clientId:选择的玩家的选项
+--int index:玩家选择的选项
+function Select(clientId,index)
+
+end
+
+--targetId:进入检查点的单位id
+--index:检查点id
+function EnterCheckPoint(targetId,index)
+
+end
+
+--clientId:点击的客户端
+--index:被点击的点的编号
+function SelectablePointClicked(clientId,index)
+
+end
+
+--int clientid:玩家的客户端id
+function KillScore(clientid)
+	return 1000
+end
+
+--int clientid:玩家的客户端id
+function TimeScore(clientid)
+	return 2000
+end
+
+--int clientid:玩家的客户端id
+function ModeScore(clientid)
+	return 3600
+end
+
+function ReleaseData(ignore)
+    
+end
+
+===========================================================lua模板数据集内容
+
+string TemplateName:模板的名称，用于关卡控制器检索模板数据集
+void LoadTemplates(int ignore):加载所有模板
+//注释：每个模板必须要有注释，详细说明模板内容
+//例如：角色id=1：玩家；技能id=2，发射子弹；地形id=1，测试地形
+
+模板：
+TemplateName="testData"
+
+function LoadTemplates(ignore)
+    
+end
+
+===========================================================TargetIdentify结构体说明
+[LuaCallCSharp]
+public struct TargetIdentify
+{
+    public int camp;
+    public int owner;//即客户端id，玩家的id为对应客户端，其它均设置为房主即可
+    public int level;
+    public string name;
+    public float size;
+    public float spawnX;
+    public float spawnY;
+    public string label;
+}

@@ -23,7 +23,7 @@ namespace LevelCreator.BulletShootTemplate
             var t = shooter.GetNearestEnemy();
             var p = t == null ? shooter.transform.position + shooter.Front : t.transform.position;
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
-            b.Init(info.rate, info.liftstoiclevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitbackForce);
+            b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletAimSystem.RegistObject(b, info.radius, info.lifeTime, shooter.transform.position, speed, p);
             BulletDamageOnceSystem.Regist(b);
             b.Shoot();
