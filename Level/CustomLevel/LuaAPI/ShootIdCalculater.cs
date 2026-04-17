@@ -63,7 +63,7 @@ public class ShootIdCalculator//辅助根据需要计算出对应的编码Id
     }
 
     /// <summary>
-    /// 子弹以朝向最近敌人为0角度(无敌人则为水平向右为0角度)，角度增大会使发射方向逆时针旋转，不受发射者朝向影响
+    /// 子弹瞄准前方最近敌人，以该敌人为0角度(无敌人则为水平向右为0角度)，角度增大会使发射方向逆时针旋转
     /// </summary>
     /// <param name="speedFactor">速度因子：0-4（最终速度=speedFactor*4+4）</param>
     /// <param name="angleFactor">角度因子：0-179（最终角度=angleFactor*2）</param>

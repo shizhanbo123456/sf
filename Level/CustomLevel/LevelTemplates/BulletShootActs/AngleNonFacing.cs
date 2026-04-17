@@ -19,8 +19,8 @@ namespace LevelCreator.BulletShootTemplate
         public void Execute(Target shooter, BulletInfo info, float speed, float angle)
         {
             BulletSystemCommon.CurrentShooter = shooter;
+            if (!shooter.FaceRight) angle = 180 - angle;
             var b = GetBullet(info.graphicType);
-            var t = shooter.GetNearestEnemy();
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletAngleNonFacingSystem.RegistObject(b, info.radius, info.lifeTime, speed, angle);
@@ -45,9 +45,12 @@ namespace LevelCreator.BulletShootTemplate
         {
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
-            var t = shooter.GetNearestEnemy();
-            float offset = 0;
-            if (t) offset = BulletSystemCommon.VectorToAngle(t.transform.position - shooter.transform.position);
+            var t = shooter.GetNearestEnemy(requireInFront:true);
+            if (t)
+            {
+                angle+= BulletSystemCommon.VectorToAngle(t.transform.position - shooter.transform.position);
+            }
+            else angle = 180 - angle;
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletAngleNonFacingSystem.RegistObject(b, info.radius, info.lifeTime,speed, angle);
