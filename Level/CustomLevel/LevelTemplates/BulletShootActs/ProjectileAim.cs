@@ -21,11 +21,11 @@ namespace LevelCreator.BulletShootTemplate
             UnityEngine.Vector3 vstart = BulletSystemCommon.AngleToVector(angle) * speed;
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
-            var t = shooter.GetNearestEnemy();
+            var t = shooter.GetNearestEnemy(15,true);
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletProjectileAimSystem.RegistObject(b, info.radius, info.lifeTime, shooter.transform.position,
-                vstart, t ? t.transform.position : shooter.transform.position, hitTime);
+                vstart, t ? t.transform.position : shooter.transform.position+shooter.Front*10, hitTime);
             BulletDamageTimeSystem.Regist(b);
             b.Shoot();
         }

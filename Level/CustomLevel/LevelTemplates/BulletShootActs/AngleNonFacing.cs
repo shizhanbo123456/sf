@@ -45,7 +45,7 @@ namespace LevelCreator.BulletShootTemplate
         {
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
-            var t = shooter.GetNearestEnemy(requireInFront:true);
+            var t = shooter.GetNearestEnemy(15,true);
             if (t)
             {
                 angle+= BulletSystemCommon.VectorToAngle(t.transform.position - shooter.transform.position);

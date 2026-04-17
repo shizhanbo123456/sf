@@ -20,14 +20,18 @@ public class ShootIdCalculator//辅助根据需要计算出对应的编码Id
     private static ShootActBase staticscalechange = new StaticScaleChange();
 
     /// <summary>
-    /// 子弹朝向最近敌人发射，无敌人则默认水平向前
+    /// 子弹朝向最近敌人发射，可设置向目标位置的偏移，无敌人则默认水平向前
     /// </summary>
-    /// <param name="speedFactor">速度因子：0-9（最终速度=speedFactor*6+3）</param>
+    /// <param name="speedFactor">速度因子：0-3（最终速度=speedFactor*4+4）</param>
+    /// <param name="xOffset">水平偏移：0-4（水平偏移=xOffset*5-10）</param>
+    /// <param name="yOffset">垂直偏移：0-4（垂直偏移=yOffset*5-10）</param>
     /// <returns>计算后的射击ID</returns>
-    public static int Aim(int speedFactor)
+    public static int Aim(int speedFactor,int xOffset,int yOffset)
     {
-        if (speedFactor < 0 || speedFactor > 9) throw new System.Exception("speedFactor超出范围(0-9)");
-        var id = aim.minId + global::LevelCreator.BulletShootTemplate.Aim.mod.Encode(speedFactor);
+        if (speedFactor < 0 || speedFactor > 3) throw new System.Exception("speedFactor超出范围(0-3)");
+        if (xOffset < 0 || xOffset > 4) throw new System.Exception("xOffset超出范围(0-4)");
+        if (yOffset < 0 || yOffset > 4) throw new System.Exception("yOffset超出范围(0-4)");
+        var id = aim.minId + global::LevelCreator.BulletShootTemplate.Aim.mod.Encode(speedFactor,xOffset,yOffset);
         if (id < aim.minId || id > aim.maxId) throw new System.Exception("id计算错误，id=" + id);
         return id;
     }

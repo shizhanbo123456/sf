@@ -20,7 +20,6 @@ namespace LevelCreator.BulletShootTemplate
         {
             BulletSystemCommon.CurrentShooter = shooter;
             var b = GetBullet(info.graphicType);
-            var t = shooter.GetNearestEnemy();
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletProjectileSystem.RegistObject(b, info.radius, info.lifeTime, shooter.transform.position, new UnityEngine.Vector3(offsetX,offsetY));
