@@ -1,5 +1,4 @@
 using LevelCreator;
-using LevelCreator.Skills;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ namespace LevelCreator
             Tool.LevelCreatorManager = this;
         }
 
+        private List<string> InternalPackageName = new();
         private Dictionary<ushort, BulletInfo> BulletInfoCollection = new();
         private Dictionary<ushort, EffectInfo> EffectInfoCollection = new();
         private Dictionary<ushort, LandscapeInfo> LandscapeInfoCollection = new();
@@ -21,6 +21,7 @@ namespace LevelCreator
         private Dictionary<ushort, SkillInfo> SkillInfoCollection = new();
         private Dictionary<ushort, TargetInfo> TargetInfoCollection = new();
 
+        public void LoadInternalPackage(string packageName)=>InternalPackageName.Add(packageName);
         public void LoadInfo(BulletInfo info)=> BulletInfoCollection.Add(info.id, info);
         public void LoadInfo(EffectInfo info)=> EffectInfoCollection.Add(info.id, info);
         public void LoadInfo(LandscapeInfo info)=> LandscapeInfoCollection.Add(info.id, info);
@@ -70,6 +71,12 @@ namespace LevelCreator
                 CallFuncRpc(SyncTargetInfo, SendTo.ExcludeSender, Delivery.Reliable, info);
                 yield return null;
             }
+            foreach (var ipn in InternalPackageName)
+            {
+                CallFuncRpc(SyncInternalPackage, SendTo.ExcludeSender, Delivery.Reliable, ipn);
+                LevelCreator.Internal.InternalPackageLoader.Load(ipn);
+                yield return null;
+            }
             yield return new WaitForSeconds(1f);
             onFinish?.Invoke();
         }
@@ -102,7 +109,12 @@ namespace LevelCreator
         private void SyncTargetInfo(TargetInfo info)
         {
             TargetInfoCollection.Add(info.id, info);
-            Debug.Log(info.graphicType);
+        }
+        [Rpc]
+        private void SyncInternalPackage(string packageName)
+        {
+            InternalPackageName.Add(packageName);
+            LevelCreator.Internal.InternalPackageLoader.Load(packageName);
         }
 
 

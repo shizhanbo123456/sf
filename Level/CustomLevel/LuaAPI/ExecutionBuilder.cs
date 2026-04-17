@@ -5,6 +5,9 @@ using XLua;
 [XLua.LuaCallCSharp]
 public class ExecutionBuilder
 {
+    //加载内置数据集
+    public static void LoadInternal(string packageName)
+        =>Tool.LevelCreatorManager.LoadInternalPackage(packageName);
     //加载其它模板数据集
     public static void LoadTemplate(string templateName)
     {
