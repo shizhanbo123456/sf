@@ -5,10 +5,10 @@ namespace AttributeSystem.Attributes
 {
     public static class TargetAttributes
     {
-        private static Dictionary<int,float>Factor=new Dictionary<int,float>();
+        private static Dictionary<int,int>Factor=new();
         public static GameTimeAttributes GetGameTimeAttributes(int level, float healthScale = 1f)
         {
-            float factor = GetFactor(level);
+            int factor = GetFactor(level);
             var d=new GameTimeAttributes();
             d.Shengming.Value = (int)(factor * 0.1f*healthScale);
             d.Gongji.Value = (int)(factor * 0.01f);
@@ -23,12 +23,24 @@ namespace AttributeSystem.Attributes
             d.Liantiao.Value = 2;
             return d;
         }
-        public static float GetFactor(int level)
+        public static int GetFactor(int level)
         {
-            if(Factor.ContainsKey(level))return Factor[level];
-            const float expGrowth = 3f;
-            Factor.Add(level,Mathf.Pow(level+100, expGrowth));//10800 86400 291600 691200 1350000  3200000
-            return Factor[level];
+            if (level <= 0) level = 1;
+            if(level>100) level=100;
+            if (Factor.TryGetValue(level, out var value))
+                return value;
+
+            const float baseLevel = 30f;
+            const float baseValue = 100000f;
+            const double doublingInterval = 12.0;
+
+            double exponent = (level - baseLevel) / doublingInterval;
+            float factor = baseValue * (float)Mathf.Pow(2f, (float)exponent);
+
+            int f = ((int)factor / 1000) * 1000;
+
+            Factor.Add(level, f);
+            return f;
         }
     }
 }
