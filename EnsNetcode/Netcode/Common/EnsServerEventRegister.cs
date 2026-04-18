@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Utils;
 using request = Ens.Request;
 public class EnsServerEventRegister

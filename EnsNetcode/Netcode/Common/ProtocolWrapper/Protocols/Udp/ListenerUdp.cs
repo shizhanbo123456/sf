@@ -46,12 +46,12 @@ namespace ProtocolWrapper.Protocols.Udp
         public void Recv()
         {
             IPEndPoint remoteEp = new IPEndPoint(IPAddress.Any, 0);
-            while (Listening)
+            while (!Cancelled)
             {
                 try
                 {
                     var b = client.Receive(ref remoteEp);
-                    if (!Listening) return;
+                    if (Cancelled) return;
                     OnRecvData(b, remoteEp);
                 }
                 catch
@@ -81,6 +81,7 @@ namespace ProtocolWrapper.Protocols.Udp
         {
             if (!Connections.ContainsKey(ep))
             {
+                if (!Listening) return;
                 var c = new ConnectionUdp();
                 c.Init(this, ep);
                 Connections.Add(ep, c);

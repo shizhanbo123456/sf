@@ -18,7 +18,7 @@ internal class ENCLocalClient : EnsClient
     }
     internal override void Send(byte messageType, Delivery delivery, MessageWriter writer = null)
     {
-        Send(_buffer, messageType, DeliverySource.DeliveryToId(Delivery.Unreliable), writer);
+        Send(_buffer, messageType, DeliverySource.DeliveryToId(delivery), writer);
     }
     private void OnSend(byte[] bytes, int length)
     {

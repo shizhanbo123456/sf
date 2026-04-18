@@ -1,6 +1,5 @@
 using System;
 using Utils;
-using static EnsClientRequest;
 using request = Ens.Request;
 public class EnsClientEventRegister
 {

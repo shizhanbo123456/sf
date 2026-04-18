@@ -47,7 +47,6 @@ public class EnsServer
     {
         if (!On) return;
         if (conn.room != null) conn.room.Exit(conn);
-        //ClientConnections.Remove(conn.ClientId);
         ToRemove.Write(conn.ClientId);
     }
     public void StartListening()
