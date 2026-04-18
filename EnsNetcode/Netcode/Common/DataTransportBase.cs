@@ -32,7 +32,7 @@ public abstract class DataTransportBase//具有信息收发功能
             Debug.LogError("写入了超长数据");
             return;
         }
-        SendBuffer.RequireLength(writerLength+5);
+        SendBuffer.RequireLength(writerLength+20);//预留更多空间，方便填充分隔符和消息尾
         int bytesStart = SendBuffer.indexStart;
         ByteSerializer.Serialize(messageType, SendBuffer.bytes, ref SendBuffer.indexStart);
         UshortSerializer.Serialize(delivery, SendBuffer.bytes, ref SendBuffer.indexStart);
