@@ -53,8 +53,8 @@ public class ExecutionBuilder
     public static void UploadEffect();
 
     //地形模板
-    //landscapeSize=(x*16,y*8),x和y不小于1，不大于15，通常x和y在1-3之间就够常规地形，切忌太大
-    public static void CreateLandscape(ushort id,byte x, byte y);
+    //实际地形长宽=(x*16,y*8),参数中x和y不小于1，不大于15，通常x和y在1-3之间就够常规地形，切忌太大
+    public static void CreateLandscape(ushort id,byte x, byte y);//x[1,15],y[1,15]
     public static void CreateOutline(byte thickness);
     public static void CreateSolidLand(byte point1x, byte point1y, byte point2x, byte point2y);
     public static void CreateLevitatingPlatform(byte centerX, byte centerY, byte width);

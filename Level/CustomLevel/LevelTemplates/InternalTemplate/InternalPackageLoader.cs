@@ -16,6 +16,7 @@ namespace LevelCreator.Internal
             if (Packages.ContainsKey(packageName))
             {
                 Packages[packageName].Invoke();
+                Debug.Log("加载了内置包："+packageName);
             }
             else
             {
