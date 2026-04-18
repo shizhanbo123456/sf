@@ -1,4 +1,4 @@
-using ProtocolWrapper.Protocols.WeChatUdp;
+using ProtocolWrapper.Protocols.WeChatTcp;
 using System;
 using System.Net;
 using UnityEngine;
@@ -14,10 +14,10 @@ namespace Ens.DefaultProtocol
         }
         public override ProtocolWrapper.ProtocolBase GetProtocolBase(string ip, int port)
         {
-            ClientWeChatUdp client;
+            ClientWeChatTcp client;
             try
             {
-                client = new ClientWeChatUdp();
+                client = new ClientWeChatTcp();
                 client.Init(ip, port);
             }
             catch (Exception e)
