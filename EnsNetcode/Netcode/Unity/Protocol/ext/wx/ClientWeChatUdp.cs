@@ -1,3 +1,4 @@
+#if UNITY_WEBGL
 using System;
 using System.Net;
 using System.Security.Cryptography;
@@ -124,3 +125,4 @@ namespace ProtocolWrapper.Protocols.WeChatUdp
         }
     }
 }
+#endif

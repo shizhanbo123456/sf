@@ -1,3 +1,4 @@
+#if UNITY_WEBGL
 using System;
 using Utils;
 using WeChatWASM;
@@ -159,3 +160,4 @@ namespace ProtocolWrapper.Protocols.WeChatTcp
         }
     }
 }
+#endif

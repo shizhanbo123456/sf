@@ -1,8 +1,12 @@
+#if UNITY_WEBGL
 using ProtocolWrapper.Protocols.WeChatTcp;
+#endif
 using System;
 using System.Net;
 using UnityEngine;
+#if UNITY_WEBGL
 using WeChatWASM;
+#endif
 
 namespace Ens.DefaultProtocol
 {
@@ -10,10 +14,13 @@ namespace Ens.DefaultProtocol
     {
         private void Start()
         {
+#if UNITY_WEBGL
             WX.InitSDK(_ => Debug.Log("初始化完成"));
+#endif
         }
         public override ProtocolWrapper.ProtocolBase GetProtocolBase(string ip, int port)
         {
+#if UNITY_WEBGL
             ClientWeChatTcp client;
             try
             {
@@ -26,6 +33,9 @@ namespace Ens.DefaultProtocol
                 return null;
             }
             return client;
+#else
+            throw new System.NotImplementedException();
+#endif
         }
         public override ProtocolWrapper.ListenerBase GetListener(IPAddress ip, int port) =>
             throw new NotImplementedException("不支持Tcp服务器");
