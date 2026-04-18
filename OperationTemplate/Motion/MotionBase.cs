@@ -50,7 +50,7 @@ namespace Variety.Base
             this.stoicLevel = stoicLevel;
             if (code == 0)
             {
-                type = 0;
+                type = 1;
                 lx = 0;
                 ly = 0;
                 hx = 0;
@@ -58,7 +58,7 @@ namespace Variety.Base
             }
             else if (code <= 81)
             {
-                type = 1;
+                type = 2;
                 code -= 1;
                 MotionIdCalculator.speedV2Mod.Decode(code, out lx, out ly);
                 hx = 0;
@@ -66,7 +66,7 @@ namespace Variety.Base
             }
             else if (code <= 162)
             {
-                type = 2;
+                type = 3;
                 code -= 82;
                 MotionIdCalculator.speedV2Mod.Decode(code, out lx, out ly);
                 hx = 0;
@@ -74,13 +74,13 @@ namespace Variety.Base
             }
             else if (code <= 787)
             {
-                type = 3;
+                type = 4;
                 code -= 163;
                 MotionIdCalculator.speedV4Mod.Decode(code, out lx, out ly,out hx,out hy);
             }
             else if (code <= 868)
             {
-                type = 4;
+                type = 5;
                 code -= 788;
                 MotionIdCalculator.speedV2Mod.Decode(code, out lx, out ly);
                 hx = 0;
