@@ -5,29 +5,29 @@ namespace LevelCreator.Internal
         public static void Load()
         {
             //小子弹
-            ExecutionBuilder.CreateBullet(400, 2, 0.3f, 1f, 0.05f);
-            ExecutionBuilder.CreateBullet(401, 2, 0.3f, 1f, 0.15f);
-            ExecutionBuilder.CreateBullet(402, 2, 0.3f, 1f, 0.3f);
+            ExecutionBuilder.CreateBullet(400, 2, 0.3f, 1f, 0.25f);
+            ExecutionBuilder.CreateBullet(401, 2, 0.3f, 1f, 0.75f);
+            ExecutionBuilder.CreateBullet(402, 2, 0.3f, 1f, 1.5f);
             //大子弹
-            ExecutionBuilder.CreateBullet(403, 2, 0.8f, 1.5f, 0.05f);
-            ExecutionBuilder.CreateBullet(404, 2, 0.8f, 1.5f, 0.15f);
-            ExecutionBuilder.CreateBullet(405, 2, 0.8f, 1.5f, 0.3f);
+            ExecutionBuilder.CreateBullet(403, 2, 0.8f, 1.5f, 0.25f);
+            ExecutionBuilder.CreateBullet(404, 2, 0.8f, 1.5f, 0.75f);
+            ExecutionBuilder.CreateBullet(405, 2, 0.8f, 1.5f, 1.5f);
             //爆炸
-            ExecutionBuilder.CreateBullet(406, 0, 2f, 0.2f, 0.4f);
-            ExecutionBuilder.CreateBullet(407, 0, 3f, 0.2f, 0.6f);
-            ExecutionBuilder.CreateBullet(408, 0, 4f, 0.2f, 0.8f);
+            ExecutionBuilder.CreateBullet(406, 0, 2f, 0.2f, 2f);
+            ExecutionBuilder.CreateBullet(407, 0, 3f, 0.2f, 3f);
+            ExecutionBuilder.CreateBullet(408, 0, 4f, 0.2f, 4f);
             //刀光
-            ExecutionBuilder.CreateBullet(409, 3, 1.2f, 3f, 0.3f);
-            ExecutionBuilder.CreateBullet(410, 3, 1.8f, 4f, 0.5f);
-            ExecutionBuilder.CreateBullet(411, 3, 2.4f, 5f, 0.7f);
+            ExecutionBuilder.CreateBullet(409, 3, 1.2f, 3f, 1.5f);
+            ExecutionBuilder.CreateBullet(410, 3, 1.8f, 4f, 2.5f);
+            ExecutionBuilder.CreateBullet(411, 3, 2.4f, 5f, 3.5f);
             //狼
-            ExecutionBuilder.CreateBullet(412, 4, 1f, 5f, 0.2f);
-            ExecutionBuilder.CreateBullet(413, 4, 2f, 5f, 0.3f);
-            ExecutionBuilder.CreateBullet(414, 4, 3f, 5f, 0.4f);
+            ExecutionBuilder.CreateBullet(412, 4, 1f, 5f, 1f);
+            ExecutionBuilder.CreateBullet(413, 4, 2f, 5f, 1.5f);
+            ExecutionBuilder.CreateBullet(414, 4, 3f, 5f, 2f);
             //骷髅(附加减速)
-            ExecutionBuilder.CreateBullet(415, 5, 1f, 5f, 0.2f, effect: 400);
-            ExecutionBuilder.CreateBullet(416, 5, 2f, 5f, 0.3f, effect: 400);
-            ExecutionBuilder.CreateBullet(417, 5, 3f, 5f, 0.4f, effect: 400);
+            ExecutionBuilder.CreateBullet(415, 5, 1f, 5f, 1f, effect: 400);
+            ExecutionBuilder.CreateBullet(416, 5, 2f, 5f, 1.5f, effect: 400);
+            ExecutionBuilder.CreateBullet(417, 5, 3f, 5f, 2f, effect: 400);
 
             //buff400:减速
             ExecutionBuilder.InitEffect(400);

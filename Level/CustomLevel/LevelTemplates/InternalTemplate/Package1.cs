@@ -4,7 +4,7 @@ namespace LevelCreator.Internal
     {
         public static void Load()
         {
-            ExecutionBuilder.CreateBullet(300, 2, 0.3f, 1f, 0.05f);
+            ExecutionBuilder.CreateBullet(300, 2, 0.3f, 1f, 0.3f);
 
             ExecutionBuilder.InitSkillOperation(300);
             ExecutionBuilder.ShootBullet(0, 300, (ushort)ShootIdCalculator.Angle(1, 0));
