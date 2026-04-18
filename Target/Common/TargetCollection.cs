@@ -21,7 +21,7 @@ namespace LevelCreator.TargetTemplate
             TargetController controller = null;
             TargetSkillController skillController = null;
             TargetEffectController effectController = null;
-
+            
             graphic = Object.Instantiate(Tool.PrefabManager.GraphicCollection[i.graphicType].gameObject,obj.transform).GetComponent<TargetGraphic>();
             graphic.transform.localPosition = Vector3.zero;
 

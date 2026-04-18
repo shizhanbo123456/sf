@@ -41,9 +41,8 @@ namespace LevelCreator.TargetTemplate
                 Skills.Add(controller);
             }
         }
-        public void ClearSkillControllers()
+        public virtual void ClearSkillControllers()
         {
-            PlayModeController.Instance.DestroyAllSkillColumns();
             Skills.Clear();
         }
         protected virtual void OnDestroy()

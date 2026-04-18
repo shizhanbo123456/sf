@@ -27,5 +27,10 @@ namespace LevelCreator.TargetTemplate
                     UseSkillByIndex(i);
                 }
         }
+        public override void ClearSkillControllers()
+        {
+            PlayModeController.Instance.DestroyAllSkillColumns();
+            base.ClearSkillControllers();
+        }
     }
 }
