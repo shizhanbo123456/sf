@@ -8,5 +8,6 @@ public enum TargetParams
     CanFly,
     Skill,
     HealthScale,
-    Visibility
+    Visibility,
+    Aggressiveness
 }

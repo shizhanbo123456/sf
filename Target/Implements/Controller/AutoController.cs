@@ -6,6 +6,7 @@ namespace LevelCreator.TargetTemplate
 {
     public class AutoController : TargetController
     {
+        private float aggressiveness=0.6f;
         private enum MonsterState
         {
             Relax, RandomMove, MoveTowardPlayer
@@ -15,6 +16,7 @@ namespace LevelCreator.TargetTemplate
         public override void Init(Target t, Dictionary<TargetParams, string> param)
         {
             base.Init(t, param);
+            if(param.ContainsKey(TargetParams.Aggressiveness)) float.TryParse(param[TargetParams.Aggressiveness], out aggressiveness);
             SwitchState(MonsterState.Relax);
         }
         protected override void Update()
@@ -29,10 +31,10 @@ namespace LevelCreator.TargetTemplate
         }
         private MonsterState GetRandomState()
         {
-            var v = Random.Range(0, 27);
-            if (v >= 25) return MonsterState.Relax;
-            if (v >= 20) return MonsterState.RandomMove;
-            return MonsterState.MoveTowardPlayer;
+            var v = Random.value;
+            if (v < aggressiveness) return MonsterState.MoveTowardPlayer;
+            if (v >= 0.8f) return MonsterState.RandomMove;
+            return MonsterState.Relax;
         }
         private Vector2Int GetVToNearestPlayer()
         {
@@ -59,7 +61,7 @@ namespace LevelCreator.TargetTemplate
             {
                 case MonsterState.Relax:
                     inputVector = new Vector2Int();
-                    stateTimeLeft = 5;
+                    stateTimeLeft = 2;
                     break;
                 case MonsterState.RandomMove:
                     inputVector = new Vector2Int(Random.Range(-1, 2), 0);
