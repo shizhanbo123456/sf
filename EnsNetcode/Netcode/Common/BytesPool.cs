@@ -28,7 +28,7 @@ public partial class BytesPool
             if (length <= 128) return BytePool128.Get();
             if (length <= 256) return BytePool256.Get();
             if (length <= 512) return BytePool512.Get();
-            return BytePool128.Get();
+            return BytePool1024.Get();
         }
         else
         {
