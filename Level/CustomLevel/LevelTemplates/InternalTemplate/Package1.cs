@@ -2,7 +2,7 @@ namespace LevelCreator.Internal
 {
     public class Package1
     {
-        public static void Load1()
+        public static void Load()
         {
             ExecutionBuilder.CreateBullet(300, 2, 0.3f, 1f, 0.05f);
 

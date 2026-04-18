@@ -59,7 +59,7 @@ public class ExecutionBuilder
     public static void UploadEffect()=>EffectBuilder.Upload();
 
     //地形模板
-    //landscapeSize=(x*16,y*8),x和y不小于1，不大于15，通常1-3之间就够常规地形，不要太大
+    //landscapeSize=(x*16,y*8),x和y不小于1，不大于15，通常x和y在1-3之间就够常规地形，切忌太大
     public static void CreateLandscape(ushort id,byte x, byte y)
     {
         LandscapeBuilder.Create(id);

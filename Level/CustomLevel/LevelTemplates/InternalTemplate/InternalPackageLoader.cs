@@ -8,7 +8,8 @@ namespace LevelCreator.Internal
     {
         private static readonly Dictionary<string, Action> Packages = new()
         {
-            {"SmallShotgunPellets", Package1.Load1 }
+            {"ShotgunPellets", Package1.Load },
+            {"SkillPackage1", Package2.Load },
         };
         public static void Load(string packageName)
         {

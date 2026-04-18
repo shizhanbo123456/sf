@@ -37,8 +37,8 @@ public class LevelLogic//地图坐标中，左下角为（0，0）,右上角为（1，1）
         sb.Append(spawnY);
         EnsInstance.EnsSpawner.CreateServerRpc(SendTo.Everyone, Tool.PrefabManager.TargetCollection.CollectionId,sb.ToString());
     }//camp为0/1/2分别表示红/绿/蓝队
-    public static void ShowScoreboard(string columnHeader1, string columnHeader2, string rowHeader1, string rowHeader2, string rowHeader3) 
-        =>Tool.NetworkCorrespondent.ShowScoreboardRpc(columnHeader1, columnHeader2, rowHeader1, rowHeader2,rowHeader3);
+    public static void ShowScoreboard(string columnHeader1, string columnHeader2, string rowHeader1, string rowHeader2, string rowHeader3) //计分板内容不会自行改变，需要lua调用设置积分板内容
+        => Tool.NetworkCorrespondent.ShowScoreboardRpc(columnHeader1, columnHeader2, rowHeader1, rowHeader2,rowHeader3);
     public static void HideScoreboard() => Tool.NetworkCorrespondent.HideScoreboardRpc();
     public static void SetScoreboardText(int x, int y, string data)=>Tool.NetworkCorrespondent.SetScoreboardTextRpc(x, y, data);
     public static void ShowSelection(string label, string[] messages) => Tool.NetworkCorrespondent.ShowSelectionRpc(label, messages);

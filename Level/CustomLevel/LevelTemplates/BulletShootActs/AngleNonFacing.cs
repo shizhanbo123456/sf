@@ -50,7 +50,7 @@ namespace LevelCreator.BulletShootTemplate
             {
                 angle+= BulletSystemCommon.VectorToAngle(t.transform.position - shooter.transform.position);
             }
-            else angle = 180 - angle;
+            else if(!shooter.FaceRight)angle = 180 - angle;
             var effectinfo = Tool.LevelCreatorManager.GetEffectInfo(info.effect);
             b.Init(info.rate, info.liftStoicLevel, new EffectCollection(shooter.ObjectId, effectinfo.effects?.ToArray()), info.hitBackForce);
             BulletAngleNonFacingSystem.RegistObject(b, info.radius, info.lifeTime,speed, angle);
