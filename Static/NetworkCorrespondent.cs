@@ -315,28 +315,28 @@ public partial class NetworkCorrespondent : EnsBehaviour
         //info用/划分
         if(killer == null)
         {
-            CallFuncRpc(TargetKilledLocal, SendTo.RoomOwner, Delivery.Reliable, killed.Info.ToString());
+            CallFuncRpc(TargetKilledLocal, SendTo.RoomOwner, Delivery.Reliable, "null", killed.Info.ToString());
         }
         else
         {
-            var sb=Tool.stringBuilder;
-            sb.Append(killer.Info.ToString()).Append('_').Append(killed.Info.ToString());
-            CallFuncRpc(TargetKilledLocal, SendTo.RoomOwner, Delivery.Reliable, sb.ToString());
+            CallFuncRpc(TargetKilledLocal, SendTo.RoomOwner, Delivery.Reliable,killer.Info.ToString(),killed.Info.ToString());
         }
     }
     [Rpc]
-    private void TargetKilledLocal(string data)
+    private void TargetKilledLocal(string killer,string killed)
     {
-        if (data.Contains('_'))
+        if (!EnsInstance.HasAuthority)
         {
-            var s=data.Split('_');
-            if (EnsInstance.HasAuthority) LevelCreator.CustomLevel.TargetKilled(new TargetIdentify(s[0]), new TargetIdentify(s[1]));
-            else Debug.LogError("击败消息发送到了非权威客户端");
+            Debug.LogError("击败消息发送到了非权威客户端");
+            return;
+        }
+        if (killer == "null")
+        {
+            LevelCreator.CustomLevel.TargetKilled(new TargetIdentify(killed));
         }
         else
         {
-            if (EnsInstance.HasAuthority) LevelCreator.CustomLevel.TargetKilled(new TargetIdentify(data));
-            else Debug.LogError("击败消息发送到了非权威客户端");
+            LevelCreator.CustomLevel.TargetKilled(new TargetIdentify(killer), new TargetIdentify(killed));
         }
     }
 

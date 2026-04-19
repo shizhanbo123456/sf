@@ -14,8 +14,8 @@ namespace LevelCreator.Executer
             {
                 if (i.subSkillId >= id)
                 {
-                    UnityEngine.Debug.LogError($"SubSkillId {i.subSkillId} is equal or greater than OperationId {id}, which may cause an infinite loop. Skipping this sub skill.");
-                    continue;
+                    UnityEngine.Debug.LogWarning($"SubSkillId {i.subSkillId} is equal or greater than OperationId {id}, which may cause an infinite loop. Skipping this sub skill.");
+                    //continue;
                 }
                 target.TimeLineWork.AddEvent(i.delay*0.001f+delay*0.001f,i);
             }

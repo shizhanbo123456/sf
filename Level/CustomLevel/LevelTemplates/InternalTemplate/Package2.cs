@@ -28,6 +28,8 @@ namespace LevelCreator.Internal
             ExecutionBuilder.CreateBullet(415, 5, 1f, 5f, 1f, effect: 400);
             ExecutionBuilder.CreateBullet(416, 5, 2f, 5f, 1.5f, effect: 400);
             ExecutionBuilder.CreateBullet(417, 5, 3f, 5f, 2f, effect: 400);
+            //小子弹，长lifetime
+            ExecutionBuilder.CreateBullet(418, 2, 0.3f, 5f, 1.5f);
 
             //buff400:减速
             ExecutionBuilder.InitEffect(400);
@@ -49,10 +51,10 @@ namespace LevelCreator.Internal
 
             //Operation402：发射4发子弹环绕玩家旋转
             ExecutionBuilder.InitSkillOperation(402);
-            ExecutionBuilder.ShootBullet(0,401, (ushort)ShootIdCalculator.Orbit(1,6,0));
-            ExecutionBuilder.ShootBullet(0,401, (ushort)ShootIdCalculator.Orbit(1,6,10));
-            ExecutionBuilder.ShootBullet(0,401, (ushort)ShootIdCalculator.Orbit(1,6,20));
-            ExecutionBuilder.ShootBullet(0,401, (ushort)ShootIdCalculator.Orbit(1,6,30));
+            ExecutionBuilder.ShootBullet(0,418, (ushort)ShootIdCalculator.Orbit(2,6,0));
+            ExecutionBuilder.ShootBullet(0,418, (ushort)ShootIdCalculator.Orbit(2,6,10));
+            ExecutionBuilder.ShootBullet(0,418, (ushort)ShootIdCalculator.Orbit(2,6,20));
+            ExecutionBuilder.ShootBullet(0,418, (ushort)ShootIdCalculator.Orbit(2,6,30));
             ExecutionBuilder.UploadOperation();
 
             //Operation403：在玩家两侧发射多发垂直子弹
