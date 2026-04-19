@@ -707,8 +707,8 @@ public class Level : SingleLevel
     public Vector3 GetPos(float x,float y)
     {
         var size = landscapeSize;
-        if(x>=0&&x<=1)x *= size.x;
-        if(y>=0&&y<=1)y *= size.y;
+        if(x>=0&&x<1)x *= size.x;
+        if(y>=0&&y<1)y *= size.y;
         return new Vector3(x,y);
     }
     public void StandardizationArea(int x1,int x2,int y1,int y2,out int xmin,out int xmax,out int ymin,out int ymax)
